@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
@@ -29,6 +29,20 @@ const statusFilters = [
 ];
 
 export default function CustomersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="admin-card p-6">
+          <p className="admin-muted">Loading customers...</p>
+        </div>
+      }
+    >
+      <CustomersContent />
+    </Suspense>
+  );
+}
+
+function CustomersContent() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const searchParams = useSearchParams();

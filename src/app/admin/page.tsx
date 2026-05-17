@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 
+type AdminCustomer = {
+  id: string;
+  status: string | null;
+  devices?: {
+    id: string;
+    playlists?: { count: number }[];
+  }[];
+};
+
 export default function AdminHomePage() {
   const [customerCount, setCustomerCount] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
   const needsDeviceCount = customers.filter((customer) => {
@@ -19,7 +28,7 @@ export default function AdminHomePage() {
     return (
       customer.status === "active" &&
       customer.devices?.some(
-        (device: any) => (device.playlists?.[0]?.count || 0) === 0,
+        (device) => (device.playlists?.[0]?.count || 0) === 0,
       )
     );
   }).length;
@@ -40,7 +49,7 @@ export default function AdminHomePage() {
   const readyCustomerCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
     const hasDeviceWithoutPlaylist = customer.devices?.some(
-      (device: any) => (device.playlists?.[0]?.count || 0) === 0,
+      (device) => (device.playlists?.[0]?.count || 0) === 0,
     );
 
     return (
@@ -78,7 +87,7 @@ export default function AdminHomePage() {
 
     setCustomerCount(customers || 0);
     setDeviceCount(devices || 0);
-    setCustomers(data || []);
+    setCustomers((data || []) as AdminCustomer[]);
     setLoading(false);
   };
 
