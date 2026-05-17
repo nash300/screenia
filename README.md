@@ -26,6 +26,10 @@ to `.env.local` and to your production environment:
 ```bash
 RESEND_API_KEY=your_resend_api_key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_COMPANY_LEGAL_NAME=InfoSync
+NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
+NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
+NEXT_PUBLIC_COMPANY_EMAIL=hello@infosync.se
 ```
 
 Without `RESEND_FROM_EMAIL`, local development uses Resend's starter sender:
@@ -39,16 +43,33 @@ customers outside Resend's test limits. Restart the Next.js development server
 after changing `.env.local`; environment variables are loaded when the server
 starts.
 
-## Audit And Consent Tables
+## Supabase Migrations
 
-Customer consent and system history need the database tables in:
+Production needs every SQL file in:
 
 ```text
-supabase/migrations/202605070001_audit_and_consent.sql
+supabase/migrations/
 ```
 
-Run that SQL in the Supabase SQL editor before relying on consent history or
-system action history in production.
+Run the files in timestamp order before relying on onboarding, payments,
+customer material upload, device playlists, consent history, or system action
+history in production.
+
+## Production Go-Live Checklist
+
+Before accepting real customers, confirm these production items:
+
+- Run every SQL file in `supabase/migrations/` in timestamp order.
+- Fill `stripe_setup_price_id` and `stripe_monthly_price_id` in `pricing_plans`
+  for both active packages.
+- Configure the Stripe webhook endpoint to call `/api/stripe/webhook` and set
+  `STRIPE_WEBHOOK_SECRET`.
+- Use a verified Resend sender domain for `RESEND_FROM_EMAIL`.
+- Set the public company variables above so the landing page shows registered
+  business details.
+- Create admin users in Supabase Auth and set each staff user's
+  `app_metadata.role` to `admin`; `/admin` and the database policies require
+  that role.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

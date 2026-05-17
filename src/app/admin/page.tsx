@@ -4,32 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 
-type DashboardCustomer = {
-  id: string;
-  status: string | null;
-  payment_status: string | null;
-  devices?: {
-    id: string;
-    playlists?: { count: number }[];
-  }[];
-};
-
 export default function AdminHomePage() {
   const [customerCount, setCustomerCount] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
-  const [customers, setCustomers] = useState<DashboardCustomer[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const paidSetupCount = customers.filter((customer) => {
+  const needsDeviceCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
-    return customer.payment_status === "paid" && deviceCount === 0;
+    return customer.status === "active" && deviceCount === 0;
   }).length;
 
   const needsPlaylistCount = customers.filter((customer) => {
     return (
       customer.status === "active" &&
       customer.devices?.some(
-        (device) => (device.playlists?.[0]?.count || 0) === 0,
+        (device: any) => (device.playlists?.[0]?.count || 0) === 0,
       )
     );
   }).length;
@@ -39,9 +29,6 @@ export default function AdminHomePage() {
   ).length;
   const invitedCustomerCount = customers.filter(
     (customer) => customer.status === "invited",
-  ).length;
-  const newRequestCount = customers.filter(
-    (customer) => customer.status === "new_request",
   ).length;
   const suspendedCustomerCount = customers.filter(
     (customer) => customer.status === "suspended",
@@ -53,7 +40,7 @@ export default function AdminHomePage() {
   const readyCustomerCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
     const hasDeviceWithoutPlaylist = customer.devices?.some(
-      (device) => (device.playlists?.[0]?.count || 0) === 0,
+      (device: any) => (device.playlists?.[0]?.count || 0) === 0,
     );
 
     return (
@@ -63,7 +50,7 @@ export default function AdminHomePage() {
     );
   }).length;
 
-  const attentionCount = newRequestCount + paidSetupCount + needsPlaylistCount;
+  const attentionCount = needsDeviceCount + needsPlaylistCount;
   const setupCompletion =
     activeCustomerCount === 0
       ? 0
@@ -83,7 +70,6 @@ export default function AdminHomePage() {
     const { data } = await supabase.from("customers").select(`
       id,
       status,
-      payment_status,
       devices(
         id,
         playlists(count)
@@ -92,22 +78,12 @@ export default function AdminHomePage() {
 
     setCustomerCount(customers || 0);
     setDeviceCount(devices || 0);
-    setCustomers((data || []) as DashboardCustomer[]);
+    setCustomers(data || []);
     setLoading(false);
   };
 
   useEffect(() => {
     loadStats();
-
-    const refreshInterval = window.setInterval(loadStats, 30000);
-    const refreshOnFocus = () => loadStats();
-
-    window.addEventListener("focus", refreshOnFocus);
-
-    return () => {
-      window.clearInterval(refreshInterval);
-      window.removeEventListener("focus", refreshOnFocus);
-    };
   }, []);
 
   return (
@@ -155,7 +131,7 @@ export default function AdminHomePage() {
           loading={loading}
           tone={attentionCount > 0 ? "warning" : "success"}
           meta="Open setup tasks"
-          href="/admin/customers?filter=new_request"
+          href="/admin/customers?filter=needs_device"
         />
 
         <StatCard
@@ -173,11 +149,6 @@ export default function AdminHomePage() {
 
           <div className="admin-status-list">
             <StatusRow label="Active" value={activeCustomerCount} tone="success" />
-            <StatusRow
-              label="New requests"
-              value={newRequestCount}
-              tone="warning"
-            />
             <StatusRow label="Invited" value={invitedCustomerCount} tone="info" />
             <StatusRow label="Draft" value={draftCustomerCount} tone="neutral" />
             <StatusRow
@@ -207,8 +178,8 @@ export default function AdminHomePage() {
           <div className="admin-status-list admin-status-list-compact">
             <StatusRow label="Ready" value={readyCustomerCount} tone="success" />
             <StatusRow
-              label="Payment complete"
-              value={paidSetupCount}
+              label="Missing devices"
+              value={needsDeviceCount}
               tone="warning"
             />
             <StatusRow
@@ -224,18 +195,10 @@ export default function AdminHomePage() {
 
           <div className="admin-priority-list">
             <PriorityItem
-              href="/admin/customers?filter=new_request"
-              title="Send onboarding links"
-              description="Landing page package requests waiting for admin action."
-              count={newRequestCount}
-              tone="warning"
-            />
-
-            <PriorityItem
-              href="/admin/customers?filter=paid_setup"
-              title="Prepare paid customer screens"
-              description="Payment is complete. Create devices and prepare screen content."
-              count={paidSetupCount}
+              href="/admin/customers?filter=needs_device"
+              title="Create missing devices"
+              description="Active customers without an assigned screen."
+              count={needsDeviceCount}
               tone="warning"
             />
 

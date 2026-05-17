@@ -97,7 +97,7 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (user?.app_metadata?.role !== "admin") {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 

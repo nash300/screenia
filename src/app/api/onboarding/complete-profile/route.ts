@@ -90,7 +90,7 @@ export async function POST(request: Request) {
 
   if (!ALLOWED_COURIERS.has(preferredCourier)) {
     return NextResponse.json(
-      { error: "VÃ¤lj transportÃ¶r." },
+      { error: "Välj transportör." },
       { status: 400 },
     );
   }

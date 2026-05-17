@@ -31,3 +31,20 @@ on conflict (id) do update set
   public = excluded.public,
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
+
+alter table public.customer_display_assets enable row level security;
+
+drop policy if exists "Authenticated admins can read customer display asset metadata" on public.customer_display_assets;
+create policy "Authenticated admins can read customer display asset metadata"
+  on public.customer_display_assets
+  for select
+  to authenticated
+  using ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
+
+drop policy if exists "Service role can manage customer display asset metadata" on public.customer_display_assets;
+create policy "Service role can manage customer display asset metadata"
+  on public.customer_display_assets
+  for all
+  to service_role
+  using (true)
+  with check (true);

@@ -2,7 +2,6 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 
@@ -38,45 +37,15 @@ type Device = {
   device_code: string;
 };
 
-type AuditEvent = {
-  id: string;
-  event_type: string;
-  event_description: string;
-  actor_type: string;
-  created_at: string;
-};
-
-type ConsentRecord = {
-  id: string;
-  consent_type: string;
-  granted: boolean;
-  document_name: string;
-  document_version: string;
-  created_at: string;
-};
-
-type DisplayAsset = {
-  id: string;
-  fileName: string;
-  contentType: string;
-  fileSize: number;
-  createdAt: string;
-  downloadUrl: string | null;
-};
-
 export default function CustomerDetailPage({
   params,
 }: {
   params: Promise<{ customerId: string }>;
 }) {
   const { customerId } = use(params);
-  const router = useRouter();
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
-  const [consentRecords, setConsentRecords] = useState<ConsentRecord[]>([]);
-  const [displayAssets, setDisplayAssets] = useState<DisplayAsset[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editName, setEditName] = useState("");
@@ -106,7 +75,6 @@ export default function CustomerDetailPage({
     if (status === "active") return "bg-green-100 text-green-700";
     if (status === "invited") return "bg-blue-100 text-blue-700";
     if (status === "suspended") return "bg-red-100 text-red-700";
-    if (status === "new_request") return "bg-yellow-100 text-yellow-800";
     if (status === "completed_profile") return "bg-purple-100 text-purple-700";
     if (status === "accepted_terms") return "bg-yellow-100 text-yellow-700";
     return "bg-slate-100 text-slate-700";
@@ -151,7 +119,6 @@ export default function CustomerDetailPage({
       console.error("Customer error:", customerError);
       setCustomer(null);
       setDevices([]);
-      setDisplayAssets([]);
       setLoading(false);
       return;
     }
@@ -180,55 +147,7 @@ export default function CustomerDetailPage({
       setDevices(devicesData || []);
     }
 
-    const { data: auditData, error: auditError } = await supabase
-      .from("audit_events")
-      .select("id, event_type, event_description, actor_type, created_at")
-      .eq("customer_id", customerId)
-      .order("created_at", { ascending: false })
-      .limit(12);
-
-    if (auditError) {
-      console.warn("Audit events unavailable:", auditError.message);
-      setAuditEvents([]);
-    } else {
-      setAuditEvents((auditData || []) as AuditEvent[]);
-    }
-
-    const { data: consentData, error: consentError } = await supabase
-      .from("consent_records")
-      .select("id, consent_type, granted, document_name, document_version, created_at")
-      .eq("customer_id", customerId)
-      .order("created_at", { ascending: false });
-
-    if (consentError) {
-      console.warn("Consent records unavailable:", consentError.message);
-      setConsentRecords([]);
-    } else {
-      setConsentRecords((consentData || []) as ConsentRecord[]);
-    }
-
-    const assetResponse = await fetch(
-      `/api/admin/customer-assets?customerId=${customerId}`,
-    );
-
-    if (assetResponse.ok) {
-      const assetData = await assetResponse.json();
-      setDisplayAssets(assetData.assets || []);
-    } else {
-      setDisplayAssets([]);
-    }
-
     setLoading(false);
-  };
-
-  const getPreferredLanguage = () => {
-    const match = customer?.notes?.match(/Preferred language:\s*(en|sv)/i);
-    return match?.[1]?.toUpperCase() || "SV";
-  };
-
-  const getStartGuideSentAt = () => {
-    const match = customer?.notes?.match(/Start guide email sent:\s*(.+)/i);
-    return match?.[1] || "Not sent yet";
   };
 
   const saveCustomerDetails = async () => {
@@ -372,121 +291,29 @@ export default function CustomerDetailPage({
 
     setSaving(true);
 
-    const response = await fetch("/api/admin/send-onboarding-link", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ customerId: customer.id }),
-    });
-    const data: {
-      error?: string;
-      emailSent?: boolean;
-      onboardingUrl?: string;
-      sentTo?: string;
-      warning?: string;
-    } = await response.json();
-
-    if (!response.ok) {
-      console.error("Send onboarding email error:", data);
-      showAdminNotification(
-        "error",
-        data.error || "Could not send onboarding email.",
-      );
-      setSaving(false);
-      return;
-    }
-
-    await loadData();
-    if (data.emailSent) {
-      showAdminNotification(
-        "success",
-        `Onboarding email sent to ${data.sentTo || customer.email}.`,
-      );
-    } else {
-      showAdminNotification(
-        "warning",
-        data.warning || "Onboarding link generated, but no email was sent.",
-      );
-    }
-
-    setSaving(false);
-  };
-
-  const clearEditableDetails = async () => {
-    if (!customer) return;
-
-    if (
-      !confirm(
-        "Clear editable customer details? Static identifiers, legal consent, payment data, and system history will be kept.",
-      )
-    ) {
-      return;
-    }
-
-    setSaving(true);
+    const token = crypto.randomUUID();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 14);
 
     const { error } = await supabase
       .from("customers")
       .update({
-        contact_person: null,
-        phone: null,
-        address: null,
-        city: null,
-        country: null,
-        notes: null,
+        onboarding_token: token,
+        onboarding_token_expires_at: expiresAt.toISOString(),
+        status: "invited",
       })
       .eq("id", customer.id);
 
     if (error) {
-      console.error("Clear customer details error:", error);
-      showAdminNotification("error", "Could not clear editable details.");
+      console.error("Generate onboarding link error:", error);
+      showAdminNotification("error", "Could not generate onboarding link.");
       setSaving(false);
       return;
     }
 
     await loadData();
-    showAdminNotification("success", "Editable customer details cleared.");
+    showAdminNotification("success", "Onboarding link generated.");
     setSaving(false);
-  };
-
-  const canDeleteCustomer =
-    customer?.status !== "active" &&
-    customer?.payment_status !== "paid" &&
-    !customer?.stripe_customer_id &&
-    !customer?.stripe_subscription_id &&
-    devices.length === 0 &&
-    consentRecords.length === 0 &&
-    displayAssets.length === 0;
-
-  const deleteCustomer = async () => {
-    if (!customer || !canDeleteCustomer) return;
-
-    const typedName = prompt(
-      `Type the customer name exactly to delete this record:\n${customer.name}`,
-    );
-
-    if (typedName !== customer.name) {
-      showAdminNotification("warning", "Customer deletion was not confirmed.");
-      return;
-    }
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("customers")
-      .delete()
-      .eq("id", customer.id);
-
-    if (error) {
-      console.error("Delete customer error:", error);
-      showAdminNotification("error", "Could not delete customer.");
-      setSaving(false);
-      return;
-    }
-
-    showAdminNotification("success", "Customer record deleted.");
-    router.push("/admin/customers?filter=all");
   };
 
   useEffect(() => {
@@ -528,14 +355,14 @@ export default function CustomerDetailPage({
           href="/admin/customers"
           className="text-sm font-semibold text-[rgb(8,184,238)] no-underline"
         >
-          Back to customers
+          ← Back to customers
         </Link>
 
         <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <h1 className="admin-title">{customer.name}</h1>
             <p className="admin-subtitle">
-              Manage this customer&apos;s onboarding and display screens.
+              Manage this customer’s onboarding and display screens.
             </p>
           </div>
 
@@ -552,98 +379,63 @@ export default function CustomerDetailPage({
       {/* ==============================
           Customer Details
       ============================== */}
-      <div className="admin-detail-grid">
-        <section className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Editable details</h2>
-          <p className="admin-muted mt-2 text-sm">
-            Update operational customer details. Legal, payment, and system
-            identifiers are protected separately.
-          </p>
+      <div className="admin-card p-6">
+        <h2 className="admin-card-title text-xl">Customer details</h2>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <Input
-              label="Company name"
-              value={editName}
-              onChange={setEditName}
-              required
-            />
-            <Input
-              label="Contact person"
-              value={editContactPerson}
-              onChange={setEditContactPerson}
-            />
-            <Input label="Phone" value={editPhone} onChange={setEditPhone} />
-            <Input label="City" value={editCity} onChange={setEditCity} />
-            <Input
-              label="Address"
-              value={editAddress}
-              onChange={setEditAddress}
-            />
-            <Input
-              label="Country"
-              value={editCountry}
-              onChange={setEditCountry}
-            />
-          </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <Input
+            label="Company name"
+            value={editName}
+            onChange={setEditName}
+            required
+          />
+          <Input
+            label="Contact person"
+            value={editContactPerson}
+            onChange={setEditContactPerson}
+          />
+          <Input label="Phone" value={editPhone} onChange={setEditPhone} />
+          <Input label="City" value={editCity} onChange={setEditCity} />
+          <Input
+            label="Address"
+            value={editAddress}
+            onChange={setEditAddress}
+          />
+          <Input
+            label="Country"
+            value={editCountry}
+            onChange={setEditCountry}
+          />
+        </div>
 
-          <div className="mt-4">
-            <label className="text-sm font-semibold text-slate-700">
-              Internal notes
-            </label>
-            <textarea
-              value={editNotes}
-              onChange={(event) => setEditNotes(event.target.value)}
-              rows={3}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
-            />
-          </div>
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-slate-700">
+            Internal notes
+          </label>
+          <textarea
+            value={editNotes}
+            onChange={(event) => setEditNotes(event.target.value)}
+            rows={3}
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+          />
+        </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              onClick={saveCustomerDetails}
-              disabled={saving}
-              className="admin-button-primary disabled:opacity-50"
-            >
-              {saving ? "Saving..." : "Save changes"}
-            </button>
-            <button
-              onClick={clearEditableDetails}
-              disabled={saving}
-              className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-            >
-              Clear editable details
-            </button>
-          </div>
-        </section>
+        <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+          <InfoRow label="Customer ID" value={customer.id} />
+          <InfoRow label="Contact email" value={customer.email || "Not set"} />
+          <InfoRow
+            label="Organisation number"
+            value={customer.organisation_number || "Not set"}
+          />
+        </div>
 
-        <section className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Protected record</h2>
-          <p className="admin-muted mt-2 text-sm">
-            Static identifiers, payment references, and consent history are
-            visible here, but not edited from this panel.
-          </p>
-
-          <div className="admin-compact-info-grid mt-4">
-            <InfoRow label="Customer ID" value={customer.id} />
-            <InfoRow label="Contact email" value={customer.email || "Not set"} />
-            <InfoRow
-              label="Organisation number"
-              value={customer.organisation_number || "Not set"}
-            />
-            <InfoRow
-              label="Payment status"
-              value={customer.payment_status || "Not paid"}
-            />
-            <InfoRow
-              label="Stripe customer"
-              value={customer.stripe_customer_id || "Not created yet"}
-            />
-            <InfoRow
-              label="Stripe subscription"
-              value={customer.stripe_subscription_id || "Not created yet"}
-            />
-          </div>
-        </section>
+        <button
+          onClick={saveCustomerDetails}
+          disabled={saving}
+          className="admin-button-primary mt-4 disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Save customer details"}
+        </button>
       </div>
 
       {/* ==============================
@@ -651,13 +443,6 @@ export default function CustomerDetailPage({
       ============================== */}
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Onboarding</h2>
-
-        {customer.payment_status === "paid" && devices.length === 0 && (
-          <p className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-800">
-            Payment is complete. This customer is waiting for screen/device
-            setup and playlist preparation.
-          </p>
-        )}
 
         <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
           <InfoRow
@@ -668,8 +453,6 @@ export default function CustomerDetailPage({
             label="Token expires"
             value={customer.onboarding_token_expires_at || "Not generated yet"}
           />
-          <InfoRow label="Preferred language" value={getPreferredLanguage()} />
-          <InfoRow label="Start guide email sent" value={getStartGuideSentAt()} />
           <InfoRow
             label="Terms accepted"
             value={customer.terms_accepted_at ? "Yes" : "No"}
@@ -713,14 +496,6 @@ export default function CustomerDetailPage({
         </div>
 
         <div className="mt-6">
-          {customer.onboarding_token && !customer.terms_accepted_at && (
-            <p className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-800">
-              The setup link has been sent, but the customer has not completed
-              the form yet. Confirm the email address, preferred language, sent
-              timestamp, and expiry above before following up.
-            </p>
-          )}
-
           {customer.status === "active" ? (
             <>
               <p className="rounded-2xl bg-green-50 p-4 text-sm font-medium text-green-700">
@@ -769,11 +544,7 @@ export default function CustomerDetailPage({
                 disabled={saving}
                 className="admin-button-primary"
               >
-                {saving
-                  ? "Sending..."
-                  : customer.status === "new_request"
-                    ? "Send onboarding link"
-                    : "Generate onboarding link"}
+                {saving ? "Generating..." : "Generate onboarding link"}
               </button>
 
               {customer.onboarding_token && (
@@ -853,128 +624,13 @@ export default function CustomerDetailPage({
           </div>
         )}
       </div>
-
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Customer display material</h2>
-
-        {displayAssets.length === 0 ? (
-          <p className="admin-muted mt-4">No display material uploaded yet.</p>
-        ) : (
-          <div className="mt-4 space-y-3">
-            {displayAssets.map((asset) => (
-              <div
-                key={asset.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
-              >
-                <p className="font-semibold text-slate-950">
-                  {asset.fileName}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {asset.contentType} - {Math.ceil(asset.fileSize / 1024)} KB -{" "}
-                  {new Date(asset.createdAt).toLocaleString()}
-                </p>
-                {asset.downloadUrl && (
-                  <a
-                    href={asset.downloadUrl}
-                    target="_blank"
-                    className="mt-3 inline-flex rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 no-underline"
-                  >
-                    Download
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Consent records</h2>
-
-        {consentRecords.length === 0 ? (
-          <p className="admin-muted mt-4">
-            No consent history found. Run the audit and consent database
-            migration if this section should be active.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-3">
-            {consentRecords.map((record) => (
-              <div
-                key={record.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
-              >
-                <p className="font-semibold text-slate-950">
-                  {record.document_name} v{record.document_version}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {record.consent_type} - {record.granted ? "Granted" : "Declined"} -{" "}
-                  {new Date(record.created_at).toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">System history</h2>
-
-        {auditEvents.length === 0 ? (
-          <p className="admin-muted mt-4">
-            No action history found. Run the audit and consent database
-            migration if this section should be active.
-          </p>
-        ) : (
-          <div className="mt-4 space-y-3">
-            {auditEvents.map((event) => (
-              <div
-                key={event.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
-              >
-                <p className="font-semibold text-slate-950">
-                  {event.event_description}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {event.event_type} - {event.actor_type} -{" "}
-                  {new Date(event.created_at).toLocaleString()}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="admin-card admin-danger-panel mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Controlled deletion</h2>
-        <p className="admin-muted mt-2 text-sm">
-          Draft or unused customer records can be deleted after exact-name
-          confirmation. Active customers, paid customers, Stripe records,
-          assigned devices, uploaded material, and consent history are protected
-          from accidental deletion.
-        </p>
-
-        {canDeleteCustomer ? (
-          <button
-            onClick={deleteCustomer}
-            disabled={saving}
-            className="mt-4 rounded-xl bg-red-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-800 disabled:opacity-50"
-          >
-            Delete customer record
-          </button>
-        ) : (
-          <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
-            Deletion locked because this record has business-critical payment,
-            device, active status, or consent data.
-          </p>
-        )}
-      </div>
     </div>
   );
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="admin-info-row-compact">
+    <div className="rounded-2xl bg-slate-50 p-4">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
         {label}
       </p>

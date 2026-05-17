@@ -1,7 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 
@@ -10,13 +11,7 @@ type Customer = {
   name: string;
   email: string | null;
   phone: string | null;
-  contact_person: string | null;
-  notes: string | null;
   status: string | null;
-  onboarding_token: string | null;
-  onboarding_token_expires_at: string | null;
-  terms_accepted_at: string | null;
-  payment_status: string | null;
   devices: {
     id: string;
     playlists: { count: number }[];
@@ -24,12 +19,9 @@ type Customer = {
 };
 
 const statusFilters = [
-  { value: "new_request", label: "New requests" },
-  { value: "invited_pending", label: "Link sent, incomplete" },
-  { value: "paid_setup", label: "Payment complete" },
+  { value: "all", label: "All" },
   { value: "needs_device", label: "Needs device" },
   { value: "needs_playlist", label: "Needs playlist" },
-  { value: "all", label: "All" },
   { value: "draft", label: "Draft" },
   { value: "invited", label: "Invited" },
   { value: "active", label: "Active" },
@@ -37,23 +29,6 @@ const statusFilters = [
 ];
 
 export default function CustomersPage() {
-  return (
-    <Suspense fallback={<CustomersFallback />}>
-      <CustomersPageContent />
-    </Suspense>
-  );
-}
-
-function CustomersFallback() {
-  return (
-    <div className="admin-card p-6">
-      <p className="admin-muted">Loading customers...</p>
-    </div>
-  );
-}
-
-function CustomersPageContent() {
-  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const searchParams = useSearchParams();
@@ -81,13 +56,7 @@ function CustomersPageContent() {
         name,
         email,
         phone,
-        contact_person,
-        notes,
         status,
-        onboarding_token,
-        onboarding_token_expires_at,
-        terms_accepted_at,
-        payment_status,
         devices(
           id,
           playlists(count)
@@ -114,16 +83,6 @@ function CustomersPageContent() {
 
   useEffect(() => {
     loadCustomers();
-
-    const refreshInterval = window.setInterval(loadCustomers, 30000);
-    const refreshOnFocus = () => loadCustomers();
-
-    window.addEventListener("focus", refreshOnFocus);
-
-    return () => {
-      window.clearInterval(refreshInterval);
-      window.removeEventListener("focus", refreshOnFocus);
-    };
   }, []);
 
   const isValidEmail = (value: string) => {
@@ -189,19 +148,6 @@ function CustomersPageContent() {
       return customer.status === "active" && deviceCount === 0;
     }
 
-    if (filter === "paid_setup") {
-      return customer.payment_status === "paid" && deviceCount === 0;
-    }
-
-    if (filter === "invited_pending") {
-      return Boolean(
-        customer.onboarding_token &&
-          !customer.terms_accepted_at &&
-          customer.status !== "active" &&
-          customer.status !== "suspended",
-      );
-    }
-
     if (filter === "needs_playlist") {
       return customer.status === "active" && hasDeviceWithoutPlaylist(customer);
     }
@@ -219,70 +165,7 @@ function CustomersPageContent() {
     if (status === "active") return "bg-green-100 text-green-700";
     if (status === "invited") return "bg-blue-100 text-blue-700";
     if (status === "suspended") return "bg-red-100 text-red-700";
-    if (status === "new_request") return "bg-yellow-100 text-yellow-800";
     return "bg-slate-100 text-slate-700";
-  };
-
-  const getRequestedPlan = (customer: Customer) => {
-    const match = customer.notes?.match(/Requested plan:\s*(.+)/i);
-    return match?.[1] || null;
-  };
-
-  const getPreferredLanguage = (customer: Customer) => {
-    const match = customer.notes?.match(/Preferred language:\s*(en|sv)/i);
-    return match?.[1]?.toUpperCase() || "SV";
-  };
-
-  const getStartGuideSentAt = (customer: Customer) => {
-    const match = customer.notes?.match(/Start guide email sent:\s*(.+)/i);
-    return match?.[1] || null;
-  };
-
-  const openCustomer = (customerId: string) => {
-    router.push(`/admin/customers/${customerId}`);
-  };
-
-  const generateOnboardingLink = async (customer: Customer) => {
-    setSaving(true);
-
-    const response = await fetch("/api/admin/send-onboarding-link", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ customerId: customer.id }),
-    });
-    const data: {
-      error?: string;
-      emailSent?: boolean;
-      sentTo?: string;
-      warning?: string;
-    } = await response.json();
-
-    if (!response.ok) {
-      console.error("Send onboarding email error:", data);
-      showAdminNotification(
-        "error",
-        data.error || "Could not send onboarding email.",
-      );
-      setSaving(false);
-      return;
-    }
-
-    await loadCustomers();
-    if (data.emailSent) {
-      showAdminNotification(
-        "success",
-        `Onboarding email sent to ${data.sentTo || customer.email}.`,
-      );
-    } else {
-      showAdminNotification(
-        "warning",
-        data.warning || "Onboarding link generated, but no email was sent.",
-      );
-    }
-
-    setSaving(false);
   };
 
   const filteredCustomers = customers.filter((customer) => {
@@ -362,10 +245,7 @@ function CustomersPageContent() {
               const count = getFilterCount(status.value);
               const isActive = hasSelectedFilter && statusFilter === status.value;
               const shouldFlag =
-                (status.value === "new_request" ||
-                  status.value === "invited_pending" ||
-                  status.value === "paid_setup" ||
-                  status.value === "needs_device" ||
+                (status.value === "needs_device" ||
                   status.value === "needs_playlist") &&
                 count > 0 &&
                 !isActive;
@@ -427,7 +307,6 @@ function CustomersPageContent() {
           ) : (
             filteredCustomers.map((customer) => {
               const deviceCount = getDeviceCount(customer);
-              const requestedPlan = getRequestedPlan(customer);
               const customerHasDeviceWithoutPlaylist =
                 hasDeviceWithoutPlaylist(customer);
 
@@ -441,84 +320,48 @@ function CustomersPageContent() {
                       : "Ready";
 
               return (
-                <article
+                <Link
                   key={customer.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => openCustomer(customer.id)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      openCustomer(customer.id);
-                    }
-                  }}
-                  className="admin-customer-row rounded-2xl border border-slate-200 bg-white/70 p-4 transition hover:bg-white hover:shadow-md"
+                  href={`/admin/customers/${customer.id}`}
+                  className="block rounded-2xl border border-slate-200 bg-white/70 p-4 no-underline transition hover:bg-white hover:shadow-md"
                 >
-                  <div className="admin-customer-row-main">
-                    <div className="min-w-0">
-                      <p className="truncate font-semibold text-slate-950">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-slate-950">
                         {customer.name}
                       </p>
-                      <p className="truncate text-xs text-slate-500">
-                        {customer.email || "No email"}
+                      <p className="mt-1 text-sm text-slate-500">
+                        {customer.email || "No email"} ·{" "}
+                        {customer.phone || "No phone"}
                       </p>
+
+                      {setupStatus && (
+                        <p
+                          className={`mt-1 text-sm font-semibold ${
+                            setupStatus === "Ready"
+                              ? "text-green-600"
+                              : setupStatus === "Needs device"
+                                ? "text-orange-600"
+                                : "text-red-600"
+                          }`}
+                        >
+                          Setup: {setupStatus}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="admin-customer-row-meta">
+                    <div className="text-right text-sm text-slate-500">
+                      <p>Devices: {deviceCount}</p>
                       <span
-                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
+                        className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClass(
                           customer.status,
                         )}`}
                       >
                         {customer.status || "draft"}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">
-                        {deviceCount} devices
-                      </span>
                     </div>
                   </div>
-
-                  <div className="admin-customer-row-details">
-                    <span>{customer.contact_person || "No contact"}</span>
-                    <span>{customer.phone || "No phone"}</span>
-                    {requestedPlan && <span>{requestedPlan}</span>}
-                    {customer.payment_status && (
-                      <span>Payment: {customer.payment_status}</span>
-                    )}
-                    {customer.onboarding_token && !customer.terms_accepted_at && (
-                      <span className="text-blue-700">
-                        Link sent, form incomplete
-                      </span>
-                    )}
-                    {getStartGuideSentAt(customer) && (
-                      <span>Sent: {getStartGuideSentAt(customer)}</span>
-                    )}
-                    {customer.onboarding_token_expires_at && (
-                      <span>Expires: {customer.onboarding_token_expires_at}</span>
-                    )}
-                    <span>Language: {getPreferredLanguage(customer)}</span>
-                    {setupStatus && <span>Setup: {setupStatus}</span>}
-                    {customer.payment_status === "paid" && deviceCount === 0 && (
-                      <span className="text-blue-700">
-                        Payment complete, screen setup needed
-                      </span>
-                    )}
-                  </div>
-
-                  {customer.status === "new_request" && (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        generateOnboardingLink(customer);
-                      }}
-                      disabled={saving}
-                      className="admin-button-primary mt-3 text-xs disabled:opacity-50"
-                    >
-                      Send onboarding link
-                    </button>
-                  )}
-                </article>
+                </Link>
               );
             })
           )}

@@ -24,6 +24,17 @@ export default function LoginPage() {
       return;
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user?.app_metadata?.role !== "admin") {
+      await supabase.auth.signOut();
+      alert("This account does not have admin access.");
+      setLoading(false);
+      return;
+    }
+
     router.push("/admin");
     router.refresh();
   };
