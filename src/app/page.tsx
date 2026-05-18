@@ -24,11 +24,6 @@ const copy = {
       ["14 dagar", "provperiod på abonnemang"],
       ["0", "månaders bindningstid"],
     ],
-    slides: [
-      ["Menyer och prislistor", "Visa erbjudanden där kunden redan tittar."],
-      ["Butik och service", "Gör lokalen tydligare med levande information."],
-      ["Redo för kunder", "En enkel start från skärm till färdig visning."],
-    ],
     platformTitle: "En enklare väg till professionell skärmvisning",
     platformText:
       "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. InfoSync hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
@@ -106,7 +101,6 @@ const copy = {
     pricingCta: "See packages",
     workflowCta: "How it works",
     stats: [["24/7", "continuous screen playback"], ["14 days", "subscription trial"], ["0", "months commitment"]],
-    slides: [["Menus and price lists", "Show offers where customers already look."], ["Retail and service", "Make your space clearer with live information."], ["Customer ready", "A simple path from screen to finished display."]],
     platformTitle: "A simpler path to professional screen display",
     platformText:
       "You do not need to build your own system or manage technical settings. InfoSync helps you from the first request to a screen that shows the right content in your business.",
@@ -180,7 +174,7 @@ const plans = [
     code: "standard_fhd",
     name: "Standard",
     resolution: "FHD",
-    setupFee: "1 998 kr",
+    setupFee: "1 999 kr",
     monthlyFee: "219 kr",
     featured: false,
   },
@@ -188,7 +182,7 @@ const plans = [
     code: "premium_4k",
     name: "Premium",
     resolution: "4K",
-    setupFee: "2 398 kr",
+    setupFee: "1 999 kr",
     monthlyFee: "269 kr",
     featured: true,
   },
@@ -257,17 +251,24 @@ const visualCopy = {
   ],
 } as const;
 
-const partnerLogos = [
-  { label: "Stripe", src: "/brand/services/stripe.svg" },
-  { label: "Klarna", src: "/brand/services/klarna.svg" },
-  { label: "Visa", src: "/brand/services/visa.svg" },
-  { label: "Mastercard", src: "/brand/services/mastercard.svg" },
-  { label: "PostNord", src: "/brand/services/postnord.png" },
-  { label: "DHL", src: "/brand/services/dhl.svg" },
-  { label: "Bring", src: "/brand/services/bring.svg" },
-  { label: "DB Schenker", src: "/brand/services/db-schenker.svg" },
-  { label: "Instabox", src: "/brand/services/instabox-logo.png" },
-];
+type LandingAsset = {
+  label: string;
+  src: string;
+};
+
+type HeroSlideAsset = LandingAsset & {
+  id: string;
+  sv: {
+    eyebrow: string;
+    title: string;
+    text: string;
+  };
+  en: {
+    eyebrow: string;
+    title: string;
+    text: string;
+  };
+};
 
 const stepImages = ["/salon1.jpg", "/salon2.jpg", "/window_screen2.jpg", "/window_screen1.jpg"] as const;
 
@@ -275,7 +276,7 @@ const comparisonRows = {
   sv: [
     ["Upplösning", "Full HD", "4K"],
     ["Passar bäst för", "En skärm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkänsla"],
-    ["Startavgift", "1 998 kr", "2 398 kr"],
+    ["Startavgift", "1 999 kr", "1 999 kr"],
     ["Månadspris", "219 kr", "269 kr"],
     ["Provperiod", "14 dagar", "14 dagar"],
     ["Bindningstid", "Ingen", "Ingen"],
@@ -283,7 +284,7 @@ const comparisonRows = {
   en: [
     ["Resolution", "Full HD", "4K"],
     ["Best for", "One screen with clear menus and offers", "Sharper display and a more premium feel"],
-    ["Setup fee", "1 998 kr", "2 398 kr"],
+    ["Setup fee", "1 999 kr", "1 999 kr"],
     ["Monthly price", "219 kr", "269 kr"],
     ["Trial", "14 days", "14 days"],
     ["Commitment", "None", "None"],
@@ -307,6 +308,9 @@ export default function Home() {
     "idle" | "saving" | "success" | "error"
   >("idle");
   const [requestMessage, setRequestMessage] = useState("");
+  const [heroSlides, setHeroSlides] = useState<HeroSlideAsset[]>([]);
+  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+  const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
 
   const t = copy[language];
   const companyDetails = [
@@ -352,6 +356,39 @@ export default function Home() {
     window.localStorage.setItem("infosync-language", nextLanguage);
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadLandingAssets = async () => {
+      try {
+        const response = await fetch("/api/landing-assets");
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          heroSlides?: HeroSlideAsset[];
+          serviceLogos?: LandingAsset[];
+        };
+
+        if (!isMounted) return;
+
+        if (data.heroSlides?.length) {
+          setHeroSlides(data.heroSlides);
+          setActiveHeroSlide(0);
+        }
+
+        setServiceLogos(data.serviceLogos || []);
+      } catch {
+        return;
+      }
+    };
+
+    loadLandingAssets();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const switchLanguage = (nextLanguage: CustomerLanguage) => {
     setLanguage(nextLanguage);
     window.localStorage.setItem("infosync-language", nextLanguage);
@@ -367,6 +404,30 @@ export default function Home() {
     if (requestStatus === "saving") return;
     setSelectedPlan(null);
   };
+
+  const heroSlideCount = heroSlides.length;
+  const currentHeroSlide =
+    heroSlideCount > 0
+      ? heroSlides[activeHeroSlide % heroSlideCount][language]
+      : {
+          eyebrow: t.eyebrow,
+          title: t.hero,
+          text: t.lede,
+        };
+  const currentHeroVideo =
+    heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
+
+  useEffect(() => {
+    if (heroSlideCount <= 1) return;
+
+    const timer = window.setInterval(() => {
+      setActiveHeroSlide((current) => (current + 1) % heroSlideCount);
+    }, 4000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [heroSlideCount]);
 
   const submitPlanRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -441,34 +502,52 @@ export default function Home() {
 
       <main id="top">
         <section className="landing-hero">
-          <div className="landing-hero-copy">
-            <p className="landing-eyebrow">{t.eyebrow}</p>
-            <h1>{t.hero}</h1>
-            <p className="landing-lede">{t.lede}</p>
-            <div className="landing-actions">
-              <a href="#pricing" className="landing-button landing-button-primary">
-                {t.pricingCta}
-              </a>
-              <a href="#workflow" className="landing-button landing-button-secondary">
-                {t.workflowCta}
-              </a>
-            </div>
-            <div className="landing-stats">
-              {t.stats.map(([value, label]) => (
-                <div key={label}>
-                  <strong>{value}</strong>
-                  <span>{label}</span>
-                </div>
-              ))}
-            </div>
-            <p className="landing-seo-copy">{t.seoIntro}</p>
+          <div className="landing-hero-video-layer" aria-hidden="true">
+            {currentHeroVideo && (
+              <video
+                key={currentHeroVideo.src}
+                autoPlay
+                muted
+                playsInline
+                loop
+                preload="metadata"
+              >
+                <source src={currentHeroVideo.src} />
+              </video>
+            )}
           </div>
-          <div className="landing-logo-rail" aria-label="Payment and delivery services">
-            {partnerLogos.map((logo) => (
-              <span key={logo.label} className="landing-logo-tile">
-                <img src={logo.src} alt={`${logo.label} logo`} />
-              </span>
-            ))}
+          <div className="landing-hero-copy">
+            <div className="landing-hero-copy-main">
+              <p className="landing-eyebrow">{currentHeroSlide.eyebrow}</p>
+              <h1>{currentHeroSlide.title}</h1>
+              <p className="landing-lede">{currentHeroSlide.text}</p>
+              <div className="landing-actions">
+                <a href="#pricing" className="landing-button landing-button-primary">
+                  {t.pricingCta}
+                </a>
+                <a href="#workflow" className="landing-button landing-button-secondary">
+                  {t.workflowCta}
+                </a>
+              </div>
+              <div className="landing-stats">
+                {t.stats.map(([value, label]) => (
+                  <div key={label}>
+                    <strong>{value}</strong>
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="landing-seo-copy">{t.seoIntro}</p>
+            </div>
+            {serviceLogos.length > 0 && (
+              <div className="landing-logo-rail" aria-label="Service logos">
+                {serviceLogos.map((logo) => (
+                  <span key={logo.label} className="landing-logo-tile">
+                    <img src={logo.src} alt={`${logo.label} logo`} />
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 
