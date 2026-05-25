@@ -7,13 +7,13 @@
   --background: rgb(255, 255, 255);
   --foreground: rgb(16, 24, 39);
 
-  --brand-navy: rgb(8, 37, 74);
-  --brand-navy-soft: rgb(18, 58, 102);
-  --brand-blue: rgb(0, 119, 217);
-  --brand-cyan: rgb(8, 184, 238);
-  --brand-orange: rgb(255, 138, 0);
-  --brand-orange-dark: rgb(240, 90, 0);
-  --brand-red-orange: rgb(255, 61, 0);
+  --brand-navy: rgb(6, 25, 66);
+  --brand-navy-soft: rgb(15, 52, 112);
+  --brand-blue: rgb(47, 125, 246);
+  --brand-cyan: rgb(94, 160, 255);
+  --brand-orange: rgb(244, 122, 32);
+  --brand-orange-dark: rgb(218, 91, 16);
+  --brand-red-orange: rgb(244, 122, 32);
   --brand-dark: rgb(23, 32, 51);
   --brand-light: rgb(248, 251, 255);
 
@@ -35,7 +35,7 @@ html {
 }
 
 body {
-  background: var(--brand-light);
+  background: rgb(248, 251, 255);
   color: var(--foreground);
   font-family: "Inter", Arial, Helvetica, sans-serif;
 }

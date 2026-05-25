@@ -37,6 +37,22 @@ type Device = {
   device_code: string;
 };
 
+type CustomerSubscription = {
+  id: string;
+  order_number: string | null;
+  status: string;
+  setup_fee_sek: number | null;
+  monthly_fee_sek: number | null;
+  tax_amount_sek: number | null;
+  total_amount_sek: number | null;
+  tax_status: string | null;
+  fulfillment_status: string | null;
+  inventory_status: string | null;
+  stripe_checkout_session_id: string | null;
+  stripe_subscription_id: string | null;
+  created_at: string;
+};
+
 export default function CustomerDetailPage({
   params,
 }: {
@@ -46,6 +62,7 @@ export default function CustomerDetailPage({
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editName, setEditName] = useState("");
@@ -119,6 +136,7 @@ export default function CustomerDetailPage({
       console.error("Customer error:", customerError);
       setCustomer(null);
       setDevices([]);
+      setSubscriptions([]);
       setLoading(false);
       return;
     }
@@ -145,6 +163,36 @@ export default function CustomerDetailPage({
       setDevices([]);
     } else {
       setDevices(devicesData || []);
+    }
+
+    const { data: subscriptionData, error: subscriptionError } =
+      await supabase
+        .from("customer_subscriptions")
+        .select(
+          `
+          id,
+          order_number,
+          status,
+          setup_fee_sek,
+          monthly_fee_sek,
+          tax_amount_sek,
+          total_amount_sek,
+          tax_status,
+          fulfillment_status,
+          inventory_status,
+          stripe_checkout_session_id,
+          stripe_subscription_id,
+          created_at
+        `,
+        )
+        .eq("customer_id", customerId)
+        .order("created_at", { ascending: false });
+
+    if (subscriptionError) {
+      console.error("Subscriptions error:", subscriptionError);
+      setSubscriptions([]);
+    } else {
+      setSubscriptions((subscriptionData || []) as CustomerSubscription[]);
     }
 
     setLoading(false);
@@ -558,6 +606,62 @@ export default function CustomerDetailPage({
       </div>
 
       {/* ==============================
+          Orders
+      ============================== */}
+      <div className="admin-card mt-6 p-6">
+        <h2 className="admin-card-title text-xl">Orders</h2>
+
+        {subscriptions.length === 0 ? (
+          <p className="admin-muted mt-4">No orders yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {subscriptions.map((subscription) => (
+              <div
+                key={subscription.id}
+                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+              >
+                <div className="flex flex-col justify-between gap-3 md:flex-row">
+                  <div>
+                    <p className="font-semibold text-slate-950">
+                      {subscription.order_number || "Order number pending"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Status: {subscription.status} Â· Fulfillment:{" "}
+                      {subscription.fulfillment_status || "pending"} Â· Inventory:{" "}
+                      {subscription.inventory_status || "not reserved"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Stripe checkout:{" "}
+                      {subscription.stripe_checkout_session_id || "Not started"}
+                    </p>
+                  </div>
+
+                  <div className="text-sm text-slate-600 md:text-right">
+                    <p>
+                      Setup:{" "}
+                      {formatSek(subscription.setup_fee_sek) || "Not recorded"}
+                    </p>
+                    <p>
+                      Monthly:{" "}
+                      {formatSek(subscription.monthly_fee_sek) || "Not recorded"}
+                    </p>
+                    <p>
+                      Tax: {formatSek(subscription.tax_amount_sek) || "Pending"}{" "}
+                      ({subscription.tax_status || "not calculated"})
+                    </p>
+                    <p>
+                      Total:{" "}
+                      {formatSek(subscription.total_amount_sek) || "Pending"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ==============================
           Device Management
       ============================== */}
       <div className="admin-card mt-6 p-6">
@@ -626,6 +730,12 @@ export default function CustomerDetailPage({
       </div>
     </div>
   );
+}
+
+function formatSek(amount: number | null) {
+  if (amount === null) return "";
+
+  return `${amount.toLocaleString("sv-SE")} kr`;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {

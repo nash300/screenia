@@ -3,7 +3,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-04-22.dahlia",
+});
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -82,6 +84,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Subscription cancelled, but database update failed" },
         { status: 500 },
+      );
+    }
+
+    const { error: subscriptionUpdateError } = await supabaseAdmin
+      .from("customer_subscriptions")
+      .update({
+        status: "cancelled",
+        fulfillment_status: "cancelled",
+      })
+      .eq("stripe_subscription_id", subscriptionId);
+
+    if (subscriptionUpdateError) {
+      console.error(
+        "Supabase subscription cancel update error:",
+        subscriptionUpdateError,
       );
     }
 

@@ -7,6 +7,7 @@ const heroSlideDirectory = path.join(publicRoot, "landing", "hero-slides");
 const serviceLogoDirectory = path.join(publicRoot, "landing", "service-logos");
 
 const videoExtensions = new Set([".mp4", ".webm", ".mov", ".m4v"]);
+const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const logoExtensions = new Set([".png"]);
 
 export const dynamic = "force-dynamic";
@@ -56,6 +57,15 @@ type HeroSlideText = {
   };
 };
 
+const getMediaType = (fileName: string) => {
+  const extension = path.extname(fileName).toLowerCase();
+
+  if (videoExtensions.has(extension)) return "video";
+  if (imageExtensions.has(extension)) return "image";
+
+  return null;
+};
+
 const listHeroSlides = async () => {
   try {
     const entries = await readdir(heroSlideDirectory, { withFileTypes: true });
@@ -69,21 +79,23 @@ const listHeroSlides = async () => {
         try {
           const slidePath = path.join(heroSlideDirectory, directoryName);
           const files = await readdir(slidePath, { withFileTypes: true });
-          const videoFile = files
+          const mediaFile = files
             .filter((entry) => entry.isFile())
             .map((entry) => entry.name)
-            .find((fileName) => videoExtensions.has(path.extname(fileName).toLowerCase()));
+            .sort((first, second) => first.localeCompare(second, "sv"))
+            .find((fileName) => getMediaType(fileName));
 
-          if (!videoFile) return null;
+          if (!mediaFile) return null;
 
           const rawText = await readFile(path.join(slidePath, "slide.json"), "utf8");
           const text = JSON.parse(rawText) as HeroSlideText;
-          const publicPath = `/landing/hero-slides/${encodeURIComponent(directoryName)}/${encodeURIComponent(videoFile)}`;
+          const publicPath = `/landing/hero-slides/${encodeURIComponent(directoryName)}/${encodeURIComponent(mediaFile)}`;
 
           return {
             id: directoryName,
             label: toLabel(directoryName),
             src: publicPath,
+            mediaType: getMediaType(mediaFile),
             sv: {
               eyebrow: text.sv?.eyebrow || "Digital skyltning for foretag",
               title: text.sv?.title || toLabel(directoryName),

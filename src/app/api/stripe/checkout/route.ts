@@ -4,7 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { normalizeCustomerLanguage } from "@/lib/customer-language";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-04-22.dahlia",
+});
+const stripeAutomaticTaxEnabled =
+  process.env.STRIPE_AUTOMATIC_TAX_ENABLED === "true";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -63,9 +67,46 @@ export async function POST(request: Request) {
       );
     }
 
+    const { data: order, error: orderError } = await supabaseAdmin
+      .from("customer_subscriptions")
+      .insert({
+        customer_id: customerId,
+        pricing_plan_id: plan.id,
+        status: "checkout_started",
+        currency: plan.currency || "sek",
+        setup_fee_sek: plan.setup_fee_sek,
+        monthly_fee_sek: plan.monthly_fee_sek,
+        trial_days: plan.trial_days,
+        tax_status: stripeAutomaticTaxEnabled ? "pending" : "not_enabled",
+        fulfillment_status: "pending",
+        inventory_status: "not_reserved",
+        legal_acceptance_at: new Date().toISOString(),
+        legal_acceptance_ip: ipAddress,
+      })
+      .select("id, order_number")
+      .single();
+
+    if (orderError || !order) {
+      console.error("Create order error:", orderError);
+      return NextResponse.json(
+        { error: "Det gick inte att skapa ordern." },
+        { status: 500 },
+      );
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: email,
+      client_reference_id: order.order_number,
+      automatic_tax: {
+        enabled: stripeAutomaticTaxEnabled,
+      },
+      billing_address_collection: stripeAutomaticTaxEnabled
+        ? "required"
+        : "auto",
+      tax_id_collection: {
+        enabled: stripeAutomaticTaxEnabled,
+      },
       line_items: [
         {
           price: plan.stripe_setup_price_id,
@@ -80,6 +121,8 @@ export async function POST(request: Request) {
         trial_period_days: plan.trial_days,
         metadata: {
           customer_id: customerId,
+          customer_subscription_id: order.id,
+          order_number: order.order_number,
           pricing_plan_id: plan.id,
           pricing_plan_code: plan.code,
         },
@@ -88,19 +131,25 @@ export async function POST(request: Request) {
       cancel_url: `${appUrl}/onboarding/payment-cancelled?lang=${language}`,
       metadata: {
         customer_id: customerId,
+        customer_subscription_id: order.id,
+        order_number: order.order_number,
         pricing_plan_id: plan.id,
         pricing_plan_code: plan.code,
       },
     });
 
-    await supabaseAdmin.from("customer_subscriptions").insert({
-      customer_id: customerId,
-      pricing_plan_id: plan.id,
-      status: "checkout_started",
-      stripe_checkout_session_id: session.id,
-      legal_acceptance_at: new Date().toISOString(),
-      legal_acceptance_ip: ipAddress,
-    });
+    await supabaseAdmin
+      .from("customer_subscriptions")
+      .update({
+        stripe_checkout_session_id: session.id,
+        tax_status: session.automatic_tax?.enabled
+          ? session.automatic_tax.status || "pending"
+          : "not_enabled",
+        tax_amount_sek: session.total_details?.amount_tax ?? null,
+        total_amount_sek: session.amount_total ?? null,
+        stripe_payment_status: session.payment_status,
+      })
+      .eq("id", order.id);
 
     await recordAuditEvent(supabaseAdmin, {
       customerId,
@@ -110,14 +159,17 @@ export async function POST(request: Request) {
       metadata: {
         pricingPlanCode: plan.code,
         pricingPlanId: plan.id,
+        customerSubscriptionId: order.id,
+        orderNumber: order.order_number,
         stripeCheckoutSessionId: session.id,
+        stripeAutomaticTaxEnabled,
         language,
       },
       ipAddress,
       userAgent,
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ url: session.url, orderNumber: order.order_number });
   } catch (error) {
     console.error("Stripe checkout error:", error);
 

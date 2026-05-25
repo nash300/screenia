@@ -40,16 +40,24 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow">
-        <h1 className="text-xl font-bold">Login</h1>
+    <main className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#ffffff_0%,#f4f8ff_54%,#eaf2ff_100%)] px-4">
+      <div className="w-full max-w-sm rounded-3xl border border-blue-100 bg-white/90 p-7 shadow-[0_22px_60px_rgba(7,31,84,0.14)]">
+        <img
+          src="/brand/infosync-logo-full-transparent.png"
+          alt="InfoSync"
+          className="h-12 w-auto"
+        />
+        <p className="mt-6 text-xs font-black uppercase tracking-[0.18em] text-[#2f7df6]">
+          Admin
+        </p>
+        <h1 className="mt-2 text-2xl font-black text-[#061942]">Login</h1>
 
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-4 w-full rounded border px-3 py-2"
+          className="mt-4 w-full rounded-xl border border-blue-100 px-3 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:ring-4 focus:ring-blue-100"
         />
 
         <input
@@ -57,13 +65,13 @@ export default function LoginPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-2 w-full rounded border px-3 py-2"
+          className="mt-3 w-full rounded-xl border border-blue-100 px-3 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:ring-4 focus:ring-blue-100"
         />
 
         <button
           onClick={signIn}
           disabled={loading}
-          className="mt-4 w-full rounded bg-black py-2 text-white"
+          className="mt-5 w-full rounded-xl bg-[#2f7df6] py-3 font-bold text-white shadow-[0_14px_28px_rgba(47,125,246,0.24)] disabled:opacity-60"
         >
           {loading ? "Signing in..." : "Login"}
         </button>

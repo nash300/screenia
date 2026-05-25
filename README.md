@@ -26,6 +26,7 @@ to `.env.local` and to your production environment:
 ```bash
 RESEND_API_KEY=your_resend_api_key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+STRIPE_AUTOMATIC_TAX_ENABLED=false
 NEXT_PUBLIC_COMPANY_LEGAL_NAME=InfoSync
 NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
 NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
@@ -64,6 +65,10 @@ Before accepting real customers, confirm these production items:
   for both active packages.
 - Configure the Stripe webhook endpoint to call `/api/stripe/webhook` and set
   `STRIPE_WEBHOOK_SECRET`.
+- Keep `STRIPE_AUTOMATIC_TAX_ENABLED=false` until Stripe Tax is configured in
+  the Stripe Dashboard with the correct registrations, product tax codes, and
+  price tax behavior. Set it to `true` when Checkout should collect billing
+  addresses, tax IDs, and calculate tax automatically.
 - Use a verified Resend sender domain for `RESEND_FROM_EMAIL`.
 - Set the public company variables above so the landing page shows registered
   business details.

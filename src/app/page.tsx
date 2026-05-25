@@ -258,6 +258,7 @@ type LandingAsset = {
 
 type HeroSlideAsset = LandingAsset & {
   id: string;
+  mediaType: "image" | "video";
   sv: {
     eyebrow: string;
     title: string;
@@ -269,8 +270,6 @@ type HeroSlideAsset = LandingAsset & {
     text: string;
   };
 };
-
-const stepImages = ["/salon1.jpg", "/salon2.jpg", "/window_screen2.jpg", "/window_screen1.jpg"] as const;
 
 const comparisonRows = {
   sv: [
@@ -326,7 +325,7 @@ export default function Home() {
     "@type": "LocalBusiness",
     name: "InfoSync",
     url: "https://infosync.se",
-    image: "https://infosync.se/brand/infosync-logo1.png",
+    image: "https://infosync.se/brand/infosync-logo-full-white-bg.png",
     email: "hello@infosync.se",
     areaServed: "Sweden",
     priceRange: "SEK 219-269 per month",
@@ -349,9 +348,9 @@ export default function Home() {
 
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get("lang");
-    const nextLanguage = normalizeCustomerLanguage(
-      fromUrl || window.localStorage.getItem("infosync-language"),
-    );
+    const nextLanguage = fromUrl
+      ? normalizeCustomerLanguage(fromUrl)
+      : defaultCustomerLanguage;
     setLanguage(nextLanguage);
     window.localStorage.setItem("infosync-language", nextLanguage);
   }, []);
@@ -414,7 +413,7 @@ export default function Home() {
           title: t.hero,
           text: t.lede,
         };
-  const currentHeroVideo =
+  const currentHeroMedia =
     heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
 
   useEffect(() => {
@@ -470,8 +469,7 @@ export default function Home() {
     <div className="landing-page">
       <header className="landing-nav">
         <a className="landing-brand" href="#top" onClick={() => setMenuOpen(false)}>
-          <img src="/brand/infosync-logo1.png" alt="" />
-          <span>InfoSync</span>
+          <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
         </a>
 
         <div className="landing-header-controls">
@@ -501,19 +499,41 @@ export default function Home() {
       </header>
 
       <main id="top">
-        <section className="landing-hero">
+        <section
+          className={`landing-hero ${
+            currentHeroMedia?.mediaType === "image"
+              ? "landing-hero-image-slide"
+              : "landing-hero-video-slide"
+          }`}
+        >
           <div className="landing-hero-video-layer" aria-hidden="true">
-            {currentHeroVideo && (
+            {currentHeroMedia?.mediaType === "video" && (
               <video
-                key={currentHeroVideo.src}
+                key={currentHeroMedia.src}
                 autoPlay
                 muted
                 playsInline
                 loop
                 preload="metadata"
               >
-                <source src={currentHeroVideo.src} />
+                <source src={currentHeroMedia.src} />
               </video>
+            )}
+            {currentHeroMedia?.mediaType === "image" && (
+              <>
+                <img
+                  className="landing-hero-ambient-image"
+                  src={currentHeroMedia.src}
+                  alt=""
+                />
+                <span className="landing-hero-image-frame">
+                  <img
+                    className="landing-hero-main-image"
+                    src={currentHeroMedia.src}
+                    alt=""
+                  />
+                </span>
+              </>
             )}
           </div>
           <div className="landing-hero-copy">
@@ -565,29 +585,11 @@ export default function Home() {
         </LandingSection>
 
         <section id="workflow" className="landing-section landing-workflow">
-          <SectionHeading eyebrow={t.nav[1]} title={t.workflowTitle} text={t.workflowText} />
-          <div className="landing-workflow-layout">
-            <div className="landing-timeline">
-              {t.steps.map(([number, title, text, detail], index) => (
-                <Step key={number} number={number} title={title} text={text} detail={detail} image={stepImages[index]} />
-              ))}
-            </div>
-            <div className="landing-device-visual" aria-hidden="true">
-              <div className="landing-device-screen">
-                <span />
-                <span />
-                <span />
-              </div>
-            </div>
-          </div>
-          <div className="landing-process-visual" aria-label="Process overview">
-            {t.process.map(([label, value]) => (
-              <div key={label}>
-                <span>{label}</span>
-                <strong>{value}</strong>
-              </div>
-            ))}
-          </div>
+          <img
+            className="landing-workflow-banner"
+            src="/brand/how-it-works-en-banner.png"
+            alt="InfoSync process: choose a package, complete setup, receive hardware, connect to Wi-Fi, and request updates"
+          />
         </section>
 
         <LandingSection id="pricing" eyebrow={t.nav[2]} title={t.pricingTitle} text={t.pricingText}>
@@ -889,26 +891,3 @@ function Feature({ title, text }: { title: string; text: string }) {
   );
 }
 
-function Step({
-  number,
-  title,
-  text,
-  detail,
-  image,
-}: {
-  number: string;
-  title: string;
-  text: string;
-  detail?: string;
-  image: string;
-}) {
-  return (
-    <article className="landing-step">
-      <img src={image} alt="" />
-      <span>{number}</span>
-      <h3>{title}</h3>
-      <p>{text}</p>
-      {detail && <small>{detail}</small>}
-    </article>
-  );
-}

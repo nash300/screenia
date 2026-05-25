@@ -3,7 +3,9 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { recordAuditEvent } from "@/lib/server/audit";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-04-22.dahlia",
+});
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,6 +37,8 @@ export async function POST(request: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     const customerId = session.metadata?.customer_id;
+    const customerSubscriptionId = session.metadata?.customer_subscription_id;
+    const orderNumber = session.metadata?.order_number;
 
     if (customerId) {
       const { error } = await supabaseAdmin
@@ -61,20 +65,43 @@ export async function POST(request: Request) {
             stripeCustomerId: session.customer,
             stripeSubscriptionId: session.subscription,
             stripeCheckoutSessionId: session.id,
+            customerSubscriptionId,
+            orderNumber,
+            taxAmountSek: session.total_details?.amount_tax,
+            totalAmountSek: session.amount_total,
           },
         });
       }
 
       if (session.subscription) {
-        const { error: subscriptionError } = await supabaseAdmin
+        const subscriptionUpdate = {
+          status: "active",
+          stripe_customer_id: session.customer as string,
+          stripe_subscription_id: session.subscription as string,
+          stripe_invoice_id:
+            typeof session.invoice === "string" ? session.invoice : session.invoice?.id,
+          stripe_payment_intent_id:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : session.payment_intent?.id,
+          stripe_payment_status: session.payment_status,
+          setup_fee_paid: true,
+          tax_status: session.automatic_tax?.enabled
+            ? session.automatic_tax.status || "complete"
+            : "not_enabled",
+          tax_amount_sek: session.total_details?.amount_tax ?? null,
+          total_amount_sek: session.amount_total ?? null,
+          fulfillment_status: "paid",
+          inventory_status: "ready_to_reserve",
+        };
+
+        const updateQuery = supabaseAdmin
           .from("customer_subscriptions")
-          .update({
-            status: "active",
-            stripe_customer_id: session.customer as string,
-            stripe_subscription_id: session.subscription as string,
-            setup_fee_paid: true,
-          })
-          .eq("stripe_checkout_session_id", session.id);
+          .update(subscriptionUpdate);
+
+        const { error: subscriptionError } = customerSubscriptionId
+          ? await updateQuery.eq("id", customerSubscriptionId)
+          : await updateQuery.eq("stripe_checkout_session_id", session.id);
 
         if (subscriptionError) {
           console.error(
@@ -109,6 +136,14 @@ export async function POST(request: Request) {
     if (!data || data.length === 0) {
       console.warn("No customer found for failed payment:", customerId);
     } else {
+      await supabaseAdmin
+        .from("customer_subscriptions")
+        .update({
+          status: "payment_failed",
+          stripe_payment_status: "failed",
+        })
+        .eq("stripe_customer_id", customerId);
+
       await Promise.all(
         data.map((customer) =>
           recordAuditEvent(supabaseAdmin, {
@@ -146,6 +181,14 @@ export async function POST(request: Request) {
     if (error) {
       console.error("Subscription deleted error:", error);
     } else {
+      await supabaseAdmin
+        .from("customer_subscriptions")
+        .update({
+          status: "cancelled",
+          fulfillment_status: "cancelled",
+        })
+        .eq("stripe_subscription_id", subscription.id);
+
       const { data } = await supabaseAdmin
         .from("customers")
         .select("id")

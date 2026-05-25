@@ -52,9 +52,9 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/infosync-logo1.png",
-        width: 512,
-        height: 512,
+        url: "/brand/infosync-logo-full-white-bg.png",
+        width: 219,
+        height: 66,
         alt: "InfoSync",
       },
     ],
@@ -64,10 +64,16 @@ export const metadata: Metadata = {
     title: "InfoSync | Digital skyltning för företag i Sverige",
     description:
       "Digital signage, skärmreklam och hanterat skärminnehåll för företag i Sverige.",
-    images: ["/brand/infosync-logo1.png"],
+    images: ["/brand/infosync-logo-full-white-bg.png"],
   },
   icons: {
-    icon: "/brand/infosync-icon.png",
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/brand/infosync-icon.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/apple-touch-icon.png",
   },
   robots: {
     index: true,

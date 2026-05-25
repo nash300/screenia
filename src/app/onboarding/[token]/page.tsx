@@ -445,8 +445,7 @@ function FlowShell({
     <div className="landing-page flow-page">
       <header className="flow-nav">
         <Link className="landing-brand" href="/">
-          <img src="/brand/infosync-logo1.png" alt="" />
-          <span>InfoSync</span>
+          <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
         </Link>
         <div className="landing-language-switch">
           <button className={language === "sv" ? "active" : ""} onClick={() => onLanguage("sv")}>🇸🇪</button>

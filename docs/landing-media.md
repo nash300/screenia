@@ -1,6 +1,6 @@
 # Landing media guide
 
-Use this guide when adding hero presentation videos, matching hero text, and service logos.
+Use this guide when adding hero images or presentation videos, matching hero text, and service logos.
 
 ## Hero slide structure
 
@@ -21,7 +21,7 @@ public/landing/hero-slides/03/
 Each numbered folder must contain:
 
 ```text
-video.mp4
+image.png or video.mp4
 slide.json
 ```
 
@@ -43,15 +43,22 @@ If the last slide is `01`, create:
 public/landing/hero-slides/02/
 ```
 
-Step 2: Add your exported presentation video into that folder.
+Step 2: Add your image or exported presentation video into that folder.
 
-The video file must be named:
+Use one of these filenames:
 
 ```text
+image.png
 video.mp4
 ```
 
 The full path should look like this:
+
+```text
+public/landing/hero-slides/02/image.png
+```
+
+or:
 
 ```text
 public/landing/hero-slides/02/video.mp4
@@ -88,12 +95,12 @@ Step 4: Use this format inside `slide.json`:
 }
 ```
 
-Step 5: Keep the video and text about the same topic.
+Step 5: Keep the image/video and text about the same topic.
 
 Example:
 
 ```text
-public/landing/hero-slides/02/video.mp4
+public/landing/hero-slides/02/image.png
 ```
 
 matches:
@@ -116,7 +123,7 @@ public/landing/hero-slides/_template/slide.json
 
 You can copy that file into a new numbered slide folder and then edit the text.
 
-Do not put `video.mp4` inside `_template`. The website ignores template folders without a video.
+Do not put `image.png` or `video.mp4` inside `_template`. The website ignores template folders without media.
 
 ## Recommended Video Export
 

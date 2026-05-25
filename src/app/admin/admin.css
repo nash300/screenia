@@ -1181,3 +1181,167 @@
     min-height: 420px;
   }
 }
+
+/* =========================================
+   INFOSYNC BRAND REFRESH
+========================================= */
+.admin-layout {
+  --win95-desktop: #f4f8ff;
+  --win95-face: #ffffff;
+  --win95-face-light: #ffffff;
+  --win95-face-dark: #d7e3f7;
+  --win95-shadow: #b7c6df;
+  --win95-highlight: #ffffff;
+  --win95-title: #061942;
+  --win95-title-text: #ffffff;
+  --win95-text: #061942;
+  --win95-muted: #51617f;
+  --win95-link: #2f7df6;
+  --admin-cyan: #2f7df6;
+  --admin-orange: #f47a20;
+  --admin-titlebar-start: #061942;
+  --admin-titlebar-end: #2f7df6;
+  --admin-section-header: #eef5ff;
+  --admin-section-header-border: rgba(47, 125, 246, 0.24);
+  --admin-button-top: #ffffff;
+  --admin-button-bottom: #eef5ff;
+  --admin-button-primary-top: #3f8bff;
+  --admin-button-primary-bottom: #2f7df6;
+  --admin-radius-sm: 8px;
+  --admin-radius-md: 12px;
+  --admin-radius-lg: 18px;
+  --admin-shadow-soft: 0 12px 34px rgba(7, 31, 84, 0.1);
+  --admin-shadow-panel: 0 18px 50px rgba(7, 31, 84, 0.12);
+
+  background:
+    radial-gradient(circle at 8% 0%, rgba(47, 125, 246, 0.12), transparent 26%),
+    linear-gradient(180deg, #ffffff 0%, #f4f8ff 54%, #eaf2ff 100%);
+  color: var(--win95-text);
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+.admin-sidebar,
+.admin-window-border,
+.admin-page > div,
+.admin-page > main,
+.admin-card,
+.card {
+  border: 1px solid rgba(47, 125, 246, 0.14) !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: var(--admin-shadow-panel) !important;
+}
+
+.admin-window-titlebar,
+.admin-page > div::before,
+.admin-page > main::before {
+  min-height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #061942, #2f7df6);
+  box-shadow: 0 12px 28px rgba(47, 125, 246, 0.18);
+}
+
+.admin-sidebar {
+  border-radius: 0 24px 24px 0;
+}
+
+.admin-sidebar-logo-card {
+  justify-content: flex-start;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #ffffff, #edf5ff);
+  padding: 0.85rem;
+}
+
+.admin-sidebar-logo-card img {
+  height: 2.8rem;
+  filter: none;
+}
+
+.admin-sidebar-kicker,
+.eyebrow,
+.admin-card-title,
+.card h2,
+.admin-stat-label,
+.admin-priority-title,
+.admin-progress-header strong,
+.admin-status-row strong {
+  color: #061942 !important;
+}
+
+.admin-nav-link {
+  min-height: 44px;
+  border: 1px solid rgba(47, 125, 246, 0.14) !important;
+  border-radius: 14px;
+  background: #ffffff !important;
+  color: #061942;
+  box-shadow: 0 8px 20px rgba(7, 31, 84, 0.06);
+}
+
+.admin-nav-link:hover {
+  background: linear-gradient(135deg, #2f7df6, #5ea0ff) !important;
+  color: #ffffff;
+}
+
+.admin-nav-icon {
+  border: 0;
+  border-radius: 10px;
+  background: rgba(47, 125, 246, 0.12);
+  color: #2f7df6;
+}
+
+.admin-page-header,
+.page-header,
+.admin-status-row,
+.admin-progress-block,
+.admin-priority-item,
+.admin-customers-empty-message {
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 10px 28px rgba(7, 31, 84, 0.06);
+}
+
+.admin-layout input,
+.admin-layout select,
+.admin-layout textarea {
+  min-height: 40px;
+  border: 1px solid rgba(47, 125, 246, 0.18) !important;
+  border-radius: 12px !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 0 transparent !important;
+  font-family: Inter, Arial, Helvetica, sans-serif !important;
+}
+
+.admin-layout button,
+.admin-layout .admin-button-primary,
+.admin-layout .admin-button-secondary,
+.admin-layout a.admin-button-primary,
+.admin-layout a.admin-button-secondary {
+  min-height: 40px;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #2f7df6, #5ea0ff) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 26px rgba(47, 125, 246, 0.2) !important;
+  font-family: Inter, Arial, Helvetica, sans-serif !important;
+}
+
+.admin-layout .bg-yellow-600 {
+  background: linear-gradient(135deg, #f47a20, #f7a155) !important;
+}
+
+.admin-layout .border,
+.admin-layout .border-slate-200,
+.admin-layout .border-slate-300,
+.admin-layout .border-slate-800 {
+  border: 1px solid rgba(47, 125, 246, 0.14) !important;
+  border-radius: 14px !important;
+}
+
+.admin-layout .bg-white,
+.admin-layout .bg-white\/70,
+.admin-layout .bg-slate-50,
+.admin-layout .bg-slate-100,
+.admin-layout .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.84) !important;
+}

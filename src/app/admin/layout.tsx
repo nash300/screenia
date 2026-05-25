@@ -26,7 +26,7 @@ export default function AdminLayout({
           <Link href="/admin" className="block no-underline">
             <div className="admin-sidebar-logo-card">
               <img
-                src="/brand/infosync-logo2.png"
+                src="/brand/infosync-logo-full-transparent.png"
                 alt="InfoSync"
                 className="mx-auto h-11 w-auto object-contain"
               />
