@@ -1,0 +1,67 @@
+import { NextResponse } from "next/server";
+import Stripe from "stripe";
+import { recordAuditEvent } from "@/lib/server/audit";
+import {
+  getAuthenticatedUser,
+  getCustomerForUser,
+  supabaseAdmin,
+} from "@/lib/server/customer-account";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2026-04-22.dahlia",
+});
+
+export async function POST() {
+  const user = await getAuthenticatedUser();
+  const customer = await getCustomerForUser(user);
+
+  if (!user || !customer) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (!customer.stripe_subscription_id) {
+    return NextResponse.json(
+      { error: "No active subscription is connected to this account." },
+      { status: 400 },
+    );
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(
+    customer.stripe_subscription_id,
+  );
+
+  if (subscription.status !== "canceled") {
+    await stripe.subscriptions.cancel(customer.stripe_subscription_id);
+  }
+
+  await Promise.all([
+    supabaseAdmin
+      .from("customers")
+      .update({
+        status: "suspended",
+        payment_status: "cancelled",
+        inactive_reason: "subscription_cancelled",
+        cancelled_at: new Date().toISOString(),
+        cancellation_source: "customer",
+      })
+      .eq("id", customer.id),
+    supabaseAdmin
+      .from("customer_subscriptions")
+      .update({
+        status: "cancelled",
+        fulfillment_status: "cancelled",
+      })
+      .eq("stripe_subscription_id", customer.stripe_subscription_id),
+    recordAuditEvent(supabaseAdmin, {
+      customerId: customer.id,
+      actorType: "customer",
+      eventType: "subscription_cancelled",
+      eventDescription: "Customer cancelled subscription from account portal.",
+      metadata: {
+        stripeSubscriptionId: customer.stripe_subscription_id,
+      },
+    }),
+  ]);
+
+  return NextResponse.json({ success: true });
+}

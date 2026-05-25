@@ -12,6 +12,70 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
+async function saveCustomerAuthUser(customerId: string, authUserId: string) {
+  const { error } = await supabaseAdmin
+    .from("customers")
+    .update({ auth_user_id: authUserId })
+    .eq("id", customerId);
+
+  if (error && error.code !== "PGRST204" && error.code !== "42703") {
+    console.error("Save customer auth user error:", error);
+  }
+}
+
+async function ensureCustomerAuthUser(customerId: string, email?: string | null) {
+  if (!email) return null;
+
+  const { data: customer, error: customerError } = await supabaseAdmin
+    .from("customers")
+    .select("auth_user_id")
+    .eq("id", customerId)
+    .maybeSingle();
+
+  if (
+    customerError &&
+    customerError.code !== "PGRST204" &&
+    customerError.code !== "42703"
+  ) {
+    console.error("Customer auth user lookup error:", customerError);
+  }
+
+  if (customer?.auth_user_id) return customer.auth_user_id;
+
+  const { data: createdUser, error: createError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      password: crypto.randomUUID() + crypto.randomUUID(),
+      user_metadata: {
+        customer_id: customerId,
+        account_type: "customer",
+      },
+    });
+
+  if (createError) {
+    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+    const existingUser = users.users.find(
+      (user) => user.email?.toLowerCase() === email.toLowerCase(),
+    );
+
+    if (existingUser) {
+      await saveCustomerAuthUser(customerId, existingUser.id);
+      return existingUser.id;
+    }
+
+    console.error("Create customer auth user error:", createError);
+    return null;
+  }
+
+  if (createdUser.user) {
+    await saveCustomerAuthUser(customerId, createdUser.user.id);
+    return createdUser.user.id;
+  }
+
+  return null;
+}
+
 export async function POST(request: Request) {
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
@@ -39,17 +103,22 @@ export async function POST(request: Request) {
     const customerId = session.metadata?.customer_id;
     const customerSubscriptionId = session.metadata?.customer_subscription_id;
     const orderNumber = session.metadata?.order_number;
+    const customerEmail =
+      session.customer_details?.email || session.customer_email || null;
 
     if (customerId) {
+      await ensureCustomerAuthUser(customerId, customerEmail);
+      const customerUpdate: Record<string, string | null> = {
+        status: "active",
+        payment_status: "paid",
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: session.subscription as string,
+        activated_at: new Date().toISOString(),
+      };
+
       const { error } = await supabaseAdmin
         .from("customers")
-        .update({
-          status: "active",
-          payment_status: "paid",
-          stripe_customer_id: session.customer as string,
-          stripe_subscription_id: session.subscription as string,
-          activated_at: new Date().toISOString(),
-        })
+        .update(customerUpdate)
         .eq("id", customerId);
 
       if (error) {

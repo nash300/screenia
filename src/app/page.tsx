@@ -10,7 +10,7 @@ import "./landing.css";
 
 const copy = {
   sv: {
-    nav: ["Tjänsten", "Så fungerar det", "Priser", "FAQ", "Kontakt"],
+    nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
     demo: "Kontakta oss",
     eyebrow: "Digital skyltning för företag",
     hero:
@@ -56,6 +56,15 @@ const copy = {
     deliveryTitle: "Leveransalternativ i Sverige",
     deliveryText:
       "Vi kan skicka skärmenheten med etablerade transportörer i Sverige och väljer alternativ efter adress, paketstorlek och ledtid.",
+    galleryTitle: "Exempel på skärmar och mallar",
+    galleryText:
+      "Några exempel på hur kampanjer, menyer och information kan visas på en kundskärm.",
+    galleryItems: [
+      ["Restaurangmeny", "Kampanjer, menyer och dagens erbjudanden."],
+      ["Skyltfönster", "Synligt innehåll för kunder som passerar lokalen."],
+      ["Salong och service", "Priser, behandlingar och aktuell information."],
+      ["Produktvisning", "Tydliga bilder och budskap för butiksmiljöer."],
+    ],
     faqTitle: "Svar innan du väljer paket",
     faqs: [
       ["Vad händer efter att jag valt paket?", "Du får en personlig startguide där du kontrollerar företagsuppgifter, skickar material till skärmen, godkänner villkor och går vidare till betalning."],
@@ -92,7 +101,7 @@ const copy = {
     legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
   },
   en: {
-    nav: ["Service", "How it works", "Pricing", "FAQ", "Contact"],
+    nav: ["Service", "How it works", "Pricing", "Examples", "FAQ", "Contact"],
     demo: "Contact us",
     eyebrow: "Digital signage for businesses",
     hero: "Professional screen content, managed from one clear platform.",
@@ -133,6 +142,15 @@ const copy = {
     deliveryTitle: "Delivery options in Sweden",
     deliveryText:
       "We can ship the screen device with established carriers in Sweden and choose the option by address, parcel size, and lead time.",
+    galleryTitle: "Example screen templates",
+    galleryText:
+      "A few examples of how campaigns, menus, and information can appear on a customer display.",
+    galleryItems: [
+      ["Restaurant menu", "Campaigns, menus, and daily offers."],
+      ["Window display", "Visible content for customers passing the location."],
+      ["Salon and service", "Prices, treatments, and current information."],
+      ["Product display", "Clear imagery and messages for retail spaces."],
+    ],
     faqTitle: "Answers before you choose a package",
     faqs: [
       ["What happens after I choose a package?", "You receive a personal setup guide where you check company details, send screen material, accept terms, and continue to payment."],
@@ -237,7 +255,13 @@ const planCopy = {
   },
 } as const;
 
-const navIds = ["#platform", "#workflow", "#pricing", "#faq", "#contact"];
+const navIds = ["#platform", "#workflow", "#pricing", "#examples", "#faq", "#contact"];
+const galleryImages = [
+  "/window_screen1.jpg",
+  "/window_screen2.jpg",
+  "/salon1.jpg",
+  "/bbr.jpg",
+] as const;
 const visualCopy = {
   sv: [
     ["Planera innehåll", "Meny, kampanj och logotyp samlas på ett ställe."],
@@ -492,6 +516,15 @@ export default function Home() {
               {t.nav[index]}
             </a>
           ))}
+          <a className="landing-nav-login" href="/login" onClick={() => setMenuOpen(false)}>
+            <span className="landing-nav-login-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
+                <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
+              </svg>
+            </span>
+            {language === "sv" ? "Logga in" : "Login"}
+          </a>
           <a className="landing-nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>
             {t.demo}
           </a>
@@ -630,7 +663,23 @@ export default function Home() {
           <ComparisonTable language={language} />
         </LandingSection>
 
-        <LandingSection id="faq" eyebrow={t.nav[3]} title={t.faqTitle}>
+        <LandingSection id="examples" eyebrow={t.nav[3]} title={t.galleryTitle} text={t.galleryText}>
+          <div className="landing-gallery-grid">
+            {t.galleryItems.map(([title, text], index) => (
+              <article key={title} className="landing-gallery-card">
+                <div className="landing-gallery-image">
+                  <img src={galleryImages[index]} alt={title} />
+                </div>
+                <div className="landing-gallery-content">
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </LandingSection>
+
+        <LandingSection id="faq" eyebrow={t.nav[4]} title={t.faqTitle}>
           <div className="landing-faq-layout">
             <div className="landing-faq-grid">
               {t.faqs.map(([question, answer]) => (
@@ -639,11 +688,6 @@ export default function Home() {
                   <p>{answer}</p>
                 </details>
               ))}
-            </div>
-            <div className="landing-faq-visual" aria-hidden="true">
-              <span />
-              <span />
-              <span />
             </div>
           </div>
         </LandingSection>

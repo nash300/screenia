@@ -26,6 +26,8 @@ type DeviceDetails = {
   internal_notes: string | null;
 };
 
+type DeviceSection = "overview" | "details" | "preview" | "media" | "display";
+
 export default function AdminDevicePage({
   params,
 }: {
@@ -55,6 +57,7 @@ export default function AdminDevicePage({
   const [editWarrantyPeriod, setEditWarrantyPeriod] = useState("");
   const [editSupplier, setEditSupplier] = useState("");
   const [editInternalNotes, setEditInternalNotes] = useState("");
+  const [activeSection, setActiveSection] = useState<DeviceSection>("overview");
 
   const loadDeviceAndPlaylist = async () => {
     setLoading(true);
@@ -326,6 +329,14 @@ export default function AdminDevicePage({
     );
   }
 
+  const sections: Array<{ id: DeviceSection; label: string; count?: number }> = [
+    { id: "overview", label: "Overview" },
+    { id: "details", label: "Details" },
+    { id: "preview", label: "Preview" },
+    { id: "media", label: "Media", count: playlist.length },
+    { id: "display", label: "Display URL" },
+  ];
+
   return (
     <div>
       {/* Page Header */}
@@ -355,8 +366,24 @@ export default function AdminDevicePage({
         </div>
       </div>
 
+      <div className="admin-section-tabs" aria-label="Device sections">
+        {sections.map((section) => (
+          <button
+            key={section.id}
+            type="button"
+            onClick={() => setActiveSection(section.id)}
+            className={`admin-section-tab ${
+              activeSection === section.id ? "is-active" : ""
+            }`}
+          >
+            {section.label}
+            {typeof section.count === "number" ? ` (${section.count})` : ""}
+          </button>
+        ))}
+      </div>
+
       {/* Device Summary */}
-      {device && (
+      {activeSection === "overview" && device && (
         <div className="admin-card p-6">
           <h2 className="admin-card-title text-xl">Device summary</h2>
 
@@ -417,7 +444,8 @@ export default function AdminDevicePage({
       )}
 
       {/* Rename */}
-      <div className="admin-card mt-6 p-6">
+      {activeSection === "details" && (
+      <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Rename device</h2>
 
         <div className="mt-4 flex flex-col gap-3 md:flex-row">
@@ -436,8 +464,10 @@ export default function AdminDevicePage({
           </button>
         </div>
       </div>
+      )}
 
       {/* Device Details Form */}
+      {activeSection === "details" && (
       <div className="admin-card mt-6 p-6">
         <h2 className="admin-card-title text-xl">Device details</h2>
 
@@ -495,9 +525,11 @@ export default function AdminDevicePage({
           {saving ? "Saving..." : "Save device details"}
         </button>
       </div>
+      )}
 
       {/* Live Preview */}
-      <div className="mt-6 rounded-3xl border border-slate-800 bg-black p-3 shadow-xl">
+      {activeSection === "preview" && (
+      <div className="rounded-3xl border border-slate-800 bg-black p-3 shadow-xl">
         <div className="mb-3 flex items-center justify-between text-white">
           <p className="text-sm font-semibold">Live screen preview</p>
 
@@ -518,9 +550,11 @@ export default function AdminDevicePage({
           />
         </div>
       </div>
+      )}
 
       {/* Upload Video */}
-      <div className="admin-card mt-6 p-6">
+      {activeSection === "media" && (
+      <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Upload video</h2>
         <p className="admin-muted mt-1 text-sm">
           Only MP4 files are supported.
@@ -541,8 +575,10 @@ export default function AdminDevicePage({
           {saving ? "Uploading..." : "Upload video"}
         </button>
       </div>
+      )}
 
       {/* Playlist */}
+      {activeSection === "media" && (
       <div className="admin-card mt-6 p-6">
         <h2 className="admin-card-title text-xl">Current playlist</h2>
 
@@ -572,9 +608,11 @@ export default function AdminDevicePage({
           </div>
         )}
       </div>
+      )}
 
       {/* Display URL */}
-      <div className="admin-card mt-6 p-6">
+      {activeSection === "display" && (
+      <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Display URL</h2>
 
         <div className="mt-3 flex flex-col justify-between gap-3 rounded-2xl bg-slate-50 p-4 md:flex-row md:items-center">
@@ -591,6 +629,7 @@ export default function AdminDevicePage({
           </a>
         </div>
       </div>
+      )}
     </div>
   );
 }

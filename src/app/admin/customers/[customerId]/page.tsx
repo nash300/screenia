@@ -53,6 +53,28 @@ type CustomerSubscription = {
   created_at: string;
 };
 
+type CustomerMessage = {
+  id: string;
+  subject: string | null;
+  message: string;
+  status: string;
+  createdAt: string;
+  files: Array<{
+    id: string;
+    fileName: string;
+    contentType: string;
+    fileSize: number;
+    downloadUrl: string | null;
+  }>;
+};
+
+type CustomerDetailSection =
+  | "overview"
+  | "onboarding"
+  | "messages"
+  | "orders"
+  | "devices";
+
 export default function CustomerDetailPage({
   params,
 }: {
@@ -63,6 +85,7 @@ export default function CustomerDetailPage({
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
   const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
+  const [messages, setMessages] = useState<CustomerMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editName, setEditName] = useState("");
@@ -72,6 +95,8 @@ export default function CustomerDetailPage({
   const [editCity, setEditCity] = useState("");
   const [editCountry, setEditCountry] = useState("");
   const [editNotes, setEditNotes] = useState("");
+  const [activeSection, setActiveSection] =
+    useState<CustomerDetailSection>("overview");
 
   const formatInactiveReason = (reason: string | null) => {
     if (reason === "manual_suspend") return "Manually suspended";
@@ -137,6 +162,7 @@ export default function CustomerDetailPage({
       setCustomer(null);
       setDevices([]);
       setSubscriptions([]);
+      setMessages([]);
       setLoading(false);
       return;
     }
@@ -193,6 +219,17 @@ export default function CustomerDetailPage({
       setSubscriptions([]);
     } else {
       setSubscriptions((subscriptionData || []) as CustomerSubscription[]);
+    }
+
+    try {
+      const response = await fetch(
+        `/api/admin/customer-messages?customerId=${customerId}`,
+      );
+      const data = await response.json();
+      setMessages(response.ok ? data.messages || [] : []);
+    } catch (error) {
+      console.error("Customer messages error:", error);
+      setMessages([]);
     }
 
     setLoading(false);
@@ -393,6 +430,18 @@ export default function CustomerDetailPage({
     );
   }
 
+  const detailSections: Array<{
+    id: CustomerDetailSection;
+    label: string;
+    count?: number;
+  }> = [
+    { id: "overview", label: "Overview" },
+    { id: "onboarding", label: "Onboarding" },
+    { id: "messages", label: "Messages", count: messages.length },
+    { id: "orders", label: "Orders", count: subscriptions.length },
+    { id: "devices", label: "Devices", count: devices.length },
+  ];
+
   return (
     <div>
       {/* ==============================
@@ -424,9 +473,26 @@ export default function CustomerDetailPage({
         </div>
       </div>
 
+      <div className="admin-section-tabs" aria-label="Customer detail sections">
+        {detailSections.map((section) => (
+          <button
+            key={section.id}
+            type="button"
+            onClick={() => setActiveSection(section.id)}
+            className={`admin-section-tab ${
+              activeSection === section.id ? "is-active" : ""
+            }`}
+          >
+            {section.label}
+            {typeof section.count === "number" ? ` (${section.count})` : ""}
+          </button>
+        ))}
+      </div>
+
       {/* ==============================
           Customer Details
       ============================== */}
+      {activeSection === "overview" && (
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Customer details</h2>
 
@@ -485,10 +551,12 @@ export default function CustomerDetailPage({
           {saving ? "Saving..." : "Save customer details"}
         </button>
       </div>
+      )}
 
       {/* ==============================
           Onboarding
       ============================== */}
+      {activeSection === "onboarding" && (
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Onboarding</h2>
 
@@ -604,11 +672,74 @@ export default function CustomerDetailPage({
           )}
         </div>
       </div>
+      )}
+
+      {/* ==============================
+          Customer Messages
+      ============================== */}
+      {activeSection === "messages" && (
+      <div className="admin-card p-6">
+        <h2 className="admin-card-title text-xl">Customer messages</h2>
+
+        {messages.length === 0 ? (
+          <p className="admin-muted mt-4">No customer messages yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {messages.map((item) => (
+              <div
+                key={item.id}
+                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+              >
+                <div className="flex flex-col justify-between gap-2 md:flex-row">
+                  <div>
+                    <p className="font-semibold text-slate-950">
+                      {item.subject || "Message"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {new Date(item.createdAt).toLocaleString("sv-SE")} ·{" "}
+                      {item.status}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+                  {item.message}
+                </p>
+
+                {item.files.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {item.files.map((file) =>
+                      file.downloadUrl ? (
+                        <a
+                          key={file.id}
+                          href={file.downloadUrl}
+                          target="_blank"
+                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 no-underline"
+                        >
+                          {file.fileName}
+                        </a>
+                      ) : (
+                        <span
+                          key={file.id}
+                          className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400"
+                        >
+                          {file.fileName}
+                        </span>
+                      ),
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      )}
 
       {/* ==============================
           Orders
       ============================== */}
-      <div className="admin-card mt-6 p-6">
+      {activeSection === "orders" && (
+      <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Orders</h2>
 
         {subscriptions.length === 0 ? (
@@ -660,11 +791,14 @@ export default function CustomerDetailPage({
           </div>
         )}
       </div>
+      )}
 
       {/* ==============================
           Device Management
       ============================== */}
-      <div className="admin-card mt-6 p-6">
+      {activeSection === "devices" && (
+      <>
+      <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Device management</h2>
 
         <p className="admin-muted mt-2 text-sm">
@@ -728,6 +862,8 @@ export default function CustomerDetailPage({
           </div>
         )}
       </div>
+      </>
+      )}
     </div>
   );
 }

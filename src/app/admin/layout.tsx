@@ -2,6 +2,7 @@ import Link from "next/link";
 import "./admin.css";
 import AdminPageTitle from "@/components/AdminPageTitle";
 import AdminNotifications from "@/components/AdminNotifications";
+import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "D" },
@@ -58,7 +59,10 @@ export default function AdminLayout({
       </aside>
 
       <main className="ml-72 min-h-screen">
-        <div className="admin-page">{children}</div>
+        <div className="admin-page">
+          <AdminBreadcrumbs />
+          {children}
+        </div>
       </main>
       <AdminNotifications />
     </div>

@@ -262,6 +262,52 @@
   font-weight: 750;
 }
 
+.landing-nav-login {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 0 2px;
+  border: 1px solid rgba(47, 125, 246, 0.28);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(239, 246, 255, 0.86));
+  padding: 0 17px 0 12px;
+  color: var(--landing-text) !important;
+  outline: 1px solid rgba(255, 255, 255, 0.56);
+  outline-offset: 2px;
+  box-shadow: 0 12px 26px rgba(6, 25, 66, 0.1);
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.landing-nav-login:hover {
+  border-color: rgba(47, 125, 246, 0.42);
+  box-shadow: 0 16px 34px rgba(6, 25, 66, 0.14);
+  transform: translateY(-1px);
+}
+
+.landing-nav-login-icon {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #2f7df6;
+  color: #ffffff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.landing-nav-login-icon svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
 .landing-nav-cta,
 .landing-button {
   display: inline-flex;
@@ -804,6 +850,7 @@
 
 .landing-platform,
 .landing-pricing,
+.landing-gallery,
 .landing-faq {
   position: relative;
   isolation: isolate;
@@ -818,6 +865,7 @@
 
 .landing-platform::before,
 .landing-pricing::before,
+.landing-gallery::before,
 .landing-faq::before,
 .landing-workflow::before {
   position: absolute;
@@ -839,8 +887,12 @@
   background-image: url("/salon1.jpg");
 }
 
-.landing-faq::before {
+.landing-gallery::before {
   background-image: url("/window_screen1.jpg");
+}
+
+.landing-faq::before {
+  display: none;
 }
 
 .landing-section-heading {
@@ -1601,15 +1653,69 @@
   content: "";
 }
 
+.landing-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.landing-gallery-card {
+  overflow: hidden;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 42px rgba(7, 31, 84, 0.1);
+}
+
+.landing-gallery-image {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: #eef5ff;
+}
+
+.landing-gallery-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 220ms ease;
+}
+
+.landing-gallery-card:hover .landing-gallery-image img {
+  transform: scale(1.04);
+}
+
+.landing-gallery-content {
+  padding: 16px;
+}
+
+.landing-gallery-content h3 {
+  margin: 0;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.landing-gallery-content p {
+  margin: 8px 0 0;
+  color: var(--landing-muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
 .landing-faq {
   border-top: 1px solid var(--landing-line);
+  background: #ffffff;
+  padding-top: 56px;
+  padding-bottom: 56px;
 }
 
 .landing-faq-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 30px;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 .landing-faq-layout {
@@ -1617,33 +1723,15 @@
 }
 
 .landing-faq-visual {
-  position: relative;
-  min-height: 280px;
-  align-self: end;
-  border: 1px solid var(--landing-line);
-  border-radius: 24px;
-  background:
-    linear-gradient(135deg, rgba(245, 158, 11, 0.18), transparent 42%),
-    var(--landing-card);
-  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.18);
+  display: none;
 }
 
 .landing-faq-visual::before {
-  position: absolute;
-  inset: 34px 32px auto;
-  height: 92px;
-  border-radius: 18px;
-  background: linear-gradient(135deg, var(--landing-blue-700), var(--landing-cyan));
-  content: "";
+  display: none;
 }
 
 .landing-faq-visual span {
-  position: absolute;
-  left: 42px;
-  right: 42px;
-  height: 14px;
-  border-radius: 999px;
-  background: var(--landing-blue-100);
+  display: none;
 }
 
 .landing-faq-visual span:nth-child(1) {
@@ -1662,10 +1750,10 @@
 }
 
 .landing-faq-item {
-  border: 1px solid var(--landing-line);
-  border-radius: 18px;
-  background: var(--landing-card);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(7, 31, 84, 0.06);
 }
 
 .landing-faq-item summary {
@@ -1674,7 +1762,7 @@
   font-family: var(--landing-font-ui);
   font-weight: 900;
   list-style: none;
-  padding: 13px 16px;
+  padding: 14px 16px;
 }
 
 .landing-faq-item summary::-webkit-details-marker {
@@ -1694,11 +1782,11 @@
 
 .landing-faq-item p {
   margin: 0;
-  border-top: 1px solid var(--landing-line);
+  border-top: 1px solid rgba(47, 125, 246, 0.1);
   color: var(--landing-muted);
   font-size: 0.88rem;
   line-height: 1.65;
-  padding: 0 16px 14px;
+  padding: 12px 16px 16px;
 }
 
 .landing-company {
@@ -2184,6 +2272,167 @@
   background: linear-gradient(135deg, var(--landing-yellow), #ffffff);
 }
 
+.account-page {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.account-nav {
+  max-width: 1180px;
+}
+
+.account-shell {
+  display: grid;
+  width: min(1180px, 100%);
+  gap: 22px;
+  margin: 0 auto;
+}
+
+.account-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border: 1px solid var(--landing-line);
+  border-radius: 28px;
+  background:
+    linear-gradient(135deg, rgba(47, 125, 246, 0.12), rgba(244, 122, 32, 0.08)),
+    rgba(255, 255, 255, 0.9);
+  padding: clamp(26px, 4vw, 46px);
+  box-shadow: 0 24px 70px rgba(7, 31, 84, 0.12);
+}
+
+.account-hero h1,
+.account-card h2 {
+  margin: 0;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.account-hero h1 {
+  font-size: clamp(2rem, 4vw, 3.6rem);
+  line-height: 1.02;
+}
+
+.account-hero p,
+.account-card p,
+.account-list-item span,
+.account-list-item p {
+  color: var(--landing-muted);
+  line-height: 1.65;
+}
+
+.account-status {
+  display: inline-flex;
+  border-radius: 999px;
+  background: var(--landing-primary);
+  color: #ffffff;
+  font-family: var(--landing-font-ui);
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 10px 14px;
+  text-transform: capitalize;
+  box-shadow: 0 14px 28px rgba(47, 125, 246, 0.24);
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.account-card {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  border: 1px solid var(--landing-line);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 24px;
+  box-shadow: 0 18px 50px rgba(7, 31, 84, 0.09);
+}
+
+.account-card h2 {
+  font-size: 1.35rem;
+}
+
+.account-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.account-facts div {
+  border: 1px solid var(--landing-line);
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: 14px;
+}
+
+.account-facts span {
+  display: block;
+  color: var(--landing-muted);
+  font-family: var(--landing-font-ui);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.account-facts strong {
+  display: block;
+  margin-top: 5px;
+  overflow-wrap: anywhere;
+  color: var(--landing-text);
+  font-weight: 800;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.account-list {
+  display: grid;
+  gap: 12px;
+}
+
+.account-list-item {
+  border: 1px solid var(--landing-line);
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: 14px;
+}
+
+.account-list-item strong {
+  display: block;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-weight: 900;
+}
+
+.account-list-item p {
+  margin: 8px 0 0;
+}
+
+.account-input {
+  width: 100%;
+  border: 1px solid var(--landing-line);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--landing-text);
+  font: inherit;
+  padding: 12px 13px;
+  outline: none;
+}
+
+.account-input:focus {
+  border-color: var(--landing-primary);
+  box-shadow: 0 0 0 4px rgba(47, 125, 246, 0.14);
+}
+
 @media (max-width: 1100px) {
   .landing-hero {
     grid-template-columns: 1fr;
@@ -2387,6 +2636,7 @@
   }
 
   .landing-stats,
+  .account-grid,
   .landing-feature-grid,
   .landing-illustration-grid,
   .landing-workflow-layout,
@@ -2394,6 +2644,7 @@
   .landing-process-visual,
   .landing-pricing-layout,
   .landing-price-grid,
+  .landing-gallery-grid,
   .landing-faq-layout,
   .landing-faq-grid,
   .landing-company,
@@ -2439,6 +2690,19 @@
 
   .landing-language-switch {
     justify-self: start;
+  }
+
+  .account-page {
+    padding: 18px;
+  }
+
+  .account-hero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .account-facts {
+    grid-template-columns: 1fr;
   }
 
   .flow-page {
