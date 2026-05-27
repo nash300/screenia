@@ -37,10 +37,6 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: "/",
-    languages: {
-      sv: "/?lang=sv",
-      en: "/?lang=en",
-    },
   },
   openGraph: {
     title: "InfoSync | Digital skyltning för företag i Sverige",

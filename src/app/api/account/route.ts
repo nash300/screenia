@@ -13,7 +13,13 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const [{ data: subscriptions }, { data: devices }, { data: messages }] =
+  const [
+    { data: subscriptions },
+    { data: devices },
+    { data: messages },
+    { data: agreements },
+    { data: legalDocuments },
+  ] =
     await Promise.all([
       supabaseAdmin
         .from("customer_subscriptions")
@@ -33,6 +39,18 @@ export async function GET() {
         .eq("customer_id", customer.id)
         .order("created_at", { ascending: false })
         .limit(10),
+      supabaseAdmin
+        .from("customer_legal_agreements")
+        .select(
+          "id, document_type, document_title, document_version, document_effective_at, document_url, pdf_url, content_snapshot, accepted_at, collection_point",
+        )
+        .eq("customer_id", customer.id)
+        .order("accepted_at", { ascending: false }),
+      supabaseAdmin
+        .from("legal_documents")
+        .select("id, document_type, title, version, effective_at, status, summary, pdf_url")
+        .eq("status", "active")
+        .order("effective_at", { ascending: false }),
     ]);
 
   return NextResponse.json({
@@ -40,5 +58,7 @@ export async function GET() {
     subscriptions: subscriptions || [],
     devices: devices || [],
     messages: messages || [],
+    agreements: agreements || [],
+    legalDocuments: legalDocuments || [],
   });
 }

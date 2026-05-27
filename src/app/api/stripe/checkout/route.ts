@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
-import { normalizeCustomerLanguage } from "@/lib/customer-language";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -19,7 +18,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { customerId, email, pricingPlanCode, legalAccepted } = body;
-    const language = normalizeCustomerLanguage(body.language);
     const ipAddress = getRequestIp(request);
     const userAgent = request.headers.get("user-agent");
 
@@ -127,8 +125,8 @@ export async function POST(request: Request) {
           pricing_plan_code: plan.code,
         },
       },
-      success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}&lang=${language}`,
-      cancel_url: `${appUrl}/onboarding/payment-cancelled?lang=${language}`,
+      success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}`,
+      cancel_url: `${appUrl}/onboarding/payment-cancelled`,
       metadata: {
         customer_id: customerId,
         customer_subscription_id: order.id,
@@ -163,7 +161,6 @@ export async function POST(request: Request) {
         orderNumber: order.order_number,
         stripeCheckoutSessionId: session.id,
         stripeAutomaticTaxEnabled,
-        language,
       },
       ipAddress,
       userAgent,

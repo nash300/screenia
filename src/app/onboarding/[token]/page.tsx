@@ -2,11 +2,6 @@
 
 import { use, useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
-import {
-  getCustomerLanguageFromNotes,
-  normalizeCustomerLanguage,
-  type CustomerLanguage,
-} from "@/lib/customer-language";
 import { supabase } from "@/lib/supabase/client";
 import "../../landing.css";
 
@@ -142,7 +137,6 @@ export default function OnboardingPage({
 }) {
   const { token } = use(params);
 
-  const [language, setLanguage] = useState<CustomerLanguage>("sv");
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
   const [contactPerson, setContactPerson] = useState("");
@@ -160,12 +154,7 @@ export default function OnboardingPage({
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
 
-  const t = copy[language];
-
-  const switchLanguage = (nextLanguage: CustomerLanguage) => {
-    setLanguage(nextLanguage);
-    window.localStorage.setItem("infosync-language", nextLanguage);
-  };
+  const t = copy.sv;
 
   const fileToPayload = (file: File) => {
     return new Promise<{
@@ -188,13 +177,6 @@ export default function OnboardingPage({
   };
 
   useEffect(() => {
-    const urlLanguage = new URLSearchParams(window.location.search).get("lang");
-    setLanguage(
-      normalizeCustomerLanguage(
-        urlLanguage || window.localStorage.getItem("infosync-language"),
-      ),
-    );
-
     const loadCustomer = async () => {
       const { data, error } = await supabase
         .from("customers")
@@ -209,8 +191,6 @@ export default function OnboardingPage({
       }
 
       const loadedCustomer = data as Customer;
-      const noteLanguage = getCustomerLanguageFromNotes(loadedCustomer.notes);
-      setLanguage(normalizeCustomerLanguage(urlLanguage || noteLanguage));
       setCustomer(loadedCustomer);
       setLoading(false);
     };
@@ -264,7 +244,6 @@ export default function OnboardingPage({
         displayNotes,
         displayFiles: displayFilePayloads,
         preferredCourier,
-        language,
       }),
     });
     const data = await response.json();
@@ -301,7 +280,6 @@ export default function OnboardingPage({
         email: customer.email,
         pricingPlanCode,
         legalAccepted: true,
-        language,
       }),
     });
     const data = await response.json();
@@ -315,18 +293,18 @@ export default function OnboardingPage({
     window.location.href = data.url;
   };
 
-  if (loading) return <FlowShell language={language} onLanguage={switchLanguage}>{t.loading}</FlowShell>;
-  if (!customer) return <FlowShell language={language} onLanguage={switchLanguage}>{t.invalid}</FlowShell>;
+  if (loading) return <FlowShell>{t.loading}</FlowShell>;
+  if (!customer) return <FlowShell>{t.invalid}</FlowShell>;
 
   const isExpired =
     customer.onboarding_token_expires_at &&
     new Date(customer.onboarding_token_expires_at) < new Date();
 
-  if (isExpired) return <FlowShell language={language} onLanguage={switchLanguage}>{t.expired}</FlowShell>;
+  if (isExpired) return <FlowShell>{t.expired}</FlowShell>;
 
   if (customer.status === "active") {
     return (
-      <FlowShell language={language} onLanguage={switchLanguage}>
+      <FlowShell>
         <h1>{t.activeTitle}</h1>
         <p>{t.activeText}</p>
       </FlowShell>
@@ -335,7 +313,7 @@ export default function OnboardingPage({
 
   if (customer.status === "accepted_terms") {
     return (
-      <FlowShell language={language} onLanguage={switchLanguage}>
+      <FlowShell>
         <h1>{t.readyTitle}</h1>
         <p>{t.readyText}</p>
         <section className="flow-card">
@@ -351,7 +329,7 @@ export default function OnboardingPage({
   }
 
   return (
-    <FlowShell language={language} onLanguage={switchLanguage}>
+    <FlowShell>
       <h1>{t.title}</h1>
       <p>{t.intro}</p>
 
@@ -411,12 +389,12 @@ export default function OnboardingPage({
         <div className="flow-checks">
           <FlowCheck checked={acceptedTerms} onChange={setAcceptedTerms}>
             {t.termsBefore}
-            <a href={`/terms?lang=${language}`} target="_blank">{t.termsLink}</a>
+            <a href="/terms" target="_blank">{t.termsLink}</a>
             {t.termsAfter}
           </FlowCheck>
           <FlowCheck checked={acceptedPrivacy} onChange={setAcceptedPrivacy}>
             {t.privacyBefore}
-            <a href={`/privacy?lang=${language}`} target="_blank">{t.privacyLink}</a>
+            <a href="/privacy" target="_blank">{t.privacyLink}</a>
             {t.privacyAfter}
           </FlowCheck>
           <FlowCheck checked={marketingConsent} onChange={setMarketingConsent}>
@@ -433,12 +411,8 @@ export default function OnboardingPage({
 }
 
 function FlowShell({
-  language,
-  onLanguage,
   children,
 }: {
-  language: CustomerLanguage;
-  onLanguage: (language: CustomerLanguage) => void;
   children: ReactNode;
 }) {
   return (
@@ -447,10 +421,6 @@ function FlowShell({
         <Link className="landing-brand" href="/">
           <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
         </Link>
-        <div className="landing-language-switch">
-          <button className={language === "sv" ? "active" : ""} onClick={() => onLanguage("sv")}>🇸🇪</button>
-          <button className={language === "en" ? "active" : ""} onClick={() => onLanguage("en")}>🇬🇧</button>
-        </div>
       </header>
       <main className="flow-shell">{children}</main>
     </div>

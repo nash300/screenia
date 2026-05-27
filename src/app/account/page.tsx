@@ -62,6 +62,28 @@ type AccountData = {
     status: string;
     created_at: string;
   }>;
+  agreements: Array<{
+    id: string;
+    document_type: string;
+    document_title: string;
+    document_version: string;
+    document_effective_at: string | null;
+    document_url: string | null;
+    pdf_url: string | null;
+    content_snapshot: string;
+    accepted_at: string;
+    collection_point: string;
+  }>;
+  legalDocuments: Array<{
+    id: string;
+    document_type: string;
+    title: string;
+    version: string;
+    effective_at: string;
+    status: string;
+    summary: string | null;
+    pdf_url: string | null;
+  }>;
 };
 
 const formatter = new Intl.NumberFormat("sv-SE");
@@ -340,6 +362,57 @@ export default function AccountPage() {
         ) : (
           <p>No messages yet.</p>
         )}
+      </AccountCard>
+
+      <AccountCard title="Villkor och avtal">
+        <p>
+          Här visas den version av villkoren som godkändes vid avtalstillfället
+          samt aktuella publicerade dokument.
+        </p>
+        {data.agreements.length ? (
+          <div className="account-list">
+            {data.agreements.map((agreement) => (
+              <div key={agreement.id} className="account-list-item">
+                <strong>
+                  Godkänd: {agreement.document_title} v{agreement.document_version}
+                </strong>
+                <span>{date(agreement.accepted_at)}</span>
+                <p>{agreement.content_snapshot}</p>
+                <div className="account-actions">
+                  {agreement.document_url && (
+                    <a className="landing-button landing-button-secondary" href={agreement.document_url}>
+                      Visa dokument
+                    </a>
+                  )}
+                  {agreement.pdf_url && (
+                    <a className="landing-button landing-button-secondary" href={agreement.pdf_url}>
+                      Visa PDF
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>Inga godkända villkor finns registrerade ännu.</p>
+        )}
+
+        <div className="account-list">
+          {data.legalDocuments.map((document) => (
+            <div key={document.id} className="account-list-item">
+              <strong>
+                Aktuell: {document.title} v{document.version}
+              </strong>
+              <span>Gäller från {date(document.effective_at)}</span>
+              <p>{document.summary || "-"}</p>
+              {document.pdf_url && (
+                <a className="landing-button landing-button-secondary" href={document.pdf_url}>
+                  Visa aktuell PDF
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
       </AccountCard>
     </AccountShell>
   );

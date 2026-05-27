@@ -3,10 +3,6 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
-import {
-  appendLanguageToUrl,
-  getCustomerLanguageFromNotes,
-} from "@/lib/customer-language";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -145,13 +141,9 @@ export async function POST(request: Request) {
   const appUrl =
     process.env.NEXT_PUBLIC_APP_URL ||
     `${new URL(request.url).protocol}//${new URL(request.url).host}`;
-  const language = getCustomerLanguageFromNotes(customer.notes);
-  const onboardingUrl = appendLanguageToUrl(
-    `${appUrl}/onboarding/${token}`,
-    language,
-  );
+  const onboardingUrl = `${appUrl}/onboarding/${token}`;
   const customerName = escapeHtml(customer.name);
-  const copy = emailCopy[language];
+  const copy = emailCopy.sv;
 
   const { error: tokenError } = await supabaseAdmin
     .from("customers")
@@ -265,7 +257,6 @@ InfoSync`,
     metadata: {
       sentTo: customer.email,
       expiresAt: expiresAt.toISOString(),
-      language,
     },
     ipAddress,
     userAgent,

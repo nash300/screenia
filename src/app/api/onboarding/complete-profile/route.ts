@@ -1,15 +1,21 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { getRequestIp, recordAuditEvent, recordConsent } from "@/lib/server/audit";
-import { normalizeCustomerLanguage } from "@/lib/customer-language";
+import {
+  getRequestIp,
+  recordAuditEvent,
+  recordConsent,
+  recordLegalAgreement,
+} from "@/lib/server/audit";
+import {
+  CURRENT_PRIVACY_DOCUMENT,
+  CURRENT_TERMS_DOCUMENT,
+} from "@/lib/legal/documents";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
-const TERMS_VERSION = "2026-05-07";
-const PRIVACY_VERSION = "2026-05-07";
 const DISPLAY_ASSET_BUCKET = "customer-display-assets";
 const MAX_DISPLAY_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_DISPLAY_FILE_TYPES = new Set([
@@ -48,14 +54,13 @@ function decodeBase64File(file: DisplayFileInput) {
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const language = normalizeCustomerLanguage(body.language);
   const token = String(body.token || "").trim();
   const contactPerson = String(body.contactPerson || "").trim();
   const phone = String(body.phone || "").trim();
   const organisationNumber = String(body.organisationNumber || "").trim();
   const address = String(body.address || "").trim();
   const city = String(body.city || "").trim();
-  const country = String(body.country || "Sweden").trim() || "Sweden";
+  const country = String(body.country || "Sverige").trim() || "Sverige";
   const acceptedTerms = Boolean(body.acceptedTerms);
   const acceptedPrivacy = Boolean(body.acceptedPrivacy);
   const marketingConsent = Boolean(body.marketingConsent);
@@ -68,10 +73,7 @@ export async function POST(request: Request) {
   const userAgent = request.headers.get("user-agent");
 
   if (!token) {
-    return NextResponse.json(
-      { error: "Startlänk saknas." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Startlänk saknas." }, { status: 400 });
   }
 
   if (!contactPerson) {
@@ -89,10 +91,7 @@ export async function POST(request: Request) {
   }
 
   if (!ALLOWED_COURIERS.has(preferredCourier)) {
-    return NextResponse.json(
-      { error: "Välj transportör." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Välj transportör." }, { status: 400 });
   }
 
   const { data: customer, error: customerError } = await supabaseAdmin
@@ -102,10 +101,7 @@ export async function POST(request: Request) {
     .single();
 
   if (customerError || !customer) {
-    return NextResponse.json(
-      { error: "Ogiltig startlänk." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "Ogiltig startlänk." }, { status: 404 });
   }
 
   if (
@@ -123,7 +119,6 @@ export async function POST(request: Request) {
   const nextNotes =
     [
       currentNotes,
-      `Preferred language: ${language}`,
       `Preferred courier: ${preferredCourier}`,
       displayNotes ? `Display material notes: ${displayNotes}` : "",
     ]
@@ -217,9 +212,22 @@ export async function POST(request: Request) {
       consentType: "terms",
       granted: true,
       statement: "Jag godkänner villkoren.",
-      documentName: "Villkor",
-      documentVersion: TERMS_VERSION,
-      documentUrl: "/terms",
+      documentName: CURRENT_TERMS_DOCUMENT.title,
+      documentVersion: CURRENT_TERMS_DOCUMENT.version,
+      documentUrl: CURRENT_TERMS_DOCUMENT.url,
+      collectionPoint: "customer_onboarding",
+      ipAddress,
+      userAgent,
+    }),
+    recordLegalAgreement(supabaseAdmin, {
+      customerId: customer.id,
+      documentType: "terms",
+      documentTitle: CURRENT_TERMS_DOCUMENT.title,
+      documentVersion: CURRENT_TERMS_DOCUMENT.version,
+      documentEffectiveAt: CURRENT_TERMS_DOCUMENT.effectiveDate,
+      documentUrl: CURRENT_TERMS_DOCUMENT.url,
+      pdfUrl: CURRENT_TERMS_DOCUMENT.pdfUrl,
+      contentSnapshot: CURRENT_TERMS_DOCUMENT.content,
       collectionPoint: "customer_onboarding",
       ipAddress,
       userAgent,
@@ -229,9 +237,22 @@ export async function POST(request: Request) {
       consentType: "privacy",
       granted: true,
       statement: "Jag godkänner integritetspolicyn.",
-      documentName: "Integritetspolicy",
-      documentVersion: PRIVACY_VERSION,
-      documentUrl: "/privacy",
+      documentName: CURRENT_PRIVACY_DOCUMENT.title,
+      documentVersion: CURRENT_PRIVACY_DOCUMENT.version,
+      documentUrl: CURRENT_PRIVACY_DOCUMENT.url,
+      collectionPoint: "customer_onboarding",
+      ipAddress,
+      userAgent,
+    }),
+    recordLegalAgreement(supabaseAdmin, {
+      customerId: customer.id,
+      documentType: "privacy",
+      documentTitle: CURRENT_PRIVACY_DOCUMENT.title,
+      documentVersion: CURRENT_PRIVACY_DOCUMENT.version,
+      documentEffectiveAt: CURRENT_PRIVACY_DOCUMENT.effectiveDate,
+      documentUrl: CURRENT_PRIVACY_DOCUMENT.url,
+      pdfUrl: CURRENT_PRIVACY_DOCUMENT.pdfUrl,
+      contentSnapshot: CURRENT_PRIVACY_DOCUMENT.content,
       collectionPoint: "customer_onboarding",
       ipAddress,
       userAgent,
@@ -242,7 +263,7 @@ export async function POST(request: Request) {
       granted: marketingConsent,
       statement: "Jag vill få relevanta nyheter och erbjudanden från InfoSync.",
       documentName: "Samtycke till marknadskommunikation",
-      documentVersion: "2026-05-07",
+      documentVersion: "2026-05-28",
       collectionPoint: "customer_onboarding",
       ipAddress,
       userAgent,
@@ -256,8 +277,8 @@ export async function POST(request: Request) {
         acceptedTerms,
         acceptedPrivacy,
         marketingConsent,
-        termsVersion: TERMS_VERSION,
-        privacyVersion: PRIVACY_VERSION,
+        termsVersion: CURRENT_TERMS_DOCUMENT.version,
+        privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
         displayNotesProvided: Boolean(displayNotes),
         displayFiles: storedFiles,
         preferredCourier,

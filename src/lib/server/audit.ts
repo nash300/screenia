@@ -44,6 +44,20 @@ type ConsentRecordInput = {
   userAgent?: string | null;
 };
 
+type LegalAgreementInput = {
+  customerId: string;
+  documentType: "terms" | "privacy";
+  documentTitle: string;
+  documentVersion: string;
+  documentEffectiveAt?: string | null;
+  documentUrl?: string | null;
+  pdfUrl?: string | null;
+  contentSnapshot: string;
+  collectionPoint: string;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+};
+
 export async function recordConsent(
   supabaseAdmin: SupabaseClient,
   consent: ConsentRecordInput,
@@ -63,6 +77,37 @@ export async function recordConsent(
 
   if (error) {
     console.warn("Consent record was not stored:", error.message);
+  }
+}
+
+export async function recordLegalAgreement(
+  supabaseAdmin: SupabaseClient,
+  agreement: LegalAgreementInput,
+) {
+  const { data: document } = await supabaseAdmin
+    .from("legal_documents")
+    .select("id")
+    .eq("document_type", agreement.documentType)
+    .eq("version", agreement.documentVersion)
+    .maybeSingle();
+
+  const { error } = await supabaseAdmin.from("customer_legal_agreements").insert({
+    customer_id: agreement.customerId,
+    legal_document_id: document?.id || null,
+    document_type: agreement.documentType,
+    document_title: agreement.documentTitle,
+    document_version: agreement.documentVersion,
+    document_effective_at: agreement.documentEffectiveAt || null,
+    document_url: agreement.documentUrl || null,
+    pdf_url: agreement.pdfUrl || null,
+    content_snapshot: agreement.contentSnapshot,
+    collection_point: agreement.collectionPoint,
+    accepted_ip: agreement.ipAddress || null,
+    accepted_user_agent: agreement.userAgent || null,
+  });
+
+  if (error) {
+    console.warn("Legal agreement was not stored:", error.message);
   }
 }
 

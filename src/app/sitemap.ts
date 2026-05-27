@@ -11,12 +11,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 1,
-      alternates: {
-        languages: {
-          sv: `${siteUrl}/?lang=sv`,
-          en: `${siteUrl}/?lang=en`,
-        },
-      },
     },
     {
       url: `${siteUrl}/terms`,

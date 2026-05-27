@@ -1,104 +1,99 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import {
-  defaultCustomerLanguage,
-  normalizeCustomerLanguage,
-  type CustomerLanguage,
-} from "@/lib/customer-language";
 import "./landing.css";
 
 const copy = {
   sv: {
-    nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
+    nav: ["TjÃ¤nsten", "SÃ¥ fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
     demo: "Kontakta oss",
-    eyebrow: "Digital skyltning för företag",
+    eyebrow: "Digital skyltning fÃ¶r fÃ¶retag",
     hero:
-      "Professionellt skärminnehåll, hanterat från en tydlig plattform.",
+      "Professionellt skÃ¤rminnehÃ¥ll, hanterat frÃ¥n en tydlig plattform.",
     lede:
-      "InfoSync hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer paket, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
+      "InfoSync hjÃ¤lper salonger, butiker och servicefÃ¶retag att visa kampanjer, prislistor och information pÃ¥ skÃ¤rm. Du vÃ¤ljer paket, skickar in dina uppgifter och fÃ¥r hjÃ¤lp att komma igÃ¥ng utan tekniskt krÃ¥ngel.",
     pricingCta: "Se paket",
-    workflowCta: "Så fungerar det",
+    workflowCta: "SÃ¥ fungerar det",
     stats: [
-      ["24/7", "kontinuerlig skärmvisning"],
-      ["14 dagar", "provperiod på abonnemang"],
-      ["0", "månaders bindningstid"],
+      ["24/7", "kontinuerlig skÃ¤rmvisning"],
+      ["14 dagar", "provperiod pÃ¥ abonnemang"],
+      ["0", "mÃ¥naders bindningstid"],
     ],
-    platformTitle: "En enklare väg till professionell skärmvisning",
+    platformTitle: "En enklare vÃ¤g till professionell skÃ¤rmvisning",
     platformText:
-      "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. InfoSync hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
+      "Du behÃ¶ver inte bygga ett eget system eller hantera tekniska instÃ¤llningar. InfoSync hjÃ¤lper dig frÃ¥n fÃ¶rsta fÃ¶rfrÃ¥gan till en skÃ¤rm som visar rÃ¤tt innehÃ¥ll i din verksamhet.",
     features: [
-      ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
-      ["Tydlig kostnad", "Du ser startavgift, månadskostnad, provperiod och bindningstid innan du går vidare."],
-      ["Hjälp med skärmen", "Vi gör layouten utifrån ditt material och skickar enheten med instruktioner."],
-      ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
+      ["Smidig start", "Du vÃ¤ljer paket och fÃ¥r en personlig startguide dÃ¤r allt fortsÃ¤tter pÃ¥ ett tydligt sÃ¤tt."],
+      ["Tydlig kostnad", "Du ser startavgift, mÃ¥nadskostnad, provperiod och bindningstid innan du gÃ¥r vidare."],
+      ["HjÃ¤lp med skÃ¤rmen", "Vi gÃ¶r layouten utifrÃ¥n ditt material och skickar enheten med instruktioner."],
+      ["InnehÃ¥ll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
     ],
-    workflowTitle: "Från paketval till fungerande skärm",
+    workflowTitle: "FrÃ¥n paketval till fungerande skÃ¤rm",
     workflowText:
-      "Startguiden är den säkra sidan där du bekräftar uppgifter, skickar material och går vidare till betalning. Resten håller vi enkelt.",
+      "Startguiden Ã¤r den sÃ¤kra sidan dÃ¤r du bekrÃ¤ftar uppgifter, skickar material och gÃ¥r vidare till betalning. Resten hÃ¥ller vi enkelt.",
     steps: [
-      ["01", "Välj paket", "Välj Standard eller Premium och skicka en kort förfrågan med företagets uppgifter.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
-      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor, laddar upp material och går vidare till betalning.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
-      ["03", "Vi bygger layouten", "Efter betalning skapar vi skärmlayouten utifrån materialet och skickar USB-enheten inom 4 arbetsdagar.", "Under tiden kan du montera eller placera din Smart TV i lokalen."],
-      ["04", "Koppla in och starta", "När enheten kommer kopplar du den till HDMI, ansluter till Wi-Fi och följer instruktionerna vi skickar med.", "Sedan är skärmen redo att visa ditt innehåll."],
+      ["01", "VÃ¤lj paket", "VÃ¤lj Standard eller Premium och skicka en kort fÃ¶rfrÃ¥gan med fÃ¶retagets uppgifter.", "Det Ã¤r inte en bestÃ¤llning Ã¤nnu. Vi anvÃ¤nder uppgifterna fÃ¶r att skapa din personliga startguide."],
+      ["02", "FÃ¤rdigstÃ¤ll uppgifter och betala", "I startguiden bekrÃ¤ftar du uppgifter, godkÃ¤nner villkor, laddar upp material och gÃ¥r vidare till betalning.", "Meny, prislista, logotyp, bilder eller enkla instruktioner rÃ¤cker fint."],
+      ["03", "Vi bygger layouten", "Efter betalning skapar vi skÃ¤rmlayouten utifrÃ¥n materialet och skickar USB-enheten inom 4 arbetsdagar.", "Under tiden kan du montera eller placera din Smart TV i lokalen."],
+      ["04", "Koppla in och starta", "NÃ¤r enheten kommer kopplar du den till HDMI, ansluter till Wi-Fi och fÃ¶ljer instruktionerna vi skickar med.", "Sedan Ã¤r skÃ¤rmen redo att visa ditt innehÃ¥ll."],
     ],
-    process: [["Förfrågan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
-    pricingTitle: "Tydliga paket för hanterade skärmar",
+    process: [["FÃ¶rfrÃ¥gan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
+    pricingTitle: "Tydliga paket fÃ¶r hanterade skÃ¤rmar",
     pricingText:
-      "Startavgiften betalas en gång. Månadsabonnemanget har 14 dagars provperiod och ingen bindningstid.",
+      "Startavgiften betalas en gÃ¥ng. MÃ¥nadsabonnemanget har 14 dagars provperiod och ingen bindningstid.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
-    monthly: "Per månad",
-    choose: "Välj",
-    trustTitle: "Betalning och uppgifter hanteras säkert",
+    monthly: "Per mÃ¥nad",
+    choose: "VÃ¤lj",
+    trustTitle: "Betalning och uppgifter hanteras sÃ¤kert",
     trustText:
-      "Betalningen sker via en säker betalningssida med kort, Klarna och andra betalningssätt som är aktiverade för din betalning.",
+      "Betalningen sker via en sÃ¤ker betalningssida med kort, Klarna och andra betalningssÃ¤tt som Ã¤r aktiverade fÃ¶r din betalning.",
     deliveryTitle: "Leveransalternativ i Sverige",
     deliveryText:
-      "Vi kan skicka skärmenheten med etablerade transportörer i Sverige och väljer alternativ efter adress, paketstorlek och ledtid.",
-    galleryTitle: "Exempel på skärmar och mallar",
+      "Vi kan skicka skÃ¤rmenheten med etablerade transportÃ¶rer i Sverige och vÃ¤ljer alternativ efter adress, paketstorlek och ledtid.",
+    galleryTitle: "Exempel pÃ¥ skÃ¤rmar och mallar",
     galleryText:
-      "Några exempel på hur kampanjer, menyer och information kan visas på en kundskärm.",
+      "NÃ¥gra exempel pÃ¥ hur kampanjer, menyer och information kan visas pÃ¥ en kundskÃ¤rm.",
     galleryItems: [
       ["Restaurangmeny", "Kampanjer, menyer och dagens erbjudanden."],
-      ["Skyltfönster", "Synligt innehåll för kunder som passerar lokalen."],
+      ["SkyltfÃ¶nster", "Synligt innehÃ¥ll fÃ¶r kunder som passerar lokalen."],
       ["Salong och service", "Priser, behandlingar och aktuell information."],
-      ["Produktvisning", "Tydliga bilder och budskap för butiksmiljöer."],
+      ["Produktvisning", "Tydliga bilder och budskap fÃ¶r butiksmiljÃ¶er."],
     ],
-    faqTitle: "Svar innan du väljer paket",
+    faqTitle: "Svar innan du vÃ¤ljer paket",
     faqs: [
-      ["Vad händer efter att jag valt paket?", "Du får en personlig startguide där du kontrollerar företagsuppgifter, skickar material till skärmen, godkänner villkor och går vidare till betalning."],
-      ["Vilket material behöver jag skicka?", "Du kan ladda upp meny, prislista, logotyp, bilder eller PDF-filer. Det går också bra att skriva kort vad skärmen ska visa."],
-      ["Hur snabbt kan jag komma igång?", "När betalningen är klar skapar vi layouten och postar USB-enheten inom 4 arbetsdagar. Leveranstiden beror sedan på posten."],
-      ["Behöver jag köpa en särskild TV?", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
-      ["Kan jag visa kampanjer och priser samtidigt?", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
-      ["Kan jag ändra innehållet senare?", "Ja. Skicka nytt material eller nya priser till InfoSync så hjälper vi dig att uppdatera skärmen."],
-      ["Vilken leverans kan jag välja?", "I startguiden väljer kunden en tillgänglig transportör, exempelvis PostNord, DHL, Bring, DB Schenker eller Instabox."],
-      ["Vad ingår i startavgiften?", "Startavgiften täcker personlig startguide, layoutarbete, förberedelse av skärminnehåll och utskick av enheten."],
+      ["Vad hÃ¤nder efter att jag valt paket?", "Du fÃ¥r en personlig startguide dÃ¤r du kontrollerar fÃ¶retagsuppgifter, skickar material till skÃ¤rmen, godkÃ¤nner villkor och gÃ¥r vidare till betalning."],
+      ["Vilket material behÃ¶ver jag skicka?", "Du kan ladda upp meny, prislista, logotyp, bilder eller PDF-filer. Det gÃ¥r ocksÃ¥ bra att skriva kort vad skÃ¤rmen ska visa."],
+      ["Hur snabbt kan jag komma igÃ¥ng?", "NÃ¤r betalningen Ã¤r klar skapar vi layouten och postar USB-enheten inom 4 arbetsdagar. Leveranstiden beror sedan pÃ¥ posten."],
+      ["BehÃ¶ver jag kÃ¶pa en sÃ¤rskild TV?", "Du behÃ¶ver en Smart TV eller skÃ¤rm med HDMI-ingÃ¥ng och tillgÃ¥ng till Wi-Fi."],
+      ["Kan jag visa kampanjer och priser samtidigt?", "Ja. Vi kan bygga en layout med prislista, erbjudanden, Ã¶ppettider, QR-kod och bildmaterial i samma visning."],
+      ["Kan jag Ã¤ndra innehÃ¥llet senare?", "Ja. Skicka nytt material eller nya priser till InfoSync sÃ¥ hjÃ¤lper vi dig att uppdatera skÃ¤rmen."],
+      ["Vilken leverans kan jag vÃ¤lja?", "I startguiden vÃ¤ljer kunden en tillgÃ¤nglig transportÃ¶r, exempelvis PostNord, DHL, Bring, DB Schenker eller Instabox."],
+      ["Vad ingÃ¥r i startavgiften?", "Startavgiften tÃ¤cker personlig startguide, layoutarbete, fÃ¶rberedelse av skÃ¤rminnehÃ¥ll och utskick av enheten."],
     ],
-    companyTitle: "Företagsinformation",
+    companyTitle: "FÃ¶retagsinformation",
     companyText:
-      "InfoSync hanterar kunduppgifter, betalning och leverans enligt våra villkor och vår integritetspolicy.",
-    contactEyebrow: "Redo att komma igång?",
-    contactTitle: "Starta din nästa skärm med ett enklare arbetsflöde.",
+      "InfoSync hanterar kunduppgifter, betalning och leverans enligt vÃ¥ra villkor och vÃ¥r integritetspolicy.",
+    contactEyebrow: "Redo att komma igÃ¥ng?",
+    contactTitle: "Starta din nÃ¤sta skÃ¤rm med ett enklare arbetsflÃ¶de.",
     contactText:
-      "Berätta hur många skärmar du vill hantera och vilket innehåll du vill visa. Vi hjälper dig att välja rätt paket.",
+      "BerÃ¤tta hur mÃ¥nga skÃ¤rmar du vill hantera och vilket innehÃ¥ll du vill visa. Vi hjÃ¤lper dig att vÃ¤lja rÃ¤tt paket.",
     contactButton: "Kontakta InfoSync",
     seoIntro:
-      "InfoSync erbjuder digital skyltning i Sverige för salonger, butiker, restauranger och lokala serviceföretag som vill visa menyer, prislistor, kampanjer och kundinformation på TV-skärm.",
-    modalEyebrow: "Skicka förfrågan",
+      "InfoSync erbjuder digital skyltning i Sverige fÃ¶r salonger, butiker, restauranger och lokala servicefÃ¶retag som vill visa menyer, prislistor, kampanjer och kundinformation pÃ¥ TV-skÃ¤rm.",
+    modalEyebrow: "Skicka fÃ¶rfrÃ¥gan",
     modalTitle: "Starta med",
     modalText:
-      "Skicka företagets uppgifter så kontaktar InfoSync dig med en personlig startguide för uppgifter, villkor och betalning.",
-    close: "Stäng",
-    fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
-    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Antal skärmar, plats eller annat vi bör känna till."],
-    sending: "Skickar förfrågan...",
-    submit: "Skicka förfrågan",
+      "Skicka fÃ¶retagets uppgifter sÃ¥ kontaktar InfoSync dig med en personlig startguide fÃ¶r uppgifter, villkor och betalning.",
+    close: "StÃ¤ng",
+    fields: ["FÃ¶retagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
+    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Antal skÃ¤rmar, plats eller annat vi bÃ¶r kÃ¤nna till."],
+    sending: "Skickar fÃ¶rfrÃ¥gan...",
+    submit: "Skicka fÃ¶rfrÃ¥gan",
     success:
-      "Tack. Din förfrågan är mottagen och InfoSync återkommer med en personlig startguide.",
-    error: "Det gick inte att skicka din förfrågan.",
-    legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
+      "Tack. Din fÃ¶rfrÃ¥gan Ã¤r mottagen och InfoSync Ã¥terkommer med en personlig startguide.",
+    error: "Det gick inte att skicka din fÃ¶rfrÃ¥gan.",
+    legal: ["Villkor", "Integritet", "Alla rÃ¤ttigheter fÃ¶rbehÃ¥llna."],
   },
   en: {
     nav: ["Service", "How it works", "Pricing", "Examples", "FAQ", "Contact"],
@@ -210,22 +205,22 @@ const planCopy = {
   sv: {
     standard_fhd: {
       description:
-        "För en skärm som visar kampanjer, erbjudanden och information i Full HD.",
+        "FÃ¶r en skÃ¤rm som visar kampanjer, erbjudanden och information i Full HD.",
       features: [
         "Uppspelning i Full HD",
-        "Säker startguide för uppgifter och betalning",
-        "Vi hjälper dig att få skärmen redo",
-        "14 dagars provperiod på månadsabonnemang",
+        "SÃ¤ker startguide fÃ¶r uppgifter och betalning",
+        "Vi hjÃ¤lper dig att fÃ¥ skÃ¤rmen redo",
+        "14 dagars provperiod pÃ¥ mÃ¥nadsabonnemang",
         "Ingen bindningstid",
       ],
     },
     premium_4k: {
-      description: "För verksamheter som vill visa extra skarpt innehåll i 4K.",
+      description: "FÃ¶r verksamheter som vill visa extra skarpt innehÃ¥ll i 4K.",
       features: [
-        "Uppspelning för 4K-innehåll",
-        "Säker startguide för uppgifter och betalning",
-        "Vi hjälper dig att få skärmen redo",
-        "14 dagars provperiod på månadsabonnemang",
+        "Uppspelning fÃ¶r 4K-innehÃ¥ll",
+        "SÃ¤ker startguide fÃ¶r uppgifter och betalning",
+        "Vi hjÃ¤lper dig att fÃ¥ skÃ¤rmen redo",
+        "14 dagars provperiod pÃ¥ mÃ¥nadsabonnemang",
         "Ingen bindningstid",
       ],
     },
@@ -264,9 +259,9 @@ const galleryImages = [
 ] as const;
 const visualCopy = {
   sv: [
-    ["Planera innehåll", "Meny, kampanj och logotyp samlas på ett ställe."],
-    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flöde."],
-    ["Färdig visning", "Enheten kopplas in och visar materialet utan krånglig installation."],
+    ["Planera innehÃ¥ll", "Meny, kampanj och logotyp samlas pÃ¥ ett stÃ¤lle."],
+    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flÃ¶de."],
+    ["FÃ¤rdig visning", "Enheten kopplas in och visar materialet utan krÃ¥nglig installation."],
   ],
   en: [
     ["Plan content", "Menu, campaign, and logo are collected in one place."],
@@ -297,10 +292,10 @@ type HeroSlideAsset = LandingAsset & {
 
 const comparisonRows = {
   sv: [
-    ["Upplösning", "Full HD", "4K"],
-    ["Passar bäst för", "En skärm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkänsla"],
+    ["UpplÃ¶sning", "Full HD", "4K"],
+    ["Passar bÃ¤st fÃ¶r", "En skÃ¤rm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkÃ¤nsla"],
     ["Startavgift", "1 999 kr", "1 999 kr"],
-    ["Månadspris", "219 kr", "269 kr"],
+    ["MÃ¥nadspris", "219 kr", "269 kr"],
     ["Provperiod", "14 dagar", "14 dagar"],
     ["Bindningstid", "Ingen", "Ingen"],
   ],
@@ -315,9 +310,6 @@ const comparisonRows = {
 } as const;
 
 export default function Home() {
-  const [language, setLanguage] = useState<CustomerLanguage>(
-    defaultCustomerLanguage,
-  );
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<(typeof plans)[number] | null>(
     null,
@@ -335,11 +327,11 @@ export default function Home() {
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
 
-  const t = copy[language];
+  const t = copy.sv;
   const companyDetails = [
     process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME || "InfoSync",
     process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER
-      ? `${language === "sv" ? "Organisationsnummer" : "Organisation number"}: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
+      ? `Organisationsnummer: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
       : "",
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
     process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@infosync.se",
@@ -357,9 +349,9 @@ export default function Home() {
     knowsAbout: [
       "digital skyltning",
       "digital signage",
-      "skärmreklam",
-      "menyskärm",
-      "informationsskärm",
+      "skÃ¤rmreklam",
+      "menyskÃ¤rm",
+      "informationsskÃ¤rm",
       "TV skyltning",
     ],
     makesOffer: plans.map((plan) => ({
@@ -369,15 +361,6 @@ export default function Home() {
       category: "Digital signage service",
     })),
   };
-
-  useEffect(() => {
-    const fromUrl = new URLSearchParams(window.location.search).get("lang");
-    const nextLanguage = fromUrl
-      ? normalizeCustomerLanguage(fromUrl)
-      : defaultCustomerLanguage;
-    setLanguage(nextLanguage);
-    window.localStorage.setItem("infosync-language", nextLanguage);
-  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -412,11 +395,6 @@ export default function Home() {
     };
   }, []);
 
-  const switchLanguage = (nextLanguage: CustomerLanguage) => {
-    setLanguage(nextLanguage);
-    window.localStorage.setItem("infosync-language", nextLanguage);
-  };
-
   const openPlanRequest = (plan: (typeof plans)[number]) => {
     setSelectedPlan(plan);
     setRequestStatus("idle");
@@ -431,7 +409,7 @@ export default function Home() {
   const heroSlideCount = heroSlides.length;
   const currentHeroSlide =
     heroSlideCount > 0
-      ? heroSlides[activeHeroSlide % heroSlideCount][language]
+      ? heroSlides[activeHeroSlide % heroSlideCount].sv
       : {
           eyebrow: t.eyebrow,
           title: t.hero,
@@ -469,7 +447,6 @@ export default function Home() {
         contactPerson,
         phone,
         message,
-        language,
       }),
     });
     const data = await response.json();
@@ -497,7 +474,6 @@ export default function Home() {
         </a>
 
         <div className="landing-header-controls">
-          <LanguageSwitch language={language} onLanguage={switchLanguage} />
           <button
             className="landing-menu-button"
             type="button"
@@ -523,7 +499,7 @@ export default function Home() {
                 <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
               </svg>
             </span>
-            {language === "sv" ? "Logga in" : "Login"}
+            Logga in
           </a>
           <a className="landing-nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>
             {t.demo}
@@ -611,7 +587,7 @@ export default function Home() {
             ))}
           </div>
           <div className="landing-illustration-grid">
-            {visualCopy[language].map(([title, text], index) => (
+            {visualCopy.sv.map(([title, text], index) => (
               <Illustration key={title} title={title} text={text} index={index} />
             ))}
           </div>
@@ -628,7 +604,7 @@ export default function Home() {
         <LandingSection id="pricing" eyebrow={t.nav[2]} title={t.pricingTitle} text={t.pricingText}>
           <div className="landing-price-grid">
             {plans.map((plan) => {
-              const planText = planCopy[language][plan.code];
+              const planText = planCopy.sv[plan.code];
               return (
                 <article
                   key={plan.name}
@@ -660,7 +636,7 @@ export default function Home() {
               );
             })}
           </div>
-          <ComparisonTable language={language} />
+          <ComparisonTable />
         </LandingSection>
 
         <LandingSection id="examples" eyebrow={t.nav[3]} title={t.galleryTitle} text={t.galleryText}>
@@ -717,10 +693,10 @@ export default function Home() {
         </div>
         <div className="landing-footer-card">
           <span>InfoSync</span>
-          <strong>{language === "sv" ? "Digital skyltning för lokala företag i Sverige" : "Digital signage for local businesses in Sweden"}</strong>
+          <strong>Digital skyltning fÃ¶r lokala fÃ¶retag i Sverige</strong>
           <nav>
-            <a href={`/terms?lang=${language}`}>{t.legal[0]}</a>
-            <a href={`/privacy?lang=${language}`}>{t.legal[1]}</a>
+            <a href="/terms">{t.legal[0]}</a>
+            <a href="/privacy">{t.legal[1]}</a>
           </nav>
           <p>{new Date().getFullYear()} InfoSync. {t.legal[2]}</p>
         </div>
@@ -791,19 +767,19 @@ function LandingSection({
   );
 }
 
-function ComparisonTable({ language }: { language: CustomerLanguage }) {
+function ComparisonTable() {
   return (
     <div className="landing-comparison">
       <table>
         <thead>
           <tr>
-            <th>{language === "sv" ? "Jämförelse" : "Comparison"}</th>
+            <th>Jämförelse</th>
             <th>Standard</th>
             <th>Premium</th>
           </tr>
         </thead>
         <tbody>
-          {comparisonRows[language].map(([label, standard, premium]) => (
+          {comparisonRows.sv.map(([label, standard, premium]) => (
             <tr key={label}>
               <th>{label}</th>
               <td>{standard}</td>
@@ -812,35 +788,6 @@ function ComparisonTable({ language }: { language: CustomerLanguage }) {
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-function LanguageSwitch({
-  language,
-  onLanguage,
-}: {
-  language: CustomerLanguage;
-  onLanguage: (language: CustomerLanguage) => void;
-}) {
-  return (
-    <div className="landing-language-switch" aria-label="Language">
-      <button
-        type="button"
-        className={language === "sv" ? "active" : ""}
-        onClick={() => onLanguage("sv")}
-        aria-label="Svenska"
-      >
-        🇸🇪
-      </button>
-      <button
-        type="button"
-        className={language === "en" ? "active" : ""}
-        onClick={() => onLanguage("en")}
-        aria-label="English"
-      >
-        🇬🇧
-      </button>
     </div>
   );
 }
