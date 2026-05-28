@@ -30,6 +30,8 @@ type AccountData = {
     status: string;
     setup_fee_paid: boolean;
     setup_fee_sek: number | null;
+    hardware_fee_sek: number | null;
+    shipping_fee_sek: number | null;
     monthly_fee_sek: number | null;
     trial_days: number | null;
     tax_status: string | null;
@@ -88,12 +90,12 @@ type AccountData = {
 
 const formatter = new Intl.NumberFormat("sv-SE");
 
-function money(amount?: number | null) {
+function money(amount: number | null) {
   if (typeof amount !== "number") return "-";
   return `${formatter.format(amount)} kr`;
 }
 
-function date(value?: string | null) {
+function date(value: string | null) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("sv-SE", {
     year: "numeric",
@@ -150,7 +152,7 @@ export default function AccountPage() {
 
   const sendMessage = async () => {
     if (!messageText.trim()) {
-      setNotice("Write a message before sending.");
+      setNotice("Skriv ett meddelande innan du skickar.");
       return;
     }
 
@@ -169,7 +171,7 @@ export default function AccountPage() {
     const result = await response.json();
 
     if (!response.ok) {
-      setNotice(result.error || "Could not send message.");
+      setNotice(result.error || "Det gick inte att skicka meddelandet.");
       setSending(false);
       return;
     }
@@ -177,7 +179,7 @@ export default function AccountPage() {
     setMessageSubject("");
     setMessageText("");
     setMessageFiles([]);
-    setNotice("Message sent to InfoSync.");
+    setNotice("Meddelandet har skickats till InfoSync.");
     setSending(false);
     loadAccount();
   };
@@ -189,7 +191,7 @@ export default function AccountPage() {
     });
     const result = await response.json();
     if (!response.ok || !result.url) {
-      setNotice(result.error || "Could not open billing portal.");
+      setNotice(result.error || "Det gick inte att öppna betalningsportalen.");
       return;
     }
     window.location.href = result.url;
@@ -197,7 +199,7 @@ export default function AccountPage() {
 
   const cancelSubscription = async () => {
     const confirmed = window.confirm(
-      "Cancel your InfoSync subscription? Your screen service may stop after cancellation.",
+      "Vill du avsluta ditt InfoSync-abonnemang? Skärmtjänsten kan sluta fungera efter avslut.",
     );
     if (!confirmed) return;
 
@@ -207,10 +209,10 @@ export default function AccountPage() {
     });
     const result = await response.json();
     if (!response.ok) {
-      setNotice(result.error || "Could not cancel subscription.");
+      setNotice(result.error || "Det gick inte att avsluta abonnemanget.");
       return;
     }
-    setNotice("Subscription cancelled.");
+    setNotice("Abonnemanget har avslutats.");
     loadAccount();
   };
 
@@ -220,11 +222,11 @@ export default function AccountPage() {
   };
 
   if (loading) {
-    return <AccountShell>Loading your account...</AccountShell>;
+    return <AccountShell>Laddar ditt konto...</AccountShell>;
   }
 
   if (!data) {
-    return <AccountShell>Could not load your account.</AccountShell>;
+    return <AccountShell>Det gick inte att ladda ditt konto.</AccountShell>;
   }
 
   const activeSubscription = data.subscriptions[0];
@@ -233,11 +235,11 @@ export default function AccountPage() {
     <AccountShell onSignOut={signOut}>
       <div className="account-hero">
         <div>
-          <p className="landing-eyebrow">Customer account</p>
+          <p className="landing-eyebrow">Kundkonto</p>
           <h1>{data.customer.name}</h1>
           <p>
-            Manage your InfoSync subscription, billing, screen material, and
-            support messages.
+            Hantera ditt InfoSync-abonnemang, betalning, skärmmaterial och
+            supportmeddelanden.
           </p>
         </div>
         <StatusPill label={data.customer.status} />
@@ -246,88 +248,87 @@ export default function AccountPage() {
       {notice && <p className="flow-message">{notice}</p>}
 
       <section className="account-grid">
-        <AccountCard title="Subscription">
+        <AccountCard title="Abonnemang">
           {activeSubscription ? (
             <div className="account-facts">
               <Fact label="Order" value={activeSubscription.order_number} />
               <Fact
-                label="Package"
-                value={`${activeSubscription.pricing_plans?.name || "Package"} ${activeSubscription.pricing_plans?.resolution || ""}`}
+                label="Paket"
+                value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
               />
               <Fact label="Status" value={activeSubscription.status} />
               <Fact
-                label="Monthly"
+                label="Månadspris"
                 value={money(activeSubscription.monthly_fee_sek)}
               />
               <Fact
-                label="Setup fee"
+                label="Startavgift"
                 value={money(activeSubscription.setup_fee_sek)}
               />
-              <Fact
-                label="Fulfillment"
-                value={activeSubscription.fulfillment_status || "-"}
-              />
+              <Fact label="Enhet" value={money(activeSubscription.hardware_fee_sek)} />
+              <Fact label="Frakt" value={money(activeSubscription.shipping_fee_sek)} />
+              <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
             </div>
           ) : (
-            <p>No subscription is connected to this account yet.</p>
+            <p>Inget abonnemang är kopplat till kontot ännu.</p>
           )}
           <div className="account-actions">
             <button className="landing-button landing-button-primary" onClick={openBillingPortal}>
-              Billing portal
+              Betalningsportal
             </button>
             <button className="landing-button landing-button-secondary" onClick={cancelSubscription}>
-              Cancel subscription
+              Avsluta abonnemang
             </button>
           </div>
         </AccountCard>
 
-        <AccountCard title="Company details">
+        <AccountCard title="Företagsuppgifter">
           <div className="account-facts">
             <Fact label="Email" value={data.customer.email} />
-            <Fact label="Contact" value={data.customer.contact_person || "-"} />
-            <Fact label="Phone" value={data.customer.phone || "-"} />
+            <Fact label="Kontakt" value={data.customer.contact_person || "-"} />
+            <Fact label="Telefon" value={data.customer.phone || "-"} />
             <Fact
-              label="Address"
+              label="Adress"
               value={[data.customer.address, data.customer.city, data.customer.country]
                 .filter(Boolean)
                 .join(", ") || "-"}
             />
-            <Fact label="Activated" value={date(data.customer.activated_at)} />
-            <Fact label="Payment" value={data.customer.payment_status || "-"} />
+            <Fact label="Aktiverat" value={date(data.customer.activated_at)} />
+            <Fact label="Betalning" value={data.customer.payment_status || "-"} />
           </div>
         </AccountCard>
       </section>
 
       <section className="account-grid">
-        <AccountCard title="Your screens">
+        <AccountCard title="Dina skärmar">
           {data.devices.length ? (
             <div className="account-list">
               {data.devices.map((device) => (
                 <div key={device.id} className="account-list-item">
                   <strong>{device.name || device.device_code}</strong>
                   <span>
-                    {device.location || "No location"} ·{" "}
-                    {device.is_active ? "Active" : "Inactive"}
+                    {device.location || "Ingen plats"} ·{" "}
+                    {device.is_active ? "Aktiv" : "Inaktiv"}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <p>Your hardware will appear here when it is prepared.</p>
+            <p>Din enhet visas här när den är förberedd.</p>
           )}
         </AccountCard>
 
-        <AccountCard title="Message InfoSync">
+        <AccountCard title="Meddela InfoSync">
           <input
             value={messageSubject}
             onChange={(event) => setMessageSubject(event.target.value)}
-            placeholder="Subject"
+            placeholder="Ämne"
             className="account-input"
           />
           <textarea
             value={messageText}
             onChange={(event) => setMessageText(event.target.value)}
-            placeholder="Write your message or update request"
+            placeholder="Skriv ditt meddelande eller din uppdateringsförfrågan"
             rows={5}
             className="account-input"
           />
@@ -343,24 +344,24 @@ export default function AccountPage() {
             onClick={sendMessage}
             className="landing-button landing-button-primary"
           >
-            {sending ? "Sending..." : "Send message"}
+            {sending ? "Skickar..." : "Skicka meddelande"}
           </button>
         </AccountCard>
       </section>
 
-      <AccountCard title="Recent messages">
+      <AccountCard title="Senaste meddelanden">
         {data.messages.length ? (
           <div className="account-list">
             {data.messages.map((item) => (
               <div key={item.id} className="account-list-item">
-                <strong>{item.subject || "Message"}</strong>
+                <strong>{item.subject || "Meddelande"}</strong>
                 <span>{date(item.created_at)} · {item.status}</span>
                 <p>{item.message}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p>No messages yet.</p>
+          <p>Inga meddelanden ännu.</p>
         )}
       </AccountCard>
 
@@ -433,7 +434,7 @@ function AccountShell({
         </Link>
         {onSignOut && (
           <button className="landing-button landing-button-secondary" onClick={onSignOut}>
-            Sign out
+            Logga ut
           </button>
         )}
       </header>

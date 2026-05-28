@@ -17,6 +17,8 @@ type PricingPlan = {
   name: string;
   resolution: string;
   setup_fee_sek: number;
+  hardware_fee_sek: number;
+  shipping_fee_sek: number;
   monthly_fee_sek: number;
   trial_days: number;
 };
@@ -62,7 +64,7 @@ function NewSubscriptionPageContent() {
       const { data: planData } = await supabase
         .from("pricing_plans")
         .select(
-          "id, code, name, resolution, setup_fee_sek, monthly_fee_sek, trial_days",
+          "id, code, name, resolution, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days",
         )
         .eq("is_active", true)
         .order("setup_fee_sek", { ascending: true });
@@ -149,6 +151,8 @@ function NewSubscriptionPageContent() {
               {plan.name} ({plan.resolution})
             </h2>
             <p>Setup fee: {plan.setup_fee_sek.toLocaleString("sv-SE")} SEK</p>
+            <p>Hardware: {plan.hardware_fee_sek.toLocaleString("sv-SE")} SEK</p>
+            <p>Shipping: {plan.shipping_fee_sek.toLocaleString("sv-SE")} SEK</p>
             <p>Monthly: {plan.monthly_fee_sek.toLocaleString("sv-SE")} SEK</p>
             <p>Trial: {plan.trial_days} days</p>
           </button>

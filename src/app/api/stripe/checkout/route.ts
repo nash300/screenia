@@ -8,11 +8,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 const stripeAutomaticTaxEnabled =
   process.env.STRIPE_AUTOMATIC_TAX_ENABLED === "true";
+const DEFAULT_SHIPPING_FEE_SEK = 99;
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
+
+function toOre(amountSek: number) {
+  return Math.round(amountSek * 100);
+}
 
 export async function POST(request: Request) {
   try {
@@ -58,12 +63,11 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!plan.stripe_setup_price_id || !plan.stripe_monthly_price_id) {
-      return NextResponse.json(
-        { error: "Betalningsinställningar saknas för detta paket." },
-        { status: 500 },
-      );
-    }
+    const hardwareFeeSek =
+      plan.hardware_fee_sek ??
+      (plan.code === "premium_4k" ? 1099 : 699);
+    const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
+    const currency = plan.currency || "sek";
 
     const { data: order, error: orderError } = await supabaseAdmin
       .from("customer_subscriptions")
@@ -71,8 +75,10 @@ export async function POST(request: Request) {
         customer_id: customerId,
         pricing_plan_id: plan.id,
         status: "checkout_started",
-        currency: plan.currency || "sek",
+        currency,
         setup_fee_sek: plan.setup_fee_sek,
+        hardware_fee_sek: hardwareFeeSek,
+        shipping_fee_sek: shippingFeeSek,
         monthly_fee_sek: plan.monthly_fee_sek,
         trial_days: plan.trial_days,
         tax_status: stripeAutomaticTaxEnabled ? "pending" : "not_enabled",
@@ -107,11 +113,47 @@ export async function POST(request: Request) {
       },
       line_items: [
         {
-          price: plan.stripe_setup_price_id,
+          price_data: {
+            currency,
+            unit_amount: toOre(plan.setup_fee_sek),
+            product_data: {
+              name: `${plan.name} start- och konfigurationsavgift`,
+              description: "Engångsavgift. Återbetalas inte när setupen har startat.",
+            },
+          },
           quantity: 1,
         },
         {
-          price: plan.stripe_monthly_price_id,
+          price_data: {
+            currency,
+            unit_amount: toOre(hardwareFeeSek),
+            product_data: {
+              name: `${plan.name} ${plan.resolution} skärmenhet`,
+            },
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency,
+            unit_amount: toOre(shippingFeeSek),
+            product_data: {
+              name: "Frakt inom Sverige",
+            },
+          },
+          quantity: 1,
+        },
+        {
+          price_data: {
+            currency,
+            unit_amount: toOre(plan.monthly_fee_sek),
+            recurring: {
+              interval: "month",
+            },
+            product_data: {
+              name: `InfoSync ${plan.name} ${plan.resolution} månadsabonnemang`,
+            },
+          },
           quantity: 1,
         },
       ],

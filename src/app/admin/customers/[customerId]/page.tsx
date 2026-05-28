@@ -42,6 +42,8 @@ type CustomerSubscription = {
   order_number: string | null;
   status: string;
   setup_fee_sek: number | null;
+  hardware_fee_sek: number | null;
+  shipping_fee_sek: number | null;
   monthly_fee_sek: number | null;
   tax_amount_sek: number | null;
   total_amount_sek: number | null;
@@ -200,6 +202,8 @@ export default function CustomerDetailPage({
           order_number,
           status,
           setup_fee_sek,
+          hardware_fee_sek,
+          shipping_fee_sek,
           monthly_fee_sek,
           tax_amount_sek,
           total_amount_sek,
@@ -272,7 +276,7 @@ export default function CustomerDetailPage({
 
   const suspendCustomer = async () => {
     if (!customer) return;
-    if (!confirm("Suspend this customer?")) return;
+    if (!confirm("Suspend this customer")) return;
 
     setSaving(true);
 
@@ -307,7 +311,7 @@ export default function CustomerDetailPage({
 
     if (
       !confirm(
-        "Cancel this customer's Stripe subscription and suspend the customer?",
+        "Cancel this customer's Stripe subscription and suspend the customer",
       )
     ) {
       return;
@@ -345,7 +349,7 @@ export default function CustomerDetailPage({
 
   const reactivateCustomer = async () => {
     if (!customer) return;
-    if (!confirm("Reactivate this customer?")) return;
+    if (!confirm("Reactivate this customer")) return;
 
     setSaving(true);
 
@@ -757,8 +761,8 @@ export default function CustomerDetailPage({
                       {subscription.order_number || "Order number pending"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      Status: {subscription.status} Â· Fulfillment:{" "}
-                      {subscription.fulfillment_status || "pending"} Â· Inventory:{" "}
+                      Status: {subscription.status} ? Fulfillment:{" "}
+                      {subscription.fulfillment_status || "pending"} ? Inventory:{" "}
                       {subscription.inventory_status || "not reserved"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
@@ -771,6 +775,14 @@ export default function CustomerDetailPage({
                     <p>
                       Setup:{" "}
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
+                    </p>
+                    <p>
+                      Hardware:{" "}
+                      {formatSek(subscription.hardware_fee_sek) || "Not recorded"}
+                    </p>
+                    <p>
+                      Shipping:{" "}
+                      {formatSek(subscription.shipping_fee_sek) || "Not recorded"}
                     </p>
                     <p>
                       Monthly:{" "}

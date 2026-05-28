@@ -9,8 +9,8 @@ export default function PricingPage() {
         <p className="eyebrow">InfoSync Admin</p>
         <h1>Pricing</h1>
         <p>
-          Manage setup fees, monthly subscriptions, trial rules, and legal
-          billing rules.
+          Manage setup fees, device fees, shipping, monthly subscriptions, trial
+          rules, and legal billing rules.
         </p>
       </div>
 
@@ -24,6 +24,16 @@ export default function PricingPage() {
             <p>
               <strong>Setup fee:</strong>{" "}
               {plan.setupFeeSek.toLocaleString("sv-SE")} SEK
+            </p>
+
+            <p>
+              <strong>Hardware:</strong>{" "}
+              {plan.hardwareFeeSek.toLocaleString("sv-SE")} SEK
+            </p>
+
+            <p>
+              <strong>Shipping:</strong>{" "}
+              {plan.shippingFeeSek.toLocaleString("sv-SE")} SEK
             </p>
 
             <p>

@@ -5,95 +5,95 @@ import "./landing.css";
 
 const copy = {
   sv: {
-    nav: ["TjÃ¤nsten", "SÃ¥ fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
+    nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
     demo: "Kontakta oss",
-    eyebrow: "Digital skyltning fÃ¶r fÃ¶retag",
+    eyebrow: "Digital skyltning för företag",
     hero:
-      "Professionellt skÃ¤rminnehÃ¥ll, hanterat frÃ¥n en tydlig plattform.",
+      "Professionellt skärminnehåll, hanterat från en tydlig plattform.",
     lede:
-      "InfoSync hjÃ¤lper salonger, butiker och servicefÃ¶retag att visa kampanjer, prislistor och information pÃ¥ skÃ¤rm. Du vÃ¤ljer paket, skickar in dina uppgifter och fÃ¥r hjÃ¤lp att komma igÃ¥ng utan tekniskt krÃ¥ngel.",
+      "InfoSync hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer paket, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
     pricingCta: "Se paket",
-    workflowCta: "SÃ¥ fungerar det",
+    workflowCta: "Så fungerar det",
     stats: [
-      ["24/7", "kontinuerlig skÃ¤rmvisning"],
-      ["14 dagar", "provperiod pÃ¥ abonnemang"],
-      ["0", "mÃ¥naders bindningstid"],
+      ["24/7", "kontinuerlig skärmvisning"],
+      ["14 dagar", "provperiod på abonnemang"],
+      ["0", "månaders bindningstid"],
     ],
-    platformTitle: "En enklare vÃ¤g till professionell skÃ¤rmvisning",
+    platformTitle: "En enklare väg till professionell skärmvisning",
     platformText:
-      "Du behÃ¶ver inte bygga ett eget system eller hantera tekniska instÃ¤llningar. InfoSync hjÃ¤lper dig frÃ¥n fÃ¶rsta fÃ¶rfrÃ¥gan till en skÃ¤rm som visar rÃ¤tt innehÃ¥ll i din verksamhet.",
+      "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. InfoSync hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
     features: [
-      ["Smidig start", "Du vÃ¤ljer paket och fÃ¥r en personlig startguide dÃ¤r allt fortsÃ¤tter pÃ¥ ett tydligt sÃ¤tt."],
-      ["Tydlig kostnad", "Du ser startavgift, mÃ¥nadskostnad, provperiod och bindningstid innan du gÃ¥r vidare."],
-      ["HjÃ¤lp med skÃ¤rmen", "Vi gÃ¶r layouten utifrÃ¥n ditt material och skickar enheten med instruktioner."],
-      ["InnehÃ¥ll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
+      ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
+      ["Tydlig kostnad", "Du ser startavgift, månadskostnad, provperiod och bindningstid innan du går vidare."],
+      ["Hjälp med skärmen", "Vi gör layouten utifrån ditt material och skickar enheten med instruktioner."],
+      ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
     ],
-    workflowTitle: "FrÃ¥n paketval till fungerande skÃ¤rm",
+    workflowTitle: "Från paketval till fungerande skärm",
     workflowText:
-      "Startguiden Ã¤r den sÃ¤kra sidan dÃ¤r du bekrÃ¤ftar uppgifter, skickar material och gÃ¥r vidare till betalning. Resten hÃ¥ller vi enkelt.",
+      "Startguiden är den säkra sidan där du bekräftar uppgifter, skickar material och går vidare till betalning. Resten håller vi enkelt.",
     steps: [
-      ["01", "VÃ¤lj paket", "VÃ¤lj Standard eller Premium och skicka en kort fÃ¶rfrÃ¥gan med fÃ¶retagets uppgifter.", "Det Ã¤r inte en bestÃ¤llning Ã¤nnu. Vi anvÃ¤nder uppgifterna fÃ¶r att skapa din personliga startguide."],
-      ["02", "FÃ¤rdigstÃ¤ll uppgifter och betala", "I startguiden bekrÃ¤ftar du uppgifter, godkÃ¤nner villkor, laddar upp material och gÃ¥r vidare till betalning.", "Meny, prislista, logotyp, bilder eller enkla instruktioner rÃ¤cker fint."],
-      ["03", "Vi bygger layouten", "Efter betalning skapar vi skÃ¤rmlayouten utifrÃ¥n materialet och skickar USB-enheten inom 4 arbetsdagar.", "Under tiden kan du montera eller placera din Smart TV i lokalen."],
-      ["04", "Koppla in och starta", "NÃ¤r enheten kommer kopplar du den till HDMI, ansluter till Wi-Fi och fÃ¶ljer instruktionerna vi skickar med.", "Sedan Ã¤r skÃ¤rmen redo att visa ditt innehÃ¥ll."],
+      ["01", "Välj paket", "Välj Standard eller Premium och skicka en kort förfrågan med företagets uppgifter.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
+      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor, laddar upp material och går vidare till betalning.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
+      ["03", "Vi bygger layouten", "Efter betalning skapar vi skärmlayouten utifrån materialet och skickar USB-enheten inom 4 arbetsdagar.", "Under tiden kan du montera eller placera din Smart TV i lokalen."],
+      ["04", "Koppla in och starta", "När enheten kommer kopplar du den till HDMI, ansluter till Wi-Fi och följer instruktionerna vi skickar med.", "Sedan är skärmen redo att visa ditt innehåll."],
     ],
-    process: [["FÃ¶rfrÃ¥gan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
-    pricingTitle: "Tydliga paket fÃ¶r hanterade skÃ¤rmar",
+    process: [["Förfrågan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
+    pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "Startavgiften betalas en gÃ¥ng. MÃ¥nadsabonnemanget har 14 dagars provperiod och ingen bindningstid.",
+      "Start- och konfigurationsavgiften betalas en gång och är inte återbetalningsbar. Enheten betalas vid start. Månadsabonnemanget har 14 dagars provperiod och ingen bindningstid.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
-    monthly: "Per mÃ¥nad",
-    choose: "VÃ¤lj",
-    trustTitle: "Betalning och uppgifter hanteras sÃ¤kert",
+    monthly: "Per månad",
+    choose: "Välj",
+    trustTitle: "Betalning och uppgifter hanteras säkert",
     trustText:
-      "Betalningen sker via en sÃ¤ker betalningssida med kort, Klarna och andra betalningssÃ¤tt som Ã¤r aktiverade fÃ¶r din betalning.",
+      "Betalningen sker via en säker betalningssida med kort, Klarna och andra betalningssätt som är aktiverade för din betalning.",
     deliveryTitle: "Leveransalternativ i Sverige",
     deliveryText:
-      "Vi kan skicka skÃ¤rmenheten med etablerade transportÃ¶rer i Sverige och vÃ¤ljer alternativ efter adress, paketstorlek och ledtid.",
-    galleryTitle: "Exempel pÃ¥ skÃ¤rmar och mallar",
+      "Vi kan skicka skärmenheten med etablerade transportörer i Sverige och väljer alternativ efter adress, paketstorlek och ledtid.",
+    galleryTitle: "Exempel på skärmar och mallar",
     galleryText:
-      "NÃ¥gra exempel pÃ¥ hur kampanjer, menyer och information kan visas pÃ¥ en kundskÃ¤rm.",
+      "Några exempel på hur kampanjer, menyer och information kan visas på en kundskärm.",
     galleryItems: [
       ["Restaurangmeny", "Kampanjer, menyer och dagens erbjudanden."],
-      ["SkyltfÃ¶nster", "Synligt innehÃ¥ll fÃ¶r kunder som passerar lokalen."],
+      ["Skyltfönster", "Synligt innehåll för kunder som passerar lokalen."],
       ["Salong och service", "Priser, behandlingar och aktuell information."],
-      ["Produktvisning", "Tydliga bilder och budskap fÃ¶r butiksmiljÃ¶er."],
+      ["Produktvisning", "Tydliga bilder och budskap för butiksmiljöer."],
     ],
-    faqTitle: "Svar innan du vÃ¤ljer paket",
+    faqTitle: "Svar innan du väljer paket",
     faqs: [
-      ["Vad hÃ¤nder efter att jag valt paket?", "Du fÃ¥r en personlig startguide dÃ¤r du kontrollerar fÃ¶retagsuppgifter, skickar material till skÃ¤rmen, godkÃ¤nner villkor och gÃ¥r vidare till betalning."],
-      ["Vilket material behÃ¶ver jag skicka?", "Du kan ladda upp meny, prislista, logotyp, bilder eller PDF-filer. Det gÃ¥r ocksÃ¥ bra att skriva kort vad skÃ¤rmen ska visa."],
-      ["Hur snabbt kan jag komma igÃ¥ng?", "NÃ¤r betalningen Ã¤r klar skapar vi layouten och postar USB-enheten inom 4 arbetsdagar. Leveranstiden beror sedan pÃ¥ posten."],
-      ["BehÃ¶ver jag kÃ¶pa en sÃ¤rskild TV?", "Du behÃ¶ver en Smart TV eller skÃ¤rm med HDMI-ingÃ¥ng och tillgÃ¥ng till Wi-Fi."],
-      ["Kan jag visa kampanjer och priser samtidigt?", "Ja. Vi kan bygga en layout med prislista, erbjudanden, Ã¶ppettider, QR-kod och bildmaterial i samma visning."],
-      ["Kan jag Ã¤ndra innehÃ¥llet senare?", "Ja. Skicka nytt material eller nya priser till InfoSync sÃ¥ hjÃ¤lper vi dig att uppdatera skÃ¤rmen."],
-      ["Vilken leverans kan jag vÃ¤lja?", "I startguiden vÃ¤ljer kunden en tillgÃ¤nglig transportÃ¶r, exempelvis PostNord, DHL, Bring, DB Schenker eller Instabox."],
-      ["Vad ingÃ¥r i startavgiften?", "Startavgiften tÃ¤cker personlig startguide, layoutarbete, fÃ¶rberedelse av skÃ¤rminnehÃ¥ll och utskick av enheten."],
+      ["Vad händer efter att jag valt paket", "Du får en personlig startguide där du kontrollerar företagsuppgifter, skickar material till skärmen, godkänner villkor och går vidare till betalning."],
+      ["Vilket material behöver jag skicka", "Du kan ladda upp meny, prislista, logotyp, bilder eller PDF-filer. Det går också bra att skriva kort vad skärmen ska visa."],
+      ["Hur snabbt kan jag komma igång", "När betalningen är klar skapar vi layouten och postar USB-enheten inom 4 arbetsdagar. Leveranstiden beror sedan på posten."],
+      ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
+      ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
+      ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till InfoSync så hjälper vi dig att uppdatera skärmen."],
+      ["Vilken leverans kan jag välja", "I startguiden väljer kunden en tillgänglig transportör, exempelvis PostNord, DHL, Bring, DB Schenker eller Instabox."],
+      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för båda paketen och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Avgiften återbetalas inte när arbetet har startat."],
     ],
-    companyTitle: "FÃ¶retagsinformation",
+    companyTitle: "Företagsinformation",
     companyText:
-      "InfoSync hanterar kunduppgifter, betalning och leverans enligt vÃ¥ra villkor och vÃ¥r integritetspolicy.",
-    contactEyebrow: "Redo att komma igÃ¥ng?",
-    contactTitle: "Starta din nÃ¤sta skÃ¤rm med ett enklare arbetsflÃ¶de.",
+      "InfoSync hanterar kunduppgifter, betalning och leverans enligt våra villkor och vår integritetspolicy.",
+    contactEyebrow: "Redo att komma igång",
+    contactTitle: "Starta din nästa skärm med ett enklare arbetsflöde.",
     contactText:
-      "BerÃ¤tta hur mÃ¥nga skÃ¤rmar du vill hantera och vilket innehÃ¥ll du vill visa. Vi hjÃ¤lper dig att vÃ¤lja rÃ¤tt paket.",
+      "Berätta hur många skärmar du vill hantera och vilket innehåll du vill visa. Vi hjälper dig att välja rätt paket.",
     contactButton: "Kontakta InfoSync",
     seoIntro:
-      "InfoSync erbjuder digital skyltning i Sverige fÃ¶r salonger, butiker, restauranger och lokala servicefÃ¶retag som vill visa menyer, prislistor, kampanjer och kundinformation pÃ¥ TV-skÃ¤rm.",
-    modalEyebrow: "Skicka fÃ¶rfrÃ¥gan",
+      "InfoSync erbjuder digital skyltning i Sverige för salonger, butiker, restauranger och lokala serviceföretag som vill visa menyer, prislistor, kampanjer och kundinformation på TV-skärm.",
+    modalEyebrow: "Skicka förfrågan",
     modalTitle: "Starta med",
     modalText:
-      "Skicka fÃ¶retagets uppgifter sÃ¥ kontaktar InfoSync dig med en personlig startguide fÃ¶r uppgifter, villkor och betalning.",
-    close: "StÃ¤ng",
-    fields: ["FÃ¶retagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
-    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Antal skÃ¤rmar, plats eller annat vi bÃ¶r kÃ¤nna till."],
-    sending: "Skickar fÃ¶rfrÃ¥gan...",
-    submit: "Skicka fÃ¶rfrÃ¥gan",
+      "Skicka företagets uppgifter så kontaktar InfoSync dig med en personlig startguide för uppgifter, villkor och betalning.",
+    close: "Stäng",
+    fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
+    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Antal skärmar, plats eller annat vi bör känna till."],
+    sending: "Skickar förfrågan...",
+    submit: "Skicka förfrågan",
     success:
-      "Tack. Din fÃ¶rfrÃ¥gan Ã¤r mottagen och InfoSync Ã¥terkommer med en personlig startguide.",
-    error: "Det gick inte att skicka din fÃ¶rfrÃ¥gan.",
-    legal: ["Villkor", "Integritet", "Alla rÃ¤ttigheter fÃ¶rbehÃ¥llna."],
+      "Tack. Din förfrågan är mottagen och InfoSync återkommer med en personlig startguide.",
+    error: "Det gick inte att skicka din förfrågan.",
+    legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
   },
   en: {
     nav: ["Service", "How it works", "Pricing", "Examples", "FAQ", "Contact"],
@@ -148,19 +148,19 @@ const copy = {
     ],
     faqTitle: "Answers before you choose a package",
     faqs: [
-      ["What happens after I choose a package?", "You receive a personal setup guide where you check company details, send screen material, accept terms, and continue to payment."],
-      ["What material do I need to send?", "You can upload a menu, price list, logo, images, or PDFs. You can also briefly describe what the screen should show."],
-      ["How quickly can I start?", "After payment, we build the layout and post the USB device within 4 working days. Delivery time depends on the postal service."],
-      ["Do I need a special TV?", "You need a Smart TV or screen with HDMI and access to Wi-Fi."],
-      ["Can I show campaigns and prices together?", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
-      ["Can I change the content later?", "Yes. Send new material or updated prices to InfoSync and we help update the screen."],
-      ["Which delivery service can I choose?", "In the setup guide, the customer selects an available carrier such as PostNord, DHL, Bring, DB Schenker, or Instabox."],
-      ["What is included in the setup fee?", "The setup fee covers the personal setup guide, layout work, screen content preparation, and device dispatch."],
+      ["What happens after I choose a package", "You receive a personal setup guide where you check company details, send screen material, accept terms, and continue to payment."],
+      ["What material do I need to send", "You can upload a menu, price list, logo, images, or PDFs. You can also briefly describe what the screen should show."],
+      ["How quickly can I start", "After payment, we build the layout and post the USB device within 4 working days. Delivery time depends on the postal service."],
+      ["Do I need a special TV", "You need a Smart TV or screen with HDMI and access to Wi-Fi."],
+      ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
+      ["Can I change the content later", "Yes. Send new material or updated prices to InfoSync and we help update the screen."],
+      ["Which delivery service can I choose", "In the setup guide, the customer selects an available carrier such as PostNord, DHL, Bring, DB Schenker, or Instabox."],
+      ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and device dispatch."],
     ],
     companyTitle: "Company information",
     companyText:
       "InfoSync handles customer details, payment, and delivery according to our terms and privacy policy.",
-    contactEyebrow: "Ready to get started?",
+    contactEyebrow: "Ready to get started",
     contactTitle: "Launch your next screen with a simpler workflow.",
     contactText:
       "Tell us how many screens you want to manage and what content you want to show. We help you choose the right package.",
@@ -187,7 +187,8 @@ const plans = [
     code: "standard_fhd",
     name: "Standard",
     resolution: "FHD",
-    setupFee: "1 999 kr",
+    setupFee: "1 599 kr",
+    hardwareFee: "699 kr",
     monthlyFee: "219 kr",
     featured: false,
   },
@@ -195,8 +196,9 @@ const plans = [
     code: "premium_4k",
     name: "Premium",
     resolution: "4K",
-    setupFee: "1 999 kr",
-    monthlyFee: "269 kr",
+    setupFee: "1 599 kr",
+    hardwareFee: "1 099 kr",
+    monthlyFee: "296 kr",
     featured: true,
   },
 ] as const;
@@ -205,22 +207,22 @@ const planCopy = {
   sv: {
     standard_fhd: {
       description:
-        "FÃ¶r en skÃ¤rm som visar kampanjer, erbjudanden och information i Full HD.",
+        "För en skärm som visar kampanjer, erbjudanden och information i Full HD.",
       features: [
         "Uppspelning i Full HD",
-        "SÃ¤ker startguide fÃ¶r uppgifter och betalning",
-        "Vi hjÃ¤lper dig att fÃ¥ skÃ¤rmen redo",
-        "14 dagars provperiod pÃ¥ mÃ¥nadsabonnemang",
+        "Säker startguide för uppgifter och betalning",
+        "Vi hjälper dig att få skärmen redo",
+        "14 dagars provperiod på månadsabonnemang",
         "Ingen bindningstid",
       ],
     },
     premium_4k: {
-      description: "FÃ¶r verksamheter som vill visa extra skarpt innehÃ¥ll i 4K.",
+      description: "För verksamheter som vill visa extra skarpt innehåll i 4K.",
       features: [
-        "Uppspelning fÃ¶r 4K-innehÃ¥ll",
-        "SÃ¤ker startguide fÃ¶r uppgifter och betalning",
-        "Vi hjÃ¤lper dig att fÃ¥ skÃ¤rmen redo",
-        "14 dagars provperiod pÃ¥ mÃ¥nadsabonnemang",
+        "Uppspelning för 4K-innehåll",
+        "Säker startguide för uppgifter och betalning",
+        "Vi hjälper dig att få skärmen redo",
+        "14 dagars provperiod på månadsabonnemang",
         "Ingen bindningstid",
       ],
     },
@@ -259,9 +261,9 @@ const galleryImages = [
 ] as const;
 const visualCopy = {
   sv: [
-    ["Planera innehÃ¥ll", "Meny, kampanj och logotyp samlas pÃ¥ ett stÃ¤lle."],
-    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flÃ¶de."],
-    ["FÃ¤rdig visning", "Enheten kopplas in och visar materialet utan krÃ¥nglig installation."],
+    ["Planera innehåll", "Meny, kampanj och logotyp samlas på ett ställe."],
+    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flöde."],
+    ["Färdig visning", "Enheten kopplas in och visar materialet utan krånglig installation."],
   ],
   en: [
     ["Plan content", "Menu, campaign, and logo are collected in one place."],
@@ -292,18 +294,20 @@ type HeroSlideAsset = LandingAsset & {
 
 const comparisonRows = {
   sv: [
-    ["UpplÃ¶sning", "Full HD", "4K"],
-    ["Passar bÃ¤st fÃ¶r", "En skÃ¤rm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkÃ¤nsla"],
-    ["Startavgift", "1 999 kr", "1 999 kr"],
-    ["MÃ¥nadspris", "219 kr", "269 kr"],
+    ["Upplösning", "Full HD", "4K"],
+    ["Passar bäst för", "En skärm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkänsla"],
+    ["Startavgift", "1 599 kr", "1 599 kr"],
+    ["Enhet", "699 kr", "1 099 kr"],
+    ["Månadspris", "219 kr", "296 kr"],
     ["Provperiod", "14 dagar", "14 dagar"],
     ["Bindningstid", "Ingen", "Ingen"],
   ],
   en: [
     ["Resolution", "Full HD", "4K"],
     ["Best for", "One screen with clear menus and offers", "Sharper display and a more premium feel"],
-    ["Setup fee", "1 999 kr", "1 999 kr"],
-    ["Monthly price", "219 kr", "269 kr"],
+    ["Setup fee", "1 599 kr", "1 599 kr"],
+    ["Device", "699 kr", "1 099 kr"],
+    ["Monthly price", "219 kr", "296 kr"],
     ["Trial", "14 days", "14 days"],
     ["Commitment", "None", "None"],
   ],
@@ -344,14 +348,14 @@ export default function Home() {
     image: "https://infosync.se/brand/infosync-logo-full-white-bg.png",
     email: "hello@infosync.se",
     areaServed: "Sweden",
-    priceRange: "SEK 219-269 per month",
+    priceRange: "SEK 219-296 per month",
     description: t.seoIntro,
     knowsAbout: [
       "digital skyltning",
       "digital signage",
-      "skÃ¤rmreklam",
-      "menyskÃ¤rm",
-      "informationsskÃ¤rm",
+      "skärmreklam",
+      "menyskärm",
+      "informationsskärm",
       "TV skyltning",
     ],
     makesOffer: plans.map((plan) => ({
@@ -371,8 +375,8 @@ export default function Home() {
         if (!response.ok) return;
 
         const data = (await response.json()) as {
-          heroSlides?: HeroSlideAsset[];
-          serviceLogos?: LandingAsset[];
+          heroSlides: HeroSlideAsset[];
+          serviceLogos: LandingAsset[];
         };
 
         if (!isMounted) return;
@@ -624,6 +628,7 @@ export default function Home() {
                     <span>{t.monthly}</span>
                   </div>
                   <PriceRow label={t.setupFee} value={plan.setupFee} />
+                  <PriceRow label="Enhet" value={plan.hardwareFee} />
                   <ul>{planText.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   <button
                     type="button"
@@ -693,7 +698,7 @@ export default function Home() {
         </div>
         <div className="landing-footer-card">
           <span>InfoSync</span>
-          <strong>Digital skyltning fÃ¶r lokala fÃ¶retag i Sverige</strong>
+          <strong>Digital skyltning för lokala företag i Sverige</strong>
           <nav>
             <a href="/terms">{t.legal[0]}</a>
             <a href="/privacy">{t.legal[1]}</a>

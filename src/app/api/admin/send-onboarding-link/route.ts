@@ -93,7 +93,7 @@ export async function POST(request: Request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (user?.app_metadata.role !== "admin") {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
@@ -108,7 +108,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const resendApiKey = process.env.RESEND_API_KEY?.trim();
+  const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
   const resendFromEmail =
     process.env.RESEND_FROM_EMAIL?.trim() || "InfoSync <onboarding@resend.dev>";
 
@@ -230,7 +230,7 @@ InfoSync`,
     );
   }
 
-  const existingNotes = customer.notes?.trim();
+  const existingNotes = customer.notes.trim();
   const sentNote = `Start guide email sent: ${new Date().toISOString()}`;
 
   const { error: updateError } = await supabaseAdmin
