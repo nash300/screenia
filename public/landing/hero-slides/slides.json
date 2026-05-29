@@ -1,0 +1,32 @@
+{
+  "slides": [
+    {
+      "id": "01",
+      "image": "01/image.png",
+      "sv": {
+        "eyebrow": "Digital skyltning för företag",
+        "title": "Förvandla förbipasserande till kunder.",
+        "text": "Visa det som gör ditt företag unikt och locka fler besökare att komma in."
+      },
+      "en": {
+        "eyebrow": "Digital signage for businesses",
+        "title": "Turn passers-by into customers.",
+        "text": "Show what makes your business unique and attract more visitors inside."
+      }
+    },
+    {
+      "id": "02",
+      "image": "02/image.png",
+      "sv": {
+        "eyebrow": "Digital skyltning för företag",
+        "title": "Digital skyltning har aldrig varit enklare.",
+        "text": "Anslut enheten, koppla upp den mot Wi-Fi och börja visa innehåll direkt. Ingen tekniker behövs."
+      },
+      "en": {
+        "eyebrow": "Digital signage for businesses",
+        "title": "Digital signage has never been easier.",
+        "text": "Plug in the device, connect it to Wi-Fi, and start showing content right away. No technician needed."
+      }
+    }
+  ]
+}

@@ -45,6 +45,10 @@ const listPublicFiles = async (
 };
 
 type HeroSlideText = {
+  id?: string;
+  image?: string;
+  media?: string;
+  label?: string;
   sv?: {
     eyebrow?: string;
     title?: string;
@@ -57,6 +61,10 @@ type HeroSlideText = {
   };
 };
 
+type HeroSlideManifest = {
+  slides?: HeroSlideText[];
+};
+
 const getMediaType = (fileName: string) => {
   const extension = path.extname(fileName).toLowerCase();
 
@@ -66,7 +74,59 @@ const getMediaType = (fileName: string) => {
   return null;
 };
 
+const publicHeroPath = (filePath: string) =>
+  `/landing/hero-slides/${filePath
+    .split(/[\\/]+/)
+    .map((part) => encodeURIComponent(part))
+    .join("/")}`;
+
+const listHeroSlidesFromManifest = async () => {
+  try {
+    const rawManifest = await readFile(
+      path.join(heroSlideDirectory, "slides.json"),
+      "utf8",
+    );
+    const manifest = JSON.parse(rawManifest) as HeroSlideManifest;
+
+    if (!manifest.slides?.length) return [];
+
+    return manifest.slides
+      .map((slide, index) => {
+        const mediaFile = slide.image || slide.media;
+        if (!mediaFile) return null;
+
+        const mediaType = getMediaType(mediaFile);
+        if (!mediaType) return null;
+
+        const id = slide.id || path.parse(mediaFile).name || String(index + 1);
+
+        return {
+          id,
+          label: slide.label || toLabel(id),
+          src: publicHeroPath(mediaFile),
+          mediaType,
+          sv: {
+            eyebrow: slide.sv?.eyebrow || "Digital skyltning för företag",
+            title: slide.sv?.title || toLabel(id),
+            text: slide.sv?.text || "",
+          },
+          en: {
+            eyebrow: slide.en?.eyebrow || "Digital signage for businesses",
+            title: slide.en?.title || toLabel(id),
+            text: slide.en?.text || "",
+          },
+        };
+      })
+      .filter((slide) => slide !== null);
+  } catch {
+    return [];
+  }
+};
+
 const listHeroSlides = async () => {
+  const manifestSlides = await listHeroSlidesFromManifest();
+  if (manifestSlides.length > 0) return manifestSlides;
+
   try {
     const entries = await readdir(heroSlideDirectory, { withFileTypes: true });
     const slideDirectories = entries
@@ -97,7 +157,7 @@ const listHeroSlides = async () => {
             src: publicPath,
             mediaType: getMediaType(mediaFile),
             sv: {
-              eyebrow: text.sv?.eyebrow || "Digital skyltning for foretag",
+              eyebrow: text.sv?.eyebrow || "Digital skyltning för företag",
               title: text.sv?.title || toLabel(directoryName),
               text: text.sv?.text || "",
             },

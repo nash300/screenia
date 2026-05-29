@@ -272,6 +272,13 @@ const visualCopy = {
   ],
 } as const;
 
+const heroBenefits = [
+  ["Ingen bindningstid", "Avsluta när som helst."],
+  ["Kostnadsfri provperiod", "2 veckor", "3 veckor"],
+  ["Alla HDMI-skärmar", "Smart TV och signage."],
+  ["100 % nöjdhetsgaranti", "Trygg start med oss."],
+] as const;
+
 type LandingAsset = {
   label: string;
   src: string;
@@ -329,6 +336,7 @@ export default function Home() {
   const [requestMessage, setRequestMessage] = useState("");
   const [heroSlides, setHeroSlides] = useState<HeroSlideAsset[]>([]);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+  const [heroInteractionKey, setHeroInteractionKey] = useState(0);
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
 
   const t = copy.sv;
@@ -421,18 +429,34 @@ export default function Home() {
         };
   const currentHeroMedia =
     heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
+  const currentHeroIndex = heroSlideCount > 0 ? activeHeroSlide % heroSlideCount : 0;
+
+  const goToHeroSlide = (index: number) => {
+    if (heroSlideCount <= 1) return;
+
+    setActiveHeroSlide((index + heroSlideCount) % heroSlideCount);
+    setHeroInteractionKey((current) => current + 1);
+  };
+
+  const goToPreviousHeroSlide = () => {
+    goToHeroSlide(currentHeroIndex - 1);
+  };
+
+  const goToNextHeroSlide = () => {
+    goToHeroSlide(currentHeroIndex + 1);
+  };
 
   useEffect(() => {
     if (heroSlideCount <= 1) return;
 
     const timer = window.setInterval(() => {
       setActiveHeroSlide((current) => (current + 1) % heroSlideCount);
-    }, 4000);
+    }, 6500);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, [heroSlideCount]);
+  }, [heroSlideCount, heroInteractionKey]);
 
   const submitPlanRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -512,46 +536,18 @@ export default function Home() {
       </header>
 
       <main id="top">
-        <section
-          className={`landing-hero ${
-            currentHeroMedia?.mediaType === "image"
-              ? "landing-hero-image-slide"
-              : "landing-hero-video-slide"
-          }`}
-        >
-          <div className="landing-hero-video-layer" aria-hidden="true">
-            {currentHeroMedia?.mediaType === "video" && (
-              <video
-                key={currentHeroMedia.src}
-                autoPlay
-                muted
-                playsInline
-                loop
-                preload="metadata"
-              >
-                <source src={currentHeroMedia.src} />
-              </video>
-            )}
-            {currentHeroMedia?.mediaType === "image" && (
-              <>
-                <img
-                  className="landing-hero-ambient-image"
-                  src={currentHeroMedia.src}
-                  alt=""
-                />
-                <span className="landing-hero-image-frame">
-                  <img
-                    className="landing-hero-main-image"
-                    src={currentHeroMedia.src}
-                    alt=""
-                  />
-                </span>
-              </>
-            )}
-          </div>
+        <section className="landing-hero landing-hero-background-slide">
+          <div
+            className="landing-hero-video-layer"
+            aria-hidden="true"
+            style={
+              currentHeroMedia
+                ? { backgroundImage: `url("${currentHeroMedia.src}")` }
+                : undefined
+            }
+          />
           <div className="landing-hero-copy">
             <div className="landing-hero-copy-main">
-              <p className="landing-eyebrow">{currentHeroSlide.eyebrow}</p>
               <h1>{currentHeroSlide.title}</h1>
               <p className="landing-lede">{currentHeroSlide.text}</p>
               <div className="landing-actions">
@@ -572,6 +568,24 @@ export default function Home() {
               </div>
               <p className="landing-seo-copy">{t.seoIntro}</p>
             </div>
+            <div className="landing-hero-benefits" aria-label="InfoSync benefits">
+              {heroBenefits.map(([title, text, highlight]) => (
+                <div key={title} className="landing-hero-benefit">
+                  <span className="landing-hero-benefit-icon" aria-hidden="true" />
+                  <span>
+                    <strong>{title}</strong>
+                    {highlight ? (
+                      <small>
+                        <span className="landing-benefit-old">{text}</span>
+                        <span className="landing-benefit-new">{highlight}</span>
+                      </small>
+                    ) : (
+                      <small>{text}</small>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
             {serviceLogos.length > 0 && (
               <div className="landing-logo-rail" aria-label="Service logos">
                 {serviceLogos.map((logo) => (
@@ -582,6 +596,39 @@ export default function Home() {
               </div>
             )}
           </div>
+          {heroSlideCount > 1 && (
+            <div className="landing-hero-controls" aria-label="Bildspel">
+              <button
+                type="button"
+                className="landing-hero-arrow"
+                onClick={goToPreviousHeroSlide}
+                aria-label="Visa föregående bild"
+              >
+                <span aria-hidden="true">‹</span>
+              </button>
+              <div className="landing-hero-dots" role="tablist" aria-label="Välj bild">
+                {heroSlides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    className={index === currentHeroIndex ? "is-active" : ""}
+                    onClick={() => goToHeroSlide(index)}
+                    role="tab"
+                    aria-selected={index === currentHeroIndex}
+                    aria-label={`Visa bild ${index + 1}`}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                className="landing-hero-arrow"
+                onClick={goToNextHeroSlide}
+                aria-label="Visa nästa bild"
+              >
+                <span aria-hidden="true">›</span>
+              </button>
+            </div>
+          )}
         </section>
 
         <LandingSection id="platform" eyebrow={t.nav[0]} title={t.platformTitle} text={t.platformText}>
