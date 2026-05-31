@@ -64,6 +64,17 @@ type AccountData = {
     status: string;
     created_at: string;
   }>;
+  displayAssets: Array<{
+    id: string;
+    file_name: string | null;
+    content_type: string | null;
+    file_size: number | null;
+    asset_category: string;
+    description: string | null;
+    source: string;
+    status: string;
+    created_at: string;
+  }>;
   agreements: Array<{
     id: string;
     document_type: string;
@@ -88,6 +99,11 @@ type AccountData = {
   }>;
 };
 
+type MaterialUploadItem = {
+  file: File;
+  category: string;
+};
+
 const formatter = new Intl.NumberFormat("sv-SE");
 
 function money(amount: number | null) {
@@ -104,14 +120,27 @@ function date(value: string | null) {
   }).format(new Date(value));
 }
 
+function assetCategoryLabel(value: string) {
+  if (value === "logo") return "Logotyp";
+  if (value === "image") return "Bild";
+  if (value === "menu") return "Meny/prislista";
+  if (value === "text") return "Text";
+  return "Annat";
+}
+
 export default function AccountPage() {
   const [data, setData] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
   const [messageSubject, setMessageSubject] = useState("");
   const [messageText, setMessageText] = useState("");
   const [messageFiles, setMessageFiles] = useState<File[]>([]);
+  const [materialDescription, setMaterialDescription] = useState("");
+  const [materialCategory, setMaterialCategory] = useState("image");
+  const [materialFiles, setMaterialFiles] = useState<MaterialUploadItem[]>([]);
+  const [materialPanel, setMaterialPanel] = useState<"text" | "files" | "history">("text");
   const [notice, setNotice] = useState("");
   const [sending, setSending] = useState(false);
+  const [uploadingMaterial, setUploadingMaterial] = useState(false);
   const router = useRouter();
 
   const loadAccount = async () => {
@@ -130,12 +159,13 @@ export default function AccountPage() {
     loadAccount();
   }, []);
 
-  const fileToPayload = (file: File) => {
+  const fileToPayload = (file: File, category = "other") => {
     return new Promise<{
       name: string;
       type: string;
       size: number;
       data: string;
+      category: string;
     }>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () =>
@@ -144,10 +174,46 @@ export default function AccountPage() {
           type: file.type,
           size: file.size,
           data: String(reader.result || ""),
+          category,
         });
       reader.onerror = () => reject(reader.error);
       reader.readAsDataURL(file);
     });
+  };
+
+  const uploadDisplayMaterial = async () => {
+    if (!materialDescription.trim() && materialFiles.length === 0) {
+      setNotice("Lägg till en beskrivning eller minst en fil.");
+      return;
+    }
+
+    setUploadingMaterial(true);
+    setNotice("");
+    const files = await Promise.all(
+      materialFiles.map((item) => fileToPayload(item.file, item.category)),
+    );
+    const response = await fetch("/api/account/display-assets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        description: materialDescription,
+        files,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      setNotice(result.error || "Det gick inte att ladda upp materialet.");
+      setUploadingMaterial(false);
+      return;
+    }
+
+    setMaterialDescription("");
+    setMaterialFiles([]);
+    setMaterialPanel("history");
+    setNotice("Materialet har skickats till InfoSync.");
+    setUploadingMaterial(false);
+    loadAccount();
   };
 
   const sendMessage = async () => {
@@ -158,7 +224,7 @@ export default function AccountPage() {
 
     setSending(true);
     setNotice("");
-    const files = await Promise.all(messageFiles.map(fileToPayload));
+    const files = await Promise.all(messageFiles.map((file) => fileToPayload(file)));
     const response = await fetch("/api/account/messages", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -318,6 +384,143 @@ export default function AccountPage() {
           )}
         </AccountCard>
 
+        <AccountCard title="Skärmmaterial">
+          <div className="account-material-hero">
+            <div>
+              <p>
+                Skicka ny logotyp, bilder, meny, prislista eller text som vi ska
+                använda när vi uppdaterar din skärm.
+              </p>
+            </div>
+            <img src="/landing/hero-slides/01/image.png" alt="InfoSync" />
+          </div>
+
+          <div className="account-category-tabs">
+            <button
+              type="button"
+              onClick={() => setMaterialPanel("text")}
+              className={materialPanel === "text" ? "is-active" : ""}
+            >
+              Text
+            </button>
+            <button
+              type="button"
+              onClick={() => setMaterialPanel("files")}
+              className={materialPanel === "files" ? "is-active" : ""}
+            >
+              Filer ({materialFiles.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setMaterialPanel("history")}
+              className={materialPanel === "history" ? "is-active" : ""}
+            >
+              Tidigare
+            </button>
+          </div>
+
+          {materialPanel === "text" && (
+            <textarea
+              value={materialDescription}
+              onChange={(event) => setMaterialDescription(event.target.value)}
+              placeholder="Beskriv vad du vill ändra eller lägga till på skärmen"
+              rows={6}
+              maxLength={1200}
+              className="account-input"
+            />
+          )}
+
+          {materialPanel === "files" && (
+            <div className="account-upload-builder">
+              <select
+                value={materialCategory}
+                onChange={(event) => setMaterialCategory(event.target.value)}
+                className="account-input"
+              >
+                <option value="logo">Logotyp</option>
+                <option value="image">Bildmaterial</option>
+                <option value="menu">Meny eller prislista</option>
+                <option value="other">Annat material</option>
+              </select>
+              <label className="account-plus-upload">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+                  onChange={(event) =>
+                    setMaterialFiles(
+                      [
+                        ...materialFiles,
+                        ...Array.from(event.target.files || []).map((file) => ({
+                          file,
+                          category: materialCategory,
+                        })),
+                      ].slice(0, 8),
+                    )
+                  }
+                />
+                <span>+</span>
+                Lägg till filer
+              </label>
+
+              {materialFiles.length ? (
+                <div className="account-upload-queue">
+                  {materialFiles.map((item, index) => (
+                    <div key={`${item.file.name}-${item.file.size}-${index}`}>
+                      <strong>{item.file.name}</strong>
+                      <span>
+                        {assetCategoryLabel(item.category)} · {Math.ceil(item.file.size / 1024)} KB
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMaterialFiles(materialFiles.filter((_, fileIndex) => fileIndex !== index))
+                        }
+                      >
+                        Ta bort
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p>Tryck på plusknappen för att lägga till filer.</p>
+              )}
+              <p>
+                Max 8 filer. Logotyp max 2 MB. Övriga filer max 5 MB styck och
+                15 MB totalt.
+              </p>
+            </div>
+          )}
+
+          {materialPanel === "history" && (
+            <div className="account-list">
+              {data.displayAssets.length ? (
+                data.displayAssets.map((item) => (
+                  <div key={item.id} className="account-list-item">
+                    <strong>{item.file_name || "Textbeskrivning"}</strong>
+                    <span>
+                      {date(item.created_at)} · {assetCategoryLabel(item.asset_category)} · {item.status}
+                    </span>
+                    {item.description && <p>{item.description}</p>}
+                  </div>
+                ))
+              ) : (
+                <p>Inget skärmmaterial har skickats ännu.</p>
+              )}
+            </div>
+          )}
+
+          <button
+            disabled={uploadingMaterial}
+            onClick={uploadDisplayMaterial}
+            className="landing-button landing-button-primary"
+          >
+            {uploadingMaterial ? "Skickar..." : "Skicka allt till InfoSync"}
+          </button>
+        </AccountCard>
+      </section>
+
+      <section className="account-grid">
         <AccountCard title="Meddela InfoSync">
           <input
             value={messageSubject}

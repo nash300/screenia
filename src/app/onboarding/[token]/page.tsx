@@ -1,7 +1,6 @@
 "use client";
 
 import { use, useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import "../../landing.css";
 
@@ -14,121 +13,32 @@ type Customer = {
   onboarding_token_expires_at: string | null;
 };
 
-const copy = {
-  sv: {
-    loading: "Laddar din startlänk...",
-    invalid: "Ogiltig startlänk.",
-    expired: "Den här startlänken har gått ut.",
-    activeTitle: "Kontot är aktivt",
-    activeText: "Ditt InfoSync-konto är aktivt.",
-    readyTitle: "Nästan klart",
-    readyText:
-      "Dina uppgifter och ditt material är inskickade. Nästa steg är att slutföra betalningen.",
-    paymentTitle: "Betalning",
-    paymentText: "Du skickas vidare till en säker betalningssida.",
-    paymentButton: "Fortsätt till betalning",
-    paymentLoading: "Startar betalning...",
-    title: "Välkommen till InfoSync",
-    intro:
-      "Kontrollera uppgifterna, lägg till material för skärmen och gå vidare till betalning.",
-    company: "Företag",
-    email: "E-post",
-    detailsTitle: "Fyll i dina uppgifter",
-    fields: [
-      "Kontaktperson *",
-      "Telefon",
-      "Organisationsnummer",
-      "Ort",
-      "Adress",
-      "Land",
-    ],
-    materialTitle: "Material till din skärm",
-    materialText:
-      "Ladda gärna upp meny, prislista, logotyp eller bilder som hjälper oss att skapa layouten. PDF, JPG, PNG, WEBP och HEIC stöds.",
-    materialPlaceholder:
-      "Exempel: använd menybilden, visa luncherbjudande och öppettider.",
-    courierTitle: "Välj transportör",
-    courierText:
-      "Välj den transportör du helst vill använda. Vi bekräftar slutligt alternativ utifrån din adress och paketets storlek.",
-    terms: "Jag godkänner villkoren och förstår att de gäller för InfoSync-abonnemanget. *",
-    privacy:
-      "Jag godkänner integritetspolicyn och förstår att InfoSync behandlar företagets och kontaktpersonens uppgifter för start, fakturering, support och leverans av tjänsten. *",
-    marketing: "Jag vill få relevanta nyheter och erbjudanden från InfoSync",
-    save: "Spara och fortsätt",
-    saving: "Sparar...",
-    requiredContact: "Kontaktperson måste anges.",
-    requiredTerms: "Du måste godkänna villkoren.",
-    requiredPrivacy: "Du måste godkänna integritetspolicyn.",
-    requiredCourier: "Välj transportör.",
-    fileSize: "Filerna får tillsammans vara högst 20 MB.",
-    saved: "Uppgifterna har sparats.",
-    saveError: "Det gick inte att spara uppgifterna.",
-    planMissing:
-      "Inget prispaket är kopplat till din startlänk. Kontakta InfoSync.",
-    paymentError: "Det gick inte att starta betalningen.",
-    termsBefore: "Jag godkänner ",
-    termsLink: "villkoren",
-    termsAfter:
-      " och förstår att de gäller för InfoSync-abonnemanget. *",
-    privacyBefore: "Jag godkänner ",
-    privacyLink: "integritetspolicyn",
-    privacyAfter:
-      " och förstår att InfoSync behandlar företagets och kontaktpersonens uppgifter för start, fakturering, support och leverans av tjänsten. *",
-  },
-  en: {
-    loading: "Loading your setup link...",
-    invalid: "Invalid setup link.",
-    expired: "This setup link has expired.",
-    activeTitle: "Account active",
-    activeText: "Your InfoSync account is active.",
-    readyTitle: "Almost ready",
-    readyText:
-      "Your details and material have been submitted. The next step is to complete payment.",
-    paymentTitle: "Payment",
-    paymentText: "You will continue to a secure payment page.",
-    paymentButton: "Continue to payment",
-    paymentLoading: "Starting payment...",
-    title: "Welcome to InfoSync",
-    intro:
-      "Check your details, add screen material, and continue to payment.",
-    company: "Company",
-    email: "Email",
-    detailsTitle: "Complete your details",
-    fields: ["Contact person *", "Phone", "Organisation number", "City", "Address", "Country"],
-    materialTitle: "Material for your screen",
-    materialText:
-      "Upload a menu, price list, logo, or images that help us create the layout. PDF, JPG, PNG, WEBP, and HEIC are supported.",
-    materialPlaceholder:
-      "Example: use the menu image, show lunch offer and opening hours.",
-    courierTitle: "Choose delivery service",
-    courierText:
-      "Choose the carrier you prefer. We confirm the final option based on your address and parcel size.",
-    terms: "I accept the terms and understand they apply to the InfoSync subscription. *",
-    privacy:
-      "I accept the privacy policy and understand that InfoSync processes company and contact-person details for setup, billing, support, and service delivery. *",
-    marketing: "I want to receive relevant news and offers from InfoSync",
-    save: "Save and continue",
-    saving: "Saving...",
-    requiredContact: "Contact person is required.",
-    requiredTerms: "You must accept the terms.",
-    requiredPrivacy: "You must accept the privacy policy.",
-    requiredCourier: "Choose a delivery service.",
-    fileSize: "Files can be at most 20 MB in total.",
-    saved: "Your details have been saved.",
-    saveError: "We could not save your details.",
-    planMissing: "No package is connected to your setup link. Contact InfoSync.",
-    paymentError: "We could not start payment.",
-    termsBefore: "I accept the ",
-    termsLink: "terms",
-    termsAfter: " and understand they apply to the InfoSync subscription. *",
-    privacyBefore: "I accept the ",
-    privacyLink: "privacy policy",
-    privacyAfter:
-      " and understand that InfoSync processes company and contact-person details for setup, billing, support, and service delivery. *",
-  },
-} as const;
+type WizardStep = "details" | "material" | "payment";
 
-const courierOptions = ["PostNord", "DHL", "Bring", "DB Schenker", "Instabox"] as const;
+type MaterialFile = {
+  file: File;
+  category: "logo" | "image" | "menu" | "other";
+};
+
+const MAX_LOGO_BYTES = 2 * 1024 * 1024;
+const MAX_FILE_BYTES = 5 * 1024 * 1024;
+const MAX_TOTAL_BYTES = 15 * 1024 * 1024;
+const MAX_FILES = 8;
+const allowedFileTypes = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/heic",
+  "application/pdf",
+]);
+
+const stepLabels: Record<WizardStep, string> = {
+  details: "Uppgifter",
+  material: "Material",
+  payment: "Betalning",
+};
+
+const stepOrder: WizardStep[] = ["details", "material", "payment"];
 
 export default function OnboardingPage({
   params,
@@ -139,6 +49,7 @@ export default function OnboardingPage({
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState<WizardStep>("details");
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
   const [organisationNumber, setOrganisationNumber] = useState("");
@@ -146,35 +57,12 @@ export default function OnboardingPage({
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("Sverige");
   const [displayNotes, setDisplayNotes] = useState("");
-  const [displayFiles, setDisplayFiles] = useState<File[]>([]);
-  const [preferredCourier, setPreferredCourier] = useState("");
+  const [materialFiles, setMaterialFiles] = useState<MaterialFile[]>([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
-
-  const t = copy.sv;
-
-  const fileToPayload = (file: File) => {
-    return new Promise<{
-      name: string;
-      type: string;
-      size: number;
-      data: string;
-    }>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () =>
-        resolve({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          data: String(reader.result || ""),
-        });
-      reader.onerror = () => reject(reader.error);
-      reader.readAsDataURL(file);
-    });
-  };
 
   useEffect(() => {
     const loadCustomer = async () => {
@@ -192,40 +80,104 @@ export default function OnboardingPage({
 
       const loadedCustomer = data as Customer;
       setCustomer(loadedCustomer);
+      if (loadedCustomer.status === "accepted_terms") setStep("payment");
       setLoading(false);
     };
 
     loadCustomer();
   }, [token]);
 
+  const fileToPayload = (item: MaterialFile) => {
+    return new Promise<{
+      name: string;
+      type: string;
+      size: number;
+      data: string;
+      category: string;
+    }>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () =>
+        resolve({
+          name: item.file.name,
+          type: item.file.type,
+          size: item.file.size,
+          data: String(reader.result || ""),
+          category: item.category,
+        });
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(item.file);
+    });
+  };
+
+  const addFiles = (files: File[], category: MaterialFile["category"]) => {
+    const nextFiles = [...materialFiles];
+    for (const file of files) {
+      nextFiles.push({ file, category });
+    }
+    setMaterialFiles(nextFiles.slice(0, MAX_FILES));
+  };
+
+  const validateDetails = () => {
+    if (!contactPerson.trim()) return "Kontaktperson måste anges.";
+    if (!acceptedTerms) return "Du måste godkänna villkoren.";
+    if (!acceptedPrivacy) return "Du måste godkänna integritetspolicyn.";
+    return "";
+  };
+
+  const validateMaterial = () => {
+    if (!displayNotes.trim() && materialFiles.length === 0) {
+      return "Lägg till en beskrivning eller minst en fil.";
+    }
+
+    if (displayNotes.length > 1200) {
+      return "Beskrivningen får vara högst 1200 tecken.";
+    }
+
+    if (materialFiles.length > MAX_FILES) {
+      return `Du kan ladda upp högst ${MAX_FILES} filer.`;
+    }
+
+    const totalSize = materialFiles.reduce((sum, item) => sum + item.file.size, 0);
+    if (totalSize > MAX_TOTAL_BYTES) {
+      return "Filerna får tillsammans vara högst 15 MB.";
+    }
+
+    for (const item of materialFiles) {
+      const limit = item.category === "logo" ? MAX_LOGO_BYTES : MAX_FILE_BYTES;
+      if (!allowedFileTypes.has(item.file.type)) {
+        return "Endast JPG, PNG, WEBP, HEIC och PDF kan laddas upp.";
+      }
+      if (item.file.size > limit) {
+        return `${item.file.name} är för stor. Max ${Math.round(limit / 1024 / 1024)} MB.`;
+      }
+    }
+
+    return "";
+  };
+
+  const continueToMaterial = () => {
+    const error = validateDetails();
+    if (error) {
+      setMessage(error);
+      return;
+    }
+    setMessage("");
+    setStep("material");
+  };
+
   const saveProfile = async () => {
     if (!customer) return;
 
-    if (!contactPerson.trim()) {
-      setMessage(t.requiredContact);
-      return;
-    }
-    if (!acceptedTerms) {
-      setMessage(t.requiredTerms);
-      return;
-    }
-    if (!acceptedPrivacy) {
-      setMessage(t.requiredPrivacy);
-      return;
-    }
-    if (!preferredCourier) {
-      setMessage(t.requiredCourier);
-      return;
-    }
-
-    const totalFileSize = displayFiles.reduce((sum, file) => sum + file.size, 0);
-    if (totalFileSize > 20 * 1024 * 1024) {
-      setMessage(t.fileSize);
+    const detailsError = validateDetails();
+    const materialError = validateMaterial();
+    if (detailsError || materialError) {
+      setMessage(detailsError || materialError);
       return;
     }
 
     setSaving(true);
-    const displayFilePayloads = await Promise.all(displayFiles.map(fileToPayload));
+    setMessage("");
+    const displayFilePayloads = await Promise.all(materialFiles.map(fileToPayload));
 
     const response = await fetch("/api/onboarding/complete-profile", {
       method: "POST",
@@ -243,20 +195,20 @@ export default function OnboardingPage({
         marketingConsent,
         displayNotes,
         displayFiles: displayFilePayloads,
-        preferredCourier,
       }),
     });
     const data = await response.json();
 
     if (!response.ok) {
-      setMessage(data.error || t.saveError);
+      setMessage(data.error || "Det gick inte att spara uppgifterna.");
       setSaving(false);
       return;
     }
 
     setCustomer({ ...customer, status: "accepted_terms" });
-    setMessage(t.saved);
-    setDisplayFiles([]);
+    setMaterialFiles([]);
+    setStep("payment");
+    setMessage("Uppgifterna har sparats. Nu kan du gå vidare till betalning.");
     setSaving(false);
   };
 
@@ -267,7 +219,7 @@ export default function OnboardingPage({
       customer.notes?.match(/\((standard_fhd|premium_4k)\)/)?.[1] || "";
 
     if (!pricingPlanCode) {
-      setMessage(t.planMissing);
+      setMessage("Inget prispaket är kopplat till din startlänk. Kontakta InfoSync.");
       return;
     }
 
@@ -285,7 +237,7 @@ export default function OnboardingPage({
     const data = await response.json();
 
     if (!response.ok || !data.url) {
-      setMessage(data.error || t.paymentError);
+      setMessage(data.error || "Det gick inte att starta betalningen.");
       setSaving(false);
       return;
     }
@@ -293,136 +245,230 @@ export default function OnboardingPage({
     window.location.href = data.url;
   };
 
-  if (loading) return <FlowShell>{t.loading}</FlowShell>;
-  if (!customer) return <FlowShell>{t.invalid}</FlowShell>;
+  if (loading) return <FlowShell>Laddar din startlänk...</FlowShell>;
+  if (!customer) return <FlowShell>Ogiltig startlänk.</FlowShell>;
 
   const isExpired =
     customer.onboarding_token_expires_at &&
     new Date(customer.onboarding_token_expires_at) < new Date();
 
-  if (isExpired) return <FlowShell>{t.expired}</FlowShell>;
+  if (isExpired) return <FlowShell>Den här startlänken har gått ut.</FlowShell>;
 
   if (customer.status === "active") {
     return (
       <FlowShell>
-        <h1>{t.activeTitle}</h1>
-        <p>{t.activeText}</p>
-      </FlowShell>
-    );
-  }
-
-  if (customer.status === "accepted_terms") {
-    return (
-      <FlowShell>
-        <h1>{t.readyTitle}</h1>
-        <p>{t.readyText}</p>
-        <section className="flow-card">
-          <h2>{t.paymentTitle}</h2>
-          <p>{t.paymentText}</p>
-          {message && <p className="flow-message">{message}</p>}
-          <button onClick={startPayment} disabled={saving} className="landing-button landing-button-primary">
-            {saving ? t.paymentLoading : t.paymentButton}
-          </button>
-        </section>
+        <h1>Kontot är aktivt</h1>
+        <p>Ditt InfoSync-konto är aktivt.</p>
       </FlowShell>
     );
   }
 
   return (
-    <FlowShell>
-      <h1>{t.title}</h1>
-      <p>{t.intro}</p>
+    <FlowShell wide>
+      <div className="flow-hero">
+        <div>
+          <p className="landing-eyebrow">InfoSync</p>
+          <h1>Kom igång med din skärm</h1>
+          <p>
+            Fyll i uppgifterna, ladda upp materialet vi behöver och slutför
+            betalningen i sista steget.
+          </p>
+        </div>
+        <img
+          src="/brand/infosync-helper.png"
+          alt="InfoSync"
+          className="flow-helper"
+        />
+      </div>
+
+      <WizardSteps active={step} />
 
       <section className="flow-card flow-summary">
         <div>
-          <span>{t.company}</span>
+          <span>Företag</span>
           <strong>{customer.name}</strong>
         </div>
         <div>
-          <span>{t.email}</span>
+          <span>E-post</span>
           <strong>{customer.email}</strong>
         </div>
       </section>
 
-      <section className="flow-card">
-        <h2>{t.detailsTitle}</h2>
-        <div className="flow-form-grid">
-          <FlowInput placeholder={t.fields[0]} value={contactPerson} onChange={setContactPerson} />
-          <FlowInput placeholder={t.fields[1]} value={phone} onChange={setPhone} />
-          <FlowInput placeholder={t.fields[2]} value={organisationNumber} onChange={setOrganisationNumber} />
-          <FlowInput placeholder={t.fields[3]} value={city} onChange={setCity} />
-          <FlowInput placeholder={t.fields[4]} value={address} onChange={setAddress} />
-          <FlowInput placeholder={t.fields[5]} value={country} onChange={setCountry} />
-        </div>
+      {message && <p className="flow-message">{message}</p>}
 
-        <div className="flow-material">
-          <h3>{t.materialTitle}</h3>
-          <p>{t.materialText}</p>
-          <textarea value={displayNotes} onChange={(event) => setDisplayNotes(event.target.value)} rows={3} placeholder={t.materialPlaceholder} />
-          <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/heic,application/pdf" onChange={(event) => setDisplayFiles(Array.from(event.target.files || []))} />
-          {displayFiles.length > 0 && (
-            <ul>{displayFiles.map((file) => <li key={`${file.name}-${file.size}`}>{file.name} ({Math.ceil(file.size / 1024)} KB)</li>)}</ul>
-          )}
-        </div>
-
-        <div className="flow-material flow-courier">
-          <h3>{t.courierTitle}</h3>
-          <p>{t.courierText}</p>
-          <div className="flow-courier-options">
-            {courierOptions.map((courier) => (
-              <label key={courier} className={preferredCourier === courier ? "active" : ""}>
-                <input
-                  type="radio"
-                  name="preferredCourier"
-                  value={courier}
-                  checked={preferredCourier === courier}
-                  onChange={(event) => setPreferredCourier(event.target.value)}
-                />
-                <span>{courier}</span>
-              </label>
-            ))}
+      {step === "details" && (
+        <section className="flow-card">
+          <h2>1. Kunduppgifter</h2>
+          <div className="flow-form-grid">
+            <FlowInput placeholder="Kontaktperson *" value={contactPerson} onChange={setContactPerson} />
+            <FlowInput placeholder="Telefon" value={phone} onChange={setPhone} />
+            <FlowInput placeholder="Organisationsnummer" value={organisationNumber} onChange={setOrganisationNumber} />
+            <FlowInput placeholder="Ort" value={city} onChange={setCity} />
+            <FlowInput placeholder="Adress" value={address} onChange={setAddress} />
+            <FlowInput placeholder="Land" value={country} onChange={setCountry} />
           </div>
-        </div>
 
-        {message && <p className="flow-message">{message}</p>}
+          <div className="flow-checks">
+            <FlowCheck checked={acceptedTerms} onChange={setAcceptedTerms}>
+              Jag godkänner <a href="/terms" target="_blank">villkoren</a> och
+              förstår att de gäller för InfoSync-abonnemanget. *
+            </FlowCheck>
+            <FlowCheck checked={acceptedPrivacy} onChange={setAcceptedPrivacy}>
+              Jag godkänner <a href="/privacy" target="_blank">integritetspolicyn</a>.
+              *
+            </FlowCheck>
+            <FlowCheck checked={marketingConsent} onChange={setMarketingConsent}>
+              Jag vill få relevanta nyheter och erbjudanden från InfoSync.
+            </FlowCheck>
+          </div>
 
-        <div className="flow-checks">
-          <FlowCheck checked={acceptedTerms} onChange={setAcceptedTerms}>
-            {t.termsBefore}
-            <a href="/terms" target="_blank">{t.termsLink}</a>
-            {t.termsAfter}
-          </FlowCheck>
-          <FlowCheck checked={acceptedPrivacy} onChange={setAcceptedPrivacy}>
-            {t.privacyBefore}
-            <a href="/privacy" target="_blank">{t.privacyLink}</a>
-            {t.privacyAfter}
-          </FlowCheck>
-          <FlowCheck checked={marketingConsent} onChange={setMarketingConsent}>
-            {t.marketing}
-          </FlowCheck>
-        </div>
+          <button onClick={continueToMaterial} className="landing-button landing-button-primary">
+            Fortsätt till material
+          </button>
+        </section>
+      )}
 
-        <button onClick={saveProfile} disabled={saving} className="landing-button landing-button-primary">
-          {saving ? t.saving : t.save}
-        </button>
-      </section>
+      {step === "material" && (
+        <section className="flow-card">
+          <div className="flow-material-hero">
+            <div>
+              <h2>2. Material till skärmens layout</h2>
+              <p>
+                Beskriv vad skärmen ska visa. Lägg till logotyp, bilder, meny
+                eller prislista med plusknapparna och skicka allt tillsammans.
+              </p>
+            </div>
+            <img src="/landing/hero-slides/01/image.png" alt="InfoSync" />
+          </div>
+
+          <div className="flow-upload-grid">
+            <div className="flow-material">
+              <h3>Text och önskemål</h3>
+              <textarea
+                value={displayNotes}
+                onChange={(event) => setDisplayNotes(event.target.value)}
+                rows={6}
+                maxLength={1200}
+                placeholder="Exempel: visa lunchmeny, öppettider, kampanjer och företagets logotyp. Skriv även färger eller stil om du har önskemål."
+              />
+              <small>{displayNotes.length}/1200 tecken</small>
+            </div>
+
+            <div className="flow-material">
+              <h3>Logotyp</h3>
+              <p>PNG, JPG eller WEBP. Max 2 MB.</p>
+              <label className="account-plus-upload">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/heic"
+                  onChange={(event) => addFiles(Array.from(event.target.files || []), "logo")}
+                />
+                <span>+</span>
+                Lägg till logotyp
+              </label>
+            </div>
+
+            <div className="flow-material">
+              <h3>Bilder, meny eller prislista</h3>
+              <p>JPG, PNG, WEBP, HEIC eller PDF. Max 5 MB per fil.</p>
+              <label className="account-plus-upload">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+                  onChange={(event) => addFiles(Array.from(event.target.files || []), "image")}
+                />
+                <span>+</span>
+                Lägg till filer
+              </label>
+            </div>
+
+            <div className="flow-material">
+              <h3>Valda filer</h3>
+              {materialFiles.length > 0 ? (
+                <ul>
+                  {materialFiles.map((item, index) => (
+                    <li key={`${item.file.name}-${item.file.size}-${index}`}>
+                      <span>{item.category}</span> {item.file.name} ({Math.ceil(item.file.size / 1024)} KB)
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setMaterialFiles(materialFiles.filter((_, itemIndex) => itemIndex !== index))
+                        }
+                      >
+                        Ta bort
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Inga filer valda ännu.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="flow-actions">
+            <button
+              type="button"
+              onClick={() => setStep("details")}
+              className="landing-button landing-button-secondary"
+            >
+              Tillbaka
+            </button>
+            <button
+              onClick={saveProfile}
+              disabled={saving}
+              className="landing-button landing-button-primary"
+            >
+              {saving ? "Sparar..." : "Spara och gå till betalning"}
+            </button>
+          </div>
+        </section>
+      )}
+
+      {step === "payment" && (
+        <section className="flow-card">
+          <h2>3. Betalning</h2>
+          <p>
+            Dina uppgifter och ditt material är sparade. Du skickas vidare till
+            en säker betalningssida.
+          </p>
+          <button onClick={startPayment} disabled={saving} className="landing-button landing-button-primary">
+            {saving ? "Startar betalning..." : "Fortsätt till betalning"}
+          </button>
+        </section>
+      )}
     </FlowShell>
+  );
+}
+
+function WizardSteps({ active }: { active: WizardStep }) {
+  const activeIndex = stepOrder.indexOf(active);
+  return (
+    <div className="flow-steps" aria-label="Startsteg">
+      {stepOrder.map((stepName, index) => (
+        <div
+          key={stepName}
+          className={`flow-step ${index <= activeIndex ? "is-active" : ""}`}
+        >
+          <span>{index + 1}</span>
+          <strong>{stepLabels[stepName]}</strong>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function FlowShell({
   children,
+  wide = false,
 }: {
   children: ReactNode;
+  wide?: boolean;
 }) {
   return (
     <div className="landing-page flow-page">
-      <header className="flow-nav">
-        <Link className="landing-brand" href="/">
-          <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
-        </Link>
-      </header>
-      <main className="flow-shell">{children}</main>
+      <main className={`flow-shell ${wide ? "flow-shell-wide" : ""}`}>{children}</main>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
@@ -22,10 +22,13 @@ const statusFilters = [
   { value: "all", label: "All" },
   { value: "needs_device", label: "Needs device" },
   { value: "needs_playlist", label: "Needs playlist" },
-  { value: "draft", label: "Draft" },
-  { value: "invited", label: "Invited" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
+];
+
+const onboardingFilters = [
+  { value: "draft", label: "Draft", hint: "needs quote" },
+  { value: "invited", label: "Invited", hint: "waiting customer" },
 ];
 
 export default function CustomersPage() {
@@ -46,6 +49,7 @@ function CustomersContent() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [search, setSearch] = useState("");
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("filter") || "all",
@@ -121,8 +125,9 @@ function CustomersContent() {
 
     setSaving(true);
 
+    const newCustomerId = crypto.randomUUID();
     const { error } = await supabase.from("customers").insert({
-      id: crypto.randomUUID(),
+      id: newCustomerId,
       name: name.trim(),
       email: email.trim(),
       status: "draft",
@@ -141,6 +146,7 @@ function CustomersContent() {
 
     await loadCustomers();
     setSaving(false);
+    router.push(`/admin/customers/${newCustomerId}?section=onboarding`);
   };
 
   const getDeviceCount = (customer: Customer) => {
@@ -254,7 +260,48 @@ function CustomersContent() {
         <section className="admin-card admin-customers-search p-6">
           <h2 className="admin-card-title text-xl">Search customers</h2>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-800">
+              Onboarding queue
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {onboardingFilters.map((status) => {
+                const count = getFilterCount(status.value);
+                const isActive =
+                  hasSelectedFilter && statusFilter === status.value;
+
+                return (
+                  <button
+                    key={status.value}
+                    onClick={() => {
+                      setStatusFilter(status.value);
+                      setHasSelectedFilter(true);
+                    }}
+                    className={`rounded-2xl px-4 py-2 text-left text-sm font-black transition ${
+                      isActive
+                        ? "bg-blue-700 text-white shadow-lg"
+                        : count > 0
+                          ? "border border-amber-200 bg-amber-50 text-amber-800 shadow-sm"
+                          : "border border-blue-100 bg-white text-blue-800"
+                    }`}
+                  >
+                    <span className="block">
+                      {status.label} ({count})
+                    </span>
+                    <span className="text-xs font-semibold opacity-80">
+                      {status.hint}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+              Operations
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
             {statusFilters.map((status) => {
               const count = getFilterCount(status.value);
               const isActive = hasSelectedFilter && statusFilter === status.value;
@@ -288,6 +335,7 @@ function CustomersContent() {
                 </button>
               );
             })}
+            </div>
           </div>
 
           <input

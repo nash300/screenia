@@ -106,12 +106,12 @@ const listHeroSlidesFromManifest = async () => {
           src: publicHeroPath(mediaFile),
           mediaType,
           sv: {
-            eyebrow: slide.sv?.eyebrow || "Digital skyltning för företag",
+            eyebrow: slide.sv?.eyebrow ?? "Digital skyltning för företag",
             title: slide.sv?.title || toLabel(id),
             text: slide.sv?.text || "",
           },
           en: {
-            eyebrow: slide.en?.eyebrow || "Digital signage for businesses",
+            eyebrow: slide.en?.eyebrow ?? "Digital signage for businesses",
             title: slide.en?.title || toLabel(id),
             text: slide.en?.text || "",
           },
@@ -157,12 +157,12 @@ const listHeroSlides = async () => {
             src: publicPath,
             mediaType: getMediaType(mediaFile),
             sv: {
-              eyebrow: text.sv?.eyebrow || "Digital skyltning för företag",
+              eyebrow: text.sv?.eyebrow ?? "Digital skyltning för företag",
               title: text.sv?.title || toLabel(directoryName),
               text: text.sv?.text || "",
             },
             en: {
-              eyebrow: text.en?.eyebrow || "Digital signage for businesses",
+              eyebrow: text.en?.eyebrow ?? "Digital signage for businesses",
               title: text.en?.title || toLabel(directoryName),
               text: text.en?.text || "",
             },

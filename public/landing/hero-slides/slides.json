@@ -4,13 +4,13 @@
       "id": "01",
       "image": "01/image.png",
       "sv": {
-        "eyebrow": "Digital skyltning för företag",
-        "title": "Förvandla förbipasserande till kunder.",
+        "eyebrow": "",
+        "title": "Förvandla förbipasserande till kunder",
         "text": "Visa det som gör ditt företag unikt och locka fler besökare att komma in."
       },
       "en": {
-        "eyebrow": "Digital signage for businesses",
-        "title": "Turn passers-by into customers.",
+        "eyebrow": "",
+        "title": "Turn passers-by into customers",
         "text": "Show what makes your business unique and attract more visitors inside."
       }
     },
@@ -18,14 +18,28 @@
       "id": "02",
       "image": "02/image.png",
       "sv": {
-        "eyebrow": "Digital skyltning för företag",
-        "title": "Din befintliga skärm är allt som behövs.",
+        "eyebrow": "",
+        "title": "Din befintliga skärm är allt som behövs",
         "text": "Vår lösning fungerar med både TV-apparater och professionella skyltskärmar i olika storlekar."
       },
       "en": {
-        "eyebrow": "Digital signage for businesses",
-        "title": "Your existing screen is all you need.",
+        "eyebrow": "",
+        "title": "Your existing screen is all you need",
         "text": "Our solution works with both TVs and professional signage screens in different sizes."
+      }
+    },
+    {
+      "id": "03",
+      "image": "03/image.png",
+      "sv": {
+        "eyebrow": "",
+        "title": "Slipp dyra installationer och komplicerade system",
+        "text": "Använd din befintliga TV och börja marknadsföra ditt företag på några minuter. Enkelt, prisvärt och anpassat för småföretag."
+      },
+      "en": {
+        "eyebrow": "",
+        "title": "Avoid expensive installations and complicated systems",
+        "text": "Use your existing TV and start marketing your business in minutes. Simple, affordable, and built for small businesses."
       }
     }
   ]

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { PRICING_PLANS } from "@/lib/pricing/plans";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -18,6 +19,14 @@ const supabaseAdmin = createClient(
 function toOre(amountSek: number) {
   return Math.round(amountSek * 100);
 }
+
+type QuoteItem = {
+  pricingPlanCode?: string;
+  quantity?: number;
+  hardwareFeeSek?: number;
+  shippingFeeSek?: number;
+  monthlyFeeSek?: number;
+};
 
 export async function POST(request: Request) {
   try {
@@ -69,9 +78,111 @@ export async function POST(request: Request) {
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
 
-    const { data: order, error: orderError } = await supabaseAdmin
+    const { data: quotedOrder, error: quotedOrderError } = await supabaseAdmin
       .from("customer_subscriptions")
-      .insert({
+      .select(
+        "id, order_number, screen_quantity, device_discount_percent, device_discount_months, quote_items",
+      )
+      .eq("customer_id", customerId)
+      .eq("pricing_plan_id", plan.id)
+      .in("status", ["quote_prepared", "quote_sent", "checkout_started"])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (
+      quotedOrderError?.code === "42703" ||
+      quotedOrderError?.code === "PGRST204"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Databasen saknar de senaste orderkolumnerna. Kör de senaste Supabase-migreringarna innan betalning startas.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const screenQuantity = Math.min(
+      50,
+      Math.max(1, Number(quotedOrder?.screen_quantity) || 1),
+    );
+    const deviceDiscountPercent = Math.min(
+      100,
+      Math.max(0, Number(quotedOrder?.device_discount_percent) || 0),
+    );
+    const deviceDiscountMonths = Math.min(
+      36,
+      Math.max(0, Number(quotedOrder?.device_discount_months) || 0),
+    );
+    const discountedHardwareFeeSek = Math.max(
+      0,
+      Math.round(hardwareFeeSek * (1 - deviceDiscountPercent / 100)),
+    );
+    const quoteItems =
+      Array.isArray(quotedOrder?.quote_items) &&
+      quotedOrder.quote_items.length > 0
+        ? (quotedOrder.quote_items as QuoteItem[])
+        : [
+            {
+              pricingPlanCode: plan.code,
+              quantity: screenQuantity,
+              hardwareFeeSek,
+              shippingFeeSek,
+              monthlyFeeSek: plan.monthly_fee_sek,
+            },
+          ];
+    const quotePlanCodes = Array.from(
+      new Set(
+        quoteItems
+          .map((item) => item.pricingPlanCode)
+          .filter((code): code is string => Boolean(code)),
+      ),
+    );
+    const { data: quotePlans } = await supabaseAdmin
+      .from("pricing_plans")
+      .select(
+        "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek",
+      )
+      .in("code", quotePlanCodes);
+    const checkoutQuoteItems = quoteItems.map((item) => {
+      const itemPlan =
+        quotePlans?.find((row) => row.code === item.pricingPlanCode) || plan;
+      const configuredPlan = PRICING_PLANS.find(
+        (pricingPlan) => pricingPlan.code === itemPlan.code,
+      );
+      const itemHardwareFee =
+        item.hardwareFeeSek ??
+        itemPlan.hardware_fee_sek ??
+        configuredPlan?.hardwareFeeSek ??
+        (itemPlan.code === "premium_4k" ? 1099 : 699);
+      const itemShippingFee =
+        item.shippingFeeSek ??
+        itemPlan.shipping_fee_sek ??
+        configuredPlan?.shippingFeeSek ??
+        DEFAULT_SHIPPING_FEE_SEK;
+      const quantity = Math.min(50, Math.max(1, Number(item.quantity) || 1));
+
+      return {
+        code: itemPlan.code,
+        name: itemPlan.name,
+        resolution: itemPlan.resolution,
+        quantity,
+        hardwareFeeSek: itemHardwareFee,
+        discountedHardwareFeeSek: Math.max(
+          0,
+          Math.round(itemHardwareFee * (1 - deviceDiscountPercent / 100)),
+        ),
+        shippingFeeSek: itemShippingFee,
+        monthlyFeeSek: item.monthlyFeeSek ?? itemPlan.monthly_fee_sek,
+      };
+    });
+    const checkoutScreenQuantity = checkoutQuoteItems.reduce(
+      (sum, item) => sum + item.quantity,
+      0,
+    );
+
+    const orderPayload = {
         customer_id: customerId,
         pricing_plan_id: plan.id,
         status: "checkout_started",
@@ -86,17 +197,81 @@ export async function POST(request: Request) {
         inventory_status: "not_reserved",
         legal_acceptance_at: new Date().toISOString(),
         legal_acceptance_ip: ipAddress,
-      })
-      .select("id, order_number")
-      .single();
+        screen_quantity: checkoutScreenQuantity,
+        device_discount_percent: deviceDiscountPercent,
+        device_discount_months: deviceDiscountMonths,
+        device_discount_amount_sek: checkoutQuoteItems.reduce(
+          (sum, item) =>
+            sum +
+            (item.hardwareFeeSek - item.discountedHardwareFeeSek) *
+              item.quantity,
+          0,
+        ),
+        monthly_discount_amount_sek:
+          deviceDiscountMonths > 0
+            ? Math.round(
+                checkoutQuoteItems.reduce(
+                  (sum, item) => sum + item.monthlyFeeSek * item.quantity,
+                  0,
+                ) *
+                  (deviceDiscountPercent / 100),
+              )
+            : 0,
+        quote_items: checkoutQuoteItems.map((item) => ({
+          pricingPlanCode: item.code,
+          name: item.name,
+          resolution: item.resolution,
+          quantity: item.quantity,
+          hardwareFeeSek: item.hardwareFeeSek,
+          shippingFeeSek: item.shippingFeeSek,
+          monthlyFeeSek: item.monthlyFeeSek,
+        })),
+      };
+
+    const { data: order, error: orderError } = quotedOrder
+      ? await supabaseAdmin
+          .from("customer_subscriptions")
+          .update(orderPayload)
+          .eq("id", quotedOrder.id)
+          .select("id, order_number")
+          .single()
+      : await supabaseAdmin
+          .from("customer_subscriptions")
+          .insert(orderPayload)
+          .select("id, order_number")
+          .single();
 
     if (orderError || !order) {
+      if (orderError?.code === "42703" || orderError?.code === "PGRST204") {
+        return NextResponse.json(
+          {
+            error:
+              "Databasen saknar de senaste orderkolumnerna. Kör de senaste Supabase-migreringarna innan betalning startas.",
+          },
+          { status: 409 },
+        );
+      }
+
       console.error("Create order error:", orderError);
       return NextResponse.json(
         { error: "Det gick inte att skapa ordern." },
         { status: 500 },
       );
     }
+
+    const coupon =
+      deviceDiscountPercent > 0 && deviceDiscountMonths > 0
+        ? await stripe.coupons.create({
+            percent_off: deviceDiscountPercent,
+            duration: "repeating",
+            duration_in_months: deviceDiscountMonths,
+            name: `InfoSync device discount ${deviceDiscountPercent}%`,
+            metadata: {
+              customer_id: customerId,
+              order_number: order.order_number,
+            },
+          })
+        : null;
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -126,27 +301,27 @@ export async function POST(request: Request) {
         {
           price_data: {
             currency,
-            unit_amount: toOre(hardwareFeeSek),
+            unit_amount: toOre(checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek),
             product_data: {
               name: `${plan.name} ${plan.resolution} skärmenhet`,
             },
           },
-          quantity: 1,
+          quantity: checkoutQuoteItems[0]?.quantity ?? screenQuantity,
         },
         {
           price_data: {
             currency,
-            unit_amount: toOre(shippingFeeSek),
+            unit_amount: toOre(checkoutQuoteItems[0]?.shippingFeeSek ?? shippingFeeSek),
             product_data: {
               name: "Frakt inom Sverige",
             },
           },
-          quantity: 1,
+          quantity: checkoutScreenQuantity,
         },
         {
           price_data: {
             currency,
-            unit_amount: toOre(plan.monthly_fee_sek),
+            unit_amount: toOre(checkoutQuoteItems[0]?.monthlyFeeSek ?? plan.monthly_fee_sek),
             recurring: {
               interval: "month",
             },
@@ -154,8 +329,43 @@ export async function POST(request: Request) {
               name: `InfoSync ${plan.name} ${plan.resolution} månadsabonnemang`,
             },
           },
-          quantity: 1,
+          quantity: checkoutQuoteItems[0]?.quantity ?? 1,
         },
+        ...checkoutQuoteItems.slice(1).flatMap((item) => [
+          {
+            price_data: {
+              currency,
+              unit_amount: toOre(item.discountedHardwareFeeSek),
+              product_data: {
+                name: `${item.name} ${item.resolution} skärmenhet`,
+              },
+            },
+            quantity: item.quantity,
+          },
+          {
+            price_data: {
+              currency,
+              unit_amount: toOre(item.shippingFeeSek),
+              product_data: {
+                name: `Frakt ${item.name} ${item.resolution}`,
+              },
+            },
+            quantity: item.quantity,
+          },
+          {
+            price_data: {
+              currency,
+              unit_amount: toOre(item.monthlyFeeSek),
+              recurring: {
+                interval: "month" as const,
+              },
+              product_data: {
+                name: `InfoSync ${item.name} ${item.resolution} månadsabonnemang`,
+              },
+            },
+            quantity: item.quantity,
+          },
+        ]),
       ],
       subscription_data: {
         trial_period_days: plan.trial_days,
@@ -165,6 +375,10 @@ export async function POST(request: Request) {
           order_number: order.order_number,
           pricing_plan_id: plan.id,
           pricing_plan_code: plan.code,
+          screen_quantity: String(checkoutScreenQuantity),
+          device_discount_percent: String(deviceDiscountPercent),
+          device_discount_months: String(deviceDiscountMonths),
+          stripe_discount_coupon_id: coupon?.id || "",
         },
       },
       success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}`,
@@ -175,6 +389,10 @@ export async function POST(request: Request) {
         order_number: order.order_number,
         pricing_plan_id: plan.id,
         pricing_plan_code: plan.code,
+        screen_quantity: String(checkoutScreenQuantity),
+        device_discount_percent: String(deviceDiscountPercent),
+        device_discount_months: String(deviceDiscountMonths),
+        stripe_discount_coupon_id: coupon?.id || "",
       },
     });
 
@@ -188,6 +406,7 @@ export async function POST(request: Request) {
         tax_amount_sek: session.total_details?.amount_tax ?? null,
         total_amount_sek: session.amount_total ?? null,
         stripe_payment_status: session.payment_status,
+        stripe_discount_coupon_id: coupon?.id ?? null,
       })
       .eq("id", order.id);
 

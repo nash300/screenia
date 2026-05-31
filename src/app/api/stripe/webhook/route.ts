@@ -103,6 +103,8 @@ export async function POST(request: Request) {
     const customerId = session.metadata?.customer_id;
     const customerSubscriptionId = session.metadata?.customer_subscription_id;
     const orderNumber = session.metadata?.order_number;
+    const discountCouponId =
+      session.metadata?.stripe_discount_coupon_id || null;
     const customerEmail =
       session.customer_details?.email || session.customer_email || null;
 
@@ -143,6 +145,16 @@ export async function POST(request: Request) {
       }
 
       if (session.subscription) {
+        if (discountCouponId) {
+          try {
+            await stripe.subscriptions.update(session.subscription as string, {
+              discounts: [{ coupon: discountCouponId }],
+            });
+          } catch (error) {
+            console.error("Apply subscription discount error:", error);
+          }
+        }
+
         const subscriptionUpdate = {
           status: "active",
           stripe_customer_id: session.customer as string,
@@ -162,6 +174,7 @@ export async function POST(request: Request) {
           total_amount_sek: session.amount_total ?? null,
           fulfillment_status: "paid",
           inventory_status: "ready_to_reserve",
+          stripe_discount_coupon_id: discountCouponId,
         };
 
         const updateQuery = supabaseAdmin

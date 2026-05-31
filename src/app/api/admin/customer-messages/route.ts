@@ -55,6 +55,14 @@ export async function GET(request: Request) {
     .order("created_at", { ascending: false });
 
   if (error) {
+    if (error.code === "PGRST205" || error.code === "42703") {
+      return NextResponse.json({
+        messages: [],
+        warning:
+          "Customer message tables are not available. Apply the latest Supabase migrations.",
+      });
+    }
+
     console.error("Load customer messages error:", error);
     return NextResponse.json(
       { error: "Could not load customer messages." },

@@ -38,21 +38,56 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const customerId = searchParams.get("customerId");
+  const category = searchParams.get("category");
+  const status = searchParams.get("status");
+  const query = searchParams.get("q")?.trim();
 
-  if (!customerId) {
-    return NextResponse.json(
-      { error: "Customer ID is required." },
-      { status: 400 },
+  let requestQuery = supabaseAdmin
+    .from("customer_display_assets")
+    .select(
+      `
+      id,
+      customer_id,
+      file_name,
+      content_type,
+      file_size,
+      storage_bucket,
+      storage_path,
+      asset_category,
+      description,
+      source,
+      status,
+      created_at,
+      customers(name, email)
+    `,
+    )
+    .order("created_at", { ascending: false })
+    .limit(customerId ? 100 : 200);
+
+  if (customerId) requestQuery = requestQuery.eq("customer_id", customerId);
+  if (category && category !== "all") {
+    requestQuery = requestQuery.eq("asset_category", category);
+  }
+  if (status && status !== "all") {
+    requestQuery = requestQuery.eq("status", status);
+  }
+  if (query) {
+    requestQuery = requestQuery.or(
+      `file_name.ilike.%${query}%,description.ilike.%${query}%`,
     );
   }
 
-  const { data: assets, error } = await supabaseAdmin
-    .from("customer_display_assets")
-    .select("id, file_name, content_type, file_size, storage_bucket, storage_path, created_at")
-    .eq("customer_id", customerId)
-    .order("created_at", { ascending: false });
+  const { data: assets, error } = await requestQuery;
 
   if (error) {
+    if (error.code === "PGRST205" || error.code === "42703") {
+      return NextResponse.json({
+        assets: [],
+        warning:
+          "Customer material tables are not available. Apply the latest Supabase migrations.",
+      });
+    }
+
     console.error("Load customer assets error:", error);
     return NextResponse.json(
       { error: "Could not load customer assets." },
@@ -62,17 +97,32 @@ export async function GET(request: Request) {
 
   const assetsWithUrls = await Promise.all(
     (assets || []).map(async (asset) => {
-      const { data } = await supabaseAdmin.storage
-        .from(asset.storage_bucket)
-        .createSignedUrl(asset.storage_path, 60 * 15);
+      let downloadUrl: string | null = null;
+      if (asset.storage_bucket && asset.storage_path) {
+        const { data } = await supabaseAdmin.storage
+          .from(asset.storage_bucket)
+          .createSignedUrl(asset.storage_path, 60 * 15);
+        downloadUrl = data?.signedUrl || null;
+      }
+
+      const customer = Array.isArray(asset.customers)
+        ? asset.customers[0]
+        : asset.customers;
 
       return {
         id: asset.id,
+        customerId: asset.customer_id,
+        customerName: customer?.name || "Unknown customer",
+        customerEmail: customer?.email || null,
         fileName: asset.file_name,
         contentType: asset.content_type,
         fileSize: asset.file_size,
+        category: asset.asset_category,
+        description: asset.description,
+        source: asset.source,
+        status: asset.status,
         createdAt: asset.created_at,
-        downloadUrl: data?.signedUrl || null,
+        downloadUrl,
       };
     }),
   );

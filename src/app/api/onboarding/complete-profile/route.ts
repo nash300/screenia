@@ -10,47 +10,16 @@ import {
   CURRENT_PRIVACY_DOCUMENT,
   CURRENT_TERMS_DOCUMENT,
 } from "@/lib/legal/documents";
+import {
+  saveDisplayAssets,
+  validateDisplayAssetRequest,
+  type DisplayFileInput,
+} from "@/lib/server/display-assets";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
-
-const DISPLAY_ASSET_BUCKET = "customer-display-assets";
-const MAX_DISPLAY_FILE_BYTES = 10 * 1024 * 1024;
-const ALLOWED_DISPLAY_FILE_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "application/pdf",
-]);
-const ALLOWED_COURIERS = new Set([
-  "PostNord",
-  "DHL",
-  "Bring",
-  "DB Schenker",
-  "Instabox",
-]);
-
-type DisplayFileInput = {
-  name?: string;
-  type?: string;
-  size?: number;
-  data?: string;
-};
-
-function sanitizeFileName(fileName: string) {
-  return fileName
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 120);
-}
-
-function decodeBase64File(file: DisplayFileInput) {
-  const base64 = String(file.data || "").split(",").pop() || "";
-  return Buffer.from(base64, "base64");
-}
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -64,7 +33,6 @@ export async function POST(request: Request) {
   const acceptedTerms = Boolean(body.acceptedTerms);
   const acceptedPrivacy = Boolean(body.acceptedPrivacy);
   const marketingConsent = Boolean(body.marketingConsent);
-  const preferredCourier = String(body.preferredCourier || "").trim();
   const displayNotes = String(body.displayNotes || "").trim();
   const displayFiles = Array.isArray(body.displayFiles)
     ? (body.displayFiles as DisplayFileInput[])
@@ -90,8 +58,9 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!ALLOWED_COURIERS.has(preferredCourier)) {
-    return NextResponse.json({ error: "Välj transportör." }, { status: 400 });
+  const assetValidation = validateDisplayAssetRequest(displayFiles, displayNotes);
+  if (assetValidation.error) {
+    return NextResponse.json({ error: assetValidation.error }, { status: 400 });
   }
 
   const { data: customer, error: customerError } = await supabaseAdmin
@@ -119,7 +88,6 @@ export async function POST(request: Request) {
   const nextNotes =
     [
       currentNotes,
-      `Preferred courier: ${preferredCourier}`,
       displayNotes ? `Display material notes: ${displayNotes}` : "",
     ]
       .filter(Boolean)
@@ -150,60 +118,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const storedFiles = [];
-
-  for (const file of displayFiles) {
-    const fileName = sanitizeFileName(String(file.name || "display-material"));
-    const contentType = String(file.type || "application/octet-stream");
-    const fileSize = Number(file.size || 0);
-
-    if (!fileName || !ALLOWED_DISPLAY_FILE_TYPES.has(contentType)) {
-      console.warn("Skipped unsupported display asset:", fileName, contentType);
-      continue;
-    }
-
-    if (fileSize > MAX_DISPLAY_FILE_BYTES) {
-      console.warn("Skipped oversized display asset:", fileName, fileSize);
-      continue;
-    }
-
-    const bytes = decodeBase64File(file);
-
-    if (bytes.byteLength === 0 || bytes.byteLength > MAX_DISPLAY_FILE_BYTES) {
-      console.warn("Skipped invalid display asset:", fileName);
-      continue;
-    }
-
-    const storagePath = `${customer.id}/${crypto.randomUUID()}-${fileName}`;
-    const { error: uploadError } = await supabaseAdmin.storage
-      .from(DISPLAY_ASSET_BUCKET)
-      .upload(storagePath, bytes, {
-        contentType,
-        upsert: false,
-      });
-
-    if (uploadError) {
-      console.warn("Display asset upload failed:", uploadError.message);
-      continue;
-    }
-
-    const { error: assetError } = await supabaseAdmin
-      .from("customer_display_assets")
-      .insert({
-        customer_id: customer.id,
-        file_name: fileName,
-        content_type: contentType,
-        file_size: bytes.byteLength,
-        storage_bucket: DISPLAY_ASSET_BUCKET,
-        storage_path: storagePath,
-        uploaded_by: "customer",
-      });
-
-    if (assetError) {
-      console.warn("Display asset metadata failed:", assetError.message);
-    } else {
-      storedFiles.push(fileName);
-    }
+  let storedFiles: string[] = [];
+  try {
+    const result = await saveDisplayAssets({
+      supabase: supabaseAdmin,
+      customerId: customer.id,
+      files: displayFiles,
+      description: displayNotes,
+      source: "onboarding",
+    });
+    storedFiles = result.storedFiles;
+  } catch (error) {
+    console.error("Display asset upload failed:", error);
+    return NextResponse.json(
+      { error: "Det gick inte att spara skärmmaterialet." },
+      { status: 500 },
+    );
   }
 
   await Promise.all([
@@ -272,7 +202,7 @@ export async function POST(request: Request) {
       customerId: customer.id,
       actorType: "customer",
       eventType: "onboarding_profile_completed",
-      eventDescription: "Customer completed profile and legal consent step.",
+      eventDescription: "Customer completed profile, legal consent, and material step.",
       metadata: {
         acceptedTerms,
         acceptedPrivacy,
@@ -281,7 +211,6 @@ export async function POST(request: Request) {
         privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
         displayNotesProvided: Boolean(displayNotes),
         displayFiles: storedFiles,
-        preferredCourier,
       },
       ipAddress,
       userAgent,

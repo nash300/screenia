@@ -252,7 +252,13 @@ const planCopy = {
   },
 } as const;
 
-const navIds = ["#platform", "#workflow", "#pricing", "#examples", "#faq", "#contact"];
+const navItems = [
+  { href: "#platform", labelIndex: 0 },
+  { href: "/sa-fungerar-det", labelIndex: 1 },
+  { href: "#pricing", labelIndex: 2 },
+  { href: "#examples", labelIndex: 3 },
+  { href: "#faq", labelIndex: 4 },
+] as const;
 const galleryImages = [
   "/window_screen1.jpg",
   "/window_screen2.jpg",
@@ -298,6 +304,35 @@ type HeroSlideAsset = LandingAsset & {
     text: string;
   };
 };
+
+const heroHighlightWords: Record<string, string[]> = {
+  "01": ["kunder", "unikt", "fler besökare"],
+  "02": ["befintliga skärm", "allt som behövs", "olika storlekar"],
+  "03": ["Slipp dyra installationer", "några minuter", "Enkelt", "prisvärt", "småföretag"],
+};
+
+function renderHighlightedText(text: string, words: string[]) {
+  if (!words.length) return text;
+
+  const escapedWords = words.map((word) =>
+    word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+  );
+  const pattern = new RegExp(`(${escapedWords.join("|")})`, "gi");
+
+  return text.split(pattern).map((part, index) => {
+    const isHighlighted = words.some(
+      (word) => word.toLowerCase() === part.toLowerCase(),
+    );
+
+    if (!isHighlighted) return part;
+
+    return (
+      <span key={`${part}-${index}`} className="landing-highlight">
+        {part}
+      </span>
+    );
+  });
+}
 
 const comparisonRows = {
   sv: [
@@ -430,6 +465,9 @@ export default function Home() {
   const currentHeroMedia =
     heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
   const currentHeroIndex = heroSlideCount > 0 ? activeHeroSlide % heroSlideCount : 0;
+  const currentHighlightWords = currentHeroMedia
+    ? heroHighlightWords[currentHeroMedia.id] || []
+    : ["Professionellt", "tydlig plattform"];
 
   const goToHeroSlide = (index: number) => {
     if (heroSlideCount <= 1) return;
@@ -515,23 +553,32 @@ export default function Home() {
         </div>
 
         <nav className={menuOpen ? "landing-links open" : "landing-links"}>
-          {navIds.map((href, index) => (
-            <a key={href} href={href} onClick={() => setMenuOpen(false)}>
-              {t.nav[index]}
+          <div className="landing-nav-primary">
+            {navItems.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
+                {t.nav[item.labelIndex]}
+              </a>
+            ))}
+          </div>
+          <div className="landing-nav-actions">
+            <a className="landing-nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>
+              <span className="landing-nav-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.8L3 22v-4.2A2 2 0 0 1 2 16V7a2 2 0 0 1 2-2Zm0 2v9h1v2.2L7.2 17H20V7H4Zm3 3h10v2H7v-2Zm0 4h7v2H7v-2Z" />
+                </svg>
+              </span>
+              {t.demo}
             </a>
-          ))}
-          <a className="landing-nav-login" href="/login" onClick={() => setMenuOpen(false)}>
-            <span className="landing-nav-login-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
-                <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
-              </svg>
-            </span>
-            Logga in
-          </a>
-          <a className="landing-nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>
-            {t.demo}
-          </a>
+            <a className="landing-nav-login" href="/login" onClick={() => setMenuOpen(false)}>
+              <span className="landing-nav-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
+                  <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
+                </svg>
+              </span>
+              Logga in
+            </a>
+          </div>
         </nav>
       </header>
 
@@ -548,13 +595,17 @@ export default function Home() {
           />
           <div className="landing-hero-copy">
             <div className="landing-hero-copy-main">
-              <h1>{currentHeroSlide.title}</h1>
-              <p className="landing-lede">{currentHeroSlide.text}</p>
+              <h1>
+                {renderHighlightedText(currentHeroSlide.title, currentHighlightWords)}
+              </h1>
+              <p className="landing-lede">
+                {currentHeroSlide.text}
+              </p>
               <div className="landing-actions">
                 <a href="#pricing" className="landing-button landing-button-primary">
                   {t.pricingCta}
                 </a>
-                <a href="#workflow" className="landing-button landing-button-secondary">
+                <a href="/sa-fungerar-det" className="landing-button landing-button-secondary">
                   {t.workflowCta}
                 </a>
               </div>
@@ -588,11 +639,13 @@ export default function Home() {
             </div>
             {serviceLogos.length > 0 && (
               <div className="landing-logo-rail" aria-label="Service logos">
-                {serviceLogos.map((logo) => (
-                  <span key={logo.label} className="landing-logo-tile">
-                    <img src={logo.src} alt={`${logo.label} logo`} />
-                  </span>
-                ))}
+                <div className="landing-logo-track">
+                  {[...serviceLogos, ...serviceLogos].map((logo, index) => (
+                    <span key={`${logo.label}-${index}`} className="landing-logo-tile">
+                      <img src={logo.src} alt={index < serviceLogos.length ? `${logo.label} logo` : ""} />
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -647,8 +700,8 @@ export default function Home() {
         <section id="workflow" className="landing-section landing-workflow">
           <img
             className="landing-workflow-banner"
-            src="/brand/how-it-works-en-banner.png"
-            alt="InfoSync process: choose a package, complete setup, receive hardware, connect to Wi-Fi, and request updates"
+            src="/brand/how-it-works-sv-banner.png"
+            alt="InfoSync process: välj paket, slutför uppsättning, få hårdvara, anslut och begär uppdateringar"
           />
         </section>
 

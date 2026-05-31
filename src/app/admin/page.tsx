@@ -16,6 +16,7 @@ type AdminCustomer = {
 export default function AdminHomePage() {
   const [customerCount, setCustomerCount] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
+  const [newMaterialCount, setNewMaterialCount] = useState(0);
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,6 +77,11 @@ export default function AdminHomePage() {
       .from("devices")
       .select("*", { count: "exact", head: true });
 
+    const { count: newMaterials } = await supabase
+      .from("customer_display_assets")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "new");
+
     const { data } = await supabase.from("customers").select(`
       id,
       status,
@@ -87,6 +93,7 @@ export default function AdminHomePage() {
 
     setCustomerCount(customers || 0);
     setDeviceCount(devices || 0);
+    setNewMaterialCount(newMaterials || 0);
     setCustomers((data || []) as AdminCustomer[]);
     setLoading(false);
   };
@@ -117,13 +124,48 @@ export default function AdminHomePage() {
         </div>
       </div>
 
+      <section className="admin-action-grid">
+        <ActionCard
+          href="/admin/customers?filter=draft"
+          title="Draft quotes"
+          description="Prepare quote and setup link."
+          count={draftCustomerCount}
+          tone="warning"
+          loading={loading}
+        />
+        <ActionCard
+          href="/admin/customers?filter=invited"
+          title="Invited customers"
+          description="Waiting for details, material, or payment."
+          count={invitedCustomerCount}
+          tone="info"
+          loading={loading}
+        />
+        <ActionCard
+          href="/admin/customers?filter=needs_device"
+          title="Create devices"
+          description="Active customers without an assigned screen."
+          count={needsDeviceCount}
+          tone="warning"
+          loading={loading}
+        />
+        <ActionCard
+          href="/admin/customers?filter=needs_playlist"
+          title="Upload playlists"
+          description="Assigned devices with no playable content."
+          count={needsPlaylistCount}
+          tone="danger"
+          loading={loading}
+        />
+      </section>
+
       <div className="admin-dashboard-kpis">
         <StatCard
           label="Total customers"
           value={customerCount}
           loading={loading}
           tone="neutral"
-          meta={`${activeCustomerCount} active`}
+          meta="Registered accounts"
         />
 
         <StatCard
@@ -132,15 +174,6 @@ export default function AdminHomePage() {
           loading={loading}
           tone="neutral"
           meta="Registered screens"
-        />
-
-        <StatCard
-          label="Need attention"
-          value={attentionCount}
-          loading={loading}
-          tone={attentionCount > 0 ? "warning" : "success"}
-          meta="Open setup tasks"
-          href="/admin/customers?filter=needs_device"
         />
 
         <StatCard
@@ -154,12 +187,10 @@ export default function AdminHomePage() {
 
       <div className="admin-dashboard-grid">
         <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Customer status</h2>
+          <h2 className="admin-card-title text-xl">Account health</h2>
 
           <div className="admin-status-list">
             <StatusRow label="Active" value={activeCustomerCount} tone="success" />
-            <StatusRow label="Invited" value={invitedCustomerCount} tone="info" />
-            <StatusRow label="Draft" value={draftCustomerCount} tone="neutral" />
             <StatusRow
               label="Suspended"
               value={suspendedCustomerCount}
@@ -199,25 +230,11 @@ export default function AdminHomePage() {
           </div>
         </section>
 
-        <section className="admin-card admin-dashboard-panel admin-dashboard-priorities p-6">
-          <h2 className="admin-card-title text-xl">Priority queue</h2>
-
-          <div className="admin-priority-list">
-            <PriorityItem
-              href="/admin/customers?filter=needs_device"
-              title="Create missing devices"
-              description="Active customers without an assigned screen."
-              count={needsDeviceCount}
-              tone="warning"
-            />
-
-            <PriorityItem
-              href="/admin/customers?filter=needs_playlist"
-              title="Upload missing playlists"
-              description="Devices that exist but have no playable content."
-              count={needsPlaylistCount}
-              tone="danger"
-            />
+        <section className="admin-card admin-dashboard-panel p-6">
+          <h2 className="admin-card-title text-xl">Uploads</h2>
+          <div className="admin-status-list">
+            <StatusRow label="New material" value={newMaterialCount} tone="warning" />
+            <StatusRow label="Total attention" value={attentionCount + newMaterialCount} tone="info" />
           </div>
         </section>
       </div>
@@ -278,26 +295,28 @@ function StatusRow({
   );
 }
 
-function PriorityItem({
+function ActionCard({
   href,
   title,
   description,
   count,
   tone,
+  loading,
 }: {
   href: string;
   title: string;
   description: string;
   count: number;
-  tone: "warning" | "danger";
+  tone: "warning" | "danger" | "info";
+  loading: boolean;
 }) {
   return (
-    <Link href={href} className={`admin-priority-item admin-priority-${tone}`}>
+    <Link href={href} className={`admin-action-card admin-action-${tone}`}>
       <div>
         <p className="admin-priority-title">{title}</p>
         <p className="admin-priority-description">{description}</p>
       </div>
-      <span>{count}</span>
+      <span>{loading ? "..." : count}</span>
     </Link>
   );
 }
