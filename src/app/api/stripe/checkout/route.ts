@@ -20,6 +20,14 @@ function toOre(amountSek: number) {
   return Math.round(amountSek * 100);
 }
 
+function checkoutImageUrl(appUrl: string, path: string) {
+  const imageBaseUrl = appUrl.includes("localhost")
+    ? "https://infosync.se"
+    : appUrl;
+
+  return new URL(path, imageBaseUrl).toString();
+}
+
 type QuoteItem = {
   pricingPlanCode?: string;
   quantity?: number;
@@ -272,6 +280,9 @@ export async function POST(request: Request) {
             },
           })
         : null;
+    const setupImage = checkoutImageUrl(appUrl, "/brand/infosync-logo-full-white-bg.png");
+    const deviceImage = checkoutImageUrl(appUrl, "/brand/infosync-helper.png");
+    const subscriptionImage = checkoutImageUrl(appUrl, "/brand/infosync-icon-512-transparent.png");
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -294,6 +305,7 @@ export async function POST(request: Request) {
             product_data: {
               name: `${plan.name} start- och konfigurationsavgift`,
               description: "Engångsavgift. Återbetalas inte när setupen har startat.",
+              images: [setupImage],
             },
           },
           quantity: 1,
@@ -304,6 +316,7 @@ export async function POST(request: Request) {
             unit_amount: toOre(checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek),
             product_data: {
               name: `${plan.name} ${plan.resolution} skärmenhet`,
+              images: [deviceImage],
             },
           },
           quantity: checkoutQuoteItems[0]?.quantity ?? screenQuantity,
@@ -314,6 +327,7 @@ export async function POST(request: Request) {
             unit_amount: toOre(checkoutQuoteItems[0]?.shippingFeeSek ?? shippingFeeSek),
             product_data: {
               name: "Frakt inom Sverige",
+              images: [subscriptionImage],
             },
           },
           quantity: checkoutScreenQuantity,
@@ -327,6 +341,7 @@ export async function POST(request: Request) {
             },
             product_data: {
               name: `InfoSync ${plan.name} ${plan.resolution} månadsabonnemang`,
+              images: [subscriptionImage],
             },
           },
           quantity: checkoutQuoteItems[0]?.quantity ?? 1,
@@ -338,6 +353,7 @@ export async function POST(request: Request) {
               unit_amount: toOre(item.discountedHardwareFeeSek),
               product_data: {
                 name: `${item.name} ${item.resolution} skärmenhet`,
+                images: [deviceImage],
               },
             },
             quantity: item.quantity,
@@ -348,6 +364,7 @@ export async function POST(request: Request) {
               unit_amount: toOre(item.shippingFeeSek),
               product_data: {
                 name: `Frakt ${item.name} ${item.resolution}`,
+                images: [subscriptionImage],
               },
             },
             quantity: item.quantity,
@@ -361,6 +378,7 @@ export async function POST(request: Request) {
               },
               product_data: {
                 name: `InfoSync ${item.name} ${item.resolution} månadsabonnemang`,
+                images: [subscriptionImage],
               },
             },
             quantity: item.quantity,

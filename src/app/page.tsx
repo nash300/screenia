@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { LandingNav } from "@/components/LandingNav";
 import "./landing.css";
 
 const copy = {
@@ -13,10 +14,10 @@ const copy = {
     lede:
       "InfoSync hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer paket, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
     pricingCta: "Se paket",
-    workflowCta: "Så fungerar det",
+    workflowCta: "Se fördelarna",
     stats: [
       ["24/7", "kontinuerlig skärmvisning"],
-      ["14 dagar", "provperiod på abonnemang"],
+      ["3 veckor", "kostnadsfri provperiod"],
       ["0", "månaders bindningstid"],
     ],
     platformTitle: "En enklare väg till professionell skärmvisning",
@@ -40,7 +41,7 @@ const copy = {
     process: [["Förfrågan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "Start- och konfigurationsavgiften betalas en gång och är inte återbetalningsbar. Enheten betalas vid start. Månadsabonnemanget har 14 dagars provperiod och ingen bindningstid.",
+      "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgiften betalas en gång och månadsabonnemanget har 3 veckors kostnadsfri provperiod.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
     monthly: "Per månad",
@@ -68,7 +69,7 @@ const copy = {
       ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
       ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
       ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till InfoSync så hjälper vi dig att uppdatera skärmen."],
-      ["Vilken leverans kan jag välja", "I startguiden väljer kunden en tillgänglig transportör, exempelvis PostNord, DHL, Bring, DB Schenker eller Instabox."],
+      ["Hur skickas enheten", "Vi väljer ett lämpligt leveranssätt utifrån adress, paketstorlek och ledtid. Du får tydliga instruktioner när enheten skickas."],
       ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för båda paketen och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Avgiften återbetalas inte när arbetet har startat."],
     ],
     companyTitle: "Företagsinformation",
@@ -104,7 +105,7 @@ const copy = {
       "InfoSync helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose a package, send your details, and get help launching without technical hassle.",
     pricingCta: "See packages",
     workflowCta: "How it works",
-    stats: [["24/7", "continuous screen playback"], ["14 days", "subscription trial"], ["0", "months commitment"]],
+    stats: [["24/7", "continuous screen playback"], ["3 weeks", "free subscription trial"], ["0", "months commitment"]],
     platformTitle: "A simpler path to professional screen display",
     platformText:
       "You do not need to build your own system or manage technical settings. InfoSync helps you from the first request to a screen that shows the right content in your business.",
@@ -126,7 +127,7 @@ const copy = {
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
     pricingText:
-      "The setup fee is paid once. The monthly subscription has a 14-day trial and no commitment.",
+      "Choose Full HD for smaller screens and simpler content, or 4K when text, menus, and details need extra sharpness. The setup fee is paid once and the monthly subscription has a 3-week free trial.",
     recommended: "Recommended",
     setupFee: "Setup fee",
     monthly: "Per month",
@@ -154,7 +155,7 @@ const copy = {
       ["Do I need a special TV", "You need a Smart TV or screen with HDMI and access to Wi-Fi."],
       ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
       ["Can I change the content later", "Yes. Send new material or updated prices to InfoSync and we help update the screen."],
-      ["Which delivery service can I choose", "In the setup guide, the customer selects an available carrier such as PostNord, DHL, Bring, DB Schenker, or Instabox."],
+      ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
       ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and device dispatch."],
     ],
     companyTitle: "Company information",
@@ -189,7 +190,7 @@ const plans = [
     resolution: "FHD",
     setupFee: "1 599 kr",
     hardwareFee: "699 kr",
-    monthlyFee: "219 kr",
+    monthlyFee: "249 kr",
     featured: false,
   },
   {
@@ -198,7 +199,7 @@ const plans = [
     resolution: "4K",
     setupFee: "1 599 kr",
     hardwareFee: "1 099 kr",
-    monthlyFee: "296 kr",
+    monthlyFee: "349 kr",
     featured: true,
   },
 ] as const;
@@ -207,22 +208,23 @@ const planCopy = {
   sv: {
     standard_fhd: {
       description:
-        "För en skärm som visar kampanjer, erbjudanden och information i Full HD.",
+        "För mindre skärmar och standardinnehåll i Full HD.",
       features: [
-        "Uppspelning i Full HD",
-        "Säker startguide för uppgifter och betalning",
-        "Vi hjälper dig att få skärmen redo",
-        "14 dagars provperiod på månadsabonnemang",
+        "Uppspelning i Full HD (1080p)",
+        "Rekommenderas för skärmar upp till 43 tum",
+        "Passar kampanjer, erbjudanden och informationsskärmar",
+        "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
       ],
     },
     premium_4k: {
-      description: "För verksamheter som vill visa extra skarpt innehåll i 4K.",
+      description: "För större skärmar och extra skarpt innehåll i 4K.",
       features: [
-        "Uppspelning för 4K-innehåll",
-        "Säker startguide för uppgifter och betalning",
-        "Vi hjälper dig att få skärmen redo",
-        "14 dagars provperiod på månadsabonnemang",
+        "Uppspelning i äkta 4K (3840×2160)",
+        "Rekommenderas för skärmar från 55 tum",
+        "Skarpare text, menyer och detaljerade bilder",
+        "Bäst för restauranger, butiker och premiumvisning",
+        "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
       ],
     },
@@ -232,33 +234,27 @@ const planCopy = {
       description:
         "For one screen showing campaigns, offers, and information in Full HD.",
       features: [
-        "Full HD playback",
-        "Secure setup guide for details and payment",
-        "We help you get the screen ready",
-        "14-day trial on the monthly subscription",
+        "Full HD playback (1080p)",
+        "Recommended for screens up to 43 inches",
+        "Fits campaigns, offers, and information screens",
+        "3-week free trial",
         "No commitment",
       ],
     },
     premium_4k: {
       description: "For businesses that want extra sharp 4K content.",
       features: [
-        "Playback for 4K content",
-        "Secure setup guide for details and payment",
-        "We help you get the screen ready",
-        "14-day trial on the monthly subscription",
+        "True 4K playback (3840×2160)",
+        "Recommended for screens from 55 inches",
+        "Sharper text, menus, and detailed images",
+        "Best for restaurants, shops, and premium display",
+        "3-week free trial",
         "No commitment",
       ],
     },
   },
 } as const;
 
-const navItems = [
-  { href: "#platform", labelIndex: 0 },
-  { href: "/sa-fungerar-det", labelIndex: 1 },
-  { href: "#pricing", labelIndex: 2 },
-  { href: "#examples", labelIndex: 3 },
-  { href: "#faq", labelIndex: 4 },
-] as const;
 const galleryImages = [
   "/window_screen1.jpg",
   "/window_screen2.jpg",
@@ -340,8 +336,8 @@ const comparisonRows = {
     ["Passar bäst för", "En skärm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkänsla"],
     ["Startavgift", "1 599 kr", "1 599 kr"],
     ["Enhet", "699 kr", "1 099 kr"],
-    ["Månadspris", "219 kr", "296 kr"],
-    ["Provperiod", "14 dagar", "14 dagar"],
+    ["Månadspris", "249 kr", "349 kr"],
+    ["Provperiod", "3 veckor", "3 veckor"],
     ["Bindningstid", "Ingen", "Ingen"],
   ],
   en: [
@@ -349,14 +345,13 @@ const comparisonRows = {
     ["Best for", "One screen with clear menus and offers", "Sharper display and a more premium feel"],
     ["Setup fee", "1 599 kr", "1 599 kr"],
     ["Device", "699 kr", "1 099 kr"],
-    ["Monthly price", "219 kr", "296 kr"],
-    ["Trial", "14 days", "14 days"],
+    ["Monthly price", "249 kr", "349 kr"],
+    ["Trial", "3 weeks", "3 weeks"],
     ["Commitment", "None", "None"],
   ],
 } as const;
 
 export default function Home() {
-  const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<(typeof plans)[number] | null>(
     null,
   );
@@ -391,7 +386,7 @@ export default function Home() {
     image: "https://infosync.se/brand/infosync-logo-full-white-bg.png",
     email: "hello@infosync.se",
     areaServed: "Sweden",
-    priceRange: "SEK 219-296 per month",
+    priceRange: "SEK 249-349 per month",
     description: t.seoIntro,
     knowsAbout: [
       "digital skyltning",
@@ -534,53 +529,7 @@ export default function Home() {
 
   return (
     <div className="landing-page">
-      <header className="landing-nav">
-        <a className="landing-brand" href="#top" onClick={() => setMenuOpen(false)}>
-          <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
-        </a>
-
-        <div className="landing-header-controls">
-          <button
-            className="landing-menu-button"
-            type="button"
-            aria-label="Open menu"
-            onClick={() => setMenuOpen((current) => !current)}
-          >
-            <span />
-            <span />
-            <span />
-          </button>
-        </div>
-
-        <nav className={menuOpen ? "landing-links open" : "landing-links"}>
-          <div className="landing-nav-primary">
-            {navItems.map((item) => (
-              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)}>
-                {t.nav[item.labelIndex]}
-              </a>
-            ))}
-          </div>
-          <div className="landing-nav-actions">
-            <a className="landing-nav-cta" href="#contact" onClick={() => setMenuOpen(false)}>
-              <span className="landing-nav-action-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.8L3 22v-4.2A2 2 0 0 1 2 16V7a2 2 0 0 1 2-2Zm0 2v9h1v2.2L7.2 17H20V7H4Zm3 3h10v2H7v-2Zm0 4h7v2H7v-2Z" />
-                </svg>
-              </span>
-              {t.demo}
-            </a>
-            <a className="landing-nav-login" href="/login" onClick={() => setMenuOpen(false)}>
-              <span className="landing-nav-action-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
-                  <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
-                </svg>
-              </span>
-              Logga in
-            </a>
-          </div>
-        </nav>
-      </header>
+      <LandingNav currentPath="/" />
 
       <main id="top">
         <section className="landing-hero landing-hero-background-slide">
@@ -718,7 +667,6 @@ export default function Home() {
                   <div className="landing-plan-heading">
                     <div>
                       <h3>{plan.name}</h3>
-                      <p>{plan.resolution}</p>
                     </div>
                     <span>{plan.resolution}</span>
                   </div>
@@ -740,6 +688,15 @@ export default function Home() {
                 </article>
               );
             })}
+          </div>
+          <div className="landing-pricing-note">
+            <h3>Vilken version passar mig?</h3>
+            <p>
+              För skärmar på 50 tum kan både Full HD och 4K fungera bra
+              beroende på innehållet. Om skärmen visar mycket text, menyer
+              eller detaljerade bilder rekommenderar vi 4K för bästa skärpa och
+              läsbarhet.
+            </p>
           </div>
           <ComparisonTable />
         </LandingSection>

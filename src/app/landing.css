@@ -788,7 +788,7 @@
   display: block;
   width: auto;
   max-width: 100%;
-  height: auto;
+  height: 30px;
   max-height: 30px;
   object-fit: contain;
   filter:
@@ -1623,8 +1623,11 @@
 
 .landing-plan-badge {
   position: absolute;
-  top: 18px;
-  right: 18px;
+  top: 16px;
+  right: 16px;
+  background: linear-gradient(135deg, var(--landing-yellow), #f7b733);
+  color: #392500;
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.26);
 }
 
 .landing-plan-heading {
@@ -1651,6 +1654,7 @@
 }
 
 .landing-plan-description {
+  min-height: 48px;
   margin: 18px 0;
 }
 
@@ -1699,6 +1703,7 @@
 
 .landing-price-card ul {
   display: grid;
+  align-content: start;
   gap: 10px;
   margin: 18px 0 24px;
   padding: 0;
@@ -1708,6 +1713,257 @@
 .landing-price-card .landing-button {
   margin-top: auto;
   align-self: start;
+}
+
+.landing-pricing-note {
+  margin-top: 22px;
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(245, 158, 11, 0.08)),
+    rgba(255, 255, 255, 0.86);
+  padding: 20px 22px;
+  box-shadow: 0 14px 34px rgba(7, 31, 84, 0.08);
+}
+
+.landing-pricing-note h3 {
+  margin: 0 0 8px;
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-ui);
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.landing-pricing-note p {
+  max-width: 880px;
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.7;
+}
+
+.how-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(47, 125, 246, 0.16), transparent 28%),
+    linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #ffffff 100%);
+}
+
+.how-page .landing-nav-primary a.is-active {
+  color: var(--landing-primary);
+}
+
+.how-main {
+  width: min(1180px, calc(100vw - 96px));
+  margin: 0 auto;
+  padding: 138px 0 72px;
+}
+
+.how-hero {
+  max-width: 860px;
+  margin-bottom: 34px;
+}
+
+.how-hero h1 {
+  margin: 10px 0 16px;
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-ui);
+  font-size: clamp(2.25rem, 5vw, 4.4rem);
+  font-weight: 950;
+  line-height: 1.02;
+}
+
+.how-hero p:last-child {
+  max-width: 760px;
+  margin: 0;
+  color: var(--landing-muted);
+  font-size: 1.08rem;
+  line-height: 1.75;
+}
+
+.how-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.how-card {
+  display: flex;
+  min-height: 390px;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 18px 44px rgba(7, 31, 84, 0.09);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.how-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(59, 130, 246, 0.36);
+  box-shadow: 0 26px 60px rgba(7, 31, 84, 0.15);
+}
+
+.how-card-image {
+  position: relative;
+  aspect-ratio: 1.55;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(47, 125, 246, 0.18), rgba(245, 158, 11, 0.08)),
+    #eaf2ff;
+}
+
+.how-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.24s ease;
+}
+
+.how-card:hover .how-card-image img {
+  transform: scale(1.035);
+}
+
+.how-card-image span {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--landing-primary);
+  font-family: var(--landing-font-ui);
+  font-weight: 950;
+  box-shadow: 0 12px 28px rgba(7, 31, 84, 0.16);
+}
+
+.how-card-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 22px;
+}
+
+.how-card-content h2 {
+  margin: 0 0 10px;
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-ui);
+  font-size: 1.35rem;
+  font-weight: 950;
+  line-height: 1.18;
+}
+
+.how-card-content p {
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.65;
+}
+
+.how-promo-section {
+  margin-top: 58px;
+}
+
+.how-section-heading {
+  display: grid;
+  max-width: 820px;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.how-section-heading h2 {
+  margin: 0;
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-ui);
+  font-size: clamp(1.9rem, 3.5vw, 3.1rem);
+  font-weight: 950;
+  line-height: 1.06;
+}
+
+.how-section-heading p:last-child {
+  margin: 0;
+  color: var(--landing-muted);
+  font-size: 1.04rem;
+  line-height: 1.7;
+}
+
+.how-reason-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.how-reason-card {
+  display: flex;
+  min-height: 360px;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 44px rgba(7, 31, 84, 0.08);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.how-reason-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(245, 158, 11, 0.42);
+  box-shadow: 0 26px 58px rgba(7, 31, 84, 0.14);
+}
+
+.how-reason-card img {
+  width: 100%;
+  aspect-ratio: 1.25;
+  background: #eaf2ff;
+  object-fit: cover;
+}
+
+.how-reason-card div {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.how-reason-card span {
+  width: max-content;
+  border-radius: 999px;
+  background: var(--landing-yellow-soft);
+  color: #7b5a00;
+  padding: 5px 10px;
+  font-family: var(--landing-font-ui);
+  font-size: 0.74rem;
+  font-weight: 950;
+}
+
+.how-reason-card h3 {
+  margin: 0;
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-ui);
+  font-size: 1.08rem;
+  font-weight: 950;
+  line-height: 1.2;
+}
+
+.how-reason-card p {
+  margin: 0;
+  color: var(--landing-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 1180px) {
+  .how-card-grid,
+  .how-reason-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .landing-comparison {
@@ -3172,6 +3428,8 @@
   .landing-process-visual,
   .landing-pricing-layout,
   .landing-price-grid,
+  .how-card-grid,
+  .how-reason-grid,
   .landing-gallery-grid,
   .landing-faq-layout,
   .landing-faq-grid,
@@ -3258,6 +3516,20 @@
 
   .landing-footer {
     padding: 28px;
+  }
+
+  .how-main {
+    width: min(100%, calc(100vw - 36px));
+    padding: 112px 0 46px;
+  }
+
+  .how-hero h1 {
+    font-size: 2.25rem;
+  }
+
+  .how-card,
+  .how-reason-card {
+    min-height: auto;
   }
 }
 

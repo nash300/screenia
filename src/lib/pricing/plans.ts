@@ -6,8 +6,8 @@ export const PRICING_PLANS = [
     setupFeeSek: 1599,
     hardwareFeeSek: 699,
     shippingFeeSek: 99,
-    monthlyFeeSek: 219,
-    trialDays: 14,
+    monthlyFeeSek: 249,
+    trialDays: 21,
     binding: "None",
   },
   {
@@ -17,8 +17,8 @@ export const PRICING_PLANS = [
     setupFeeSek: 1599,
     hardwareFeeSek: 1099,
     shippingFeeSek: 99,
-    monthlyFeeSek: 296,
-    trialDays: 14,
+    monthlyFeeSek: 349,
+    trialDays: 21,
     binding: "None",
   },
 ] as const;
