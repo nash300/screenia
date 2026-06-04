@@ -8,6 +8,7 @@ import { showAdminNotification } from "@/lib/admin/notifications";
 
 type Customer = {
   id: string;
+  customer_number: string | null;
   name: string;
   email: string | null;
   phone: string | null;
@@ -71,6 +72,7 @@ function CustomersContent() {
       .select(
         `
         id,
+        customer_number,
         name,
         email,
         phone,
@@ -130,6 +132,9 @@ function CustomersContent() {
       id: newCustomerId,
       name: name.trim(),
       email: email.trim(),
+      country: "Sverige",
+      preferred_contact_channel: "email",
+      search_keywords: [name.trim(), email.trim()].join(" "),
       status: "draft",
     });
 
@@ -194,6 +199,7 @@ function CustomersContent() {
     return (
       matchesCustomerFilter(customer, statusFilter) &&
       (customer.name.toLowerCase().includes(value) ||
+        customer.customer_number?.toLowerCase().includes(value) ||
         customer.email?.toLowerCase().includes(value) ||
         customer.phone?.toLowerCase().includes(value))
     );
@@ -393,6 +399,7 @@ function CustomersContent() {
                         {customer.name}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
+                        #{customer.customer_number || "pending"} ·{" "}
                         {customer.email || "No email"} ·{" "}
                         {customer.phone || "No phone"}
                       </p>

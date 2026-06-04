@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
 
   if (isAdminRoute && !isAdmin) {
     const redirectResponse = NextResponse.redirect(
-      new URL("/login", request.url)
+      new URL("/admin-login", request.url)
     );
 
     authCookies.forEach((cookie) => {

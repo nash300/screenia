@@ -53,9 +53,14 @@ export default function OnboardingPage({
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
   const [organisationNumber, setOrganisationNumber] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("Sverige");
+  const [businessCategory, setBusinessCategory] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [preferredContactChannel, setPreferredContactChannel] = useState("email");
   const [displayNotes, setDisplayNotes] = useState("");
   const [materialFiles, setMaterialFiles] = useState<MaterialFile[]>([]);
   const [saving, setSaving] = useState(false);
@@ -63,6 +68,8 @@ export default function OnboardingPage({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
+  const [analyticsConsent, setAnalyticsConsent] = useState(true);
+  const [remoteSupportConsent, setRemoteSupportConsent] = useState(false);
 
   useEffect(() => {
     const loadCustomer = async () => {
@@ -118,9 +125,18 @@ export default function OnboardingPage({
   };
 
   const validateDetails = () => {
-    if (!contactPerson.trim()) return "Kontaktperson måste anges.";
-    if (!acceptedTerms) return "Du måste godkänna villkoren.";
-    if (!acceptedPrivacy) return "Du måste godkänna integritetspolicyn.";
+    if (!contactPerson.trim()) return "Kontaktperson m?ste anges.";
+    if (!organisationNumber.trim()) return "Organisationsnummer m?ste anges.";
+    if (!address.trim()) return "Leveransadress m?ste anges.";
+    if (!/^\d{3}\s?\d{2}$/.test(postalCode.trim())) {
+      return "Ange ett svenskt postnummer med 5 siffror.";
+    }
+    if (!city.trim()) return "Ort m?ste anges.";
+    if (!["sverige", "sweden", "se"].includes(country.trim().toLowerCase())) {
+      return "InfoSync tar bara emot best?llningar fr?n svenska kunder.";
+    }
+    if (!acceptedTerms) return "Du m?ste godk?nna villkoren.";
+    if (!acceptedPrivacy) return "Du m?ste godk?nna integritetspolicyn.";
     return "";
   };
 
@@ -187,12 +203,19 @@ export default function OnboardingPage({
         contactPerson,
         phone,
         organisationNumber,
+        billingEmail,
         address,
+        postalCode,
         city,
         country,
+        businessCategory,
+        websiteUrl,
+        preferredContactChannel,
         acceptedTerms,
         acceptedPrivacy,
         marketingConsent,
+        analyticsConsent,
+        remoteSupportConsent,
         displayNotes,
         displayFiles: displayFilePayloads,
       }),
@@ -302,10 +325,30 @@ export default function OnboardingPage({
           <div className="flow-form-grid">
             <FlowInput placeholder="Kontaktperson *" value={contactPerson} onChange={setContactPerson} />
             <FlowInput placeholder="Telefon" value={phone} onChange={setPhone} />
-            <FlowInput placeholder="Organisationsnummer" value={organisationNumber} onChange={setOrganisationNumber} />
-            <FlowInput placeholder="Ort" value={city} onChange={setCity} />
-            <FlowInput placeholder="Adress" value={address} onChange={setAddress} />
-            <FlowInput placeholder="Land" value={country} onChange={setCountry} />
+            <FlowInput placeholder="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} />
+            <FlowInput placeholder="Faktura-e-post (valfritt)" value={billingEmail} onChange={setBillingEmail} />
+            <FlowInput placeholder="Leveransadress *" value={address} onChange={setAddress} />
+            <FlowInput placeholder="Postnummer *" value={postalCode} onChange={setPostalCode} />
+            <FlowInput placeholder="Ort *" value={city} onChange={setCity} />
+            <FlowInput placeholder="Bransch (ex. restaurang, salong)" value={businessCategory} onChange={setBusinessCategory} />
+            <FlowInput placeholder="Webbplats eller social länk" value={websiteUrl} onChange={setWebsiteUrl} />
+            <label className="flow-select-label">
+              <span>Föredragen kontakt</span>
+              <select
+                value={preferredContactChannel}
+                onChange={(event) => setPreferredContactChannel(event.target.value)}
+              >
+                <option value="email">E-post</option>
+                <option value="phone">Telefon</option>
+                <option value="sms">SMS</option>
+              </select>
+            </label>
+            <label className="flow-select-label">
+              <span>Land</span>
+              <select value={country} onChange={(event) => setCountry(event.target.value)}>
+                <option value="Sverige">Sverige</option>
+              </select>
+            </label>
           </div>
 
           <div className="flow-checks">
@@ -319,6 +362,13 @@ export default function OnboardingPage({
             </FlowCheck>
             <FlowCheck checked={marketingConsent} onChange={setMarketingConsent}>
               Jag vill få relevanta nyheter och erbjudanden från InfoSync.
+            </FlowCheck>
+            <FlowCheck checked={analyticsConsent} onChange={setAnalyticsConsent}>
+              InfoSync f?r anv?nda order- och anv?ndningsdata f?r statistik och
+              f?rb?ttring av tj?nsten.
+            </FlowCheck>
+            <FlowCheck checked={remoteSupportConsent} onChange={setRemoteSupportConsent}>
+              InfoSync f?r kontakta mig och ge fj?rrsupport n?r jag ber om hj?lp.
             </FlowCheck>
           </div>
 

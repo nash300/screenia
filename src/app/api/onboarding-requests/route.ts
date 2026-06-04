@@ -22,6 +22,10 @@ export async function POST(request: Request) {
     const email = String(body.email || "").trim().toLowerCase();
     const contactPerson = String(body.contactPerson || "").trim();
     const phone = String(body.phone || "").trim();
+    const screenQuantity = Math.min(
+      50,
+      Math.max(1, Number(body.screenQuantity) || 1),
+    );
     const message = String(body.message || "").trim();
     const ipAddress = getRequestIp(request);
     const userAgent = request.headers.get("user-agent");
@@ -52,6 +56,7 @@ export async function POST(request: Request) {
     const notes = [
       "Landing purchase request",
       `Requested plan: ${selectedPlan?.name} ${selectedPlan?.resolution} (${planCode})`,
+      `Requested screens/devices: ${screenQuantity}`,
       `Submitted at: ${requestedAt}`,
       message ? `Message: ${message}` : "",
     ]
@@ -66,6 +71,20 @@ export async function POST(request: Request) {
         email,
         contact_person: contactPerson || null,
         phone: phone || null,
+        country: "Sverige",
+        preferred_contact_channel: "email",
+        requested_screen_quantity: screenQuantity,
+        requested_quote_items: [
+          {
+            pricingPlanCode: planCode,
+            name: selectedPlan?.name,
+            resolution: selectedPlan?.resolution,
+            quantity: screenQuantity,
+          },
+        ],
+        search_keywords: [companyName, email, contactPerson, phone, selectedPlan?.name, screenQuantity]
+          .filter(Boolean)
+          .join(" "),
         status: "new_request",
         notes,
       })
@@ -89,6 +108,7 @@ export async function POST(request: Request) {
         planCode,
         planName: selectedPlan?.name,
         planResolution: selectedPlan?.resolution,
+        screenQuantity,
       },
       ipAddress,
       userAgent,

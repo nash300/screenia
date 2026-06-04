@@ -7,6 +7,7 @@ import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "D" },
   { href: "/admin/customers", label: "Customers", icon: "C" },
+  { href: "/admin/orders", label: "Orders", icon: "O" },
   { href: "/admin/devices", label: "Device Manager", icon: "M" },
   { href: "/admin/pricing", label: "Pricing", icon: "$" },
 ];

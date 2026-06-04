@@ -27,12 +27,21 @@ export async function POST(request: Request) {
   const contactPerson = String(body.contactPerson || "").trim();
   const phone = String(body.phone || "").trim();
   const organisationNumber = String(body.organisationNumber || "").trim();
+  const billingEmail = String(body.billingEmail || "").trim().toLowerCase();
   const address = String(body.address || "").trim();
+  const postalCode = String(body.postalCode || "").trim();
   const city = String(body.city || "").trim();
   const country = String(body.country || "Sverige").trim() || "Sverige";
+  const businessCategory = String(body.businessCategory || "").trim();
+  const websiteUrl = String(body.websiteUrl || "").trim();
+  const preferredContactChannel = String(
+    body.preferredContactChannel || "email",
+  ).trim();
   const acceptedTerms = Boolean(body.acceptedTerms);
   const acceptedPrivacy = Boolean(body.acceptedPrivacy);
   const marketingConsent = Boolean(body.marketingConsent);
+  const analyticsConsent = Boolean(body.analyticsConsent);
+  const remoteSupportConsent = Boolean(body.remoteSupportConsent);
   const displayNotes = String(body.displayNotes || "").trim();
   const displayFiles = Array.isArray(body.displayFiles)
     ? (body.displayFiles as DisplayFileInput[])
@@ -47,6 +56,34 @@ export async function POST(request: Request) {
   if (!contactPerson) {
     return NextResponse.json(
       { error: "Kontaktperson måste anges." },
+      { status: 400 },
+    );
+  }
+
+  if (!organisationNumber || !address || !city) {
+    return NextResponse.json(
+      { error: "Organisationsnummer, adress och ort mÃ¥ste anges." },
+      { status: 400 },
+    );
+  }
+
+  if (!/^\d{3}\s?\d{2}$/.test(postalCode)) {
+    return NextResponse.json(
+      { error: "Ange ett giltigt svenskt postnummer." },
+      { status: 400 },
+    );
+  }
+
+  if (!["sverige", "sweden", "se"].includes(country.toLowerCase())) {
+    return NextResponse.json(
+      { error: "InfoSync tar bara emot bestÃ¤llningar frÃ¥n svenska kunder." },
+      { status: 400 },
+    );
+  }
+
+  if (!["email", "phone", "sms"].includes(preferredContactChannel)) {
+    return NextResponse.json(
+      { error: "VÃ¤lj ett giltigt kontaktsÃ¤tt." },
       { status: 400 },
     );
   }
@@ -98,10 +135,27 @@ export async function POST(request: Request) {
     .update({
       contact_person: contactPerson,
       phone: phone || null,
-      organisation_number: organisationNumber || null,
-      address: address || null,
-      city: city || null,
-      country,
+      organisation_number: organisationNumber,
+      billing_email: billingEmail || null,
+      address,
+      postal_code: postalCode.replace(/\s/g, ""),
+      city,
+      country: "Sverige",
+      business_category: businessCategory || null,
+      website_url: websiteUrl || null,
+      preferred_contact_channel: preferredContactChannel,
+      remote_support_consent: remoteSupportConsent,
+      analytics_consent: analyticsConsent,
+      search_keywords: [
+        customer.name,
+        customer.email,
+        contactPerson,
+        organisationNumber,
+        businessCategory,
+        city,
+      ]
+        .filter(Boolean)
+        .join(" "),
       terms_accepted_at: acceptedAt,
       privacy_accepted_at: acceptedAt,
       marketing_consent: marketingConsent,
@@ -198,6 +252,30 @@ export async function POST(request: Request) {
       ipAddress,
       userAgent,
     }),
+    recordConsent(supabaseAdmin, {
+      customerId: customer.id,
+      consentType: "analytics",
+      granted: analyticsConsent,
+      statement:
+        "InfoSync fÃ¥r anvÃ¤nda order- och anvÃ¤ndningsdata fÃ¶r statistik och fÃ¶rbÃ¤ttring av tjÃ¤nsten.",
+      documentName: "Samtycke till statistik och tjÃ¤nstefÃ¶rbÃ¤ttring",
+      documentVersion: "2026-06-04",
+      collectionPoint: "customer_onboarding",
+      ipAddress,
+      userAgent,
+    }),
+    recordConsent(supabaseAdmin, {
+      customerId: customer.id,
+      consentType: "remote_support",
+      granted: remoteSupportConsent,
+      statement:
+        "InfoSync fÃ¥r kontakta kunden och ge fjÃ¤rrsupport nÃ¤r kunden ber om hjÃ¤lp.",
+      documentName: "Samtycke till fjÃ¤rrsupport",
+      documentVersion: "2026-06-04",
+      collectionPoint: "customer_onboarding",
+      ipAddress,
+      userAgent,
+    }),
     recordAuditEvent(supabaseAdmin, {
       customerId: customer.id,
       actorType: "customer",
@@ -207,6 +285,8 @@ export async function POST(request: Request) {
         acceptedTerms,
         acceptedPrivacy,
         marketingConsent,
+        analyticsConsent,
+        remoteSupportConsent,
         termsVersion: CURRENT_TERMS_DOCUMENT.version,
         privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
         displayNotesProvided: Boolean(displayNotes),

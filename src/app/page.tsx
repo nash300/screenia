@@ -86,9 +86,15 @@ const copy = {
     modalTitle: "Starta med",
     modalText:
       "Skicka företagets uppgifter så kontaktar InfoSync dig med en personlig startguide för uppgifter, villkor och betalning.",
+    accountPromptTitle: "Vill du skapa konto direkt?",
+    accountPromptText:
+      "Med ett kundkonto kan du följa beställningen, skicka material och hantera abonnemanget senare.",
+    accountPromptButton: "Skapa konto",
     close: "Stäng",
     fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
-    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Antal skärmar, plats eller annat vi bör känna till."],
+    screenCountLabel: "Antal skärmar *",
+    screenCountHelp: "Välj hur många skärmar eller enheter du vill beställa.",
+    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bör känna till."],
     sending: "Skickar förfrågan...",
     submit: "Skicka förfrågan",
     success:
@@ -172,9 +178,15 @@ const copy = {
     modalTitle: "Start with",
     modalText:
       "Send your company details and InfoSync will contact you with a personal setup guide for details, terms, and payment.",
+    accountPromptTitle: "Want to create an account now?",
+    accountPromptText:
+      "A customer account lets you follow the order, send material, and manage the subscription later.",
+    accountPromptButton: "Create account",
     close: "Close",
     fields: ["Company name *", "Email *", "Contact person", "Phone", "Message"],
-    placeholders: ["Example: Salon Bella", "name@company.com", "Your name", "+46...", "Number of screens, location, or anything we should know."],
+    screenCountLabel: "Number of screens *",
+    screenCountHelp: "Choose how many screens or devices you want to order.",
+    placeholders: ["Example: Salon Bella", "name@company.com", "Your name", "+46...", "Location, industry, or anything else we should know."],
     sending: "Sending request...",
     submit: "Send request",
     success: "Thanks. Your request has been received and InfoSync will send your personal setup guide.",
@@ -191,6 +203,9 @@ const plans = [
     setupFee: "1 599 kr",
     hardwareFee: "699 kr",
     monthlyFee: "249 kr",
+    cardAccent: "blue",
+    deviceLabel: "FHD HDMI Stick",
+    deviceImage: "/brand/infosync-standard-device.png",
     featured: false,
   },
   {
@@ -200,6 +215,9 @@ const plans = [
     setupFee: "1 599 kr",
     hardwareFee: "1 099 kr",
     monthlyFee: "349 kr",
+    cardAccent: "gold",
+    deviceLabel: "4K TV Box",
+    deviceImage: "/brand/infosync-premium-device.png",
     featured: true,
   },
 ] as const;
@@ -359,6 +377,7 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
+  const [screenQuantity, setScreenQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [requestStatus, setRequestStatus] = useState<
     "idle" | "saving" | "success" | "error"
@@ -507,6 +526,7 @@ export default function Home() {
         email,
         contactPerson,
         phone,
+        screenQuantity,
         message,
       }),
     });
@@ -522,6 +542,7 @@ export default function Home() {
     setEmail("");
     setContactPerson("");
     setPhone("");
+    setScreenQuantity(1);
     setMessage("");
     setRequestStatus("success");
     setRequestMessage(t.success);
@@ -661,9 +682,22 @@ export default function Home() {
               return (
                 <article
                   key={plan.name}
-                  className={plan.featured ? "landing-price-card featured" : "landing-price-card"}
+                  className={`landing-price-card landing-price-card-${plan.cardAccent} ${
+                    plan.featured ? "featured" : ""
+                  }`}
                 >
+                  <div className="landing-plan-ribbon">
+                    <span>{plan.featured ? t.recommended : "Populärt val"}</span>
+                  </div>
                   {plan.featured && <span className="landing-plan-badge">{t.recommended}</span>}
+                  <div className="landing-plan-device" aria-hidden="true">
+                    <img
+                      src={plan.deviceImage}
+                      alt=""
+                      className="landing-plan-device-image"
+                    />
+                    <span>{plan.deviceLabel}</span>
+                  </div>
                   <div className="landing-plan-heading">
                     <div>
                       <h3>{plan.name}</h3>
@@ -675,8 +709,10 @@ export default function Home() {
                     <strong>{plan.monthlyFee}</strong>
                     <span>{t.monthly}</span>
                   </div>
-                  <PriceRow label={t.setupFee} value={plan.setupFee} />
-                  <PriceRow label="Enhet" value={plan.hardwareFee} />
+                  <div className="landing-price-mini-grid">
+                    <PriceRow label={t.setupFee} value={plan.setupFee} />
+                    <PriceRow label="Enhet" value={plan.hardwareFee} />
+                  </div>
                   <ul>{planText.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   <button
                     type="button"
@@ -716,6 +752,33 @@ export default function Home() {
             ))}
           </div>
         </LandingSection>
+
+        <section className="landing-section landing-service-film" aria-label="InfoSync servicefilm">
+          <div className="landing-service-film-copy">
+            <p className="landing-eyebrow">20 sekunder</p>
+            <h2>Från idé till levande skärm, utan tekniskt krångel.</h2>
+            <p>
+              En snabb överblick över hur InfoSync hjälper svenska företag att
+              välja paket, skicka material, få hårdvara och hålla skärmen
+              uppdaterad över tid.
+            </p>
+          </div>
+          <div className="landing-film-stage" role="img" aria-label="Animerad film om InfoSyncs arbetsflöde">
+            <div className="landing-film-screen">
+              <video
+                src="/brand/infosync-service-overview.mp4"
+                poster="/brand/infosync-pricing-devices.png"
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+              />
+            </div>
+            <div className="landing-film-progress" aria-hidden="true" />
+          </div>
+        </section>
 
         <LandingSection id="faq" eyebrow={t.nav[4]} title={t.faqTitle}>
           <div className="landing-faq-layout">
@@ -780,12 +843,40 @@ export default function Home() {
               {t.modalTitle} {selectedPlan.name} {selectedPlan.resolution}
             </h2>
             <p>{t.modalText}</p>
+            <div className="landing-account-prompt">
+              <div>
+                <strong>{t.accountPromptTitle}</strong>
+                <span>{t.accountPromptText}</span>
+              </div>
+              <a
+                href={`/signup?plan=${encodeURIComponent(selectedPlan.code)}`}
+                className="landing-button landing-button-secondary"
+              >
+                {t.accountPromptButton}
+              </a>
+            </div>
 
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
               <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
               <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} />
               <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} />
+              <label>
+                <span>{t.screenCountLabel}</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={screenQuantity}
+                  onChange={(event) =>
+                    setScreenQuantity(
+                      Math.min(50, Math.max(1, Number(event.target.value) || 1)),
+                    )
+                  }
+                  required
+                />
+                <small>{t.screenCountHelp}</small>
+              </label>
               <label className="landing-request-form-wide">
                 <span>{t.fields[4]}</span>
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} placeholder={t.placeholders[4]} />

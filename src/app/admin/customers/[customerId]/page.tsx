@@ -9,14 +9,25 @@ import { PRICING_PLANS } from "@/lib/pricing/plans";
 
 type Customer = {
   id: string;
+  customer_number: string | null;
+  requested_screen_quantity: number | null;
+  requested_quote_items: QuoteItemRecord[] | null;
   name: string;
   email: string | null;
   phone: string | null;
   contact_person: string | null;
   organisation_number: string | null;
+  billing_email: string | null;
   address: string | null;
+  postal_code: string | null;
   city: string | null;
   country: string | null;
+  business_category: string | null;
+  website_url: string | null;
+  preferred_contact_channel: string | null;
+  remote_support_consent: boolean | null;
+  analytics_consent: boolean | null;
+  search_keywords: string | null;
   notes: string | null;
   status: string | null;
   onboarding_token: string | null;
@@ -81,6 +92,13 @@ type QuoteItem = {
   quantity: number;
 };
 
+type QuoteItemRecord = {
+  pricingPlanCode?: string;
+  name?: string;
+  resolution?: string;
+  quantity?: number;
+};
+
 type CustomerMessage = {
   id: string;
   subject: string | null;
@@ -109,12 +127,23 @@ type CustomerAsset = {
   downloadUrl: string | null;
 };
 
+type AuditEvent = {
+  id: string;
+  actor_type: string;
+  actor_id: string | null;
+  event_type: string;
+  event_description: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+};
+
 type CustomerDetailSection =
   | "overview"
   | "onboarding"
   | "communication"
   | "orders"
-  | "devices";
+  | "devices"
+  | "history";
 
 type CommunicationView = "messages" | "uploads";
 
@@ -133,14 +162,23 @@ export default function CustomerDetailPage({
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
   const [assets, setAssets] = useState<CustomerAsset[]>([]);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editName, setEditName] = useState("");
   const [editContactPerson, setEditContactPerson] = useState("");
   const [editPhone, setEditPhone] = useState("");
+  const [editOrganisationNumber, setEditOrganisationNumber] = useState("");
+  const [editBillingEmail, setEditBillingEmail] = useState("");
   const [editAddress, setEditAddress] = useState("");
+  const [editPostalCode, setEditPostalCode] = useState("");
   const [editCity, setEditCity] = useState("");
   const [editCountry, setEditCountry] = useState("");
+  const [editBusinessCategory, setEditBusinessCategory] = useState("");
+  const [editWebsiteUrl, setEditWebsiteUrl] = useState("");
+  const [editPreferredContactChannel, setEditPreferredContactChannel] =
+    useState("email");
+  const [editSearchKeywords, setEditSearchKeywords] = useState("");
   const [editNotes, setEditNotes] = useState("");
   const [activeSection, setActiveSection] =
     useState<CustomerDetailSection>("overview");
@@ -189,14 +227,25 @@ export default function CustomerDetailPage({
       .select(
         `
         id,
+        customer_number,
+        requested_screen_quantity,
+        requested_quote_items,
         name,
         email,
         phone,
         contact_person,
         organisation_number,
+        billing_email,
         address,
+        postal_code,
         city,
         country,
+        business_category,
+        website_url,
+        preferred_contact_channel,
+        remote_support_consent,
+        analytics_consent,
+        search_keywords,
         notes,
         status,
         onboarding_token,
@@ -223,6 +272,7 @@ export default function CustomerDetailPage({
       setSubscriptions([]);
       setMessages([]);
       setAssets([]);
+      setAuditEvents([]);
       setLoading(false);
       return;
     }
@@ -233,10 +283,34 @@ export default function CustomerDetailPage({
     setEditName(loadedCustomer.name || "");
     setEditContactPerson(loadedCustomer.contact_person || "");
     setEditPhone(loadedCustomer.phone || "");
+    setEditOrganisationNumber(loadedCustomer.organisation_number || "");
+    setEditBillingEmail(loadedCustomer.billing_email || "");
     setEditAddress(loadedCustomer.address || "");
+    setEditPostalCode(loadedCustomer.postal_code || "");
     setEditCity(loadedCustomer.city || "");
-    setEditCountry(loadedCustomer.country || "");
+    setEditCountry(loadedCustomer.country || "Sverige");
+    setEditBusinessCategory(loadedCustomer.business_category || "");
+    setEditWebsiteUrl(loadedCustomer.website_url || "");
+    setEditPreferredContactChannel(
+      loadedCustomer.preferred_contact_channel || "email",
+    );
+    setEditSearchKeywords(loadedCustomer.search_keywords || "");
     setEditNotes(loadedCustomer.notes || "");
+    if (
+      Array.isArray(loadedCustomer.requested_quote_items) &&
+      loadedCustomer.requested_quote_items.length > 0
+    ) {
+      setQuoteItems(
+        loadedCustomer.requested_quote_items.map((item, index) => ({
+          id: `requested-${index}-${item.pricingPlanCode || "plan"}`,
+          pricingPlanCode: item.pricingPlanCode || "",
+          quantity: Math.min(50, Math.max(1, Number(item.quantity) || 1)),
+        })),
+      );
+      setQuotePlanCode(
+        loadedCustomer.requested_quote_items[0]?.pricingPlanCode || "",
+      );
+    }
 
     const { data: devicesData, error: devicesError } = await supabase
       .from("devices")
@@ -394,6 +468,20 @@ export default function CustomerDetailPage({
       setAssets([]);
     }
 
+    const { data: auditData, error: auditError } = await supabase
+      .from("audit_events")
+      .select("id, actor_type, actor_id, event_type, event_description, metadata, created_at")
+      .eq("customer_id", customerId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+
+    if (auditError) {
+      console.error("Audit events error:", auditError);
+      setAuditEvents([]);
+    } else {
+      setAuditEvents((auditData || []) as AuditEvent[]);
+    }
+
     setLoading(false);
   };
 
@@ -413,9 +501,16 @@ export default function CustomerDetailPage({
         name: editName.trim(),
         contact_person: editContactPerson.trim() || null,
         phone: editPhone.trim() || null,
+        organisation_number: editOrganisationNumber.trim() || null,
+        billing_email: editBillingEmail.trim() || null,
         address: editAddress.trim() || null,
+        postal_code: editPostalCode.replace(/\s/g, "") || null,
         city: editCity.trim() || null,
-        country: editCountry.trim() || null,
+        country: editCountry.trim() || "Sverige",
+        business_category: editBusinessCategory.trim() || null,
+        website_url: editWebsiteUrl.trim() || null,
+        preferred_contact_channel: editPreferredContactChannel,
+        search_keywords: editSearchKeywords.trim() || null,
         notes: editNotes.trim() || null,
       })
       .eq("id", customer.id);
@@ -635,7 +730,8 @@ export default function CustomerDetailPage({
       section === "onboarding" ||
       section === "communication" ||
       section === "orders" ||
-      section === "devices"
+      section === "devices" ||
+      section === "history"
     ) {
       setActiveSection(section);
     }
@@ -680,6 +776,7 @@ export default function CustomerDetailPage({
     },
     { id: "orders", label: "Orders", count: subscriptions.length },
     { id: "devices", label: "Devices", count: devices.length },
+    { id: "history", label: "History", count: auditEvents.length },
   ];
   const quoteLines = quoteItems
     .map((item) => {
@@ -810,16 +907,80 @@ export default function CustomerDetailPage({
             onChange={setEditContactPerson}
           />
           <Input label="Phone" value={editPhone} onChange={setEditPhone} />
-          <Input label="City" value={editCity} onChange={setEditCity} />
+          <Input
+            label="Billing email"
+            value={editBillingEmail}
+            onChange={setEditBillingEmail}
+          />
+          <Input
+            label="Organisation number"
+            value={editOrganisationNumber}
+            onChange={setEditOrganisationNumber}
+          />
+          <Input
+            label="Business category"
+            value={editBusinessCategory}
+            onChange={setEditBusinessCategory}
+          />
+          <Input
+            label="Website or social link"
+            value={editWebsiteUrl}
+            onChange={setEditWebsiteUrl}
+          />
+          <label className="text-sm font-semibold text-slate-700">
+            Preferred contact
+            <select
+              value={editPreferredContactChannel}
+              onChange={(event) => setEditPreferredContactChannel(event.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+            >
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="sms">SMS</option>
+            </select>
+          </label>
           <Input
             label="Address"
             value={editAddress}
             onChange={setEditAddress}
           />
           <Input
+            label="Postal code"
+            value={editPostalCode}
+            onChange={setEditPostalCode}
+          />
+          <Input label="City" value={editCity} onChange={setEditCity} />
+          <Input
             label="Country"
             value={editCountry}
             onChange={setEditCountry}
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          <InfoRow
+            label="Remote support"
+            value={customer.remote_support_consent ? "Consent given" : "No consent"}
+          />
+          <InfoRow
+            label="Statistics"
+            value={customer.analytics_consent ? "Allowed" : "Not allowed"}
+          />
+          <InfoRow
+            label="Marketing"
+            value={customer.marketing_consent ? "Allowed" : "Not allowed"}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label className="text-sm font-semibold text-slate-700">
+            Search keywords
+          </label>
+          <input
+            value={editSearchKeywords}
+            onChange={(event) => setEditSearchKeywords(event.target.value)}
+            placeholder="Company, city, industry, contact names"
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
           />
         </div>
 
@@ -836,11 +997,20 @@ export default function CustomerDetailPage({
         </div>
 
         <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+          <InfoRow label="Customer number" value={customer.customer_number || "Pending"} />
           <InfoRow label="Customer ID" value={customer.id} />
           <InfoRow label="Contact email" value={customer.email || "Not set"} />
           <InfoRow
             label="Organisation number"
             value={customer.organisation_number || "Not set"}
+          />
+          <InfoRow
+            label="Requested screens"
+            value={
+              customer.requested_screen_quantity
+                ? String(customer.requested_screen_quantity)
+                : "Not set"
+            }
           />
         </div>
 
@@ -1478,6 +1648,56 @@ export default function CustomerDetailPage({
                     </p>
                   </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      )}
+
+      {/* ==============================
+          History
+      ============================== */}
+      {activeSection === "history" && (
+      <div className="admin-card p-6">
+        <h2 className="admin-card-title text-xl">History</h2>
+        <p className="admin-muted mt-2 text-sm">
+          A searchable change trail for customer data, orders, devices,
+          uploaded material, payment events, and admin actions.
+        </p>
+
+        {auditEvents.length === 0 ? (
+          <p className="admin-muted mt-4">No history events yet.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {auditEvents.map((event) => (
+              <div
+                key={event.id}
+                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+              >
+                <div className="flex flex-col justify-between gap-2 md:flex-row">
+                  <div>
+                    <p className="font-semibold text-slate-950">
+                      {event.event_type.replace(/_/g, " ")}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {new Date(event.created_at).toLocaleString("sv-SE")} ·{" "}
+                      {event.actor_type}
+                      {event.actor_id ? ` · ${event.actor_id}` : ""}
+                    </p>
+                  </div>
+                </div>
+                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+                  {event.event_description}
+                </p>
+                <details className="mt-3 text-xs text-slate-600">
+                  <summary className="cursor-pointer font-bold text-slate-800">
+                    Metadata
+                  </summary>
+                  <pre className="mt-2 max-h-72 overflow-auto rounded-xl bg-slate-950 p-3 text-white">
+                    {JSON.stringify(event.metadata, null, 2)}
+                  </pre>
+                </details>
               </div>
             ))}
           </div>

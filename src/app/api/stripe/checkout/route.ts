@@ -86,6 +86,31 @@ export async function POST(request: Request) {
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
 
+    const { data: customer, error: customerError } = await supabaseAdmin
+      .from("customers")
+      .select("country, postal_code, address, city")
+      .eq("id", customerId)
+      .single();
+
+    if (customerError || !customer) {
+      return NextResponse.json({ error: "Kunden hittades inte." }, { status: 404 });
+    }
+
+    if (
+      !customer.address ||
+      !customer.city ||
+      !/^\d{5}$/.test(String(customer.postal_code || "")) ||
+      !["sverige", "sweden", "se"].includes(String(customer.country || "").toLowerCase())
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Komplettera svensk leveransadress och postnummer innan betalning.",
+        },
+        { status: 400 },
+      );
+    }
+
     const { data: quotedOrder, error: quotedOrderError } = await supabaseAdmin
       .from("customer_subscriptions")
       .select(
@@ -288,8 +313,12 @@ export async function POST(request: Request) {
       mode: "subscription",
       customer_email: email,
       client_reference_id: order.order_number,
+      locale: "sv",
       automatic_tax: {
         enabled: stripeAutomaticTaxEnabled,
+      },
+      shipping_address_collection: {
+        allowed_countries: ["SE"],
       },
       billing_address_collection: stripeAutomaticTaxEnabled
         ? "required"
