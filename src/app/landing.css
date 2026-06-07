@@ -358,9 +358,11 @@
 }
 
 .landing-brand img {
-  width: 150px;
-  height: 46px;
+  width: 196px;
+  height: 58px;
+  border-radius: 12px;
   object-fit: contain;
+  object-position: left center;
 }
 
 .landing-header-controls {

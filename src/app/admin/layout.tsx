@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: "D" },
   { href: "/admin/customers", label: "Customers", icon: "C" },
   { href: "/admin/orders", label: "Orders", icon: "O" },
+  { href: "/admin/inventory", label: "Inventory", icon: "I" },
   { href: "/admin/devices", label: "Device Manager", icon: "M" },
   { href: "/admin/pricing", label: "Pricing", icon: "$" },
 ];
@@ -30,7 +31,7 @@ export default function AdminLayout({
               <img
                 src="/brand/infosync-logo-full-transparent.png"
                 alt="InfoSync"
-                className="mx-auto h-11 w-auto object-contain"
+                className="admin-sidebar-logo"
               />
             </div>
           </Link>
