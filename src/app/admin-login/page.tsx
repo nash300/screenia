@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import InfoSyncLogo from "@/components/InfoSyncLogo";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -47,11 +48,7 @@ export default function AdminLoginPage() {
       <div className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="text-white">
           <Link href="/" className="inline-flex no-underline">
-            <img
-              src="/brand/infosync-logo-full-transparent.png"
-              alt="InfoSync"
-              className="h-14 w-auto rounded-2xl bg-white/95 px-4 py-2 shadow-2xl"
-            />
+            <InfoSyncLogo className="infosync-logo-auth-card" />
           </Link>
           <p className="mt-12 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
             Admin

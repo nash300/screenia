@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import { LandingNav } from "@/components/LandingNav";
 import "../landing.css";
+
+type AccountSection = "overview" | "material" | "messages" | "billing" | "legal";
 
 type AccountData = {
   customer: {
@@ -59,10 +61,21 @@ type AccountData = {
   }>;
   messages: Array<{
     id: string;
+    ticket_number: string | null;
+    request_type: string;
+    priority: string;
+    related_ticket_number: string | null;
     subject: string | null;
     message: string;
     status: string;
     created_at: string;
+    files: Array<{
+      id: string;
+      fileName: string;
+      contentType: string;
+      fileSize: number;
+      downloadUrl: string | null;
+    }>;
   }>;
   displayAssets: Array<{
     id: string;
@@ -74,6 +87,7 @@ type AccountData = {
     source: string;
     status: string;
     created_at: string;
+    downloadUrl: string | null;
   }>;
   agreements: Array<{
     id: string;
@@ -106,6 +120,45 @@ type MaterialUploadItem = {
 
 const formatter = new Intl.NumberFormat("sv-SE");
 
+const sections: Array<{
+  id: AccountSection;
+  label: string;
+  detail: string;
+}> = [
+  { id: "overview", label: "Översikt", detail: "Företag, skärmar, status" },
+  { id: "material", label: "Skärmmaterial", detail: "Ladda upp filer och text" },
+  { id: "messages", label: "Ärenden", detail: "Support, retur och historik" },
+  { id: "billing", label: "Abonnemang", detail: "Betalning och avslut" },
+  { id: "legal", label: "Avtal", detail: "Villkor och godkännanden" },
+];
+
+const requestTypes = [
+  { value: "general", label: "Allmän fråga" },
+  { value: "issue", label: "Rapportera problem" },
+  { value: "return", label: "Registrera retur" },
+  { value: "material_update", label: "Ändra skärminnehåll" },
+  { value: "billing", label: "Faktura eller betalning" },
+  { value: "technical_support", label: "Teknisk support" },
+];
+
+const priorities = [
+  { value: "low", label: "Låg" },
+  { value: "normal", label: "Normal" },
+  { value: "high", label: "Hög" },
+  { value: "urgent", label: "Akut" },
+];
+
+const cancellationReasons = [
+  { value: "", label: "Välj orsak" },
+  { value: "too_expensive", label: "För dyrt" },
+  { value: "missing_features", label: "Saknar funktioner" },
+  { value: "not_using", label: "Använder inte tjänsten" },
+  { value: "switching_provider", label: "Byter leverantör" },
+  { value: "technical_issue", label: "Tekniskt problem" },
+  { value: "temporary_pause", label: "Tillfälligt uppehåll" },
+  { value: "other", label: "Annan orsak" },
+];
+
 function money(amount: number | null) {
   if (typeof amount !== "number") return "-";
   return `${formatter.format(amount)} kr`;
@@ -120,30 +173,72 @@ function date(value: string | null) {
   }).format(new Date(value));
 }
 
+function fileSize(value: number | null) {
+  if (!value) return "-";
+  if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
+  return `${(value / 1024 / 1024).toFixed(1)} MB`;
+}
+
 function assetCategoryLabel(value: string) {
-  if (value === "logo") return "Logotyp";
+  if (value === "logo") return "Logo";
   if (value === "image") return "Bild";
-  if (value === "menu") return "Meny/prislista";
+  if (value === "menu") return "Meny eller prislista";
   if (value === "text") return "Text";
   return "Annat";
+}
+
+function requestTypeLabel(value: string) {
+  return requestTypes.find((item) => item.value === value)?.label || "Allmän fråga";
+}
+
+function priorityLabel(value: string) {
+  return priorities.find((item) => item.value === value)?.label || "Normal";
+}
+
+function statusLabel(value: string | null) {
+  if (value === "active") return "Aktiv";
+  if (value === "inactive") return "Inaktiv";
+  if (value === "suspended") return "Pausad";
+  if (value === "cancelled") return "Avslutad";
+  if (value === "new") return "Nytt";
+  if (value === "customer_reply") return "Kundsvar";
+  if (value === "in_progress") return "Pågår";
+  if (value === "resolved") return "Löst";
+  return value || "-";
 }
 
 export default function AccountPage() {
   const [data, setData] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<AccountSection>("overview");
   const [messageSubject, setMessageSubject] = useState("");
   const [messageText, setMessageText] = useState("");
   const [messageFiles, setMessageFiles] = useState<File[]>([]);
+  const [requestType, setRequestType] = useState("general");
+  const [requestPriority, setRequestPriority] = useState("normal");
+  const [relatedTicketNumber, setRelatedTicketNumber] = useState("");
   const [materialDescription, setMaterialDescription] = useState("");
   const [materialCategory, setMaterialCategory] = useState("image");
   const [materialFiles, setMaterialFiles] = useState<MaterialUploadItem[]>([]);
-  const [materialPanel, setMaterialPanel] = useState<"text" | "files" | "history">("text");
   const [notice, setNotice] = useState("");
   const [sending, setSending] = useState(false);
   const [uploadingMaterial, setUploadingMaterial] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("");
+  const [cancellationDetails, setCancellationDetails] = useState("");
+  const [cancelling, setCancelling] = useState(false);
   const router = useRouter();
 
-  const loadAccount = async () => {
+  const activeSubscription = data?.subscriptions[0];
+  const dashboardStats = useMemo(
+    () => [
+      { label: "Skärmar", value: String(data?.devices.length || 0) },
+      { label: "Nya uppladdningar", value: String(data?.displayAssets.filter((item) => item.status === "new").length || 0) },
+      { label: "Ärenden", value: String(data?.messages.length || 0) },
+    ],
+    [data],
+  );
+
+  const loadAccount = useCallback(async () => {
     const response = await fetch("/api/account");
     if (response.status === 401) {
       router.push("/login");
@@ -153,11 +248,11 @@ export default function AccountPage() {
     const nextData = await response.json();
     setData(nextData);
     setLoading(false);
-  };
+  }, [router]);
 
   useEffect(() => {
     loadAccount();
-  }, []);
+  }, [loadAccount]);
 
   const fileToPayload = (file: File, category = "other") => {
     return new Promise<{
@@ -181,9 +276,17 @@ export default function AccountPage() {
     });
   };
 
+  const addMaterialFiles = (files: FileList | File[]) => {
+    const nextFiles = Array.from(files).map((file) => ({
+      file,
+      category: materialCategory,
+    }));
+    setMaterialFiles((current) => [...current, ...nextFiles].slice(0, 8));
+  };
+
   const uploadDisplayMaterial = async () => {
     if (!materialDescription.trim() && materialFiles.length === 0) {
-      setNotice("Lägg till en beskrivning eller minst en fil.");
+      setNotice("Lägg till en beskrivning eller minst en fil innan du skickar.");
       return;
     }
 
@@ -203,14 +306,13 @@ export default function AccountPage() {
     const result = await response.json();
 
     if (!response.ok) {
-      setNotice(result.error || "Det gick inte att ladda upp materialet.");
+      setNotice(result.error || "Kunde inte ladda upp materialet.");
       setUploadingMaterial(false);
       return;
     }
 
     setMaterialDescription("");
     setMaterialFiles([]);
-    setMaterialPanel("history");
     setNotice("Materialet har skickats till InfoSync.");
     setUploadingMaterial(false);
     loadAccount();
@@ -231,13 +333,16 @@ export default function AccountPage() {
       body: JSON.stringify({
         subject: messageSubject,
         message: messageText,
+        requestType,
+        priority: requestPriority,
+        relatedTicketNumber: relatedTicketNumber || null,
         files,
       }),
     });
     const result = await response.json();
 
     if (!response.ok) {
-      setNotice(result.error || "Det gick inte att skicka meddelandet.");
+      setNotice(result.error || "Kunde inte skicka ärendet.");
       setSending(false);
       return;
     }
@@ -245,7 +350,12 @@ export default function AccountPage() {
     setMessageSubject("");
     setMessageText("");
     setMessageFiles([]);
-    setNotice("Meddelandet har skickats till InfoSync.");
+    setRelatedTicketNumber("");
+    setNotice(
+      result.ticketNumber
+        ? `Ärendet har skickats. Ärendenummer: ${result.ticketNumber}`
+        : "Ärendet har skickats till InfoSync.",
+    );
     setSending(false);
     loadAccount();
   };
@@ -257,28 +367,41 @@ export default function AccountPage() {
     });
     const result = await response.json();
     if (!response.ok || !result.url) {
-      setNotice(result.error || "Det gick inte att öppna betalningsportalen.");
+      setNotice(result.error || "Kunde inte öppna betalningsportalen.");
       return;
     }
     window.location.href = result.url;
   };
 
   const cancelSubscription = async () => {
+    if (!cancellationReason) {
+      setNotice("Välj en avslutsorsak först.");
+      return;
+    }
+
     const confirmed = window.confirm(
       "Vill du avsluta ditt InfoSync-abonnemang? Skärmtjänsten kan sluta fungera efter avslut.",
     );
     if (!confirmed) return;
 
+    setCancelling(true);
     setNotice("");
     const response = await fetch("/api/account/cancel-subscription", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reason: cancellationReason,
+        details: cancellationDetails,
+      }),
     });
     const result = await response.json();
     if (!response.ok) {
-      setNotice(result.error || "Det gick inte att avsluta abonnemanget.");
+      setNotice(result.error || "Kunde inte avsluta abonnemanget.");
+      setCancelling(false);
       return;
     }
-    setNotice("Abonnemanget har avslutats.");
+    setNotice("Abonnemanget har avslutats. Tack för din feedback.");
+    setCancelling(false);
     loadAccount();
   };
 
@@ -288,336 +411,440 @@ export default function AccountPage() {
   };
 
   if (loading) {
-    return <AccountShell>Laddar ditt konto...</AccountShell>;
+    return <AccountShell onSignOut={signOut}>Laddar ditt konto...</AccountShell>;
   }
 
   if (!data) {
-    return <AccountShell>Det gick inte att ladda ditt konto.</AccountShell>;
+    return <AccountShell onSignOut={signOut}>Kunde inte ladda ditt konto.</AccountShell>;
   }
-
-  const activeSubscription = data.subscriptions[0];
 
   return (
     <AccountShell onSignOut={signOut}>
-      <div className="account-hero">
-        <div>
-          <p className="landing-eyebrow">Kundkonto</p>
-          <h1>{data.customer.name}</h1>
-          <p>
-            Hantera ditt InfoSync-abonnemang, betalning, skärmmaterial och
-            supportmeddelanden.
-          </p>
-        </div>
-        <StatusPill label={data.customer.status} />
-      </div>
-
-      {notice && <p className="flow-message">{notice}</p>}
-
-      <section className="account-grid">
-        <AccountCard title="Abonnemang">
-          {activeSubscription ? (
-            <div className="account-facts">
-              <Fact label="Order" value={activeSubscription.order_number} />
-              <Fact
-                label="Paket"
-                value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
-              />
-              <Fact label="Status" value={activeSubscription.status} />
-              <Fact
-                label="Månadspris"
-                value={money(activeSubscription.monthly_fee_sek)}
-              />
-              <Fact
-                label="Startavgift"
-                value={money(activeSubscription.setup_fee_sek)}
-              />
-              <Fact label="Enhet" value={money(activeSubscription.hardware_fee_sek)} />
-              <Fact label="Frakt" value={money(activeSubscription.shipping_fee_sek)} />
-              <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
-            </div>
-          ) : (
-            <p>Inget abonnemang är kopplat till kontot ännu.</p>
-          )}
-          <div className="account-actions">
-            <button className="landing-button landing-button-primary" onClick={openBillingPortal}>
-              Betalningsportal
-            </button>
-            <button className="landing-button landing-button-secondary" onClick={cancelSubscription}>
-              Avsluta abonnemang
-            </button>
-          </div>
-        </AccountCard>
-
-        <AccountCard title="Företagsuppgifter">
-          <div className="account-facts">
-            <Fact label="Email" value={data.customer.email} />
-            <Fact label="Kontakt" value={data.customer.contact_person || "-"} />
-            <Fact label="Telefon" value={data.customer.phone || "-"} />
-            <Fact
-              label="Adress"
-              value={[data.customer.address, data.customer.city, data.customer.country]
-                .filter(Boolean)
-                .join(", ") || "-"}
-            />
-            <Fact label="Aktiverat" value={date(data.customer.activated_at)} />
-            <Fact label="Betalning" value={data.customer.payment_status || "-"} />
-          </div>
-        </AccountCard>
-      </section>
-
-      <section className="account-grid">
-        <AccountCard title="Dina skärmar">
-          {data.devices.length ? (
-            <div className="account-list">
-              {data.devices.map((device) => (
-                <div key={device.id} className="account-list-item">
-                  <strong>{device.name || device.device_code}</strong>
-                  <span>
-                    {device.location || "Ingen plats"} ·{" "}
-                    {device.is_active ? "Aktiv" : "Inaktiv"}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Din enhet visas här när den är förberedd.</p>
-          )}
-        </AccountCard>
-
-        <AccountCard title="Skärmmaterial">
-          <div className="account-material-hero">
+      <div className="account-dashboard">
+        <aside className="account-sidebar" aria-label="Account sections">
+          <div className="account-sidebar-profile">
+            <span className="account-avatar">{data.customer.name.slice(0, 1).toUpperCase()}</span>
             <div>
+              <strong>{data.customer.name}</strong>
+              <span>{data.customer.email}</span>
+            </div>
+          </div>
+
+          <nav className="account-menu">
+            {sections.map((section) => (
+              <button
+                key={section.id}
+                type="button"
+                className={activeSection === section.id ? "is-active" : ""}
+                onClick={() => setActiveSection(section.id)}
+              >
+                <strong>{section.label}</strong>
+                <span>{section.detail}</span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="account-main">
+          <section className="account-hero-panel">
+            <div>
+              <p className="landing-eyebrow">Kundportal</p>
+              <h1>{sections.find((item) => item.id === activeSection)?.label}</h1>
               <p>
-                Skicka ny logotyp, bilder, meny, prislista eller text som vi ska
-                använda när vi uppdaterar din skärm.
+                Hantera abonnemang, skärmmaterial, ärenden och konto historik på ett samlat ställe.
               </p>
             </div>
-            <img src="/landing/hero-slides/01/image.png" alt="InfoSync" />
-          </div>
+            <StatusPill label={statusLabel(data.customer.status)} />
+          </section>
 
-          <div className="account-category-tabs">
-            <button
-              type="button"
-              onClick={() => setMaterialPanel("text")}
-              className={materialPanel === "text" ? "is-active" : ""}
-            >
-              Text
-            </button>
-            <button
-              type="button"
-              onClick={() => setMaterialPanel("files")}
-              className={materialPanel === "files" ? "is-active" : ""}
-            >
-              Filer ({materialFiles.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setMaterialPanel("history")}
-              className={materialPanel === "history" ? "is-active" : ""}
-            >
-              Tidigare
-            </button>
-          </div>
+          {notice && <p className="flow-message">{notice}</p>}
 
-          {materialPanel === "text" && (
-            <textarea
-              value={materialDescription}
-              onChange={(event) => setMaterialDescription(event.target.value)}
-              placeholder="Beskriv vad du vill ändra eller lägga till på skärmen"
-              rows={6}
-              maxLength={1200}
-              className="account-input"
-            />
+          {activeSection === "overview" && (
+            <div className="account-panel-stack">
+              <section className="account-stat-grid">
+                {dashboardStats.map((item) => (
+                  <div key={item.label} className="account-stat">
+                    <span>{item.label}</span>
+                    <strong>{item.value}</strong>
+                  </div>
+                ))}
+              </section>
+
+              <section className="account-grid">
+                <AccountCard title="Företagsuppgifter">
+                  <div className="account-facts">
+                    <Fact label="E-post" value={data.customer.email} />
+                    <Fact label="Kontakt" value={data.customer.contact_person || "-"} />
+                    <Fact label="Telefon" value={data.customer.phone || "-"} />
+                    <Fact
+                      label="Adress"
+                      value={[data.customer.address, data.customer.city, data.customer.country]
+                        .filter(Boolean)
+                        .join(", ") || "-"}
+                    />
+                    <Fact label="Aktiverat" value={date(data.customer.activated_at)} />
+                    <Fact label="Betalning" value={data.customer.payment_status || "-"} />
+                  </div>
+                </AccountCard>
+
+                <AccountCard title="Skärmar">
+                  {data.devices.length ? (
+                    <div className="account-list">
+                      {data.devices.map((device) => (
+                        <div key={device.id} className="account-list-item">
+                          <strong>{device.name || device.device_code}</strong>
+                          <span>
+                            {device.location || "Ingen plats"} |{" "}
+                            {device.is_active ? "Aktiv" : "Inaktiv"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>Din skärm visas här när den är förberedd.</p>
+                  )}
+                </AccountCard>
+              </section>
+            </div>
           )}
 
-          {materialPanel === "files" && (
-            <div className="account-upload-builder">
-              <select
-                value={materialCategory}
-                onChange={(event) => setMaterialCategory(event.target.value)}
-                className="account-input"
-              >
-                <option value="logo">Logotyp</option>
-                <option value="image">Bildmaterial</option>
-                <option value="menu">Meny eller prislista</option>
-                <option value="other">Annat material</option>
-              </select>
-              <label className="account-plus-upload">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
-                  onChange={(event) =>
-                    setMaterialFiles(
-                      [
-                        ...materialFiles,
-                        ...Array.from(event.target.files || []).map((file) => ({
-                          file,
-                          category: materialCategory,
-                        })),
-                      ].slice(0, 8),
-                    )
-                  }
-                />
-                <span>+</span>
-                Lägg till filer
-              </label>
+          {activeSection === "material" && (
+            <div className="account-panel-stack">
+              <AccountCard title="Skicka skärmmaterial">
+                <div className="account-upload-workspace">
+                  <label
+                    className="account-dropzone"
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      addMaterialFiles(event.dataTransfer.files);
+                    }}
+                  >
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+                      onChange={(event) => addMaterialFiles(event.target.files || [])}
+                    />
+                    <span className="account-upload-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M11 16h2V7.8l3.6 3.6L18 10l-6-6-6 6 1.4 1.4L11 7.8V16Z" />
+                        <path d="M5 14h2v4h10v-4h2v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4Z" />
+                      </svg>
+                    </span>
+                    <strong>Bläddra</strong>
+                    <em>släpp filer här</em>
+                    <small>Stöds: .png, .jpg, .webp, .heic, .pdf</small>
+                  </label>
 
-              {materialFiles.length ? (
-                <div className="account-upload-queue">
-                  {materialFiles.map((item, index) => (
-                    <div key={`${item.file.name}-${item.file.size}-${index}`}>
-                      <strong>{item.file.name}</strong>
-                      <span>
-                        {assetCategoryLabel(item.category)} · {Math.ceil(item.file.size / 1024)} KB
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setMaterialFiles(materialFiles.filter((_, fileIndex) => fileIndex !== index))
-                        }
-                      >
-                        Ta bort
-                      </button>
+                  <div className="account-upload-side">
+                    <div className="account-upload-controls">
+                      <label>
+                        Kategori
+                        <select
+                          value={materialCategory}
+                          onChange={(event) => setMaterialCategory(event.target.value)}
+                          className="account-input"
+                        >
+                          <option value="logo">Logo</option>
+                          <option value="image">Bildmaterial</option>
+                          <option value="menu">Meny eller prislista</option>
+                          <option value="other">Annat material</option>
+                        </select>
+                      </label>
+                    </div>
+
+                    <h3>Valda filer</h3>
+                    <div className="account-file-list">
+                      {materialFiles.length ? (
+                        materialFiles.map((item, index) => (
+                          <div key={`${item.file.name}-${item.file.size}-${index}`} className="account-file-row">
+                            <span className="account-file-icon">IMG</span>
+                            <div>
+                              <strong>{item.file.name}</strong>
+                              <span>{assetCategoryLabel(item.category)} | {fileSize(item.file.size)}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setMaterialFiles((current) =>
+                                  current.filter((_, fileIndex) => fileIndex !== index),
+                                )
+                              }
+                              aria-label={`Remove ${item.file.name}`}
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p>Inga filer valda ännu.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <textarea
+                  value={materialDescription}
+                  onChange={(event) => setMaterialDescription(event.target.value)}
+                  placeholder="Beskriv vad som ska ändras på skärmen, var filerna ska användas eller vilket budskap som ska visas."
+                  rows={5}
+                  maxLength={1200}
+                  className="account-input"
+                />
+
+                <button
+                  disabled={uploadingMaterial}
+                  onClick={uploadDisplayMaterial}
+                  className="landing-button landing-button-primary"
+                >
+                  {uploadingMaterial ? "Skickar..." : "Skicka till InfoSync"}
+                </button>
+              </AccountCard>
+
+              <AccountCard title="Tidigare uppladdat material">
+                <HistoryList empty="Inget skärmmaterial har skickats ännu.">
+                  {data.displayAssets.map((item) => (
+                    <div key={item.id} className="account-list-item account-history-row">
+                      <div>
+                        <strong>{item.file_name || "Textinstruktion"}</strong>
+                        <span>
+                          {date(item.created_at)} | {assetCategoryLabel(item.asset_category)} | {statusLabel(item.status)}
+                        </span>
+                        {item.description && <p>{item.description}</p>}
+                      </div>
+                      {item.downloadUrl && (
+                        <a href={item.downloadUrl} target="_blank" rel="noreferrer">
+                          Ladda ner
+                        </a>
+                      )}
                     </div>
                   ))}
-                </div>
-              ) : (
-                <p>Tryck på plusknappen för att lägga till filer.</p>
-              )}
-              <p>
-                Max 8 filer. Logotyp max 2 MB. Övriga filer max 5 MB styck och
-                15 MB totalt.
-              </p>
+                </HistoryList>
+              </AccountCard>
             </div>
           )}
 
-          {materialPanel === "history" && (
-            <div className="account-list">
-              {data.displayAssets.length ? (
-                data.displayAssets.map((item) => (
-                  <div key={item.id} className="account-list-item">
-                    <strong>{item.file_name || "Textbeskrivning"}</strong>
-                    <span>
-                      {date(item.created_at)} · {assetCategoryLabel(item.asset_category)} · {item.status}
-                    </span>
-                    {item.description && <p>{item.description}</p>}
+          {activeSection === "messages" && (
+            <div className="account-panel-stack">
+              <AccountCard title="Skapa eller följ upp ett ärende">
+                <div className="account-service-grid">
+                  <label>
+                    Ärendetyp
+                    <select
+                      value={requestType}
+                      onChange={(event) => setRequestType(event.target.value)}
+                      className="account-input"
+                    >
+                      {requestTypes.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    Prioritet
+                    <select
+                      value={requestPriority}
+                      onChange={(event) => setRequestPriority(event.target.value)}
+                      className="account-input"
+                    >
+                      {priorities.map((priority) => (
+                        <option key={priority.value} value={priority.value}>
+                          {priority.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <input
+                  value={messageSubject}
+                  onChange={(event) => setMessageSubject(event.target.value)}
+                  placeholder="Rubrik"
+                  className="account-input"
+                />
+                <input
+                  value={relatedTicketNumber}
+                  onChange={(event) => setRelatedTicketNumber(event.target.value)}
+                  placeholder="Svar på ärendenummer, t.ex. IS-260613-ABC123 (valfritt)"
+                  className="account-input"
+                />
+                <textarea
+                  value={messageText}
+                  onChange={(event) => setMessageText(event.target.value)}
+                  placeholder="Beskriv problemet, returen, frågan eller uppdateringen. Ange gärna ordernummer, skärmkod, returorsak och önskat nästa steg."
+                  rows={5}
+                  className="account-input"
+                />
+                <label className="account-compact-upload">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/heic,application/pdf,text/plain"
+                    onChange={(event) => setMessageFiles(Array.from(event.target.files || []))}
+                  />
+                  Bifoga filer
+                </label>
+                {messageFiles.length > 0 && (
+                  <div className="account-file-list is-compact">
+                    {messageFiles.map((file, index) => (
+                      <div key={`${file.name}-${index}`} className="account-file-row">
+                        <span className="account-file-icon">FILE</span>
+                        <div>
+                          <strong>{file.name}</strong>
+                          <span>{fileSize(file.size)}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))
-              ) : (
-                <p>Inget skärmmaterial har skickats ännu.</p>
-              )}
+                )}
+                <button
+                  disabled={sending}
+                  onClick={sendMessage}
+                  className="landing-button landing-button-primary"
+                >
+                  {sending ? "Skickar..." : "Skicka ärende"}
+                </button>
+              </AccountCard>
+
+              <AccountCard title="Ärendehistorik och konversationer">
+                <HistoryList empty="Inga ärenden ännu.">
+                  {data.messages.map((item) => (
+                    <div key={item.id} className="account-list-item">
+                      <strong>{item.subject || "Ärende"}</strong>
+                      <span>
+                        {item.ticket_number ? `${item.ticket_number} | ` : ""}
+                        {requestTypeLabel(item.request_type)} | {priorityLabel(item.priority)} |{" "}
+                        {date(item.created_at)} | {statusLabel(item.status)}
+                      </span>
+                      {item.related_ticket_number && (
+                        <p>Uppföljning på ärende {item.related_ticket_number}</p>
+                      )}
+                      <p>{item.message}</p>
+                      {item.files.length > 0 && (
+                        <div className="account-history-links">
+                          {item.files.map((file) =>
+                            file.downloadUrl ? (
+                              <a key={file.id} href={file.downloadUrl} target="_blank" rel="noreferrer">
+                                {file.fileName}
+                              </a>
+                            ) : (
+                              <span key={file.id}>{file.fileName}</span>
+                            ),
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </HistoryList>
+              </AccountCard>
             </div>
           )}
 
-          <button
-            disabled={uploadingMaterial}
-            onClick={uploadDisplayMaterial}
-            className="landing-button landing-button-primary"
-          >
-            {uploadingMaterial ? "Skickar..." : "Skicka allt till InfoSync"}
-          </button>
-        </AccountCard>
-      </section>
-
-      <section className="account-grid">
-        <AccountCard title="Meddela InfoSync">
-          <input
-            value={messageSubject}
-            onChange={(event) => setMessageSubject(event.target.value)}
-            placeholder="Ämne"
-            className="account-input"
-          />
-          <textarea
-            value={messageText}
-            onChange={(event) => setMessageText(event.target.value)}
-            placeholder="Skriv ditt meddelande eller din uppdateringsförfrågan"
-            rows={5}
-            className="account-input"
-          />
-          <input
-            type="file"
-            multiple
-            accept="image/jpeg,image/png,image/webp,image/heic,application/pdf,text/plain"
-            onChange={(event) => setMessageFiles(Array.from(event.target.files || []))}
-            className="account-input"
-          />
-          <button
-            disabled={sending}
-            onClick={sendMessage}
-            className="landing-button landing-button-primary"
-          >
-            {sending ? "Skickar..." : "Skicka meddelande"}
-          </button>
-        </AccountCard>
-      </section>
-
-      <AccountCard title="Senaste meddelanden">
-        {data.messages.length ? (
-          <div className="account-list">
-            {data.messages.map((item) => (
-              <div key={item.id} className="account-list-item">
-                <strong>{item.subject || "Meddelande"}</strong>
-                <span>{date(item.created_at)} · {item.status}</span>
-                <p>{item.message}</p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Inga meddelanden ännu.</p>
-        )}
-      </AccountCard>
-
-      <AccountCard title="Villkor och avtal">
-        <p>
-          Här visas den version av villkoren som godkändes vid avtalstillfället
-          samt aktuella publicerade dokument.
-        </p>
-        {data.agreements.length ? (
-          <div className="account-list">
-            {data.agreements.map((agreement) => (
-              <div key={agreement.id} className="account-list-item">
-                <strong>
-                  Godkänd: {agreement.document_title} v{agreement.document_version}
-                </strong>
-                <span>{date(agreement.accepted_at)}</span>
-                <p>{agreement.content_snapshot}</p>
-                <div className="account-actions">
-                  {agreement.document_url && (
-                    <a className="landing-button landing-button-secondary" href={agreement.document_url}>
-                      Visa dokument
-                    </a>
+          {activeSection === "billing" && (
+            <div className="account-panel-stack">
+              <section className="account-grid">
+                <AccountCard title="Abonnemang">
+                  {activeSubscription ? (
+                    <div className="account-facts">
+                      <Fact label="Beställning" value={activeSubscription.order_number} />
+                      <Fact
+                        label="Paket"
+                        value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
+                      />
+                      <Fact label="Status" value={statusLabel(activeSubscription.status)} />
+                      <Fact label="Månadspris" value={money(activeSubscription.monthly_fee_sek)} />
+                      <Fact label="Startavgift" value={money(activeSubscription.setup_fee_sek)} />
+                      <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
+                    </div>
+                  ) : (
+                    <p>Inget abonnemang är kopplat till kontot ännu.</p>
                   )}
-                  {agreement.pdf_url && (
-                    <a className="landing-button landing-button-secondary" href={agreement.pdf_url}>
-                      Visa PDF
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p>Inga godkända villkor finns registrerade ännu.</p>
-        )}
+                  <button className="landing-button landing-button-primary" onClick={openBillingPortal}>
+                    Öppna betalningsportal
+                  </button>
+                </AccountCard>
 
-        <div className="account-list">
-          {data.legalDocuments.map((document) => (
-            <div key={document.id} className="account-list-item">
-              <strong>
-                Aktuell: {document.title} v{document.version}
-              </strong>
-              <span>Gäller från {date(document.effective_at)}</span>
-              <p>{document.summary || "-"}</p>
-              {document.pdf_url && (
-                <a className="landing-button landing-button-secondary" href={document.pdf_url}>
-                  Visa aktuell PDF
-                </a>
-              )}
+                <AccountCard title="Avslut och feedback">
+                  <p>
+                    Om du vill avsluta samlar vi in orsaken så att vi kan analysera churn och förbättra tjänsten.
+                  </p>
+                  <select
+                    value={cancellationReason}
+                    onChange={(event) => setCancellationReason(event.target.value)}
+                    className="account-input"
+                  >
+                    {cancellationReasons.map((reason) => (
+                      <option key={reason.value} value={reason.value}>
+                        {reason.label}
+                      </option>
+                    ))}
+                  </select>
+                  <textarea
+                    value={cancellationDetails}
+                    onChange={(event) => setCancellationDetails(event.target.value)}
+                    placeholder="Mer information (valfritt)"
+                    rows={5}
+                    maxLength={1200}
+                    className="account-input"
+                  />
+                  <button
+                    className="landing-button landing-button-secondary"
+                    disabled={cancelling}
+                    onClick={cancelSubscription}
+                  >
+                    {cancelling ? "Avslutar..." : "Avsluta abonnemang"}
+                  </button>
+                </AccountCard>
+              </section>
             </div>
-          ))}
-        </div>
-      </AccountCard>
+          )}
+
+          {activeSection === "legal" && (
+            <div className="account-panel-stack">
+              <AccountCard title="Godkända avtal">
+                <HistoryList empty="Inga godkända villkor finns registrerade ännu.">
+                  {data.agreements.map((agreement) => (
+                    <div key={agreement.id} className="account-list-item account-history-row">
+                      <div>
+                        <strong>
+                          {agreement.document_title} v{agreement.document_version}
+                        </strong>
+                        <span>Godkänt {date(agreement.accepted_at)}</span>
+                        <p>{agreement.content_snapshot}</p>
+                      </div>
+                      <div className="account-history-links">
+                        {agreement.document_url && <a href={agreement.document_url}>Dokument</a>}
+                        {agreement.pdf_url && <a href={agreement.pdf_url}>PDF</a>}
+                      </div>
+                    </div>
+                  ))}
+                </HistoryList>
+              </AccountCard>
+
+              <AccountCard title="Aktuella dokument">
+                <HistoryList empty="Inga aktuella dokument är publicerade.">
+                  {data.legalDocuments.map((document) => (
+                    <div key={document.id} className="account-list-item account-history-row">
+                      <div>
+                        <strong>
+                          {document.title} v{document.version}
+                        </strong>
+                        <span>Gäller från {date(document.effective_at)}</span>
+                        <p>{document.summary || "-"}</p>
+                      </div>
+                      {document.pdf_url && <a href={document.pdf_url}>PDF</a>}
+                    </div>
+                  ))}
+                </HistoryList>
+              </AccountCard>
+            </div>
+          )}
+        </main>
+      </div>
     </AccountShell>
   );
 }
@@ -631,17 +858,8 @@ function AccountShell({
 }) {
   return (
     <div className="landing-page account-page">
-      <header className="flow-nav account-nav">
-        <Link className="landing-brand" href="/">
-          <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
-        </Link>
-        {onSignOut && (
-          <button className="landing-button landing-button-secondary" onClick={onSignOut}>
-            Logga ut
-          </button>
-        )}
-      </header>
-      <main className="account-shell">{children}</main>
+      <LandingNav currentPath="/account" accountMode onSignOut={onSignOut} />
+      <div className="account-shell">{children}</div>
     </div>
   );
 }
@@ -659,6 +877,16 @@ function AccountCard({
       {children}
     </section>
   );
+}
+
+function HistoryList({
+  children,
+  empty,
+}: {
+  children: ReactNode[];
+  empty: string;
+}) {
+  return children.length ? <div className="account-list">{children}</div> : <p>{empty}</p>;
 }
 
 function Fact({ label, value }: { label: string; value: string }) {

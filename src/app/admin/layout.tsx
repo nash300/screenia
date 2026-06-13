@@ -3,6 +3,7 @@ import "./admin.css";
 import AdminPageTitle from "@/components/AdminPageTitle";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
+import InfoSyncLogo from "@/components/InfoSyncLogo";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: "D" },
@@ -28,11 +29,7 @@ export default function AdminLayout({
         <div className="relative px-6 py-6">
           <Link href="/admin" className="block no-underline">
             <div className="admin-sidebar-logo-card">
-              <img
-                src="/brand/infosync-logo-full-transparent.png"
-                alt="InfoSync"
-                className="admin-sidebar-logo"
-              />
+              <InfoSyncLogo className="infosync-logo-admin" />
             </div>
           </Link>
 

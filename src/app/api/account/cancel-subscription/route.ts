@@ -11,7 +11,17 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
 });
 
-export async function POST() {
+const allowedCancellationReasons = new Set([
+  "too_expensive",
+  "missing_features",
+  "not_using",
+  "switching_provider",
+  "technical_issue",
+  "temporary_pause",
+  "other",
+]);
+
+export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
   const customer = await getCustomerForUser(user);
 
@@ -25,6 +35,13 @@ export async function POST() {
       { status: 400 },
     );
   }
+
+  const body = await request.json().catch(() => ({}));
+  const reason = String(body.reason || "").trim();
+  const details = String(body.details || "").trim().slice(0, 1200);
+  const normalizedReason = allowedCancellationReasons.has(reason)
+    ? reason
+    : "other";
 
   const subscription = await stripe.subscriptions.retrieve(
     customer.stripe_subscription_id,
@@ -40,7 +57,7 @@ export async function POST() {
       .update({
         status: "suspended",
         payment_status: "cancelled",
-        inactive_reason: "subscription_cancelled",
+        inactive_reason: normalizedReason,
         cancelled_at: new Date().toISOString(),
         cancellation_source: "customer",
       })
@@ -59,6 +76,8 @@ export async function POST() {
       eventDescription: "Customer cancelled subscription from account portal.",
       metadata: {
         stripeSubscriptionId: customer.stripe_subscription_id,
+        cancellationReason: normalizedReason,
+        cancellationDetails: details || null,
       },
     }),
   ]);

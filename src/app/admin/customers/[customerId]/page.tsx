@@ -101,6 +101,10 @@ type QuoteItemRecord = {
 
 type CustomerMessage = {
   id: string;
+  ticketNumber: string | null;
+  requestType: string;
+  priority: string;
+  relatedTicketNumber: string | null;
   subject: string | null;
   message: string;
   status: string;
@@ -1481,6 +1485,13 @@ export default function CustomerDetailPage({
                   <div>
                     <p className="font-semibold text-slate-950">
                       {item.subject || "Message"}
+                    </p>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                      {item.ticketNumber || "No ticket"} ·{" "}
+                      {item.requestType.replace(/_/g, " ")} · {item.priority}
+                      {item.relatedTicketNumber
+                        ? ` · Reply to ${item.relatedTicketNumber}`
+                        : ""}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
                       {new Date(item.createdAt).toLocaleString("sv-SE")} ·{" "}

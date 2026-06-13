@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import InfoSyncLogo from "@/components/InfoSyncLogo";
 
 const navItems = [
   { href: "/#platform", homeHref: "#platform", label: "Tjänsten" },
@@ -12,10 +13,16 @@ const navItems = [
 ] as const;
 
 type LandingNavProps = {
-  currentPath?: "/" | "/sa-fungerar-det";
+  currentPath?: "/" | "/sa-fungerar-det" | "/account";
+  accountMode?: boolean;
+  onSignOut?: () => void;
 };
 
-export function LandingNav({ currentPath = "/" }: LandingNavProps) {
+export function LandingNav({
+  currentPath = "/",
+  accountMode = false,
+  onSignOut,
+}: LandingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const isHome = currentPath === "/";
 
@@ -26,7 +33,7 @@ export function LandingNav({ currentPath = "/" }: LandingNavProps) {
         href={isHome ? "#top" : "/"}
         onClick={() => setMenuOpen(false)}
       >
-        <img src="/brand/infosync-logo-full-transparent.png" alt="InfoSync" />
+        <InfoSyncLogo className="infosync-logo-nav" />
       </Link>
 
       <div className="landing-header-controls">
@@ -79,11 +86,29 @@ export function LandingNav({ currentPath = "/" }: LandingNavProps) {
             </span>
             Kontakta oss
           </Link>
-          <Link
-            className="landing-nav-login"
-            href="/login"
-            onClick={() => setMenuOpen(false)}
-          >
+          {accountMode ? (
+            <button
+              className="landing-nav-login"
+              type="button"
+              onClick={() => {
+                setMenuOpen(false);
+                onSignOut?.();
+              }}
+            >
+              <span className="landing-nav-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M13 5h6v14h-6v-2h4V7h-4V5Z" />
+                  <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
+                </svg>
+              </span>
+              Logga ut
+            </button>
+          ) : (
+            <Link
+              className="landing-nav-login"
+              href="/login"
+              onClick={() => setMenuOpen(false)}
+            >
             <span className="landing-nav-action-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" focusable="false">
                 <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
@@ -91,7 +116,8 @@ export function LandingNav({ currentPath = "/" }: LandingNavProps) {
               </svg>
             </span>
             Logga in
-          </Link>
+            </Link>
+          )}
         </div>
       </nav>
     </header>

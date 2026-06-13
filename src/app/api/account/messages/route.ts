@@ -25,9 +25,43 @@ type FileInput = {
   data?: string;
 };
 
+const REQUEST_TYPES = new Set([
+  "general",
+  "issue",
+  "return",
+  "material_update",
+  "billing",
+  "technical_support",
+]);
+
+const PRIORITIES = new Set(["low", "normal", "high", "urgent"]);
+
 function decodeBase64File(file: FileInput) {
   const base64 = String(file.data || "").split(",").pop() || "";
   return Buffer.from(base64, "base64");
+}
+
+function normalizeRequestType(value: unknown) {
+  const requestType = String(value || "general").trim();
+  return REQUEST_TYPES.has(requestType) ? requestType : "general";
+}
+
+function normalizePriority(value: unknown) {
+  const priority = String(value || "normal").trim();
+  return PRIORITIES.has(priority) ? priority : "normal";
+}
+
+function makeTicketNumber() {
+  const datePart = new Date().toISOString().slice(2, 10).replace(/-/g, "");
+  const randomPart = crypto.randomUUID().slice(0, 6).toUpperCase();
+  return `IS-${datePart}-${randomPart}`;
+}
+
+function subjectWithTicket(subject: string, ticketNumber: string) {
+  const cleanSubject = subject || "Kundärende";
+  return cleanSubject.startsWith(`[${ticketNumber}]`)
+    ? cleanSubject
+    : `[${ticketNumber}] ${cleanSubject}`;
 }
 
 export async function POST(request: Request) {
@@ -41,35 +75,69 @@ export async function POST(request: Request) {
   const body = await request.json();
   const subject = String(body.subject || "").trim();
   const message = String(body.message || "").trim();
+  const requestType = normalizeRequestType(body.requestType);
+  const priority = normalizePriority(body.priority);
+  const relatedTicketNumber =
+    String(body.relatedTicketNumber || "").trim() || null;
   const files = Array.isArray(body.files) ? (body.files as FileInput[]) : [];
 
   if (!message) {
-    return NextResponse.json({ error: "Message is required." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Meddelande krävs." },
+      { status: 400 },
+    );
   }
 
   const totalFileSize = files.reduce((sum, file) => sum + Number(file.size || 0), 0);
   if (totalFileSize > MAX_FILE_BYTES) {
     return NextResponse.json(
-      { error: "Files can be at most 20 MB in total." },
+      { error: "Filer får vara högst 20 MB totalt." },
       { status: 400 },
     );
   }
 
-  const { data: savedMessage, error: messageError } = await supabaseAdmin
+  const ticketNumber = relatedTicketNumber || makeTicketNumber();
+  const insertPayload = {
+    customer_id: customer.id,
+    subject: subjectWithTicket(subject, ticketNumber),
+    message,
+    status: relatedTicketNumber ? "customer_reply" : "new",
+    ticket_number: ticketNumber,
+    request_type: requestType,
+    priority,
+    related_ticket_number: relatedTicketNumber,
+  };
+
+  let { data: savedMessage, error: messageError } = await supabaseAdmin
     .from("customer_messages")
-    .insert({
-      customer_id: customer.id,
-      subject: subject || null,
-      message,
-      status: "new",
-    })
-    .select("id")
+    .insert(insertPayload)
+    .select("id, ticket_number")
     .single();
+
+  if (messageError?.code === "PGRST204" || messageError?.code === "42703") {
+    const fallbackInsert = {
+      customer_id: customer.id,
+      subject: subjectWithTicket(subject, ticketNumber),
+      message: `[Typ: ${requestType}] [Prioritet: ${priority}]${relatedTicketNumber ? ` [Svar på: ${relatedTicketNumber}]` : ""}\n\n${message}`,
+      status: relatedTicketNumber ? "customer_reply" : "new",
+    };
+
+    const fallbackResult = await supabaseAdmin
+      .from("customer_messages")
+      .insert(fallbackInsert)
+      .select("id")
+      .single();
+
+    savedMessage = fallbackResult.data
+      ? { ...fallbackResult.data, ticket_number: ticketNumber }
+      : null;
+    messageError = fallbackResult.error;
+  }
 
   if (messageError || !savedMessage) {
     console.error("Customer message save error:", messageError);
     return NextResponse.json(
-      { error: "Could not send message." },
+      { error: "Kunde inte skicka ärendet." },
       { status: 500 },
     );
   }
@@ -122,11 +190,15 @@ export async function POST(request: Request) {
     eventDescription: "Customer sent a message from the account portal.",
     metadata: {
       subject,
+      ticketNumber,
+      requestType,
+      priority,
+      relatedTicketNumber,
       fileCount: storedFiles.length,
       files: storedFiles,
     },
     userAgent: request.headers.get("user-agent"),
   });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, ticketNumber });
 }

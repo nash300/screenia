@@ -121,11 +121,8 @@
   padding: 0.2rem 0;
 }
 
-.admin-sidebar-logo-card img {
-  height: 3.2rem;
+.admin-sidebar-logo-card .infosync-logo {
   max-width: 100%;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.18));
 }
 
 .admin-sidebar-kicker {
@@ -1618,13 +1615,24 @@
   padding: 0.5rem 0.65rem;
 }
 
-.admin-sidebar-logo-card img {
+.admin-sidebar-logo-card .infosync-logo {
   width: 100%;
-  height: 4.75rem;
-  border-radius: 14px;
-  object-fit: contain;
-  object-position: left center;
+  transform-origin: left center;
+}
+
+.admin-sidebar-logo-card .infosync-logo-mark {
+  width: 3.65rem !important;
+  height: 3.65rem !important;
   filter: none;
+}
+
+.admin-sidebar-logo-card .infosync-logo-name {
+  font-size: 1.55rem;
+}
+
+.admin-sidebar-logo-card .infosync-logo-tagline {
+  font-size: 0.56rem;
+  letter-spacing: 0.1em;
 }
 
 .admin-sidebar-kicker,

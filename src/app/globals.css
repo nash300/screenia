@@ -103,6 +103,112 @@ section h1 {
 /* ==============================
    Brand Logo
 ============================== */
+.infosync-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62rem;
+  color: var(--brand-navy);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.infosync-logo-mark {
+  display: block;
+  width: 3rem !important;
+  height: 3rem !important;
+  flex: 0 0 auto;
+  max-width: none !important;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(47, 125, 246, 0.18));
+}
+
+.infosync-logo-copy {
+  display: grid;
+  gap: 0.22rem;
+  min-width: 0;
+}
+
+.infosync-logo-name {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
+  font-size: 1.62rem;
+  font-weight: 950;
+  letter-spacing: -0.015em;
+  line-height: 0.9;
+  white-space: nowrap;
+}
+
+.infosync-logo-name span:first-child {
+  color: #03091d;
+}
+
+.infosync-logo-name span:last-child {
+  color: #0a84ff;
+}
+
+.infosync-logo-tagline {
+  color: #061942;
+  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.infosync-logo-nav {
+  transform-origin: left center;
+}
+
+.infosync-logo-nav .infosync-logo-mark {
+  width: 3.35rem !important;
+  height: 3.35rem !important;
+}
+
+.infosync-logo-nav .infosync-logo-name {
+  font-size: 1.72rem;
+}
+
+.infosync-logo-nav .infosync-logo-tagline {
+  font-size: 0.68rem;
+}
+
+.infosync-logo-auth-card .infosync-logo-tagline {
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+}
+
+.infosync-logo-auth-card {
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 0.58rem 0.86rem;
+  box-shadow: 0 24px 58px rgba(3, 15, 38, 0.2);
+}
+
+.infosync-logo-auth-card .infosync-logo-mark {
+  width: 3.1rem !important;
+  height: 3.1rem !important;
+}
+
+.infosync-logo-auth-card .infosync-logo-name {
+  font-size: 1.55rem;
+}
+
+.infosync-logo-auth-inline .infosync-logo-mark {
+  width: 2.65rem !important;
+  height: 2.65rem !important;
+}
+
+.infosync-logo-auth-inline .infosync-logo-name {
+  font-size: 1.35rem;
+}
+
+.infosync-logo-auth-inline .infosync-logo-tagline {
+  font-size: 0.54rem;
+}
+
 .navbar-brand {
   font-size: 1.5rem;
 }

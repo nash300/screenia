@@ -8,6 +8,26 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
+type CustomerMessageRow = {
+  id: string;
+  ticket_number?: string | null;
+  request_type?: string | null;
+  priority?: string | null;
+  related_ticket_number?: string | null;
+  subject: string | null;
+  message: string;
+  status: string;
+  created_at: string;
+  customer_message_files?: Array<{
+    id: string;
+    file_name: string;
+    content_type: string;
+    file_size: number;
+    storage_bucket: string;
+    storage_path: string;
+  }>;
+};
+
 async function getAuthenticatedUser() {
   const cookieStore = await cookies();
 
@@ -46,13 +66,30 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data: messages, error } = await supabaseAdmin
+  const selectWithTickets =
+    "id, ticket_number, request_type, priority, related_ticket_number, subject, message, status, created_at, customer_message_files(id, file_name, content_type, file_size, storage_bucket, storage_path)";
+  const selectFallback =
+    "id, subject, message, status, created_at, customer_message_files(id, file_name, content_type, file_size, storage_bucket, storage_path)";
+
+  const messageQuery = await supabaseAdmin
     .from("customer_messages")
-    .select(
-      "id, subject, message, status, created_at, customer_message_files(id, file_name, content_type, file_size, storage_bucket, storage_path)",
-    )
+    .select(selectWithTickets)
     .eq("customer_id", customerId)
     .order("created_at", { ascending: false });
+
+  let messages = (messageQuery.data || []) as CustomerMessageRow[];
+  let error = messageQuery.error;
+
+  if (error?.code === "42703" || error?.code === "PGRST204") {
+    const fallback = await supabaseAdmin
+      .from("customer_messages")
+      .select(selectFallback)
+      .eq("customer_id", customerId)
+      .order("created_at", { ascending: false });
+
+    messages = (fallback.data || []) as CustomerMessageRow[];
+    error = fallback.error;
+  }
 
   if (error) {
     if (error.code === "PGRST205" || error.code === "42703") {
@@ -71,7 +108,7 @@ export async function GET(request: Request) {
   }
 
   const messagesWithFiles = await Promise.all(
-    (messages || []).map(async (message) => {
+    ((messages || []) as CustomerMessageRow[]).map(async (message) => {
       const files = await Promise.all(
         (message.customer_message_files || []).map(async (file) => {
           const { data } = await supabaseAdmin.storage
@@ -90,6 +127,13 @@ export async function GET(request: Request) {
 
       return {
         id: message.id,
+        ticketNumber:
+          message.ticket_number ||
+          String(message.subject || "").match(/\[(IS-[^\]]+)\]/)?.[1] ||
+          null,
+        requestType: message.request_type || "general",
+        priority: message.priority || "normal",
+        relatedTicketNumber: message.related_ticket_number || null,
         subject: message.subject,
         message: message.message,
         status: message.status,
