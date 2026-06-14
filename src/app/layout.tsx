@@ -1,4 +1,4 @@
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Bubblegum_Sans, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -12,6 +12,12 @@ const plusJakarta = Plus_Jakarta_Sans({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const bubblegumSans = Bubblegum_Sans({
+  variable: "--font-bubblegum-sans",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://infosync.se";
@@ -96,7 +102,7 @@ export default function RootLayout({
     <html
       lang="sv"
       translate="no"
-      className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased notranslate`}
+      className={`${plusJakarta.variable} ${geistMono.variable} ${bubblegumSans.variable} h-full antialiased notranslate`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

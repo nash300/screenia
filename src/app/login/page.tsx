@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [message, setMessage] = useState("");
   const router = useRouter();
 
@@ -47,8 +48,31 @@ export default function LoginPage() {
     }
 
     await supabase.auth.signOut();
-    setMessage("This login is not connected to an InfoSync account.");
+    setMessage("Den här inloggningen är inte kopplad till ett InfoSync-konto.");
     setLoading(false);
+  };
+
+  const sendResetEmail = async () => {
+    if (!email) {
+      setMessage("Skriv din e-postadress först.");
+      return;
+    }
+
+    setResetLoading(true);
+    setMessage("");
+
+    const redirectTo = `${window.location.origin}/account/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo,
+    });
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      setMessage("Vi har skickat en återställningslänk om e-postadressen finns hos InfoSync.");
+    }
+
+    setResetLoading(false);
   };
 
   return (
@@ -62,10 +86,10 @@ export default function LoginPage() {
           </Link>
 
           <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
-            Secure access
+            Säker inloggning
           </p>
           <h1 className="mt-4 max-w-xl text-5xl font-black leading-[1.02] tracking-tight">
-            One sign-in for your screen system.
+            En inloggning för order, innehåll och support.
           </h1>
         </section>
 
@@ -76,17 +100,17 @@ export default function LoginPage() {
             </Link>
 
             <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6] lg:mt-0">
-              InfoSync login
+              InfoSync kundportal
             </p>
 
             <div className="mt-7 space-y-4">
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.14em] text-[#52617d]">
-                  Email
+                  E-post
                 </span>
                 <input
                   type="email"
-                  placeholder="name@company.com"
+                  placeholder="namn@foretag.se"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"
@@ -95,11 +119,11 @@ export default function LoginPage() {
 
               <label className="block">
                 <span className="text-xs font-black uppercase tracking-[0.14em] text-[#52617d]">
-                  Password
+                  Lösenord
                 </span>
                 <input
                   type="password"
-                  placeholder="Your password"
+                  placeholder="Ditt lösenord"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   onKeyDown={(event) => {
@@ -126,7 +150,7 @@ export default function LoginPage() {
                 className="group inline-flex min-h-12 min-w-44 items-center justify-between gap-4 border border-white/50 bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-4 py-2 pl-7 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] outline outline-1 outline-[#2f7df6]/20 transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
                 style={{ borderRadius: "999px" }}
               >
-                <span>{loading ? "Checking..." : "Login"}</span>
+                <span>{loading ? "Kontrollerar..." : "Logga in"}</span>
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#155ee8] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] transition group-hover:translate-x-0.5">
                   <svg
                     viewBox="0 0 24 24"
@@ -141,9 +165,17 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="text-sm">
+            <div className="flex flex-wrap gap-4 text-sm">
+              <button
+                type="button"
+                onClick={sendResetEmail}
+                disabled={resetLoading || !email}
+                className="font-bold text-[#2f7df6] no-underline disabled:opacity-50"
+              >
+                {resetLoading ? "Skickar..." : "Glömt lösenord?"}
+              </button>
               <Link href="/" className="font-bold text-[#2f7df6] no-underline">
-                Back to homepage
+                Till startsidan
               </Link>
             </div>
           </div>

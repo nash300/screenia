@@ -49,7 +49,7 @@ const emailCopy = {
     intro: "Nu kan du färdigställa dina uppgifter för InfoSync här:",
     heading: "Dags att komma igång med InfoSync",
     body:
-      "Bekräfta företagets uppgifter, skicka material till skärmen och gå vidare till betalning via den säkra länken nedan.",
+      "Bekräfta företagets uppgifter och gå vidare till betalning via den säkra länken nedan. Material samlas in efter betalning.",
     cta: "Öppna startguiden",
     expires: "Länken gäller i 14 dagar.",
     regards: "Vänliga hälsningar",
@@ -60,7 +60,7 @@ const emailCopy = {
     intro: "You can now complete your InfoSync details here:",
     heading: "Time to get started with InfoSync",
     body:
-      "Confirm your company details, send screen material, and continue to payment using the secure link below.",
+      "Confirm your company details and continue to payment using the secure link below. Content is collected after payment.",
     cta: "Open setup guide",
     expires: "This link is valid for 14 days.",
     regards: "Kind regards",

@@ -6,6 +6,8 @@ import { supabase } from "@/lib/supabase/client";
 
 type AdminCustomer = {
   id: string;
+  name: string;
+  email: string | null;
   status: string | null;
   devices?: {
     id: string;
@@ -22,12 +24,15 @@ export default function AdminHomePage() {
 
   const needsDeviceCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
-    return customer.status === "active" && deviceCount === 0;
+    return (
+      ["content_received", "active"].includes(customer.status || "") &&
+      deviceCount === 0
+    );
   }).length;
 
   const needsPlaylistCount = customers.filter((customer) => {
     return (
-      customer.status === "active" &&
+      ["content_received", "active"].includes(customer.status || "") &&
       customer.devices?.some(
         (device) => (device.playlists?.[0]?.count || 0) === 0,
       )
@@ -37,16 +42,25 @@ export default function AdminHomePage() {
   const activeCustomerCount = customers.filter(
     (customer) => customer.status === "active",
   ).length;
+  const newRequestCount = customers.filter(
+    (customer) => customer.status === "new_request",
+  ).length;
+  const paidCustomerCount = customers.filter(
+    (customer) => customer.status === "paid",
+  ).length;
+  const contentPendingCount = customers.filter(
+    (customer) => customer.status === "content_pending",
+  ).length;
+  const contentReceivedCount = customers.filter(
+    (customer) => customer.status === "content_received",
+  ).length;
   const invitedCustomerCount = customers.filter(
-    (customer) => customer.status === "invited",
+    (customer) =>
+      customer.status === "invited" || customer.status === "accepted_terms",
   ).length;
   const suspendedCustomerCount = customers.filter(
     (customer) => customer.status === "suspended",
   ).length;
-  const draftCustomerCount = customers.filter(
-    (customer) => !customer.status || customer.status === "draft",
-  ).length;
-
   const readyCustomerCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
     const hasDeviceWithoutPlaylist = customer.devices?.some(
@@ -60,18 +74,24 @@ export default function AdminHomePage() {
     );
   }).length;
 
-  const attentionCount = needsDeviceCount + needsPlaylistCount;
+  const managedCustomerCount = customers.filter((customer) =>
+    ["paid", "content_pending", "content_received", "active"].includes(
+      customer.status || "",
+    ),
+  ).length;
+  const attentionCount =
+    newRequestCount +
+    paidCustomerCount +
+    contentPendingCount +
+    needsDeviceCount +
+    needsPlaylistCount;
   const setupCompletion =
-    activeCustomerCount === 0
+    managedCustomerCount === 0
       ? 0
-      : Math.round((readyCustomerCount / activeCustomerCount) * 100);
+      : Math.round((readyCustomerCount / managedCustomerCount) * 100);
 
   const loadStats = async () => {
     setLoading(true);
-
-    const { count: customers } = await supabase
-      .from("customers")
-      .select("*", { count: "exact", head: true });
 
     const { count: devices } = await supabase
       .from("devices")
@@ -82,8 +102,10 @@ export default function AdminHomePage() {
       .select("*", { count: "exact", head: true })
       .eq("status", "new");
 
-    const { data } = await supabase.from("customers").select(`
+    const { data, error } = await supabase.from("customers").select(`
       id,
+      name,
+      email,
       status,
       devices(
         id,
@@ -91,10 +113,17 @@ export default function AdminHomePage() {
       )
     `);
 
-    setCustomerCount(customers || 0);
+    if (error) {
+      console.error("Load dashboard customer stats error:", error);
+      setCustomers([]);
+      setCustomerCount(0);
+    } else {
+      const nextCustomers = (data || []) as AdminCustomer[];
+      setCustomers(nextCustomers);
+      setCustomerCount(nextCustomers.length);
+    }
     setDeviceCount(devices || 0);
     setNewMaterialCount(newMaterials || 0);
-    setCustomers((data || []) as AdminCustomer[]);
     setLoading(false);
   };
 
@@ -126,25 +155,33 @@ export default function AdminHomePage() {
 
       <section className="admin-action-grid">
         <ActionCard
-          href="/admin/customers?filter=draft"
-          title="Draft quotes"
-          description="Prepare quote and setup link."
-          count={draftCustomerCount}
+          href="/admin/customers?filter=new_request"
+          title="New requests"
+          description="Review package requests."
+          count={newRequestCount}
           tone="warning"
           loading={loading}
         />
         <ActionCard
           href="/admin/customers?filter=invited"
           title="Invited customers"
-          description="Waiting for details, material, or payment."
+          description="Waiting for details or payment."
           count={invitedCustomerCount}
           tone="info"
           loading={loading}
         />
         <ActionCard
+          href="/admin/customers?filter=content_pending"
+          title="Content setup"
+          description="Paid customers who still need content."
+          count={paidCustomerCount + contentPendingCount}
+          tone="warning"
+          loading={loading}
+        />
+        <ActionCard
           href="/admin/customers?filter=needs_device"
-          title="Create devices"
-          description="Active customers without an assigned screen."
+          title="Prepare hardware"
+          description="Content received without an assigned screen."
           count={needsDeviceCount}
           tone="warning"
           loading={loading}
@@ -181,7 +218,7 @@ export default function AdminHomePage() {
           value={`${setupCompletion}%`}
           loading={loading}
           tone="success"
-          meta={`${readyCustomerCount} ready customers`}
+          meta={`${readyCustomerCount} active of ${managedCustomerCount} paid customers`}
         />
       </div>
 
@@ -191,6 +228,10 @@ export default function AdminHomePage() {
 
           <div className="admin-status-list">
             <StatusRow label="Active" value={activeCustomerCount} tone="success" />
+            <StatusRow label="New requests" value={newRequestCount} tone="warning" />
+            <StatusRow label="Paid" value={paidCustomerCount} tone="info" />
+            <StatusRow label="Content pending" value={contentPendingCount} tone="warning" />
+            <StatusRow label="Content received" value={contentReceivedCount} tone="info" />
             <StatusRow
               label="Suspended"
               value={suspendedCustomerCount}

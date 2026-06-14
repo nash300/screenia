@@ -27,9 +27,10 @@ type Customer = {
   preferred_contact_channel: string | null;
   remote_support_consent: boolean | null;
   analytics_consent: boolean | null;
-  search_keywords: string | null;
   notes: string | null;
   status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
   onboarding_token: string | null;
   onboarding_token_expires_at: string | null;
   terms_accepted_at: string | null;
@@ -151,6 +152,86 @@ type CustomerDetailSection =
 
 type CommunicationView = "messages" | "uploads";
 
+const customerDetailSectionIds: CustomerDetailSection[] = [
+  "overview",
+  "onboarding",
+  "communication",
+  "orders",
+  "devices",
+  "history",
+];
+
+type SupabaseSchemaError = {
+  code?: string;
+  message?: string;
+};
+
+const isSchemaMismatch = (error: SupabaseSchemaError | null | undefined) =>
+  error?.code === "42703" || error?.code === "PGRST204";
+
+const normalizeCustomer = (row: Partial<Customer>): Customer => ({
+  id: row.id || "",
+  customer_number: row.customer_number ?? null,
+  requested_screen_quantity: row.requested_screen_quantity ?? null,
+  requested_quote_items: row.requested_quote_items ?? null,
+  name: row.name || "Unknown customer",
+  email: row.email ?? null,
+  phone: row.phone ?? null,
+  contact_person: row.contact_person ?? null,
+  organisation_number: row.organisation_number ?? null,
+  billing_email: row.billing_email ?? null,
+  address: row.address ?? null,
+  postal_code: row.postal_code ?? null,
+  city: row.city ?? null,
+  country: row.country ?? null,
+  business_category: row.business_category ?? null,
+  website_url: row.website_url ?? null,
+  preferred_contact_channel: row.preferred_contact_channel ?? null,
+  remote_support_consent: row.remote_support_consent ?? null,
+  analytics_consent: row.analytics_consent ?? null,
+  notes: row.notes ?? null,
+  status: row.status ?? null,
+  created_at: row.created_at ?? null,
+  updated_at: row.updated_at ?? null,
+  onboarding_token: row.onboarding_token ?? null,
+  onboarding_token_expires_at: row.onboarding_token_expires_at ?? null,
+  terms_accepted_at: row.terms_accepted_at ?? null,
+  privacy_accepted_at: row.privacy_accepted_at ?? null,
+  marketing_consent: row.marketing_consent ?? null,
+  payment_status: row.payment_status ?? null,
+  stripe_customer_id: row.stripe_customer_id ?? null,
+  stripe_subscription_id: row.stripe_subscription_id ?? null,
+  activated_at: row.activated_at ?? null,
+  inactive_reason: row.inactive_reason ?? null,
+  cancelled_at: row.cancelled_at ?? null,
+  cancellation_source: row.cancellation_source ?? null,
+});
+
+const normalizeSubscription = (
+  row: Partial<CustomerSubscription>,
+): CustomerSubscription => ({
+  id: row.id || "",
+  order_number: row.order_number ?? null,
+  status: row.status || "pending",
+  setup_fee_sek: row.setup_fee_sek ?? null,
+  hardware_fee_sek: row.hardware_fee_sek ?? null,
+  shipping_fee_sek: row.shipping_fee_sek ?? null,
+  monthly_fee_sek: row.monthly_fee_sek ?? null,
+  tax_amount_sek: row.tax_amount_sek ?? null,
+  total_amount_sek: row.total_amount_sek ?? null,
+  tax_status: row.tax_status ?? null,
+  fulfillment_status: row.fulfillment_status ?? null,
+  inventory_status: row.inventory_status ?? null,
+  stripe_checkout_session_id: row.stripe_checkout_session_id ?? null,
+  stripe_subscription_id: row.stripe_subscription_id ?? null,
+  screen_quantity: row.screen_quantity ?? 1,
+  device_discount_percent: row.device_discount_percent ?? 0,
+  device_discount_months: row.device_discount_months ?? 0,
+  device_discount_amount_sek: row.device_discount_amount_sek ?? 0,
+  monthly_discount_amount_sek: row.monthly_discount_amount_sek ?? 0,
+  created_at: row.created_at || new Date().toISOString(),
+});
+
 export default function CustomerDetailPage({
   params,
 }: {
@@ -182,8 +263,8 @@ export default function CustomerDetailPage({
   const [editWebsiteUrl, setEditWebsiteUrl] = useState("");
   const [editPreferredContactChannel, setEditPreferredContactChannel] =
     useState("email");
-  const [editSearchKeywords, setEditSearchKeywords] = useState("");
   const [editNotes, setEditNotes] = useState("");
+  const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [activeSection, setActiveSection] =
     useState<CustomerDetailSection>("overview");
   const [communicationView, setCommunicationView] =
@@ -213,6 +294,11 @@ export default function CustomerDetailPage({
     return "None";
   };
 
+  const formatDateTime = (value: string | null | undefined) => {
+    if (!value) return "Not recorded";
+    return new Date(value).toLocaleString("sv-SE");
+  };
+
   const getStatusClass = (status: string | null) => {
     if (status === "active") return "bg-green-100 text-green-700";
     if (status === "invited") return "bg-blue-100 text-blue-700";
@@ -226,10 +312,7 @@ export default function CustomerDetailPage({
     setLoading(true);
     setSchemaNotice("");
 
-    const { data: customerData, error: customerError } = await supabase
-      .from("customers")
-      .select(
-        `
+    const customerSelects = [`
         id,
         customer_number,
         requested_screen_quantity,
@@ -249,9 +332,10 @@ export default function CustomerDetailPage({
         preferred_contact_channel,
         remote_support_consent,
         analytics_consent,
-        search_keywords,
         notes,
         status,
+        created_at,
+        updated_at,
         onboarding_token,
         onboarding_token_expires_at,
         terms_accepted_at,
@@ -265,9 +349,99 @@ export default function CustomerDetailPage({
         cancelled_at,
         cancellation_source
       `,
-      )
-      .eq("id", customerId)
-      .single();
+      `
+        id,
+        requested_screen_quantity,
+        requested_quote_items,
+        name,
+        email,
+        phone,
+        contact_person,
+        organisation_number,
+        billing_email,
+        address,
+        postal_code,
+        city,
+        country,
+        business_category,
+        website_url,
+        preferred_contact_channel,
+        remote_support_consent,
+        analytics_consent,
+        notes,
+        status,
+        created_at,
+        updated_at,
+        onboarding_token,
+        onboarding_token_expires_at,
+        terms_accepted_at,
+        privacy_accepted_at,
+        marketing_consent,
+        payment_status,
+        stripe_customer_id,
+        stripe_subscription_id,
+        activated_at,
+        inactive_reason,
+        cancelled_at,
+        cancellation_source
+      `,
+      `
+        id,
+        name,
+        email,
+        phone,
+        contact_person,
+        organisation_number,
+        address,
+        city,
+        country,
+        notes,
+        status,
+        created_at,
+        updated_at,
+        onboarding_token,
+        onboarding_token_expires_at,
+        terms_accepted_at,
+        privacy_accepted_at,
+        marketing_consent,
+        payment_status,
+        stripe_customer_id,
+        stripe_subscription_id,
+        activated_at,
+        inactive_reason,
+        cancelled_at,
+        cancellation_source
+      `,
+      `
+        id,
+        name,
+        email,
+        phone,
+        status,
+        created_at,
+        updated_at
+      `,
+    ];
+
+    let customerData: Partial<Customer> | null = null;
+    let customerError: SupabaseSchemaError | null = null;
+
+    for (const selectStatement of customerSelects) {
+      const result = await supabase
+        .from("customers")
+        .select(selectStatement)
+        .eq("id", customerId)
+        .single();
+
+      if (!result.error) {
+        customerData = result.data as Partial<Customer>;
+        customerError = null;
+        break;
+      }
+
+      customerError = result.error;
+      if (!isSchemaMismatch(result.error)) break;
+    }
 
     if (customerError || !customerData) {
       console.error("Customer error:", customerError);
@@ -281,7 +455,7 @@ export default function CustomerDetailPage({
       return;
     }
 
-    const loadedCustomer = customerData as Customer;
+    const loadedCustomer = normalizeCustomer(customerData);
 
     setCustomer(loadedCustomer);
     setEditName(loadedCustomer.name || "");
@@ -298,7 +472,6 @@ export default function CustomerDetailPage({
     setEditPreferredContactChannel(
       loadedCustomer.preferred_contact_channel || "email",
     );
-    setEditSearchKeywords(loadedCustomer.search_keywords || "");
     setEditNotes(loadedCustomer.notes || "");
     if (
       Array.isArray(loadedCustomer.requested_quote_items) &&
@@ -329,11 +502,8 @@ export default function CustomerDetailPage({
       setDevices(devicesData || []);
     }
 
-    const { data: subscriptionData, error: subscriptionError } =
-      await supabase
-        .from("customer_subscriptions")
-        .select(
-          `
+    const subscriptionSelects = [
+      `
           id,
           order_number,
           status,
@@ -355,12 +525,48 @@ export default function CustomerDetailPage({
           monthly_discount_amount_sek,
           created_at
         `,
-        )
+      `
+          id,
+          order_number,
+          status,
+          setup_fee_sek,
+          monthly_fee_sek,
+          stripe_checkout_session_id,
+          stripe_subscription_id,
+          created_at
+        `,
+      `
+          id,
+          status,
+          stripe_checkout_session_id,
+          stripe_subscription_id,
+          created_at
+        `,
+    ];
+    let subscriptionData: Partial<CustomerSubscription>[] | null = null;
+    let subscriptionError: SupabaseSchemaError | null = null;
+    let usedSubscriptionFallback = false;
+
+    for (const [index, selectStatement] of subscriptionSelects.entries()) {
+      const result = await supabase
+        .from("customer_subscriptions")
+        .select(selectStatement)
         .eq("customer_id", customerId)
         .order("created_at", { ascending: false });
 
+      if (!result.error) {
+        subscriptionData = result.data as Partial<CustomerSubscription>[];
+        subscriptionError = null;
+        usedSubscriptionFallback = index > 0;
+        break;
+      }
+
+      subscriptionError = result.error;
+      if (!isSchemaMismatch(result.error)) break;
+    }
+
     if (subscriptionError) {
-      if (subscriptionError.code === "42703") {
+      if (isSchemaMismatch(subscriptionError)) {
         setSchemaNotice(
           "The database is missing the latest order columns. Apply the latest Supabase migrations before sending quotes or taking payments.",
         );
@@ -398,7 +604,12 @@ export default function CustomerDetailPage({
         })),
       );
     } else {
-      setSubscriptions((subscriptionData || []) as CustomerSubscription[]);
+      if (usedSubscriptionFallback) {
+        setSchemaNotice(
+          "The database is missing the latest order columns. Some order details are hidden until migrations are applied.",
+        );
+      }
+      setSubscriptions((subscriptionData || []).map(normalizeSubscription));
     }
 
     const { data: pricingData, error: pricingError } = await supabase
@@ -499,25 +710,39 @@ export default function CustomerDetailPage({
 
     setSaving(true);
 
-    const { error } = await supabase
+    const fullPayload = {
+      name: editName.trim(),
+      contact_person: editContactPerson.trim() || null,
+      phone: editPhone.trim() || null,
+      organisation_number: editOrganisationNumber.trim() || null,
+      billing_email: editBillingEmail.trim() || null,
+      address: editAddress.trim() || null,
+      postal_code: editPostalCode.replace(/\s/g, "") || null,
+      city: editCity.trim() || null,
+      country: editCountry.trim() || "Sverige",
+      business_category: editBusinessCategory.trim() || null,
+      website_url: editWebsiteUrl.trim() || null,
+      preferred_contact_channel: editPreferredContactChannel,
+      notes: editNotes.trim() || null,
+    };
+    const corePayload = {
+      name: editName.trim(),
+      contact_person: editContactPerson.trim() || null,
+      phone: editPhone.trim() || null,
+      organisation_number: editOrganisationNumber.trim() || null,
+      address: editAddress.trim() || null,
+      city: editCity.trim() || null,
+      country: editCountry.trim() || "Sverige",
+      notes: editNotes.trim() || null,
+    };
+
+    const result = await supabase
       .from("customers")
-      .update({
-        name: editName.trim(),
-        contact_person: editContactPerson.trim() || null,
-        phone: editPhone.trim() || null,
-        organisation_number: editOrganisationNumber.trim() || null,
-        billing_email: editBillingEmail.trim() || null,
-        address: editAddress.trim() || null,
-        postal_code: editPostalCode.replace(/\s/g, "") || null,
-        city: editCity.trim() || null,
-        country: editCountry.trim() || "Sverige",
-        business_category: editBusinessCategory.trim() || null,
-        website_url: editWebsiteUrl.trim() || null,
-        preferred_contact_channel: editPreferredContactChannel,
-        search_keywords: editSearchKeywords.trim() || null,
-        notes: editNotes.trim() || null,
-      })
+      .update(fullPayload)
       .eq("id", customer.id);
+    const { error } = isSchemaMismatch(result.error)
+      ? await supabase.from("customers").update(corePayload).eq("id", customer.id)
+      : result;
 
     if (error) {
       console.error("Save customer details error:", error);
@@ -528,6 +753,7 @@ export default function CustomerDetailPage({
 
     await loadData();
     showAdminNotification("success", "Customer details updated.");
+    setIsEditingCustomer(false);
     setSaving(false);
   };
 
@@ -729,17 +955,29 @@ export default function CustomerDetailPage({
 
   useEffect(() => {
     const section = searchParams.get("section");
-    if (
-      section === "overview" ||
-      section === "onboarding" ||
-      section === "communication" ||
-      section === "orders" ||
-      section === "devices" ||
-      section === "history"
-    ) {
-      setActiveSection(section);
+    if (customerDetailSectionIds.includes(section as CustomerDetailSection)) {
+      setActiveSection(section as CustomerDetailSection);
+    }
+
+    const view = searchParams.get("view");
+    if (view === "messages" || view === "uploads") {
+      setCommunicationView(view);
     }
   }, [searchParams]);
+
+  const navigateToSection = (section: CustomerDetailSection) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("section", section);
+    if (section !== "communication") nextParams.delete("view");
+    router.push(`/admin/customers/${customerId}?${nextParams.toString()}`);
+  };
+
+  const navigateCommunicationView = (view: CommunicationView) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("section", "communication");
+    nextParams.set("view", view);
+    router.push(`/admin/customers/${customerId}?${nextParams.toString()}`);
+  };
 
   if (loading) {
     return (
@@ -874,7 +1112,7 @@ export default function CustomerDetailPage({
           <button
             key={section.id}
             type="button"
-            onClick={() => setActiveSection(section.id)}
+            onClick={() => navigateToSection(section.id)}
             className={`admin-section-tab ${
               activeSection === section.id ? "is-active" : ""
             }`}
@@ -896,118 +1134,34 @@ export default function CustomerDetailPage({
       ============================== */}
       {activeSection === "overview" && (
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Customer details</h2>
-
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <Input
-            label="Company name"
-            value={editName}
-            onChange={setEditName}
-            required
-          />
-          <Input
-            label="Contact person"
-            value={editContactPerson}
-            onChange={setEditContactPerson}
-          />
-          <Input label="Phone" value={editPhone} onChange={setEditPhone} />
-          <Input
-            label="Billing email"
-            value={editBillingEmail}
-            onChange={setEditBillingEmail}
-          />
-          <Input
-            label="Organisation number"
-            value={editOrganisationNumber}
-            onChange={setEditOrganisationNumber}
-          />
-          <Input
-            label="Business category"
-            value={editBusinessCategory}
-            onChange={setEditBusinessCategory}
-          />
-          <Input
-            label="Website or social link"
-            value={editWebsiteUrl}
-            onChange={setEditWebsiteUrl}
-          />
-          <label className="text-sm font-semibold text-slate-700">
-            Preferred contact
-            <select
-              value={editPreferredContactChannel}
-              onChange={(event) => setEditPreferredContactChannel(event.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
-            >
-              <option value="email">Email</option>
-              <option value="phone">Phone</option>
-              <option value="sms">SMS</option>
-            </select>
-          </label>
-          <Input
-            label="Address"
-            value={editAddress}
-            onChange={setEditAddress}
-          />
-          <Input
-            label="Postal code"
-            value={editPostalCode}
-            onChange={setEditPostalCode}
-          />
-          <Input label="City" value={editCity} onChange={setEditCity} />
-          <Input
-            label="Country"
-            value={editCountry}
-            onChange={setEditCountry}
-          />
+        <div className="admin-compact-heading">
+          <h2 className="admin-card-title text-xl">Customer overview</h2>
+          <button
+            type="button"
+            className="admin-button-primary"
+            onClick={() => setIsEditingCustomer((current) => !current)}
+          >
+            {isEditingCustomer ? "Close edit" : "Edit customer details"}
+          </button>
         </div>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <InfoRow
-            label="Remote support"
-            value={customer.remote_support_consent ? "Consent given" : "No consent"}
-          />
-          <InfoRow
-            label="Statistics"
-            value={customer.analytics_consent ? "Allowed" : "Not allowed"}
-          />
-          <InfoRow
-            label="Marketing"
-            value={customer.marketing_consent ? "Allowed" : "Not allowed"}
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="text-sm font-semibold text-slate-700">
-            Search keywords
-          </label>
-          <input
-            value={editSearchKeywords}
-            onChange={(event) => setEditSearchKeywords(event.target.value)}
-            placeholder="Company, city, industry, contact names"
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
-          />
-        </div>
-
-        <div className="mt-4">
-          <label className="text-sm font-semibold text-slate-700">
-            Internal notes
-          </label>
-          <textarea
-            value={editNotes}
-            onChange={(event) => setEditNotes(event.target.value)}
-            rows={3}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
-          />
-        </div>
-
-        <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+        <div className="admin-compact-info-grid mt-4">
           <InfoRow label="Customer number" value={customer.customer_number || "Pending"} />
-          <InfoRow label="Customer ID" value={customer.id} />
+          <InfoRow label="Created" value={formatDateTime(customer.created_at)} />
+          <InfoRow label="Updated" value={formatDateTime(customer.updated_at)} />
+          <InfoRow label="Company" value={customer.name} />
+          <InfoRow label="Contact person" value={customer.contact_person || "Not set"} />
           <InfoRow label="Contact email" value={customer.email || "Not set"} />
+          <InfoRow label="Phone" value={customer.phone || "Not set"} />
+          <InfoRow label="Billing email" value={customer.billing_email || customer.email || "Not set"} />
           <InfoRow
             label="Organisation number"
             value={customer.organisation_number || "Not set"}
           />
+          <InfoRow label="Category" value={customer.business_category || "Not set"} />
+          <InfoRow label="Website/social" value={customer.website_url || "Not set"} />
+          <InfoRow label="Preferred contact" value={customer.preferred_contact_channel || "Email"} />
+          <InfoRow label="Address" value={[customer.address, customer.postal_code, customer.city, customer.country].filter(Boolean).join(", ") || "Not set"} />
           <InfoRow
             label="Requested screens"
             value={
@@ -1016,15 +1170,66 @@ export default function CustomerDetailPage({
                 : "Not set"
             }
           />
+          <InfoRow label="Remote support" value={customer.remote_support_consent ? "Consent given" : "No consent"} />
+          <InfoRow label="Statistics" value={customer.analytics_consent ? "Allowed" : "Not allowed"} />
+          <InfoRow label="Marketing" value={customer.marketing_consent ? "Allowed" : "Not allowed"} />
+          <InfoRow label="Activated" value={formatDateTime(customer.activated_at)} />
+          <InfoRow label="Cancelled" value={formatDateTime(customer.cancelled_at)} />
+          <InfoRow label="Customer ID" value={customer.id} />
         </div>
 
-        <button
-          onClick={saveCustomerDetails}
-          disabled={saving}
-          className="admin-button-primary mt-4 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save customer details"}
-        </button>
+        {customer.notes && (
+          <div className="admin-compact-note mt-4">
+            <strong>Internal notes</strong>
+            <p>{customer.notes}</p>
+          </div>
+        )}
+
+        {isEditingCustomer && (
+          <div className="admin-edit-panel mt-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Input label="Company name" value={editName} onChange={setEditName} required />
+              <Input label="Contact person" value={editContactPerson} onChange={setEditContactPerson} />
+              <Input label="Phone" value={editPhone} onChange={setEditPhone} />
+              <Input label="Billing email" value={editBillingEmail} onChange={setEditBillingEmail} />
+              <Input label="Organisation number" value={editOrganisationNumber} onChange={setEditOrganisationNumber} />
+              <Input label="Business category" value={editBusinessCategory} onChange={setEditBusinessCategory} />
+              <Input label="Website or social link" value={editWebsiteUrl} onChange={setEditWebsiteUrl} />
+              <label className="text-sm font-semibold text-slate-700">
+                Preferred contact
+                <select
+                  value={editPreferredContactChannel}
+                  onChange={(event) => setEditPreferredContactChannel(event.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                >
+                  <option value="email">Email</option>
+                  <option value="phone">Phone</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </label>
+              <Input label="Address" value={editAddress} onChange={setEditAddress} />
+              <Input label="Postal code" value={editPostalCode} onChange={setEditPostalCode} />
+              <Input label="City" value={editCity} onChange={setEditCity} />
+              <Input label="Country" value={editCountry} onChange={setEditCountry} />
+            </div>
+            <label className="mt-4 block text-sm font-semibold text-slate-700">
+              Internal notes
+              <textarea
+                value={editNotes}
+                onChange={(event) => setEditNotes(event.target.value)}
+                rows={3}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+              />
+            </label>
+            <button
+              onClick={saveCustomerDetails}
+              disabled={saving}
+              className="admin-button-primary mt-4 disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Save customer details"}
+            </button>
+          </div>
+        )}
 
         <div className="mt-6 rounded-2xl border border-red-200 bg-red-50/70 p-4">
           <h3 className="font-semibold text-red-900">Danger zone</h3>
@@ -1060,12 +1265,6 @@ export default function CustomerDetailPage({
               <h3 className="mt-2 text-lg font-black text-slate-950">
                 Send quote, setup link, material upload, and payment in one flow
               </h3>
-              <p className="admin-muted mt-2 text-sm">
-                Select the package the customer requested. InfoSync prepares an
-                order number, stores the quoted items, creates the secure
-                onboarding link, and emails the customer when email is
-                configured.
-              </p>
             </div>
 
             {currentOnboardingLink && (
@@ -1321,55 +1520,56 @@ export default function CustomerDetailPage({
           </div>
         </div>
 
-        <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
-          <InfoRow
-            label="Onboarding token"
-            value={customer.onboarding_token || "Not generated yet"}
-          />
-          <InfoRow
-            label="Token expires"
-            value={customer.onboarding_token_expires_at || "Not generated yet"}
-          />
-          <InfoRow
-            label="Terms accepted"
-            value={customer.terms_accepted_at ? "Yes" : "No"}
-          />
-          <InfoRow
-            label="Privacy accepted"
-            value={customer.privacy_accepted_at ? "Yes" : "No"}
-          />
-          <InfoRow
-            label="Marketing consent"
-            value={customer.marketing_consent ? "Yes" : "No"}
-          />
-          <InfoRow
-            label="Payment status"
-            value={customer.payment_status || "Not paid"}
-          />
-          <InfoRow
-            label="Stripe customer"
-            value={customer.stripe_customer_id || "Not created yet"}
-          />
-          <InfoRow
-            label="Stripe subscription"
-            value={customer.stripe_subscription_id || "Not created yet"}
-          />
-          <InfoRow
-            label="Activated at"
-            value={customer.activated_at || "Not active yet"}
-          />
-          <InfoRow
-            label="Inactive reason"
-            value={formatInactiveReason(customer.inactive_reason)}
-          />
-          <InfoRow
-            label="Cancelled at"
-            value={customer.cancelled_at || "Not cancelled"}
-          />
-          <InfoRow
-            label="Cancellation source"
-            value={formatCancellationSource(customer.cancellation_source)}
-          />
+        <div className="admin-table-wrap mt-4">
+          <table className="admin-data-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Status / value</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Onboarding token</td>
+                <td>{customer.onboarding_token || "Not generated yet"}</td>
+                <td>{formatDateTime(customer.onboarding_token_expires_at)}</td>
+              </tr>
+              <tr>
+                <td>Terms accepted</td>
+                <td>{customer.terms_accepted_at ? "Yes" : "No"}</td>
+                <td>{formatDateTime(customer.terms_accepted_at)}</td>
+              </tr>
+              <tr>
+                <td>Privacy accepted</td>
+                <td>{customer.privacy_accepted_at ? "Yes" : "No"}</td>
+                <td>{formatDateTime(customer.privacy_accepted_at)}</td>
+              </tr>
+              <tr>
+                <td>Payment</td>
+                <td>{customer.payment_status || "Not paid"}</td>
+                <td>{formatDateTime(customer.activated_at)}</td>
+              </tr>
+              <tr>
+                <td>Stripe customer</td>
+                <td>{customer.stripe_customer_id || "Not created yet"}</td>
+                <td>{formatDateTime(customer.created_at)}</td>
+              </tr>
+              <tr>
+                <td>Stripe subscription</td>
+                <td>{customer.stripe_subscription_id || "Not created yet"}</td>
+                <td>{formatDateTime(customer.updated_at)}</td>
+              </tr>
+              <tr>
+                <td>Cancellation</td>
+                <td>
+                  {formatInactiveReason(customer.inactive_reason)} ·{" "}
+                  {formatCancellationSource(customer.cancellation_source)}
+                </td>
+                <td>{formatDateTime(customer.cancelled_at)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <div className="mt-6">
@@ -1448,14 +1648,14 @@ export default function CustomerDetailPage({
             <div className="admin-communication-tabs">
               <button
                 type="button"
-                onClick={() => setCommunicationView("messages")}
+                onClick={() => navigateCommunicationView("messages")}
                 className={communicationView === "messages" ? "is-active" : ""}
               >
                 Conversations ({messages.length})
               </button>
               <button
                 type="button"
-                onClick={() => setCommunicationView("uploads")}
+                onClick={() => navigateCommunicationView("uploads")}
                 className={communicationView === "uploads" ? "is-active" : ""}
               >
                 Uploaded media ({assets.length})

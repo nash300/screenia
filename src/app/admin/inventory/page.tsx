@@ -148,6 +148,7 @@ export default function AdminInventoryPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [form, setForm] = useState<InventoryForm>(() => createEmptyForm());
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [allocationCustomerId, setAllocationCustomerId] = useState("");
@@ -353,11 +354,19 @@ export default function AdminInventoryPage() {
   const resetForm = () => {
     setForm(createEmptyForm());
     setEditingId(null);
+    setShowForm(false);
+  };
+
+  const startAddItem = () => {
+    setForm(createEmptyForm());
+    setEditingId(null);
+    setShowForm(true);
   };
 
   const editItem = (item: InventoryItem) => {
     setSelectedId(item.id);
     setEditingId(item.id);
+    setShowForm(true);
     setForm({
       item_type: item.item_type,
       status: item.status,
@@ -617,7 +626,7 @@ export default function AdminInventoryPage() {
           </p>
         </div>
         <div className="admin-inventory-header-actions">
-          <button type="button" className="admin-button-primary" onClick={resetForm}>
+          <button type="button" className="admin-button-primary" onClick={startAddItem}>
             Add stock item
           </button>
           <Link href="/admin/devices" className="admin-button-secondary">
@@ -725,14 +734,16 @@ export default function AdminInventoryPage() {
         </section>
 
         <section className="admin-inventory-side">
-          <InventoryFormCard
-            form={form}
-            editingId={editingId}
-            saving={saving}
-            onCancel={resetForm}
-            onSave={saveInventoryItem}
-            onChange={updateForm}
-          />
+          {showForm && (
+            <InventoryFormCard
+              form={form}
+              editingId={editingId}
+              saving={saving}
+              onCancel={resetForm}
+              onSave={saveInventoryItem}
+              onChange={updateForm}
+            />
+          )}
 
           {selectedItem && (
             <section className="admin-card p-6">
@@ -830,58 +841,76 @@ export default function AdminInventoryPage() {
               </div>
 
               <div className="admin-inventory-actions">
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => updateItemStatus(selectedItem, "shipped", selectedItem.condition)}
-                >
-                  Mark shipped
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() =>
-                    updateItemStatus(selectedItem, "returned", "returned", {
-                      customer_id: null,
-                      return_notes: selectedItem.return_notes || "Returned from customer.",
-                    })
-                  }
-                >
-                  Mark returned
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() =>
-                    updateItemStatus(selectedItem, "defective", "defective", {
-                      defect_description:
-                        selectedItem.defect_description || "Needs diagnosis.",
-                    })
-                  }
-                >
-                  Mark defective
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => updateItemStatus(selectedItem, "in_repair", "defective")}
-                >
-                  Send to repair
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => updateItemStatus(selectedItem, "in_stock", "repaired")}
-                >
-                  Back to stock
-                </button>
-                <button
-                  type="button"
-                  disabled={saving}
-                  onClick={() => updateItemStatus(selectedItem, "retired", selectedItem.condition)}
-                >
-                  Retire
-                </button>
+                <div className="admin-inventory-action-group">
+                  <h3>Shipping</h3>
+                  <button
+                    type="button"
+                    className="admin-button-primary"
+                    disabled={saving}
+                    onClick={() => updateItemStatus(selectedItem, "shipped", selectedItem.condition)}
+                  >
+                    Mark shipped
+                  </button>
+                </div>
+                <div className="admin-inventory-action-group">
+                  <h3>Returns</h3>
+                  <button
+                    type="button"
+                    className="admin-button-warning"
+                    disabled={saving}
+                    onClick={() =>
+                      updateItemStatus(selectedItem, "returned", "returned", {
+                        customer_id: null,
+                        return_notes: selectedItem.return_notes || "Returned from customer.",
+                      })
+                    }
+                  >
+                    Mark returned
+                  </button>
+                </div>
+                <div className="admin-inventory-action-group">
+                  <h3>Service</h3>
+                  <button
+                    type="button"
+                    className="admin-button-danger"
+                    disabled={saving}
+                    onClick={() =>
+                      updateItemStatus(selectedItem, "defective", "defective", {
+                        defect_description:
+                          selectedItem.defect_description || "Needs diagnosis.",
+                      })
+                    }
+                  >
+                    Mark defective
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-button-secondary"
+                    disabled={saving}
+                    onClick={() => updateItemStatus(selectedItem, "in_repair", "defective")}
+                  >
+                    Send to repair
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-button-success"
+                    disabled={saving}
+                    onClick={() => updateItemStatus(selectedItem, "in_stock", "repaired")}
+                  >
+                    Back to stock
+                  </button>
+                </div>
+                <div className="admin-inventory-action-group">
+                  <h3>Lifecycle</h3>
+                  <button
+                    type="button"
+                    className="admin-button-secondary"
+                    disabled={saving}
+                    onClick={() => updateItemStatus(selectedItem, "retired", selectedItem.condition)}
+                  >
+                    Retire
+                  </button>
+                </div>
               </div>
 
               {(selectedItem.defect_description || selectedItem.return_notes || selectedItem.notes) && (
@@ -1005,11 +1034,9 @@ function InventoryFormCard({
         <button type="button" className="admin-button-primary" disabled={saving} onClick={onSave}>
           {saving ? "Saving..." : editingId ? "Save changes" : "Add to stock"}
         </button>
-        {editingId && (
-          <button type="button" className="admin-button-secondary" onClick={onCancel}>
-            Cancel edit
-          </button>
-        )}
+        <button type="button" className="admin-button-secondary" onClick={onCancel}>
+          {editingId ? "Cancel edit" : "Close form"}
+        </button>
       </div>
     </section>
   );

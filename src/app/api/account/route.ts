@@ -50,7 +50,7 @@ export async function GET() {
       supabaseAdmin
         .from("customer_subscriptions")
         .select(
-          "id, order_number, status, setup_fee_paid, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, stripe_subscription_id, stripe_payment_status, created_at, updated_at, pricing_plans(name, resolution, code)",
+          "id, order_number, status, setup_fee_paid, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, tracking_number, tracking_url, stripe_subscription_id, stripe_payment_status, created_at, updated_at, pricing_plans(name, resolution, code)",
         )
         .eq("customer_id", customer.id)
         .order("created_at", { ascending: false }),

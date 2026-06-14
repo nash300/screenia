@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 const labels: Record<string, string> = {
   admin: "Admin",
@@ -14,12 +14,28 @@ const labels: Record<string, string> = {
   new: "New",
 };
 
+const sectionLabels: Record<string, string> = {
+  overview: "Overview",
+  onboarding: "Onboarding",
+  communication: "Communication",
+  messages: "Messages",
+  uploads: "Uploads",
+  orders: "Orders",
+  devices: "Devices",
+  history: "History",
+  details: "Details",
+  preview: "Preview",
+  media: "Media",
+  display: "Display URL",
+};
+
 function labelForSegment(segment: string) {
   return labels[segment] || segment.replace(/-/g, " ");
 }
 
 export default function AdminBreadcrumbs() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const segments = pathname.split("/").filter(Boolean);
 
   if (segments[0] !== "admin") return null;
@@ -35,9 +51,32 @@ export default function AdminBreadcrumbs() {
     return { href, isLast, label };
   });
 
+  const section = searchParams.get("section");
+  const view = searchParams.get("view");
+  const sectionCrumbs = [
+    section
+      ? {
+          href: `${pathname}?section=${section}`,
+          isLast: !view,
+          label: sectionLabels[section] || labelForSegment(section),
+        }
+      : null,
+    view
+      ? {
+          href: `${pathname}?section=${section || "communication"}&view=${view}`,
+          isLast: true,
+          label: sectionLabels[view] || labelForSegment(view),
+        }
+      : null,
+  ].filter(Boolean) as Array<{ href: string; isLast: boolean; label: string }>;
+
+  const allCrumbs = sectionCrumbs.length
+    ? crumbs.map((crumb) => ({ ...crumb, isLast: false })).concat(sectionCrumbs)
+    : crumbs;
+
   return (
     <nav className="admin-breadcrumbs" aria-label="Breadcrumb">
-      {crumbs.map((crumb, index) => (
+      {allCrumbs.map((crumb, index) => (
         <span key={crumb.href} className="admin-breadcrumb-item">
           {index > 0 && <span className="admin-breadcrumb-separator">/</span>}
           {crumb.isLast ? (

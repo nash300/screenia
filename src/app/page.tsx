@@ -26,19 +26,20 @@ const copy = {
     features: [
       ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
       ["Tydlig kostnad", "Du ser startavgift, månadskostnad, provperiod och bindningstid innan du går vidare."],
-      ["Hjälp med skärmen", "Vi gör layouten utifrån ditt material och skickar enheten med instruktioner."],
+      ["Hjälp med skärmen", "Efter betalning samlar vi in material, gör layouten och skickar enheten med instruktioner."],
       ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
     ],
     workflowTitle: "Från paketval till fungerande skärm",
     workflowText:
-      "Startguiden är den säkra sidan där du bekräftar uppgifter, skickar material och går vidare till betalning. Resten håller vi enkelt.",
+      "Startguiden är den säkra sidan där du bekräftar uppgifter och betalar. Material samlas in först efter betalning så att förfrågan går snabbt.",
     steps: [
       ["01", "Välj paket", "Välj Standard eller Premium och skicka en kort förfrågan med företagets uppgifter.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
-      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor, laddar upp material och går vidare till betalning.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
-      ["03", "Vi bygger layouten", "Efter betalning skapar vi skärmlayouten utifrån materialet och skickar USB-enheten inom 4 arbetsdagar.", "Under tiden kan du montera eller placera din Smart TV i lokalen."],
-      ["04", "Koppla in och starta", "När enheten kommer kopplar du den till HDMI, ansluter till Wi-Fi och följer instruktionerna vi skickar med.", "Sedan är skärmen redo att visa ditt innehåll."],
+      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor och går vidare till betalning.", "Du behöver inte förbereda logotyp, meny eller bilder innan betalning."],
+      ["03", "Skicka innehåll efter betalning", "Efter betalning väljer du om du vill ladda upp material, använda InfoSync-mall eller skicka innehåll senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
+      ["04", "Vi bygger layouten", "InfoSync skapar första skärmförslaget, förbereder hårdvaran och skickar enheten när allt är klart.", "Du kan följa status i kundportalen."],
+      ["05", "Koppla in och starta", "När enheten kommer kopplar du den till TV och Wi-Fi enligt instruktionerna vi skickar med.", "Sedan börjar skärmen visa ditt innehåll."],
     ],
-    process: [["Förfrågan", "Paket valt"], ["Material", "Meny, bilder, logotyp"], ["Produktion", "Layout + USB-enhet"], ["Start", "HDMI + Wi-Fi"]],
+    process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
       "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgiften betalas en gång och månadsabonnemanget har 3 veckors kostnadsfri provperiod.",
@@ -63,9 +64,9 @@ const copy = {
     ],
     faqTitle: "Svar innan du väljer paket",
     faqs: [
-      ["Vad händer efter att jag valt paket", "Du får en personlig startguide där du kontrollerar företagsuppgifter, skickar material till skärmen, godkänner villkor och går vidare till betalning."],
-      ["Vilket material behöver jag skicka", "Du kan ladda upp meny, prislista, logotyp, bilder eller PDF-filer. Det går också bra att skriva kort vad skärmen ska visa."],
-      ["Hur snabbt kan jag komma igång", "När betalningen är klar skapar vi layouten och postar USB-enheten inom 4 arbetsdagar. Leveranstiden beror sedan på posten."],
+      ["Vad händer efter att jag valt paket", "Du skickar en kort förfrågan. När InfoSync har granskat den får du en personlig startguide där du bekräftar uppgifter och betalar."],
+      ["Vilket material behöver jag skicka", "Inget material behövs före betalning. Efter betalning kan du ladda upp meny, prislista, logotyp, bilder eller välja en InfoSync-mall."],
+      ["Hur snabbt kan jag komma igång", "Efter betalning samlar vi in innehåll, skapar första layouten, förbereder hårdvaran och skickar enheten när den är klar."],
       ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
       ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
       ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till InfoSync så hjälper vi dig att uppdatera skärmen."],
@@ -86,10 +87,6 @@ const copy = {
     modalTitle: "Starta med",
     modalText:
       "Skicka företagets uppgifter så kontaktar InfoSync dig med en personlig startguide för uppgifter, villkor och betalning.",
-    accountPromptTitle: "Vill du skapa konto direkt?",
-    accountPromptText:
-      "Med ett kundkonto kan du följa beställningen, skicka material och hantera abonnemanget senare.",
-    accountPromptButton: "Skapa konto",
     close: "Stäng",
     fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
     screenCountLabel: "Antal skärmar *",
@@ -178,10 +175,6 @@ const copy = {
     modalTitle: "Start with",
     modalText:
       "Send your company details and InfoSync will contact you with a personal setup guide for details, terms, and payment.",
-    accountPromptTitle: "Want to create an account now?",
-    accountPromptText:
-      "A customer account lets you follow the order, send material, and manage the subscription later.",
-    accountPromptButton: "Create account",
     close: "Close",
     fields: ["Company name *", "Email *", "Contact person", "Phone", "Message"],
     screenCountLabel: "Number of screens *",
@@ -348,27 +341,6 @@ function renderHighlightedText(text: string, words: string[]) {
   });
 }
 
-const comparisonRows = {
-  sv: [
-    ["Upplösning", "Full HD", "4K"],
-    ["Passar bäst för", "En skärm med tydliga menyer och erbjudanden", "Extra skarp visning och mer premiumkänsla"],
-    ["Startavgift", "1 599 kr", "1 599 kr"],
-    ["Enhet", "699 kr", "1 099 kr"],
-    ["Månadspris", "249 kr", "349 kr"],
-    ["Provperiod", "3 veckor", "3 veckor"],
-    ["Bindningstid", "Ingen", "Ingen"],
-  ],
-  en: [
-    ["Resolution", "Full HD", "4K"],
-    ["Best for", "One screen with clear menus and offers", "Sharper display and a more premium feel"],
-    ["Setup fee", "1 599 kr", "1 599 kr"],
-    ["Device", "699 kr", "1 099 kr"],
-    ["Monthly price", "249 kr", "349 kr"],
-    ["Trial", "3 weeks", "3 weeks"],
-    ["Commitment", "None", "None"],
-  ],
-} as const;
-
 export default function Home() {
   const [selectedPlan, setSelectedPlan] = useState<(typeof plans)[number] | null>(
     null,
@@ -397,6 +369,14 @@ export default function Home() {
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
     process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@infosync.se",
   ].filter(Boolean);
+  const footerLinks = [
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Cookie Policy", href: "/cookie-policy" },
+    { label: "Subscription & Billing Policy", href: "/subscription-billing-policy" },
+    { label: "Support & Service Policy", href: "/support-service-policy" },
+    { label: "Contact", href: "#contact" },
+  ];
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -686,10 +666,11 @@ export default function Home() {
                     plan.featured ? "featured" : ""
                   }`}
                 >
-                  <div className="landing-plan-ribbon">
-                    <span>{plan.featured ? t.recommended : "Populärt val"}</span>
-                  </div>
                   {plan.featured && <span className="landing-plan-badge">{t.recommended}</span>}
+                  <div className="landing-plan-heading">
+                    <h3>{plan.name}</h3>
+                    <span>{plan.resolution}</span>
+                  </div>
                   <div className="landing-plan-device" aria-hidden="true">
                     <img
                       src={plan.deviceImage}
@@ -698,13 +679,8 @@ export default function Home() {
                     />
                     <span>{plan.deviceLabel}</span>
                   </div>
-                  <div className="landing-plan-heading">
-                    <div>
-                      <h3>{plan.name}</h3>
-                    </div>
-                    <span>{plan.resolution}</span>
-                  </div>
                   <p className="landing-plan-description">{planText.description}</p>
+                  <ul>{planText.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   <div className="landing-plan-price">
                     <strong>{plan.monthlyFee}</strong>
                     <span>{t.monthly}</span>
@@ -713,7 +689,6 @@ export default function Home() {
                     <PriceRow label={t.setupFee} value={plan.setupFee} />
                     <PriceRow label="Enhet" value={plan.hardwareFee} />
                   </div>
-                  <ul>{planText.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   <button
                     type="button"
                     onClick={() => openPlanRequest(plan)}
@@ -734,7 +709,6 @@ export default function Home() {
               läsbarhet.
             </p>
           </div>
-          <ComparisonTable />
         </LandingSection>
 
         <LandingSection id="examples" eyebrow={t.nav[3]} title={t.galleryTitle} text={t.galleryText}>
@@ -820,8 +794,11 @@ export default function Home() {
           <span>InfoSync</span>
           <strong>Digital skyltning för lokala företag i Sverige</strong>
           <nav>
-            <a href="/terms">{t.legal[0]}</a>
-            <a href="/privacy">{t.legal[1]}</a>
+            {footerLinks.map((link) => (
+              <a key={link.href} href={link.href}>
+                {link.label}
+              </a>
+            ))}
           </nav>
           <p>{new Date().getFullYear()} InfoSync. {t.legal[2]}</p>
         </div>
@@ -843,19 +820,6 @@ export default function Home() {
               {t.modalTitle} {selectedPlan.name} {selectedPlan.resolution}
             </h2>
             <p>{t.modalText}</p>
-            <div className="landing-account-prompt">
-              <div>
-                <strong>{t.accountPromptTitle}</strong>
-                <span>{t.accountPromptText}</span>
-              </div>
-              <a
-                href={`/signup?plan=${encodeURIComponent(selectedPlan.code)}`}
-                className="landing-button landing-button-secondary"
-              >
-                {t.accountPromptButton}
-              </a>
-            </div>
-
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
               <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
@@ -917,31 +881,6 @@ function LandingSection({
       <SectionHeading eyebrow={eyebrow} title={title} text={text} />
       {children}
     </section>
-  );
-}
-
-function ComparisonTable() {
-  return (
-    <div className="landing-comparison">
-      <table>
-        <thead>
-          <tr>
-            <th>Jämförelse</th>
-            <th>Standard</th>
-            <th>Premium</th>
-          </tr>
-        </thead>
-        <tbody>
-          {comparisonRows.sv.map(([label, standard, premium]) => (
-            <tr key={label}>
-              <th>{label}</th>
-              <td>{standard}</td>
-              <td>{premium}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }
 

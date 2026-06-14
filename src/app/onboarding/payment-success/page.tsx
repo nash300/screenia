@@ -8,11 +8,11 @@ export default function PaymentSuccessPage() {
         <span className="flow-result-icon">✓</span>
         <h1>Betalningen lyckades</h1>
         <p>
-          Tack. Din betalning är mottagen och InfoSync förbereder nu nästa steg
-          för din skärm.
+          Tack. Betalningen är mottagen. Vi skickar ett e-postmeddelande där du
+          kan välja lösenord och aktivera din kundportal.
         </p>
-        <Link href="/" className="landing-button landing-button-primary">
-          Till startsidan
+        <Link href="/login" className="landing-button landing-button-primary">
+          Till inloggning
         </Link>
       </main>
     </div>

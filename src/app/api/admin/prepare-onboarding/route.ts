@@ -382,7 +382,7 @@ Månadsabonnemang: ${formatSek(plan.monthly_fee_sek)}
 Kostnadsfri provperiod: ${plan.trial_days} dagar
 Ordernummer: ${order.order_number}
 ${quoteNotes ? `\nMeddelande: ${quoteNotes}\n` : ""}
-Fortsätt här för att fylla i uppgifter, ladda upp material och gå vidare till betalning:
+Fortsätt här för att bekräfta uppgifter och gå vidare till betalning. Material samlas in efter betalning:
 ${onboardingUrl}
 
 Länken gäller i 14 dagar.
@@ -393,7 +393,7 @@ InfoSync`,
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
           <h1 style="color: #082354;">Din InfoSync-offert</h1>
           <p>Hej ${safeCustomerName},</p>
-          <p>Här är offerten för din beställning. Fortsätt via länken för att fylla i uppgifter, ladda upp material och gå vidare till säker betalning.</p>
+          <p>Här är offerten för din beställning. Fortsätt via länken för att bekräfta uppgifter och gå vidare till säker betalning. Material samlas in efter betalning.</p>
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>

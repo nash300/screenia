@@ -42,35 +42,43 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
 
   if (customer?.auth_user_id) return customer.auth_user_id;
 
-  const { data: createdUser, error: createError } =
-    await supabaseAdmin.auth.admin.createUser({
-      email,
-      email_confirm: true,
-      password: crypto.randomUUID() + crypto.randomUUID(),
-      user_metadata: {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const redirectTo = appUrl ? `${appUrl}/account/activate` : undefined;
+
+  const { data: invitedUser, error: inviteError } =
+    await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo,
+      data: {
         customer_id: customerId,
         account_type: "customer",
       },
     });
 
-  if (createError) {
+  if (inviteError) {
     const { data: users } = await supabaseAdmin.auth.admin.listUsers();
     const existingUser = users.users.find(
       (user) => user.email?.toLowerCase() === email.toLowerCase(),
     );
 
     if (existingUser) {
+      await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+        user_metadata: {
+          ...(existingUser.user_metadata || {}),
+          customer_id: customerId,
+          account_type: "customer",
+        },
+      });
       await saveCustomerAuthUser(customerId, existingUser.id);
       return existingUser.id;
     }
 
-    console.error("Create customer auth user error:", createError);
+    console.error("Invite customer auth user error:", inviteError);
     return null;
   }
 
-  if (createdUser.user) {
-    await saveCustomerAuthUser(customerId, createdUser.user.id);
-    return createdUser.user.id;
+  if (invitedUser.user) {
+    await saveCustomerAuthUser(customerId, invitedUser.user.id);
+    return invitedUser.user.id;
   }
 
   return null;
@@ -111,11 +119,10 @@ export async function POST(request: Request) {
     if (customerId) {
       await ensureCustomerAuthUser(customerId, customerEmail);
       const customerUpdate: Record<string, string | null> = {
-        status: "active",
+        status: "paid",
         payment_status: "paid",
         stripe_customer_id: session.customer as string,
         stripe_subscription_id: session.subscription as string,
-        activated_at: new Date().toISOString(),
       };
 
       const { error } = await supabaseAdmin
@@ -131,7 +138,7 @@ export async function POST(request: Request) {
           actorType: "stripe",
           eventType: "payment_completed",
           eventDescription:
-            "Stripe checkout completed. Customer paid and is ready for screen setup.",
+            "Stripe checkout completed. Customer paid and is ready for content collection.",
           metadata: {
             stripeCustomerId: session.customer,
             stripeSubscriptionId: session.subscription,
@@ -156,7 +163,7 @@ export async function POST(request: Request) {
         }
 
         const subscriptionUpdate = {
-          status: "active",
+          status: "paid",
           stripe_customer_id: session.customer as string,
           stripe_subscription_id: session.subscription as string,
           stripe_invoice_id:
@@ -172,7 +179,7 @@ export async function POST(request: Request) {
             : "not_enabled",
           tax_amount_sek: session.total_details?.amount_tax ?? null,
           total_amount_sek: session.amount_total ?? null,
-          fulfillment_status: "paid",
+          fulfillment_status: "content_collection",
           inventory_status: "ready_to_reserve",
           stripe_discount_coupon_id: discountCouponId,
         };

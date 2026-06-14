@@ -51,17 +51,34 @@ export async function POST(request: Request) {
     await stripe.subscriptions.cancel(customer.stripe_subscription_id);
   }
 
-  await Promise.all([
-    supabaseAdmin
+  const cancelledAt = new Date().toISOString();
+  const customerCancellationUpdate = {
+    status: "suspended",
+    payment_status: "cancelled",
+    inactive_reason: normalizedReason,
+    cancelled_at: cancelledAt,
+    cancellation_source: "customer",
+  };
+  const customerCancellationResult = await supabaseAdmin
+    .from("customers")
+    .update({
+      ...customerCancellationUpdate,
+      cancellation_reason: normalizedReason,
+      cancellation_details: details || null,
+    })
+    .eq("id", customer.id);
+
+  if (
+    customerCancellationResult.error?.code === "42703" ||
+    customerCancellationResult.error?.code === "PGRST204"
+  ) {
+    await supabaseAdmin
       .from("customers")
-      .update({
-        status: "suspended",
-        payment_status: "cancelled",
-        inactive_reason: normalizedReason,
-        cancelled_at: new Date().toISOString(),
-        cancellation_source: "customer",
-      })
-      .eq("id", customer.id),
+      .update(customerCancellationUpdate)
+      .eq("id", customer.id);
+  }
+
+  await Promise.all([
     supabaseAdmin
       .from("customer_subscriptions")
       .update({

@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import { LandingNav } from "@/components/LandingNav";
 import "../landing.css";
 
-type AccountSection = "overview" | "material" | "messages" | "billing" | "legal";
+type AccountSection = "overview" | "setup" | "material" | "messages" | "billing" | "legal";
 
 type AccountData = {
   customer: {
@@ -25,6 +25,17 @@ type AccountData = {
     stripe_subscription_id: string | null;
     activated_at: string | null;
     cancelled_at: string | null;
+    created_at: string;
+    website_url: string | null;
+    business_description: string | null;
+    opening_hours: string | null;
+    promotions: string | null;
+    social_media: string | null;
+    content_option: string | null;
+    content_collected_at: string | null;
+    preview_status: string | null;
+    preview_url: string | null;
+    preview_feedback: string | null;
   };
   subscriptions: Array<{
     id: string;
@@ -41,6 +52,8 @@ type AccountData = {
     total_amount_sek: number | null;
     fulfillment_status: string | null;
     inventory_status: string | null;
+    tracking_number: string | null;
+    tracking_url: string | null;
     stripe_subscription_id: string | null;
     stripe_payment_status: string | null;
     created_at: string;
@@ -126,6 +139,7 @@ const sections: Array<{
   detail: string;
 }> = [
   { id: "overview", label: "Översikt", detail: "Företag, skärmar, status" },
+  { id: "setup", label: "Innehåll", detail: "Första setup och underlag" },
   { id: "material", label: "Skärmmaterial", detail: "Ladda upp filer och text" },
   { id: "messages", label: "Ärenden", detail: "Support, retur och historik" },
   { id: "billing", label: "Abonnemang", detail: "Betalning och avslut" },
@@ -197,6 +211,12 @@ function priorityLabel(value: string) {
 
 function statusLabel(value: string | null) {
   if (value === "active") return "Aktiv";
+  if (value === "paid") return "Betald";
+  if (value === "new_request") return "Förfrågan mottagen";
+  if (value === "accepted_terms") return "Redo för betalning";
+  if (value === "content_collection") return "Innehåll samlas in";
+  if (value === "content_pending") return "Innehåll väntar";
+  if (value === "content_received") return "Innehåll mottaget";
   if (value === "inactive") return "Inaktiv";
   if (value === "suspended") return "Pausad";
   if (value === "cancelled") return "Avslutad";
@@ -205,6 +225,66 @@ function statusLabel(value: string | null) {
   if (value === "in_progress") return "Pågår";
   if (value === "resolved") return "Löst";
   return value || "-";
+}
+
+function contentOptionLabel(value: string | null) {
+  if (value === "upload") return "Eget material";
+  if (value === "template") return "InfoSync-mall";
+  if (value === "later") return "Skickas senare";
+  return "-";
+}
+
+function journeySteps(data: AccountData) {
+  const subscription = data.subscriptions[0];
+  const customerStatus = data.customer.status;
+  const paymentStatus = data.customer.payment_status;
+  const fulfillment = subscription?.fulfillment_status;
+  const inventory = subscription?.inventory_status;
+  const hasDevice = data.devices.length > 0;
+  const hasContent = data.displayAssets.length > 0 || customerStatus === "content_received";
+
+  return [
+    {
+      label: "Förfrågan",
+      detail: "InfoSync har tagit emot din förfrågan.",
+      done: Boolean(data.customer.created_at),
+    },
+    {
+      label: "Godkänd order",
+      detail: "Vi har granskat uppgifterna och skickat startlänken.",
+      done: ["accepted_terms", "paid", "content_pending", "content_received", "active"].includes(customerStatus),
+    },
+    {
+      label: "Betalning",
+      detail: "Betalningen är klar innan vi samlar in material.",
+      done: paymentStatus === "paid" || ["paid", "active"].includes(subscription?.status || ""),
+    },
+    {
+      label: "Innehåll",
+      detail: "Material, öppettider och önskemål är skickade eller planerade.",
+      done: hasContent || ["content_pending", "content_received", "active"].includes(customerStatus),
+    },
+    {
+      label: "Förhandsvisning",
+      detail: "InfoSync tar fram första skärmförslaget.",
+      done: ["preview_approved", "in_production", "ready_to_ship", "shipped", "completed"].includes(fulfillment || ""),
+    },
+    {
+      label: "Hårdvara",
+      detail: "Enheten förbereds och kopplas till din skärm.",
+      done: hasDevice || ["assigned", "shipped"].includes(inventory || ""),
+    },
+    {
+      label: "Leverans",
+      detail: "Ordern är skickad och kan följas med spårning.",
+      done: fulfillment === "shipped" || inventory === "shipped" || customerStatus === "active",
+    },
+    {
+      label: "Aktiv",
+      detail: "Skärmen är inkopplad och visar innehåll.",
+      done: customerStatus === "active",
+    },
+  ];
 }
 
 export default function AccountPage() {
@@ -220,6 +300,16 @@ export default function AccountPage() {
   const [materialDescription, setMaterialDescription] = useState("");
   const [materialCategory, setMaterialCategory] = useState("image");
   const [materialFiles, setMaterialFiles] = useState<MaterialUploadItem[]>([]);
+  const [setupBusinessName, setSetupBusinessName] = useState("");
+  const [setupBusinessDescription, setSetupBusinessDescription] = useState("");
+  const [setupOpeningHours, setSetupOpeningHours] = useState("");
+  const [setupPromotions, setSetupPromotions] = useState("");
+  const [setupWebsiteUrl, setSetupWebsiteUrl] = useState("");
+  const [setupSocialMedia, setSetupSocialMedia] = useState("");
+  const [setupContentOption, setSetupContentOption] = useState("template");
+  const [setupNotes, setSetupNotes] = useState("");
+  const [setupFiles, setSetupFiles] = useState<MaterialUploadItem[]>([]);
+  const [savingSetup, setSavingSetup] = useState(false);
   const [notice, setNotice] = useState("");
   const [sending, setSending] = useState(false);
   const [uploadingMaterial, setUploadingMaterial] = useState(false);
@@ -254,6 +344,17 @@ export default function AccountPage() {
     loadAccount();
   }, [loadAccount]);
 
+  useEffect(() => {
+    if (!data?.customer) return;
+    setSetupBusinessName(data.customer.name || "");
+    setSetupBusinessDescription(data.customer.business_description || "");
+    setSetupOpeningHours(data.customer.opening_hours || "");
+    setSetupPromotions(data.customer.promotions || "");
+    setSetupWebsiteUrl(data.customer.website_url || "");
+    setSetupSocialMedia(data.customer.social_media || "");
+    setSetupContentOption(data.customer.content_option || "template");
+  }, [data?.customer]);
+
   const fileToPayload = (file: File, category = "other") => {
     return new Promise<{
       name: string;
@@ -282,6 +383,61 @@ export default function AccountPage() {
       category: materialCategory,
     }));
     setMaterialFiles((current) => [...current, ...nextFiles].slice(0, 8));
+  };
+
+  const addSetupFiles = (files: FileList | File[]) => {
+    const nextFiles = Array.from(files).map((file) => ({
+      file,
+      category: "image",
+    }));
+    setSetupFiles((current) => [...current, ...nextFiles].slice(0, 8));
+  };
+
+  const submitContentSetup = async () => {
+    if (!setupBusinessName.trim() || !setupBusinessDescription.trim()) {
+      setNotice("Företagsnamn och kort beskrivning måste anges.");
+      return;
+    }
+
+    if (setupContentOption === "upload" && !setupNotes.trim() && setupFiles.length === 0) {
+      setNotice("Lägg till filer eller skriv vad skärmen ska visa.");
+      return;
+    }
+
+    setSavingSetup(true);
+    setNotice("");
+    const files = await Promise.all(
+      setupFiles.map((item) => fileToPayload(item.file, item.category)),
+    );
+
+    const response = await fetch("/api/account/content-setup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        businessName: setupBusinessName,
+        businessDescription: setupBusinessDescription,
+        openingHours: setupOpeningHours,
+        promotions: setupPromotions,
+        websiteUrl: setupWebsiteUrl,
+        socialMedia: setupSocialMedia,
+        contentOption: setupContentOption,
+        displayNotes: setupNotes,
+        displayFiles: files,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte spara innehållsunderlaget.");
+      setSavingSetup(false);
+      return;
+    }
+
+    setSetupFiles([]);
+    setSetupNotes("");
+    setNotice("Innehållsunderlaget har skickats till InfoSync.");
+    setSavingSetup(false);
+    loadAccount();
   };
 
   const uploadDisplayMaterial = async () => {
@@ -470,6 +626,23 @@ export default function AccountPage() {
                 ))}
               </section>
 
+              <AccountCard title="Orderstatus">
+                <div className="account-status-timeline">
+                  {journeySteps(data).map((step, index) => (
+                    <div
+                      key={step.label}
+                      className={`account-status-step ${step.done ? "is-done" : ""}`}
+                    >
+                      <span>{index + 1}</span>
+                      <div>
+                        <strong>{step.label}</strong>
+                        <p>{step.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </AccountCard>
+
               <section className="account-grid">
                 <AccountCard title="Företagsuppgifter">
                   <div className="account-facts">
@@ -505,6 +678,180 @@ export default function AccountPage() {
                   )}
                 </AccountCard>
               </section>
+            </div>
+          )}
+
+          {activeSection === "setup" && (
+            <div className="account-panel-stack">
+              <AccountCard title="Första innehållssetup">
+                <p>
+                  Här samlar vi allt InfoSync behöver för att skapa första
+                  skärmförslaget. Du kan skicka filer nu, välja mall eller be oss
+                  kontakta dig senare.
+                </p>
+                <div className="account-facts">
+                  <Fact label="Status" value={statusLabel(data.customer.status)} />
+                  <Fact label="Senast skickat" value={date(data.customer.content_collected_at)} />
+                  <Fact label="Förhandsvisning" value={statusLabel(data.customer.preview_status)} />
+                  <Fact label="Valt innehållssätt" value={contentOptionLabel(data.customer.content_option)} />
+                </div>
+
+                <div className="flow-form-grid">
+                  <input
+                    value={setupBusinessName}
+                    onChange={(event) => setSetupBusinessName(event.target.value)}
+                    placeholder="Företagsnamn *"
+                    className="account-input"
+                  />
+                  <input
+                    value={setupWebsiteUrl}
+                    onChange={(event) => setSetupWebsiteUrl(event.target.value)}
+                    placeholder="Webbplats"
+                    className="account-input"
+                  />
+                  <input
+                    value={setupSocialMedia}
+                    onChange={(event) => setSetupSocialMedia(event.target.value)}
+                    placeholder="Sociala medier"
+                    className="account-input"
+                  />
+                  <input
+                    value={setupOpeningHours}
+                    onChange={(event) => setSetupOpeningHours(event.target.value)}
+                    placeholder="Öppettider"
+                    className="account-input"
+                  />
+                </div>
+                <textarea
+                  value={setupBusinessDescription}
+                  onChange={(event) => setSetupBusinessDescription(event.target.value)}
+                  placeholder="Beskriv verksamheten kort. Exempel: restaurang med lunchmeny, kampanjer och QR-kod till onlinebeställning. *"
+                  rows={4}
+                  className="account-input"
+                />
+                <textarea
+                  value={setupPromotions}
+                  onChange={(event) => setSetupPromotions(event.target.value)}
+                  placeholder="Aktuella kampanjer, priser eller budskap"
+                  rows={3}
+                  className="account-input"
+                />
+              </AccountCard>
+
+              <AccountCard title="Innehållsalternativ">
+                <div className="account-service-grid">
+                  <AccountChoice
+                    active={setupContentOption === "upload"}
+                    title="Jag har material"
+                    text="Ladda upp logotyp, meny, bilder eller PDF."
+                    onClick={() => setSetupContentOption("upload")}
+                  />
+                  <AccountChoice
+                    active={setupContentOption === "template"}
+                    title="Använd InfoSync-mall"
+                    text="Vi skapar första versionen utifrån dina uppgifter."
+                    onClick={() => setSetupContentOption("template")}
+                  />
+                  <AccountChoice
+                    active={setupContentOption === "later"}
+                    title="Skicka senare"
+                    text="Vi kontaktar dig när det är dags för material."
+                    onClick={() => setSetupContentOption("later")}
+                  />
+                </div>
+
+                <div className="account-upload-workspace">
+                  <label
+                    className="account-dropzone"
+                    onDragOver={(event) => event.preventDefault()}
+                    onDrop={(event) => {
+                      event.preventDefault();
+                      addSetupFiles(event.dataTransfer.files);
+                    }}
+                  >
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
+                      onChange={(event) => addSetupFiles(event.target.files || [])}
+                    />
+                    <span className="account-upload-icon" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" focusable="false">
+                        <path d="M11 16h2V7.8l3.6 3.6L18 10l-6-6-6 6 1.4 1.4L11 7.8V16Z" />
+                        <path d="M5 14h2v4h10v-4h2v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-4Z" />
+                      </svg>
+                    </span>
+                    <strong>Välj filer</strong>
+                    <em>eller släpp filer här</em>
+                    <small>Stöds: .png, .jpg, .webp, .heic, .pdf</small>
+                  </label>
+
+                  <div className="account-upload-side">
+                    <h3>Valda filer</h3>
+                    <div className="account-file-list">
+                      {setupFiles.length ? (
+                        setupFiles.map((item, index) => (
+                          <div key={`${item.file.name}-${item.file.size}-${index}`} className="account-file-row">
+                            <span className="account-file-icon">FIL</span>
+                            <div>
+                              <strong>{item.file.name}</strong>
+                              <span>{fileSize(item.file.size)}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSetupFiles((current) =>
+                                  current.filter((_, fileIndex) => fileIndex !== index),
+                                )
+                              }
+                              aria-label={`Ta bort ${item.file.name}`}
+                            >
+                              x
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <p>Inga filer valda ännu.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <textarea
+                  value={setupNotes}
+                  onChange={(event) => setSetupNotes(event.target.value)}
+                  placeholder="Skriv önskemål för skärmen: färger, meny, kampanj, QR-kod, bilder eller annat vi ska tänka på."
+                  rows={5}
+                  maxLength={1200}
+                  className="account-input"
+                />
+                <button
+                  disabled={savingSetup}
+                  onClick={submitContentSetup}
+                  className="landing-button landing-button-primary"
+                >
+                  {savingSetup ? "Skickar..." : "Skicka innehållsunderlag"}
+                </button>
+              </AccountCard>
+
+              <AccountCard title="Förhandsvisning">
+                {data.customer.preview_url ? (
+                  <div className="account-list-item account-history-row">
+                    <div>
+                      <strong>Första skärmförslaget</strong>
+                      <span>{statusLabel(data.customer.preview_status)}</span>
+                      {data.customer.preview_feedback && (
+                        <p>{data.customer.preview_feedback}</p>
+                      )}
+                    </div>
+                    <a href={data.customer.preview_url} target="_blank" rel="noreferrer">
+                      Öppna preview
+                    </a>
+                  </div>
+                ) : (
+                  <p>Förhandsvisningen visas här när InfoSync har skapat första förslaget.</p>
+                )}
+              </AccountCard>
             </div>
           )}
 
@@ -759,6 +1106,11 @@ export default function AccountPage() {
                       <Fact label="Månadspris" value={money(activeSubscription.monthly_fee_sek)} />
                       <Fact label="Startavgift" value={money(activeSubscription.setup_fee_sek)} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
+                      <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
+                      <Fact
+                        label="Spårningslänk"
+                        value={activeSubscription.tracking_url || "-"}
+                      />
                     </div>
                   ) : (
                     <p>Inget abonnemang är kopplat till kontot ännu.</p>
@@ -876,6 +1228,29 @@ function AccountCard({
       <h2>{title}</h2>
       {children}
     </section>
+  );
+}
+
+function AccountChoice({
+  active,
+  title,
+  text,
+  onClick,
+}: {
+  active: boolean;
+  title: string;
+  text: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`account-card ${active ? "is-active" : ""}`}
+      onClick={onClick}
+    >
+      <strong>{title}</strong>
+      <span>{text}</span>
+    </button>
   );
 }
 

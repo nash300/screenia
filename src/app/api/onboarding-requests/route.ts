@@ -10,9 +10,58 @@ const supabaseAdmin = createClient(
 
 const validPlanCodes = new Set<string>(PRICING_PLANS.map((plan) => plan.code));
 
-const isValidEmail = (value: string) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-};
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+async function sendRequestConfirmationEmail({
+  email,
+  companyName,
+  planName,
+  screenQuantity,
+}: {
+  email: string;
+  companyName: string;
+  planName: string;
+  screenQuantity: number;
+}) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL;
+
+  if (!apiKey || !from) return;
+
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: email,
+      subject: "InfoSync har tagit emot din förfrågan",
+      text: `Hej ${companyName},
+
+Tack för din förfrågan. Vi har tagit emot önskemålet om ${screenQuantity} skärm(ar) med paketet ${planName}.
+
+InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
+
+Vänliga hälsningar,
+InfoSync`,
+      html: `
+        <div style="font-family: Arial, sans-serif; color: #09244a; line-height: 1.6;">
+          <h1>Förfrågan mottagen</h1>
+          <p>Hej ${companyName},</p>
+          <p>Vi har tagit emot önskemålet om <strong>${screenQuantity} skärm(ar)</strong> med paketet <strong>${planName}</strong>.</p>
+          <p>InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
+          <p>Vänliga hälsningar,<br />InfoSync</p>
+        </div>
+      `,
+    }),
+  });
+
+  if (!response.ok) {
+    console.warn("Could not send onboarding request confirmation email.");
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -82,9 +131,6 @@ export async function POST(request: Request) {
             quantity: screenQuantity,
           },
         ],
-        search_keywords: [companyName, email, contactPerson, phone, selectedPlan?.name, screenQuantity]
-          .filter(Boolean)
-          .join(" "),
         status: "new_request",
         notes,
       })
@@ -112,6 +158,13 @@ export async function POST(request: Request) {
       },
       ipAddress,
       userAgent,
+    });
+
+    await sendRequestConfirmationEmail({
+      email,
+      companyName,
+      planName: `${selectedPlan?.name || "InfoSync"} ${selectedPlan?.resolution || ""}`.trim(),
+      screenQuantity,
     });
 
     return NextResponse.json({ id: data.id, success: true });

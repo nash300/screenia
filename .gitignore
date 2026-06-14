@@ -32,6 +32,7 @@ yarn-error.log*
 .codex-run/
 .next-dev*.log
 dev-server*.log
+supabase/.temp/
 
 # env files (can opt-in for committing if needed)
 .env*

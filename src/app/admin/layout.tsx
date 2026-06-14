@@ -1,18 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import "./admin.css";
 import AdminPageTitle from "@/components/AdminPageTitle";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
 import InfoSyncLogo from "@/components/InfoSyncLogo";
-
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: "D" },
-  { href: "/admin/customers", label: "Customers", icon: "C" },
-  { href: "/admin/orders", label: "Orders", icon: "O" },
-  { href: "/admin/inventory", label: "Inventory", icon: "I" },
-  { href: "/admin/devices", label: "Device Manager", icon: "M" },
-  { href: "/admin/pricing", label: "Pricing", icon: "$" },
-];
+import AdminSidebarNav from "@/components/AdminSidebarNav";
 
 export default function AdminLayout({
   children,
@@ -41,25 +34,22 @@ export default function AdminLayout({
           </div>
         </div>
 
-        <nav className="relative flex-1 space-y-2 px-4">
-          {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="admin-nav-link">
-              <span className="admin-nav-icon">{item.icon}</span>
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
+        <AdminSidebarNav />
 
         <div className="admin-sidebar-footer">
           <p className="admin-sidebar-kicker">InfoSync</p>
           <p className="admin-sidebar-version">Version 0.1</p>
         </div>
-        <AdminPageTitle />
+          <Suspense fallback={null}>
+            <AdminPageTitle />
+          </Suspense>
       </aside>
 
       <main className="ml-72 min-h-screen">
         <div className="admin-page">
-          <AdminBreadcrumbs />
+          <Suspense fallback={null}>
+            <AdminBreadcrumbs />
+          </Suspense>
           {children}
         </div>
       </main>

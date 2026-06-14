@@ -277,7 +277,7 @@
 .landing-page {
   --landing-font-body: "Open Sans", Arial, Helvetica, sans-serif;
   --landing-font-ui: var(--font-plus-jakarta), "Plus Jakarta Sans", "Open Sans", Arial, Helvetica, sans-serif;
-  --landing-font-display: var(--font-plus-jakarta), "Plus Jakarta Sans", "Open Sans", Arial, Helvetica, sans-serif;
+  --landing-font-display: var(--font-bubblegum-sans), "Bubblegum Sans", var(--font-plus-jakarta), "Plus Jakarta Sans", "Open Sans", Arial, Helvetica, sans-serif;
   --landing-bg: #f8fbff;
   --landing-card: #ffffff;
   --landing-primary: #2f7df6;
@@ -306,6 +306,17 @@
   color: var(--landing-ink);
   font-family: var(--landing-font-body);
   padding-top: 0;
+}
+
+.landing-page h1,
+.landing-page h2,
+.landing-page h3,
+.landing-page h4,
+.landing-page h5,
+.landing-page h6 {
+  font-family: var(--landing-font-display);
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .landing-page a {
@@ -1742,9 +1753,10 @@
 
 .landing-price-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(2, minmax(230px, 285px));
+  gap: 28px;
   align-items: stretch;
+  justify-content: center;
   margin-top: 28px;
 }
 
@@ -1817,14 +1829,14 @@
   isolation: isolate;
   display: flex;
   flex-direction: column;
-  min-height: 596px;
+  min-height: 520px;
   overflow: hidden;
   border: 0;
-  border-radius: 20px;
+  border-radius: 8px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92)),
     #ffffff;
-  padding: 0 22px 22px;
+  padding: 24px 22px 22px;
   box-shadow:
     0 24px 58px rgba(6, 25, 66, 0.14),
     0 8px 0 rgba(6, 25, 66, 0.03);
@@ -1920,10 +1932,11 @@
 .landing-plan-device {
   position: relative;
   display: grid;
-  min-height: 146px;
+  min-height: 142px;
   place-items: center;
-  margin: 0 -22px 16px;
+  margin: 10px -12px 16px;
   overflow: hidden;
+  border-radius: 12px;
   background:
     radial-gradient(circle at 54% 42%, rgba(255, 255, 255, 0.28), transparent 34%),
     linear-gradient(135deg, #2f7df6, #123bd6 78%);
@@ -1972,14 +1985,16 @@
 
 .landing-plan-heading {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 14px;
+  min-height: 42px;
 }
 
 .landing-price-card h3 {
-  margin-top: 10px;
-  font-size: 0.98rem;
+  margin: 0;
+  font-size: 1.28rem;
+  text-transform: uppercase;
 }
 
 .landing-plan-heading p {
@@ -2001,13 +2016,14 @@
 }
 
 .landing-plan-description {
-  min-height: 36px;
-  margin: 10px 0;
+  min-height: 0;
+  margin: 6px 0 10px;
+  text-align: center;
 }
 
 .landing-plan-price {
-  margin: 6px 0 14px;
-  border-radius: 16px;
+  margin: 8px 0 12px;
+  border-radius: 10px;
   background:
     linear-gradient(135deg, rgba(59, 130, 246, 0.18), transparent 46%),
     #eef5ff;
@@ -2025,7 +2041,7 @@
 .landing-plan-price strong {
   display: block;
   color: var(--landing-text);
-  font-size: clamp(1.9rem, 3.1vw, 2.42rem);
+  font-size: clamp(2rem, 3vw, 2.5rem);
   font-weight: 950;
   line-height: 1;
 }
@@ -2073,15 +2089,17 @@
 .landing-price-card ul {
   display: grid;
   align-content: start;
-  gap: 6px;
-  margin: 13px 0 18px;
+  gap: 5px;
+  margin: 8px 0 10px;
   padding: 0;
   list-style: none;
+  text-align: center;
 }
 
 .landing-price-card .landing-button {
   margin-top: auto;
-  align-self: start;
+  align-self: center;
+  min-width: 158px;
 }
 
 .landing-pricing-note {
@@ -4336,6 +4354,57 @@
   box-shadow: 0 0 0 4px rgba(47, 125, 246, 0.14);
 }
 
+.account-card.is-active {
+  border-color: rgba(47, 125, 246, 0.48);
+  background:
+    linear-gradient(135deg, rgba(47, 125, 246, 0.12), rgba(244, 182, 63, 0.1)),
+    #ffffff;
+  box-shadow: 0 18px 42px rgba(47, 125, 246, 0.14);
+}
+
+.account-status-timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.account-status-step {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  border: 1px solid rgba(122, 145, 178, 0.18);
+  border-radius: 14px;
+  background: #f8fbff;
+  padding: 13px;
+}
+
+.account-status-step > span {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 999px;
+  background: #dbe8ff;
+  color: var(--landing-blue-900);
+  font-weight: 950;
+}
+
+.account-status-step.is-done > span {
+  background: var(--landing-primary);
+  color: #ffffff;
+}
+
+.account-status-step strong {
+  display: block;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-weight: 950;
+}
+
+.account-status-step p {
+  margin: 4px 0 0;
+}
+
 .account-upload-workspace {
   display: grid;
   grid-template-columns: minmax(280px, 1.1fr) minmax(280px, 0.9fr);
@@ -4517,6 +4586,12 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
+}
+
+.landing-page :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--landing-font-display) !important;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 @media (max-width: 1040px) {

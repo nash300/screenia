@@ -35,14 +35,30 @@ export async function getCustomerForUser(
   if (!user?.email) return null;
 
   const baseCustomerSelect =
-    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at";
+    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes";
+  const extendedCustomerSelect =
+    `${baseCustomerSelect}, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback`;
+
+  const loadCustomer = async (field: "auth_user_id" | "email", value: string) => {
+    const result = await client
+      .from("customers")
+      .select(extendedCustomerSelect)
+      .eq(field, value)
+      .maybeSingle();
+
+    if (result.error?.code === "PGRST204" || result.error?.code === "42703") {
+      return client
+        .from("customers")
+        .select(baseCustomerSelect)
+        .eq(field, value)
+        .maybeSingle();
+    }
+
+    return result;
+  };
 
   if (user.id) {
-    const { data, error } = await client
-      .from("customers")
-      .select(baseCustomerSelect)
-      .eq("auth_user_id", user.id)
-      .maybeSingle();
+    const { data, error } = await loadCustomer("auth_user_id", user.id);
 
     if (error && error.code !== "PGRST204" && error.code !== "42703") {
       console.error("Customer account auth lookup error:", error);
@@ -51,11 +67,7 @@ export async function getCustomerForUser(
     if (data) return data;
   }
 
-  const { data, error } = await client
-    .from("customers")
-    .select(baseCustomerSelect)
-    .eq("email", user.email)
-    .maybeSingle();
+  const { data, error } = await loadCustomer("email", user.email);
 
   if (error) {
     console.error("Customer account email lookup error:", error);

@@ -10,11 +10,6 @@ import {
   CURRENT_PRIVACY_DOCUMENT,
   CURRENT_TERMS_DOCUMENT,
 } from "@/lib/legal/documents";
-import {
-  saveDisplayAssets,
-  validateDisplayAssetRequest,
-  type DisplayFileInput,
-} from "@/lib/server/display-assets";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,10 +37,6 @@ export async function POST(request: Request) {
   const marketingConsent = Boolean(body.marketingConsent);
   const analyticsConsent = Boolean(body.analyticsConsent);
   const remoteSupportConsent = Boolean(body.remoteSupportConsent);
-  const displayNotes = String(body.displayNotes || "").trim();
-  const displayFiles = Array.isArray(body.displayFiles)
-    ? (body.displayFiles as DisplayFileInput[])
-    : [];
   const ipAddress = getRequestIp(request);
   const userAgent = request.headers.get("user-agent");
 
@@ -62,7 +53,7 @@ export async function POST(request: Request) {
 
   if (!organisationNumber || !address || !city) {
     return NextResponse.json(
-      { error: "Organisationsnummer, adress och ort mÃ¥ste anges." },
+      { error: "Organisationsnummer, adress och ort måste anges." },
       { status: 400 },
     );
   }
@@ -76,14 +67,14 @@ export async function POST(request: Request) {
 
   if (!["sverige", "sweden", "se"].includes(country.toLowerCase())) {
     return NextResponse.json(
-      { error: "InfoSync tar bara emot bestÃ¤llningar frÃ¥n svenska kunder." },
+      { error: "InfoSync tar bara emot beställningar från svenska kunder." },
       { status: 400 },
     );
   }
 
   if (!["email", "phone", "sms"].includes(preferredContactChannel)) {
     return NextResponse.json(
-      { error: "VÃ¤lj ett giltigt kontaktsÃ¤tt." },
+      { error: "Välj ett giltigt kontaktsätt." },
       { status: 400 },
     );
   }
@@ -95,14 +86,9 @@ export async function POST(request: Request) {
     );
   }
 
-  const assetValidation = validateDisplayAssetRequest(displayFiles, displayNotes);
-  if (assetValidation.error) {
-    return NextResponse.json({ error: assetValidation.error }, { status: 400 });
-  }
-
   const { data: customer, error: customerError } = await supabaseAdmin
     .from("customers")
-    .select("id, name, email, notes, onboarding_token_expires_at")
+    .select("id, name, email, onboarding_token_expires_at")
     .eq("onboarding_token", token)
     .single();
 
@@ -121,14 +107,6 @@ export async function POST(request: Request) {
   }
 
   const acceptedAt = new Date().toISOString();
-  const currentNotes = String(customer.notes || "").trim();
-  const nextNotes =
-    [
-      currentNotes,
-      displayNotes ? `Display material notes: ${displayNotes}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n") || null;
 
   const { error: updateError } = await supabaseAdmin
     .from("customers")
@@ -146,20 +124,9 @@ export async function POST(request: Request) {
       preferred_contact_channel: preferredContactChannel,
       remote_support_consent: remoteSupportConsent,
       analytics_consent: analyticsConsent,
-      search_keywords: [
-        customer.name,
-        customer.email,
-        contactPerson,
-        organisationNumber,
-        businessCategory,
-        city,
-      ]
-        .filter(Boolean)
-        .join(" "),
       terms_accepted_at: acceptedAt,
       privacy_accepted_at: acceptedAt,
       marketing_consent: marketingConsent,
-      notes: nextNotes,
       status: "accepted_terms",
     })
     .eq("id", customer.id);
@@ -168,24 +135,6 @@ export async function POST(request: Request) {
     console.error("Complete onboarding profile error:", updateError);
     return NextResponse.json(
       { error: "Det gick inte att spara uppgifterna." },
-      { status: 500 },
-    );
-  }
-
-  let storedFiles: string[] = [];
-  try {
-    const result = await saveDisplayAssets({
-      supabase: supabaseAdmin,
-      customerId: customer.id,
-      files: displayFiles,
-      description: displayNotes,
-      source: "onboarding",
-    });
-    storedFiles = result.storedFiles;
-  } catch (error) {
-    console.error("Display asset upload failed:", error);
-    return NextResponse.json(
-      { error: "Det gick inte att spara skärmmaterialet." },
       { status: 500 },
     );
   }
@@ -257,8 +206,8 @@ export async function POST(request: Request) {
       consentType: "analytics",
       granted: analyticsConsent,
       statement:
-        "InfoSync fÃ¥r anvÃ¤nda order- och anvÃ¤ndningsdata fÃ¶r statistik och fÃ¶rbÃ¤ttring av tjÃ¤nsten.",
-      documentName: "Samtycke till statistik och tjÃ¤nstefÃ¶rbÃ¤ttring",
+        "InfoSync får använda order- och användningsdata för statistik och förbättring av tjänsten.",
+      documentName: "Samtycke till statistik och tjänsteförbättring",
       documentVersion: "2026-06-04",
       collectionPoint: "customer_onboarding",
       ipAddress,
@@ -269,8 +218,8 @@ export async function POST(request: Request) {
       consentType: "remote_support",
       granted: remoteSupportConsent,
       statement:
-        "InfoSync fÃ¥r kontakta kunden och ge fjÃ¤rrsupport nÃ¤r kunden ber om hjÃ¤lp.",
-      documentName: "Samtycke till fjÃ¤rrsupport",
+        "InfoSync får kontakta kunden och ge fjärrsupport när kunden ber om hjälp.",
+      documentName: "Samtycke till fjärrsupport",
       documentVersion: "2026-06-04",
       collectionPoint: "customer_onboarding",
       ipAddress,
@@ -280,7 +229,7 @@ export async function POST(request: Request) {
       customerId: customer.id,
       actorType: "customer",
       eventType: "onboarding_profile_completed",
-      eventDescription: "Customer completed profile, legal consent, and material step.",
+      eventDescription: "Customer completed profile and legal consent before payment.",
       metadata: {
         acceptedTerms,
         acceptedPrivacy,
@@ -289,8 +238,6 @@ export async function POST(request: Request) {
         remoteSupportConsent,
         termsVersion: CURRENT_TERMS_DOCUMENT.version,
         privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
-        displayNotesProvided: Boolean(displayNotes),
-        displayFiles: storedFiles,
       },
       ipAddress,
       userAgent,

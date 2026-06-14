@@ -2,6 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 
@@ -28,12 +29,22 @@ type DeviceDetails = {
 
 type DeviceSection = "overview" | "details" | "preview" | "media" | "display";
 
+const deviceSectionIds: DeviceSection[] = [
+  "overview",
+  "details",
+  "preview",
+  "media",
+  "display",
+];
+
 export default function AdminDevicePage({
   params,
 }: {
   params: Promise<{ deviceId: string }>;
 }) {
   const { deviceId } = use(params);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [deviceUuid, setDeviceUuid] = useState<string | null>(null);
   const [deviceName, setDeviceName] = useState("");
@@ -310,6 +321,19 @@ export default function AdminDevicePage({
     loadDeviceAndPlaylist();
   }, [deviceId]);
 
+  useEffect(() => {
+    const section = searchParams.get("section");
+    if (deviceSectionIds.includes(section as DeviceSection)) {
+      setActiveSection(section as DeviceSection);
+    }
+  }, [searchParams]);
+
+  const navigateToSection = (section: DeviceSection) => {
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.set("section", section);
+    router.push(`/admin/devices/${deviceId}?${nextParams.toString()}`);
+  };
+
   if (loading) {
     return (
       <div className="admin-card p-6">
@@ -371,7 +395,7 @@ export default function AdminDevicePage({
           <button
             key={section.id}
             type="button"
-            onClick={() => setActiveSection(section.id)}
+            onClick={() => navigateToSection(section.id)}
             className={`admin-section-tab ${
               activeSection === section.id ? "is-active" : ""
             }`}
