@@ -3,8 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { isSupabaseBrowserConfigured, supabase } from "@/lib/supabase/client";
 import InfoSyncLogo from "@/components/InfoSyncLogo";
+
+const missingSupabaseMessage =
+  "Supabase saknas i lokal miljö. Lägg till NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY i .env.local och starta om servern.";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +19,12 @@ export default function AdminLoginPage() {
   const submit = async () => {
     setLoading(true);
     setMessage("");
+
+    if (!isSupabaseBrowserConfigured) {
+      setMessage(missingSupabaseMessage);
+      setLoading(false);
+      return;
+    }
 
     const { error } = await supabase.auth.signInWithPassword({
       email,
