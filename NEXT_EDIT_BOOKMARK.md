@@ -14,7 +14,7 @@ Server: `http://localhost:3000`
 - Current requested test batch status: 5 of 5 tests passed, 0 left.
 - Current remaining QA items:
   - Native Windows file-picker MP4 upload with a real customer video.
-  - Fresh app-generated branded email rendering in Gmail Inbox after the UTF-8/helper-size fix.
+  - Email deliverability/domain verification after buying/verifying a real sending domain.
   - Product decisions for Canva tracking and admin/Stripe pricing sync.
 
 ## Next Edit List
@@ -37,7 +37,8 @@ Current system state:
 - Logged-in admin responsive pass is complete for Dashboard, Customers, Orders, Inventory, Devices, and Pricing at mobile/tablet/desktop sizes.
 - Admin media upload UI is verified for `video/mp4`; the remaining native picker check requires manual Windows file selection.
 - Gmail check found an old manual branded email with oversized helper image and mojibake test copy; fixed the shared email wrapper and Swedish email source strings.
-- Gmail check confirmed a real app quote email renders Swedish characters correctly. A fresh direct branded test went to Spam, where Gmail blocks remote images, so a fresh app-generated Inbox email still needs final image-loading confirmation.
+- Gmail check confirmed a real app quote email renders Swedish characters correctly.
+- Fresh app-generated branded email after the fix also renders Swedish correctly and applies the logo/helper image sizes, but Gmail places current dev/test sender emails in Spam/Bin and blocks remote image URLs there. Remaining email work is deliverability/domain trust, not template rendering.
 
 Recommended future implementation:
 - Add admin/customer cancellation logic:

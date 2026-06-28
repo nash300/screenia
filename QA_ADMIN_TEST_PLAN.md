@@ -403,6 +403,9 @@ Evidence:
 - Fixed in code: Swedish email copy in landing request, quote/onboarding, and onboarding-link routes no longer contains mojibake source strings.
 - Real app quote email `Din InfoSync-offert 1000000009` in Gmail rendered Swedish characters correctly: `Här`, `Skärmenhet`, `Månadsabonnemang`, `Öppna`, `Länken`, and `Vänliga hälsningar`; no mojibake was detected in that app-generated email.
 - Fresh direct branded test email was accepted by Resend with id `2e527e76-2b41-4b5c-83e5-5640d88184c0`, but Gmail placed it in Spam. In Spam, Gmail blocked remote image sources, so image loading could not be fully reverified there; sizing attributes were visible as `220 x 331`.
+- Fresh app-generated landing confirmation email was sent successfully through `/api/onboarding-requests` for customer `6d3bfeda-e15c-4026-818f-9f37c5d71d6a` / `TEST - Gmail Email Render 20260628211036`; response returned `emailSent: true`.
+- Gmail found the fresh app-generated email, but it was also placed in Spam/Bin. The rendered Spam view showed correct Swedish characters with no mojibake and showed the logo/helper placeholders sized correctly: logo `180px` wide and helper `220 x 331`.
+- Conclusion: current app-generated email content and sizing are corrected; full remote image loading in Gmail Inbox still depends on deliverability/domain trust because Gmail blocks remote images for messages it classifies as Spam/Bin.
 
 Observation:
 - Setup-fee refund handling is now technically trackable because the system can distinguish before-layout and after-layout cancellation states.
@@ -410,7 +413,7 @@ Observation:
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, display playback, and upload UI rendering are already verified; only the OS file chooser selection remains.
-- Send or trigger a fresh app-generated branded email after the UTF-8/helper-size fix and confirm it lands in Inbox, loads logo/helper images, and keeps Swedish characters correct. The old Inbox branded image test proved images can load; the real app quote proved Swedish characters render correctly; the fresh direct test went to Spam where Gmail blocks image sources.
+- Improve email deliverability before launch by using a verified domain instead of the Resend test sender; current Gmail test places fresh dev/test emails in Spam/Bin, which blocks remote image loading. Content, UTF-8 Swedish text, and image sizing are now verified.
 - Optionally verify the `Start layout work` button itself in a logged-in browser session; the protected admin route, timestamps, audit event, account data, and subscription fulfillment transition have passed.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
