@@ -249,4 +249,23 @@ Expected:
 - No broken references remain in admin views.
 
 Result:
-- Pending.
+- Pass on 2026-06-28 with synthetic QA customers.
+
+Evidence:
+- Unauthenticated `DELETE /api/admin/customers/5b8b6dfc-4b51-4c47-ac18-c9df355e3ef0` returned HTTP `401` and message `Not authenticated.`
+- Admin session was created through `/auth/session` using the temporary admin QA user.
+- Authenticated `DELETE /api/admin/customers/fabef3bd-cc1b-4606-bb5e-1404ccc125e3` returned HTTP `200` with `{ success: true }`.
+- Authenticated `DELETE /api/admin/customers/5b8b6dfc-4b51-4c47-ac18-c9df355e3ef0` returned HTTP `200` with `{ success: true }`.
+- Deleted email-failure customer id: `fabef3bd-cc1b-4606-bb5e-1404ccc125e3`.
+- Deleted payment-failed customer id: `5b8b6dfc-4b51-4c47-ac18-c9df355e3ef0`.
+- Database verification showed `customers` count `0` for both deleted customers.
+- Database verification showed `0` remaining rows by `customer_id` in `customer_message_files`, `customer_messages`, `customer_display_assets`, `customer_legal_agreements`, `consent_records`, `customer_subscriptions`, and `devices`.
+- Database verification showed `0` lingering `customer_id` references in `admin_notifications`, `audit_events`, `inventory_events`, `inventory_items`, and `videos`.
+- Detached audit history remains with `customer_id: null`, including `customer_deleted`, `customers_delete`, and `customer_subscriptions_delete` events.
+- Admin customer list loaded after deletion without errors.
+- Admin customer list no longer showed `TEST - Email Failure QA 20260628181738` or `TEST - Edge Cases QA 20260628181332`.
+- Admin customer list still showed the main account-portal QA customer `TEST - Account Portal QA 14:27:39`.
+
+Observation:
+- Delete protection, child-row cleanup, log detachment, and admin list rendering passed.
+- Browser automation could not trigger the `window.prompt` confirmation reliably, so the destructive operation was executed through the same protected admin DELETE route using an authenticated admin session cookie.
