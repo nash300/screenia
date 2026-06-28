@@ -316,13 +316,15 @@ Verified so far:
 - Public email asset URLs were verified with HTTP `200` for `brand/infosync-logo-full-dark-bg.png` and `brand/infosync-helper.png`.
 - Follow-up email image test was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `0c4b2dc6-471b-46fd-b21f-e9afcc87e323`.
 - User confirmed the email images now load in Gmail; the helper image was then reduced from full-width to a compact `220px` centered image in the shared email wrapper.
+- Live Supabase `devices.updated_at` alignment was applied through the Supabase SQL editor and verified from the app connection; updating `XACRVK` changed `updated_at` from `2026-06-28T19:37:43.387699+00:00` to `2026-06-28T19:38:10.198654+00:00`.
 - Backend MP4 media upload path was verified with `.tmp/infosync-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
 - Admin media tab now shows `Media (2)` for `XACRVK`.
 - `/display/XACRVK` advanced from the public sample MP4 to the Supabase Storage MP4 URL and played it with readyState `4`, dimensions `960x540`, and no media error.
 - Browser check of `/admin/devices/XACRVK` confirmed the Media tab loads with the MP4-only upload area, disabled `Upload video` button before file selection, and both playlist items listed.
 - Database check confirmed device `XACRVK` is active, customer `a2be5fb4-d4c3-4bff-92f6-5a54ed958d6c` is active, and both playlist rows remain assigned with `updated_at` timestamps.
+- Admin device safety-gate toggle was tested: deactivating `XACRVK` from the admin UI showed success, changed the UI to `Inactive`, and `/display/XACRVK` showed `Display inactive` with no video element.
+- Reactivating `XACRVK` from the admin UI showed success, changed the UI back to `Active`, left the database `is_active` as `true`, updated `devices.updated_at` to `2026-06-28T19:42:26.909704+00:00`, and `/display/XACRVK` resumed video playback with readyState `4`, dimensions `960x540`, and no media error.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
-- Apply/verify the pending `devices.updated_at` alignment on the live Supabase database. The local migration exists, but the live `devices` table still returned `column devices.updated_at does not exist` during the media timestamp check.
