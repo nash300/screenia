@@ -28,28 +28,32 @@ export function renderBrandedEmail({
   intro,
   children,
   footer = "InfoSync",
+  showHelper = true,
 }: {
   eyebrow?: string;
   title: string;
   intro?: string;
   children: string;
   footer?: string;
+  showHelper?: boolean;
 }) {
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
-  const logoUrl = appUrl
-    ? `${appUrl}/brand/infosync-logo-full-dark-bg.png`
-    : "";
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(
+    /\/$/,
+    "",
+  );
+  const emailAssetBase =
+    process.env.NEXT_PUBLIC_EMAIL_ASSET_BASE_URL?.replace(/\/$/, "") ||
+    `${supabaseUrl}/storage/v1/object/public/email-assets`;
+  const logoUrl = `${emailAssetBase}/brand/infosync-logo-full-dark-bg.png`;
+  const helperUrl = `${emailAssetBase}/brand/infosync-helper.png`;
 
   return `
     <div style="margin:0; padding:0; background:#eef6ff;">
       <div style="max-width:680px; margin:0 auto; padding:28px 16px; font-family:Arial, sans-serif; color:#102033; line-height:1.6;">
         <div style="overflow:hidden; border:1px solid #d9e5f7; border-radius:22px; background:#ffffff; box-shadow:0 18px 48px rgba(6,25,66,0.12);">
           <div style="background:#061942; padding:22px 24px;">
-            ${
-              logoUrl
-                ? `<img src="${logoUrl}" alt="InfoSync" width="180" style="display:block; max-width:180px; height:auto;" />`
-                : `<div style="font-family:'Special Elite', Georgia, serif; color:#ffffff; font-size:30px;">InfoSync</div>`
-            }
+            <img src="${logoUrl}" alt="InfoSync" width="180" style="display:block; max-width:180px; height:auto; color:#ffffff; font-family:Arial, sans-serif; font-size:22px; font-weight:700;" />
+            <div style="font-family:'Special Elite', Georgia, serif; color:#ffffff; font-size:0; line-height:0;">InfoSync</div>
           </div>
           <div style="padding:26px 24px 8px;">
             ${
@@ -64,6 +68,13 @@ export function renderBrandedEmail({
                 : ""
             }
           </div>
+          ${
+            showHelper
+              ? `<div style="padding:8px 24px 0;">
+                  <img src="${helperUrl}" alt="InfoSync hjälper dig med skärmen" width="632" style="display:block; width:100%; max-width:632px; height:auto; border-radius:18px; background:#0f63f4;" />
+                </div>`
+              : ""
+          }
           <div style="padding:12px 24px 26px;">
             ${children}
           </div>

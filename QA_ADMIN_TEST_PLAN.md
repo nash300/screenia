@@ -311,10 +311,14 @@ Verified so far:
 - Admin media tab now shows `Media (1)` for `XACRVK`, and `/display/XACRVK` still plays the assigned MP4 after schema alignment.
 - Quote/onboarding and standalone onboarding-link emails now use the shared branded InfoSync email wrapper.
 - Branded email sample was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `fc673bc7-b3ac-4ced-b97b-e58cc7751dd9`.
+- Gmail visual check showed the first branded email could not load the logo because email clients cannot fetch `localhost` images.
+- Email-safe brand assets were uploaded to public Supabase Storage bucket `email-assets` and the shared email wrapper now uses those HTTPS URLs for the logo and InfoSync helper image.
+- Public email asset URLs were verified with HTTP `200` for `brand/infosync-logo-full-dark-bg.png` and `brand/infosync-helper.png`.
+- Follow-up email image test was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `0c4b2dc6-471b-46fd-b21f-e9afcc87e323`.
 - Backend MP4 media upload path was verified with `.tmp/infosync-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
 - Admin media tab now shows `Media (2)` for `XACRVK`.
 - `/display/XACRVK` advanced from the public sample MP4 to the Supabase Storage MP4 URL and played it with readyState `4`, dimensions `960x540`, and no media error.
 
 Remaining:
 - Verify native browser file-picker MP4 upload manually with a real customer video file.
-- Visually confirm the received branded email rendering in `nadeesha7314@gmail.com`.
+- Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
