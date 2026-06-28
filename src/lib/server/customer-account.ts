@@ -37,7 +37,7 @@ export async function getCustomerForUser(
   const baseCustomerSelect =
     "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes";
   const extendedCustomerSelect =
-    `${baseCustomerSelect}, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback`;
+    `${baseCustomerSelect}, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback, production_status, layout_started_at, setup_fee_locked_at`;
 
   const loadCustomer = async (
     field: "id" | "auth_user_id" | "email",

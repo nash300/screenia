@@ -39,6 +39,9 @@ type Customer = {
   payment_status: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  production_status: string | null;
+  layout_started_at: string | null;
+  setup_fee_locked_at: string | null;
   activated_at: string | null;
   inactive_reason: string | null;
   cancelled_at: string | null;
@@ -204,6 +207,9 @@ const normalizeCustomer = (row: Partial<Customer>): Customer => ({
   payment_status: row.payment_status ?? null,
   stripe_customer_id: row.stripe_customer_id ?? null,
   stripe_subscription_id: row.stripe_subscription_id ?? null,
+  production_status: row.production_status ?? null,
+  layout_started_at: row.layout_started_at ?? null,
+  setup_fee_locked_at: row.setup_fee_locked_at ?? null,
   activated_at: row.activated_at ?? null,
   inactive_reason: row.inactive_reason ?? null,
   cancelled_at: row.cancelled_at ?? null,
@@ -301,6 +307,15 @@ export default function CustomerDetailPage({
     return "None";
   };
 
+  const formatProductionStatus = (status: string | null) => {
+    if (status === "layout_started") return "Layout work started";
+    if (status === "ready_for_preview") return "Ready for preview";
+    if (status === "approved") return "Approved";
+    if (status === "published") return "Published";
+    if (status === "not_started") return "Not started";
+    return status ? status.replaceAll("_", " ") : "Not tracked yet";
+  };
+
   const formatDateTime = (value: string | null | undefined) => {
     if (!value) return "Not recorded";
     return new Date(value).toLocaleString("sv-SE");
@@ -351,6 +366,9 @@ export default function CustomerDetailPage({
         payment_status,
         stripe_customer_id,
         stripe_subscription_id,
+        production_status,
+        layout_started_at,
+        setup_fee_locked_at,
         activated_at,
         inactive_reason,
         cancelled_at,
@@ -863,6 +881,44 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const startLayoutWork = async () => {
+    if (!customer) return;
+    if (
+      !confirm(
+        "Mark layout work as started? This locks the setup/layout fee as non-refundable.",
+      )
+    ) {
+      return;
+    }
+
+    setSaving(true);
+
+    const response = await fetch(`/api/admin/customers/${customer.id}/production`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "start_layout" }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not mark layout work as started.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification(
+      result.alreadyStarted ? "success" : "warning",
+      result.alreadyStarted
+        ? "Layout work was already marked as started."
+        : "Layout work started. Setup fee is now non-refundable.",
+    );
+    setSaving(false);
+  };
+
   const updateCustomerMessage = async (message: CustomerMessage) => {
     const draft = messageDrafts[message.id] || {
       status: message.status,
@@ -1181,6 +1237,10 @@ export default function CustomerDetailPage({
   const currentOnboardingLink = customer.onboarding_token
     ? `/onboarding/${customer.onboarding_token}`
     : "";
+  const productionTrackingReady =
+    customer.production_status !== null ||
+    customer.layout_started_at !== null ||
+    customer.setup_fee_locked_at !== null;
 
   return (
     <div>
@@ -1674,8 +1734,67 @@ export default function CustomerDetailPage({
                 </td>
                 <td>{formatDateTime(customer.cancelled_at)}</td>
               </tr>
+              <tr>
+                <td>Production</td>
+                <td>{formatProductionStatus(customer.production_status)}</td>
+                <td>{formatDateTime(customer.layout_started_at)}</td>
+              </tr>
+              <tr>
+                <td>Setup fee refund boundary</td>
+                <td>
+                  {!productionTrackingReady
+                    ? "Migration needed"
+                    : customer.setup_fee_locked_at
+                    ? "Locked as non-refundable"
+                    : customer.payment_status === "paid"
+                      ? "Refundable until layout work starts"
+                      : "Not paid yet"}
+                </td>
+                <td>{formatDateTime(customer.setup_fee_locked_at)}</td>
+              </tr>
             </tbody>
           </table>
+        </div>
+
+        <div
+          className={`mt-6 rounded-2xl border p-4 ${
+            customer.setup_fee_locked_at
+              ? "border-amber-200 bg-amber-50"
+              : "border-blue-200 bg-blue-50"
+          }`}
+        >
+          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+                Refund rule
+              </p>
+              <h3 className="mt-1 text-lg font-black text-slate-950">
+                {customer.setup_fee_locked_at
+                  ? "Layout work has started"
+                  : !productionTrackingReady
+                    ? "Production tracking migration is needed"
+                  : "Setup fee still refundable before production starts"}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                {customer.setup_fee_locked_at
+                  ? `Started ${formatDateTime(customer.layout_started_at)}. The setup/layout fee is marked non-refundable from this point.`
+                  : !productionTrackingReady
+                    ? "Apply the latest Supabase migration before using the layout-start and refund-boundary tools."
+                  : "If the customer cancels before layout work starts, the setup/layout fee can still be handled as refundable. Mark layout work started only when production actually begins."}
+              </p>
+            </div>
+
+            {productionTrackingReady && !customer.setup_fee_locked_at && customer.payment_status === "paid" && (
+              <button
+                type="button"
+                onClick={startLayoutWork}
+                disabled={saving}
+                className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Mark layout work started"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="mt-6">

@@ -36,6 +36,9 @@ type AccountData = {
     preview_status: string | null;
     preview_url: string | null;
     preview_feedback: string | null;
+    production_status: string | null;
+    layout_started_at: string | null;
+    setup_fee_locked_at: string | null;
   };
   subscriptions: Array<{
     id: string;
@@ -224,6 +227,8 @@ function statusLabel(value: string | null) {
   if (value === "customer_reply") return "Kundsvar";
   if (value === "in_progress") return "Pågår";
   if (value === "resolved") return "Löst";
+  if (value === "layout_started") return "Layoutarbete startat";
+  if (value === "not_started") return "Ej startat";
   return value || "-";
 }
 
@@ -240,6 +245,7 @@ function journeySteps(data: AccountData) {
   const paymentStatus = data.customer.payment_status;
   const fulfillment = subscription?.fulfillment_status;
   const inventory = subscription?.inventory_status;
+  const productionStatus = data.customer.production_status;
   const hasDevice = data.devices.length > 0;
   const hasContent = data.displayAssets.length > 0 || customerStatus === "content_received";
 
@@ -267,7 +273,9 @@ function journeySteps(data: AccountData) {
     {
       label: "Förhandsvisning",
       detail: "InfoSync tar fram första skärmförslaget.",
-      done: ["preview_approved", "in_production", "ready_to_ship", "shipped", "completed"].includes(fulfillment || ""),
+      done:
+        productionStatus === "layout_started" ||
+        ["layout_started", "preview_approved", "in_production", "ready_to_ship", "shipped", "completed"].includes(fulfillment || ""),
     },
     {
       label: "Hårdvara",
@@ -644,6 +652,35 @@ export default function AccountPage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </AccountCard>
+
+              <AccountCard title="Setup och avbokning">
+                <div
+                  className={`account-policy-card ${
+                    data.customer.setup_fee_locked_at ? "is-locked" : "is-open"
+                  }`}
+                >
+                  <strong>
+                    {data.customer.setup_fee_locked_at
+                      ? "Layoutarbetet har startat"
+                      : "Layoutarbetet har inte startat ännu"}
+                  </strong>
+                  <p>
+                    {data.customer.setup_fee_locked_at
+                      ? `Startavgiften är markerad som ej återbetalningsbar från ${date(data.customer.setup_fee_locked_at)}.`
+                      : "Om du avbokar innan InfoSync har startat layoutarbetet kan startavgiften hanteras som återbetalningsbar."}
+                  </p>
+                </div>
+                <div className="account-facts">
+                  <Fact
+                    label="Produktion"
+                    value={statusLabel(data.customer.production_status || "not_started")}
+                  />
+                  <Fact
+                    label="Startat"
+                    value={date(data.customer.layout_started_at)}
+                  />
                 </div>
               </AccountCard>
 

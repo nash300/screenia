@@ -357,10 +357,16 @@ Verified so far:
 - Unauthorized delete protection was tested against `/api/admin/customers/00000000-0000-0000-0000-000000000000`; with no admin session it returned HTTP `401` and `Not authenticated.`
 - `npx tsc --noEmit` passed.
 - `npm run lint` passed with warnings only. Existing warnings are unused variables in `public/sw.js`, existing exhaustive-deps warnings in admin/display pages, and existing `<img>` optimization warnings.
+- Added production/refund-boundary tracking for setup/layout work. Supabase migration `202606280004_production_refund_boundary.sql` adds `customers.production_status`, `layout_started_at`, and `setup_fee_locked_at`.
+- Applied the production/refund-boundary migration in the Supabase SQL editor and verified the live database accepts `production_status`, `layout_started_at`, and `setup_fee_locked_at`.
+- Added admin-only API route `/api/admin/customers/[customerId]/production` for `start_layout`; unauthenticated/non-admin POST returned HTTP `401`.
+- Customer portal smoke test confirmed the overview page shows `Setup och avbokning`, production status `Ej startat`, the refundable-before-layout-start message, and no horizontal overflow.
+- Payment success page smoke test confirmed the old `Till inloggning` button is gone; it now shows `Servicevillkor` and `Jag har redan skapat lösenord`, with no horizontal overflow.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, and display playback are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
 - Run a logged-in admin responsive pass after signing into `/admin-login`; the current browser session is a customer session, and correctly redirects admin routes away from the customer.
+- Run the `Start layout work` admin button in a logged-in admin session against a test customer, then verify the timestamp, audit event `layout_work_started`, customer portal locked/refundable message, and subscription `fulfillment_status: layout_started`.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.

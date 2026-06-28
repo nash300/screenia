@@ -26,13 +26,14 @@ Business rule to add:
 - Once layout/design work starts, the setup/layout fee should be marked non-refundable.
 
 Current system state:
-- Existing flow tracks `quote_sent`, `checkout_started`, `paid`, `content_received`, `active`, `completed`, and cancellation/payment failure states.
-- There is no dedicated `layout_started`, `design_started`, or `setup_fee_locked` status/timestamp.
-- Admin can cancel a Stripe subscription, but the app does not yet provide a refund workflow for cancelling before layout/design work starts.
+- Added migration `202606280004_production_refund_boundary.sql`.
+- Live Supabase now has `customers.production_status`, `layout_started_at`, and `setup_fee_locked_at`.
+- Added admin-only route `/api/admin/customers/[customerId]/production` with action `start_layout`.
+- Customer portal now shows the setup/refund boundary card.
+- Payment success page no longer presents login as the primary next action.
 
 Recommended future implementation:
-- Add explicit production fields, for example `production_status`, `layout_started_at`, `setup_fee_locked_at`, and `cancelled_before_work_started_at`.
-- Add admin action: `Start layout work`, with a warning that this locks the setup fee as non-refundable.
+- Run the `Start layout work` admin button in a logged-in admin session against a test customer and verify audit/timestamps.
 - Add admin/customer cancellation logic:
   - Before `layout_started_at`: allow cancellation and guide/admin-trigger Stripe refund for setup fee if already paid.
   - After `layout_started_at`: allow subscription cancellation, but show setup/layout fee as non-refundable.
@@ -47,11 +48,9 @@ Current page:
 Question:
 - The customer may not have an activated account/password at this moment, so the login button can be confusing.
 
-Recommended future change:
-- Primary message should tell the customer to check email and set the password.
-- Keep `Servicevillkor`.
-- Replace the primary `Till inloggning` button with something like `Öppna din e-post` only if using `mailto:` is useful, or use no primary button.
-- Optionally keep a smaller secondary link: `Har du redan skapat lösenord? Logga in`.
+Implemented:
+- Primary action is now `Servicevillkor`.
+- Login is now secondary text: `Jag har redan skapat lösenord`.
 
 ### Customer Profile Page Styling
 
@@ -68,4 +67,3 @@ Recommended future change:
   - better empty states,
   - consistent Special Elite customer-facing headings,
   - responsive polish for mobile/tablet.
-

@@ -16,14 +16,14 @@ export default function PaymentSuccessPage() {
             aktivera kontot.
           </p>
           <div className="flow-result-actions">
-            <Link href="/login" className="landing-button landing-button-primary">
-              Till inloggning
-            </Link>
             <Link
               href="/support-service-policy"
-              className="landing-button landing-button-secondary"
+              className="landing-button landing-button-primary"
             >
               Servicevillkor
+            </Link>
+            <Link href="/login" className="landing-button landing-button-secondary">
+              Jag har redan skapat l&ouml;senord
             </Link>
           </div>
         </section>
