@@ -328,7 +328,11 @@ Verified so far:
 - Admin tracking save was tested on dress rehearsal order `1000000009`. Initial save exposed a bug where saving tracking on a `completed` order downgraded fulfillment to `shipped`.
 - Fixed in code: saving tracking now preserves terminal fulfillment states `completed` and `cancelled`; it only auto-marks `shipped` for non-terminal orders.
 - Retest saved tracking number `QA-XACRVK-FIX-1782675926743` and URL `https://example.com/track/QA-XACRVK-FIX-1782675926743`; database verification showed order `1000000009` stayed `completed` and `updated_at` changed to `2026-06-28T19:45:27.098957+00:00`.
+- Product gap: no Canva-specific assignment/integration workflow was found. Today the system tracks customer content setup, preview status/URL, admin device assignment, video upload, playlist assignment, and display playback; Canva design/assignment remains an external admin production step.
+- Product gap: admin Pricing page is currently informational/static from local pricing constants. Stripe Checkout uses the current app pricing data with dynamic `price_data`, so old Stripe Price IDs should not drive checkout, but pricing is not yet editable or synced from the admin UI.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
+- Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
+- Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
