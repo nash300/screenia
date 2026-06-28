@@ -397,7 +397,12 @@ Evidence:
 - The logged-in admin responsive pass found no admin redirects, no page-level horizontal overflow, and no browser console errors.
 - Customers table content remains wider than mobile/tablet viewports, but it stays contained as an admin data table and does not create page-level horizontal overflow.
 - Admin device media page `/admin/devices/XACRVK?section=media` loaded with `Media (2)`, one visible file input accepting `video/mp4`, disabled `Upload video` button before file selection, visible playlist rows, no console errors, and no page overflow.
-- Real Gmail rendering check could not be completed because Gmail required sign-in and displayed CAPTCHA. This must be completed manually after the user signs in to Gmail in the in-app browser.
+- Gmail rendering check resumed after the user signed in.
+- Older manual branded email `InfoSync email image test` in Inbox showed both remote images loading, but the helper image was oversized in that previously sent email and the manual test copy had mojibake.
+- Fixed in code: shared branded email wrapper now declares UTF-8 metadata and constrains the helper image to `220px` width / `331px` height for email clients.
+- Fixed in code: Swedish email copy in landing request, quote/onboarding, and onboarding-link routes no longer contains mojibake source strings.
+- Real app quote email `Din InfoSync-offert 1000000009` in Gmail rendered Swedish characters correctly: `Här`, `Skärmenhet`, `Månadsabonnemang`, `Öppna`, `Länken`, and `Vänliga hälsningar`; no mojibake was detected in that app-generated email.
+- Fresh direct branded test email was accepted by Resend with id `2e527e76-2b41-4b5c-83e5-5640d88184c0`, but Gmail placed it in Spam. In Spam, Gmail blocked remote image sources, so image loading could not be fully reverified there; sizing attributes were visible as `220 x 331`.
 
 Observation:
 - Setup-fee refund handling is now technically trackable because the system can distinguish before-layout and after-layout cancellation states.
@@ -405,7 +410,7 @@ Observation:
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, display playback, and upload UI rendering are already verified; only the OS file chooser selection remains.
-- Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com` after signing in to Gmail, especially that the logo/helper image load and Swedish characters display correctly.
+- Send or trigger a fresh app-generated branded email after the UTF-8/helper-size fix and confirm it lands in Inbox, loads logo/helper images, and keeps Swedish characters correct. The old Inbox branded image test proved images can load; the real app quote proved Swedish characters render correctly; the fresh direct test went to Spam where Gmail blocks image sources.
 - Optionally verify the `Start layout work` button itself in a logged-in browser session; the protected admin route, timestamps, audit event, account data, and subscription fulfillment transition have passed.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.

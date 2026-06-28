@@ -14,7 +14,7 @@ Server: `http://localhost:3000`
 - Current requested test batch status: 5 of 5 tests passed, 0 left.
 - Current remaining QA items:
   - Native Windows file-picker MP4 upload with a real customer video.
-  - Visual confirmation of latest real Gmail email rendering after signing in to Gmail.
+  - Fresh app-generated branded email rendering in Gmail Inbox after the UTF-8/helper-size fix.
   - Product decisions for Canva tracking and admin/Stripe pricing sync.
 
 ## Next Edit List
@@ -36,6 +36,8 @@ Current system state:
 - Cancellation code now preserves app/customer/admin cancellation source when the Stripe deleted-subscription webhook arrives later.
 - Logged-in admin responsive pass is complete for Dashboard, Customers, Orders, Inventory, Devices, and Pricing at mobile/tablet/desktop sizes.
 - Admin media upload UI is verified for `video/mp4`; the remaining native picker check requires manual Windows file selection.
+- Gmail check found an old manual branded email with oversized helper image and mojibake test copy; fixed the shared email wrapper and Swedish email source strings.
+- Gmail check confirmed a real app quote email renders Swedish characters correctly. A fresh direct branded test went to Spam, where Gmail blocks remote images, so a fresh app-generated Inbox email still needs final image-loading confirmation.
 
 Recommended future implementation:
 - Add admin/customer cancellation logic:

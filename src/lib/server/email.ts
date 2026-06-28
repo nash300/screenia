@@ -47,7 +47,13 @@ export function renderBrandedEmail({
   const logoUrl = `${emailAssetBase}/brand/infosync-logo-full-dark-bg.png`;
   const helperUrl = `${emailAssetBase}/brand/infosync-helper.png`;
 
-  return `
+  return `<!doctype html>
+    <html lang="sv">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body style="margin:0; padding:0; background:#eef6ff;">
     <div style="margin:0; padding:0; background:#eef6ff;">
       <div style="max-width:680px; margin:0 auto; padding:28px 16px; font-family:Arial, sans-serif; color:#102033; line-height:1.6;">
         <div style="overflow:hidden; border:1px solid #d9e5f7; border-radius:22px; background:#ffffff; box-shadow:0 18px 48px rgba(6,25,66,0.12);">
@@ -71,7 +77,7 @@ export function renderBrandedEmail({
           ${
             showHelper
               ? `<div style="padding:12px 24px 0; text-align:center;">
-                  <img src="${helperUrl}" alt="InfoSync hj&auml;lper dig med sk&auml;rmen" width="220" style="display:inline-block; width:220px; max-width:68%; height:auto; border-radius:16px; background:#0f63f4;" />
+                  <img src="${helperUrl}" alt="InfoSync hj&auml;lper dig med sk&auml;rmen" width="220" height="331" style="display:inline-block; width:220px !important; max-width:220px !important; height:auto !important; border-radius:16px; background:#0f63f4;" />
                 </div>`
               : ""
           }
@@ -84,6 +90,8 @@ export function renderBrandedEmail({
         </div>
       </div>
     </div>
+      </body>
+    </html>
   `;
 }
 
