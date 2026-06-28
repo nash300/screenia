@@ -39,7 +39,10 @@ export async function getCustomerForUser(
   const extendedCustomerSelect =
     `${baseCustomerSelect}, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback`;
 
-  const loadCustomer = async (field: "auth_user_id" | "email", value: string) => {
+  const loadCustomer = async (
+    field: "id" | "auth_user_id" | "email",
+    value: string,
+  ) => {
     const result = await client
       .from("customers")
       .select(extendedCustomerSelect)
@@ -56,6 +59,23 @@ export async function getCustomerForUser(
 
     return result;
   };
+
+  const metadataCustomerId =
+    typeof user.user_metadata?.customer_id === "string"
+      ? user.user_metadata.customer_id
+      : null;
+
+  if (metadataCustomerId) {
+    const { data, error } = await loadCustomer("id", metadataCustomerId);
+
+    if (error && error.code !== "PGRST204" && error.code !== "42703") {
+      console.error("Customer account metadata lookup error:", error);
+    }
+
+    if (data && data.email?.toLowerCase() === user.email.toLowerCase()) {
+      return data;
+    }
+  }
 
   if (user.id) {
     const { data, error } = await loadCustomer("auth_user_id", user.id);

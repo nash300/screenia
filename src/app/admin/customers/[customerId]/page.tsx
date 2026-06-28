@@ -2049,12 +2049,12 @@ export default function CustomerDetailPage({
                       for {subscription.device_discount_months || 0} months
                     </p>
                     <p>
-                      Tax: {formatSek(subscription.tax_amount_sek) || "Pending"}{" "}
+                      Tax: {formatStripeSek(subscription.tax_amount_sek) || "Pending"}{" "}
                       ({subscription.tax_status || "not calculated"})
                     </p>
                     <p>
                       Total:{" "}
-                      {formatSek(subscription.total_amount_sek) || "Pending"}
+                      {formatStripeSek(subscription.total_amount_sek) || "Pending"}
                     </p>
                   </div>
                 </div>
@@ -2263,6 +2263,12 @@ function formatSek(amount: number | null) {
   if (amount === null) return "";
 
   return `${amount.toLocaleString("sv-SE")} kr`;
+}
+
+function formatStripeSek(amount: number | null) {
+  if (amount === null) return "";
+
+  return `${(amount / 100).toLocaleString("sv-SE")} kr`;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {

@@ -280,4 +280,37 @@ Expected:
 - Final device display renders assigned content without broken states.
 
 Result:
-- Pending.
+- In progress.
+
+Verified so far:
+- Fresh landing request submitted through the public landing page for `TEST - Dress Rehearsal QA 20260628184005`.
+- New customer created as `10000013` with status `new_request` and requested package `Standard FHD`, quantity `1`.
+- Admin notification created for the new request with priority `high`.
+- Customer confirmation email failed for the plus-address because Resend test mode only allows `nadeesha7314@gmail.com`; urgent admin notification and audit event were created for the failed email.
+- Admin prepared quote/order `1000000009` and sent onboarding to `nadeesha7314@gmail.com`.
+- Customer onboarding profile/legal step accepted and recorded terms, privacy, marketing, analytics, and remote-support consent records with timestamps.
+- Stripe Checkout completed in test mode and redirected to `/onboarding/payment-success?customer_id=a2be5fb4-d4c3-4bff-92f6-5a54ed958d6c`.
+- Customer status is `paid`, `payment_status` is `paid`, and Stripe customer/subscription IDs are stored.
+- Subscription `1000000009` is `paid`, setup fee is paid, Stripe payment status is `paid`, fulfillment status is `content_collection`, and inventory status is `ready_to_reserve`.
+- Audit trail includes `landing_purchase_request_created`, `quote_onboarding_prepared`, `stripe_checkout_started`, and `payment_completed` with timestamps.
+- Admin notification created for `payment_completed` with priority `urgent`.
+- Customer account portal login was verified through the Supabase email-link session for `nadeesha7314@gmail.com`.
+- Account portal resolved to the new paid dress rehearsal customer using Supabase Auth metadata, even though the email had an older QA customer linked by `auth_user_id`.
+- Customer content setup was submitted with InfoSync template choice, business description, opening hours, promotions, social media, and display instructions.
+- Customer moved to `content_received`, preview status moved to `waiting_for_admin`, subscription fulfillment moved to `content_received`, and `content_collected_at` was timestamped.
+- Customer display instructions were stored as a text display asset and appended to customer notes for admin review.
+- Latest content setup audit/admin notification includes `hasDisplayNotes: true`.
+- Admin customer order view originally displayed Stripe checkout total as `239 700 kr`; fixed Stripe total/tax formatting so order `1000000009` now displays `2 397 kr`.
+- Admin device creation was verified for `Scenario 9 Welcome Screen`; device code `XACRVK` was created for the customer and appears active.
+- Display URL safety gate was verified: before customer activation `/display/XACRVK` showed `Display inactive`; after activation and before playlist assignment it showed `No content assigned`.
+- Admin activation moved the customer to `active`, set `activated_at`, and moved the subscription to `active` / fulfillment `completed` / inventory `assigned`.
+- A QA playlist item was attached to device `XACRVK` using a public MP4 sample because no local MP4 or ffmpeg tool was available for browser upload testing.
+- `/display/XACRVK` rendered playable video with a nonblank screenshot, readyState `4`, dimensions `960x540`, and no media error.
+
+Schema observations:
+- Live Supabase `playlists` schema is missing local-migration columns `video_id`, `created_at`, and `updated_at`; the display still works with `id`, `device_id`, `type`, `src`, and `order_index`, but the production database should be aligned before launch.
+
+Remaining:
+- Verify browser-based MP4 upload path with a real customer video file.
+- Align live Supabase schema with local migrations for `playlists`.
+- Style and verify remaining customer-facing emails with the branded InfoSync email wrapper.

@@ -557,7 +557,7 @@ function AdminOrdersContent() {
                   <span>Device {formatSek(order.hardware_fee_sek)}</span>
                   <span>Shipping {formatSek(order.shipping_fee_sek)}</span>
                   <span>Monthly {formatSek(order.monthly_fee_sek)}</span>
-                  <strong>Total {formatSek(order.total_amount_sek)}</strong>
+                  <strong>Total {formatStripeSek(order.total_amount_sek)}</strong>
                 </div>
 
                 {order.quote_notes && (
@@ -647,4 +647,9 @@ function matchesOrderSection(order: OrderRow, section: OrderSection) {
 function formatSek(amount: number | null) {
   if (amount === null) return "pending";
   return `${amount.toLocaleString("sv-SE")} kr`;
+}
+
+function formatStripeSek(amount: number | null) {
+  if (amount === null) return "pending";
+  return `${(amount / 100).toLocaleString("sv-SE")} kr`;
 }

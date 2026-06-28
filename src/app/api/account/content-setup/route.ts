@@ -103,6 +103,7 @@ export async function POST(request: Request) {
       content_option: contentOption,
       content_collected_at: new Date().toISOString(),
       preview_status: "waiting_for_admin",
+      notes: [customer.notes, notesBlock].filter(Boolean).join("\n\n"),
       status: nextStatus,
     })
     .eq("id", customer.id);
@@ -142,6 +143,7 @@ export async function POST(request: Request) {
       hasOpeningHours: Boolean(openingHours),
       hasPromotions: Boolean(promotions),
       hasSocialMedia: Boolean(socialMedia),
+      hasDisplayNotes: Boolean(displayNotes),
     },
     ipAddress,
     userAgent,
@@ -159,6 +161,7 @@ export async function POST(request: Request) {
       hasOpeningHours: Boolean(openingHours),
       hasPromotions: Boolean(promotions),
       hasSocialMedia: Boolean(socialMedia),
+      hasDisplayNotes: Boolean(displayNotes),
     },
   });
 
