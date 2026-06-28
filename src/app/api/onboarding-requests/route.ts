@@ -74,7 +74,7 @@ Vänliga hälsningar,
 InfoSync`,
     html: `
       <div style="font-family: Arial, sans-serif; color: #09244a; line-height: 1.6;">
-        <h1>Förfrågan mottagen</h1>
+          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #09244a;">Förfrågan mottagen</h1>
         <p>Hej ${safeCompanyName},</p>
         <p>Vi har tagit emot din förfrågan och sammanfattningen nedan.</p>
         <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">

@@ -1,4 +1,4 @@
-import { Bubblegum_Sans, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Bubblegum_Sans, Geist_Mono, Plus_Jakarta_Sans, Special_Elite } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,6 +16,12 @@ const geistMono = Geist_Mono({
 
 const bubblegumSans = Bubblegum_Sans({
   variable: "--font-bubblegum-sans",
+  subsets: ["latin"],
+  weight: "400",
+});
+
+const specialElite = Special_Elite({
+  variable: "--font-special-elite",
   subsets: ["latin"],
   weight: "400",
 });
@@ -102,7 +108,7 @@ export default function RootLayout({
     <html
       lang="sv"
       translate="no"
-      className={`${plusJakarta.variable} ${geistMono.variable} ${bubblegumSans.variable} h-full antialiased notranslate`}
+      className={`${plusJakarta.variable} ${geistMono.variable} ${bubblegumSans.variable} ${specialElite.variable} h-full antialiased notranslate`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

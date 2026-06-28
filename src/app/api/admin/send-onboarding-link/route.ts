@@ -205,7 +205,7 @@ ${copy.regards},
 InfoSync`,
       html: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
-          <h1 style="color: #09244a;">${copy.heading}</h1>
+          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #09244a;">${copy.heading}</h1>
           <p>${copy.greeting} ${customerName},</p>
           <p>${copy.body}</p>
           <p>

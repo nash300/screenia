@@ -591,18 +591,26 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            {serviceLogos.length > 0 && (
-              <div className="landing-logo-rail" aria-label="Service logos">
-                <div className="landing-logo-track">
-                  {[...serviceLogos, ...serviceLogos].map((logo, index) => (
-                    <span key={`${logo.label}-${index}`} className="landing-logo-tile">
-                      <img src={logo.src} alt={index < serviceLogos.length ? `${logo.label} logo` : ""} />
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
+          {serviceLogos.length > 0 && (
+            <div className="landing-logo-rail" aria-label="Service logos">
+              <div className="landing-logo-track">
+                {[0, 1, 2].map((group) => (
+                  <div
+                    key={group}
+                    className="landing-logo-group"
+                    aria-hidden={group > 0 ? "true" : undefined}
+                  >
+                    {serviceLogos.map((logo) => (
+                      <span key={`${logo.label}-${group}`} className="landing-logo-tile">
+                        <img src={logo.src} alt={group === 0 ? `${logo.label} logo` : ""} />
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           {heroSlideCount > 1 && (
             <div className="landing-hero-controls" aria-label="Bildspel">
               <button

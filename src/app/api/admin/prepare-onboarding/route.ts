@@ -420,7 +420,7 @@ Vänliga hälsningar,
 InfoSync`,
       html: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
-          <h1 style="color: #082354;">Din InfoSync-offert</h1>
+          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #082354;">Din InfoSync-offert</h1>
           <p>Hej ${safeCustomerName},</p>
           <p>Här är offerten för din beställning. Fortsätt via länken för att bekräfta uppgifter och gå vidare till säker betalning. Material samlas in efter betalning.</p>
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
