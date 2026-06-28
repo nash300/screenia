@@ -2,15 +2,16 @@
 
 Date: 2026-06-28
 Branch: `codex/local-service-setup`
-Current clean commit: `9301687 Record responsive QA and simplify customer deletion`
+Current clean commit: this commit, `Fix cancellation source preservation`
 Server: `http://localhost:3000`
 
 ## Current Status Bookmark
 
 - QA state is recorded in `QA_ADMIN_TEST_PLAN.md`.
-- The latest pushed work fixed tablet navigation overflow and simplified the admin customer deletion warning modal.
+- The latest work verifies refund-boundary tracking and fixes cancellation source preservation.
 - TypeScript passed with `npx tsc --noEmit`.
 - ESLint passed with warnings only.
+- Current requested test batch status: 5 of 5 tests passed, 0 left.
 - Current remaining QA items:
   - Native Windows file-picker MP4 upload with a real customer video.
   - Visual confirmation of latest real Gmail email rendering.
@@ -31,13 +32,16 @@ Current system state:
 - Added admin-only route `/api/admin/customers/[customerId]/production` with action `start_layout`.
 - Customer portal now shows the setup/refund boundary card.
 - Payment success page no longer presents login as the primary next action.
+- Protected admin `start_layout` route was tested successfully and recorded `layout_work_started`.
+- Customer cancellation after layout start and before layout start were both tested successfully against Stripe test subscriptions.
+- Cancellation code now preserves app/customer/admin cancellation source when the Stripe deleted-subscription webhook arrives later.
 
 Recommended future implementation:
-- Run the `Start layout work` admin button in a logged-in admin session against a test customer and verify audit/timestamps.
 - Add admin/customer cancellation logic:
   - Before `layout_started_at`: allow cancellation and guide/admin-trigger Stripe refund for setup fee if already paid.
   - After `layout_started_at`: allow subscription cancellation, but show setup/layout fee as non-refundable.
 - Add audit events for every status change with timestamps.
+- Optional polish: verify the `Start layout work` button itself visually in a logged-in admin browser session; the route/data behavior has passed.
 
 ### Betalning Mottagen Window
 

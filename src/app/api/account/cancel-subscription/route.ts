@@ -43,19 +43,11 @@ export async function POST(request: Request) {
     ? reason
     : "other";
 
-  const subscription = await stripe.subscriptions.retrieve(
-    customer.stripe_subscription_id,
-  );
-
-  if (subscription.status !== "canceled") {
-    await stripe.subscriptions.cancel(customer.stripe_subscription_id);
-  }
-
   const cancelledAt = new Date().toISOString();
   const customerCancellationUpdate = {
     status: "suspended",
     payment_status: "cancelled",
-    inactive_reason: normalizedReason,
+    inactive_reason: "customer_cancelled",
     cancelled_at: cancelledAt,
     cancellation_source: "customer",
   };
@@ -72,10 +64,32 @@ export async function POST(request: Request) {
     customerCancellationResult.error?.code === "42703" ||
     customerCancellationResult.error?.code === "PGRST204"
   ) {
-    await supabaseAdmin
+    const fallbackResult = await supabaseAdmin
       .from("customers")
       .update(customerCancellationUpdate)
       .eq("id", customer.id);
+
+    if (fallbackResult.error) {
+      console.error("Customer cancellation fallback update error:", fallbackResult.error);
+      return NextResponse.json(
+        { error: "Could not update customer cancellation status." },
+        { status: 500 },
+      );
+    }
+  } else if (customerCancellationResult.error) {
+    console.error("Customer cancellation update error:", customerCancellationResult.error);
+    return NextResponse.json(
+      { error: "Could not update customer cancellation status." },
+      { status: 500 },
+    );
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(
+    customer.stripe_subscription_id,
+  );
+
+  if (subscription.status !== "canceled") {
+    await stripe.subscriptions.cancel(customer.stripe_subscription_id);
   }
 
   await Promise.all([

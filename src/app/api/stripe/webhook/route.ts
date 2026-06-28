@@ -275,20 +275,41 @@ export async function POST(request: Request) {
 
     const customerId = subscription.customer;
 
-    const { error } = await supabaseAdmin
+    const { data: customers, error: customerLookupError } = await supabaseAdmin
       .from("customers")
-      .update({
-        status: "suspended",
-        payment_status: "cancelled",
-        inactive_reason: "subscription_cancelled",
-        cancelled_at: new Date().toISOString(),
-        cancellation_source: "stripe",
-      })
+      .select("id, inactive_reason, cancellation_source, cancelled_at")
       .eq("stripe_customer_id", customerId);
 
-    if (error) {
-      console.error("Subscription deleted error:", error);
+    if (customerLookupError) {
+      console.error("Subscription deleted customer lookup error:", customerLookupError);
     } else {
+      const cancelledAt = new Date().toISOString();
+
+      for (const customer of customers || []) {
+        const appInitiatedCancellation =
+          customer.cancellation_source === "customer" ||
+          customer.cancellation_source === "admin";
+
+        const { error } = await supabaseAdmin
+          .from("customers")
+          .update({
+            status: "suspended",
+            payment_status: "cancelled",
+            inactive_reason: appInitiatedCancellation
+              ? customer.inactive_reason || "subscription_cancelled"
+              : "subscription_cancelled",
+            cancelled_at: customer.cancelled_at || cancelledAt,
+            cancellation_source: appInitiatedCancellation
+              ? customer.cancellation_source
+              : "stripe",
+          })
+          .eq("id", customer.id);
+
+        if (error) {
+          console.error("Subscription deleted customer update error:", error);
+        }
+      }
+
       await supabaseAdmin
         .from("customer_subscriptions")
         .update({
@@ -297,13 +318,8 @@ export async function POST(request: Request) {
         })
         .eq("stripe_subscription_id", subscription.id);
 
-      const { data } = await supabaseAdmin
-        .from("customers")
-        .select("id")
-        .eq("stripe_customer_id", customerId);
-
       await Promise.all(
-        (data || []).map((customer) =>
+        (customers || []).map((customer) =>
           recordAuditEvent(supabaseAdmin, {
             customerId: customer.id,
             actorType: "stripe",

@@ -48,6 +48,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { error } = await supabaseAdmin
+      .from("customers")
+      .update({
+        status: "suspended",
+        payment_status: "cancelled",
+        inactive_reason: "subscription_cancelled",
+        cancelled_at: new Date().toISOString(),
+        cancellation_source: "admin",
+      })
+      .eq("id", customerId);
+
+    if (error) {
+      console.error("Supabase cancel update error:", error);
+      return NextResponse.json(
+        { error: "Subscription cancelled, but database update failed" },
+        { status: 500 },
+      );
+    }
+
     try {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId);
 
@@ -66,25 +85,6 @@ export async function POST(request: NextRequest) {
       } else {
         throw err;
       }
-    }
-
-    const { error } = await supabaseAdmin
-      .from("customers")
-      .update({
-        status: "suspended",
-        payment_status: "cancelled",
-        inactive_reason: "subscription_cancelled",
-        cancelled_at: new Date().toISOString(),
-        cancellation_source: "admin",
-      })
-      .eq("id", customerId);
-
-    if (error) {
-      console.error("Supabase cancel update error:", error);
-      return NextResponse.json(
-        { error: "Subscription cancelled, but database update failed" },
-        { status: 500 },
-      );
     }
 
     const { error: subscriptionUpdateError } = await supabaseAdmin

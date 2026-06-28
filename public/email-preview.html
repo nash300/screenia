@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>InfoSync email preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Special+Elite&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        background: #eef6ff;
+        color: #102033;
+        font-family: Arial, sans-serif;
+      }
+
+      .shell {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 28px 16px;
+      }
+
+      .email-card {
+        overflow: hidden;
+        border: 1px solid #d9e5f7;
+        border-radius: 22px;
+        background: #ffffff;
+        box-shadow: 0 18px 48px rgba(6, 25, 66, 0.12);
+      }
+
+      .email-header {
+        background: #061942;
+        padding: 22px 24px;
+      }
+
+      .email-header img {
+        display: block;
+        width: 180px;
+        max-width: 60%;
+        height: auto;
+      }
+
+      .email-body {
+        padding: 26px 24px 8px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: #f47a20;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #09244a;
+        font-family: "Special Elite", Georgia, serif;
+        font-size: 34px;
+        font-weight: 400;
+        line-height: 1.1;
+      }
+
+      .intro {
+        margin: 14px 0 0;
+        color: #526579;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      .helper {
+        padding: 12px 24px 0;
+        text-align: center;
+      }
+
+      .helper img {
+        display: inline-block;
+        width: 220px;
+        max-width: 68%;
+        height: auto;
+        border-radius: 16px;
+        background: #0f63f4;
+      }
+
+      .content {
+        padding: 12px 24px 26px;
+      }
+
+      .summary {
+        border: 1px solid #d9e5f7;
+        border-radius: 16px;
+        background: #f7fbff;
+        padding: 18px;
+        line-height: 1.6;
+      }
+
+      .button {
+        display: inline-block;
+        margin-top: 18px;
+        border-radius: 10px;
+        background: #2878f0;
+        color: #ffffff;
+        font-weight: 700;
+        padding: 12px 18px;
+        text-decoration: none;
+      }
+
+      .footer {
+        border-top: 1px solid #e5eef8;
+        background: #f8fbff;
+        padding: 18px 24px;
+        color: #65788d;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="email-card" aria-label="InfoSync email preview">
+        <header class="email-header">
+          <img src="/brand/infosync-logo-full-dark-bg.png" alt="InfoSync" />
+        </header>
+        <div class="email-body">
+          <p class="eyebrow">E-posttest</p>
+          <h1>InfoSync offert och startguide</h1>
+          <p class="intro">
+            Detta ar ett test av den nya branded email-stilen for
+            kundkommunikation.
+          </p>
+        </div>
+        <div class="helper">
+          <img
+            src="/brand/infosync-helper.png"
+            alt="InfoSync hjalper dig med skarmen"
+          />
+        </div>
+        <div class="content">
+          <div class="summary">
+            <p><strong>Ordernummer:</strong> TEST-EMAIL-20260628</p>
+            <p><strong>Paket:</strong> Standard FHD</p>
+            <p><strong>Startavgift:</strong> 1 599 kr</p>
+            <p><strong>Skarm/enhet:</strong> 699 kr</p>
+            <p><strong>Frakt:</strong> 99 kr</p>
+            <p><strong>Manadsabonnemang:</strong> 249 kr</p>
+          </div>
+          <a class="button" href="/onboarding/test">Oppna startguiden</a>
+          <p class="intro">
+            Lanken i detta test ar inte en riktig onboardinglank.
+          </p>
+        </div>
+        <footer class="footer">InfoSync</footer>
+      </section>
+    </main>
+  </body>
+</html>

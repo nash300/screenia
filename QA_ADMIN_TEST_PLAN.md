@@ -363,10 +363,45 @@ Verified so far:
 - Customer portal smoke test confirmed the overview page shows `Setup och avbokning`, production status `Ej startat`, the refundable-before-layout-start message, and no horizontal overflow.
 - Payment success page smoke test confirmed the old `Till inloggning` button is gone; it now shows `Servicevillkor` and `Jag har redan skapat lösenord`, with no horizontal overflow.
 
+## Scenario 10: Refund Boundary And Cancellation Source Preservation
+
+Expected:
+- Admin can mark layout/design work as started.
+- Starting layout work timestamps the refund boundary and records audit history.
+- Customer portal data shows the setup fee lock once layout work has started.
+- Customer cancellation after layout start preserves the app/customer cancellation source when the Stripe cancellation webhook arrives.
+- Customer cancellation before layout start cancels Stripe and the local subscription while leaving layout/lock timestamps empty.
+
+Result:
+- Pass on 2026-06-28 with synthetic QA customers.
+
+Evidence:
+- Admin `start_layout` route was tested with an authenticated admin session against dress rehearsal customer `a2be5fb4-d4c3-4bff-92f6-5a54ed958d6c`.
+- The route returned HTTP `200` and changed the customer to `production_status: layout_started`.
+- `layout_started_at` and `setup_fee_locked_at` were set to `2026-06-28T20:30:10.271+00:00`.
+- Audit event `layout_work_started` was stored with previous production status `not_started`.
+- Subscription/order `1000000009` moved to `fulfillment_status: layout_started`.
+- Account API verification returned the locked production fields for the same customer.
+- Browser visual verification of that specific locked account message was blocked by an in-app browser automation timeout, but the account API returned the correct data.
+- Cancellation after layout start initially exposed a race where the Stripe `customer.subscription.deleted` webhook overwrote app/customer cancellation source fields.
+- Fixed in code: customer cancellation now stores `inactive_reason: customer_cancelled`, keeps the detailed reason in `cancellation_reason`, persists the local cancellation before calling Stripe, and the Stripe webhook preserves existing `customer` or `admin` cancellation sources.
+- After-lock cancellation retest passed with customer `182bd0fb-4c4f-425f-9e2a-1f05dc3aae3f`, order `1000000017`, Stripe subscription `sub_1TnPViGhi0eDHRQZLPB3f9GV`.
+- After-lock cancellation retest ended with Stripe status `canceled`, customer `status: suspended`, `payment_status: cancelled`, `inactive_reason: customer_cancelled`, `cancellation_reason: technical_issue`, `cancellation_source: customer`, and preserved `production_status: layout_started`.
+- Before-layout cancellation retest passed with customer `aaa9cc01-bd64-4c63-8c7c-ad585765d68c`, subscription/order number `2679641253`, Stripe subscription `sub_1TnPbqGhi0eDHRQZOLBZaLQV`.
+- Before-layout cancellation retest ended with Stripe status `canceled`, local subscription `status: cancelled`, `fulfillment_status: cancelled`, customer `cancellation_source: customer`, `cancellation_reason: temporary_pause`, `production_status: not_started`, and both `layout_started_at` and `setup_fee_locked_at` empty.
+- Public visual smoke test passed for `/`, `/display/XACRVK`, and `/email-preview.html`; no broken images or browser console errors were detected.
+- Landing MP4 loaded with readyState `4` and dimensions `1920x1080`.
+- Display `XACRVK` loaded the assigned Supabase MP4 with readyState `4` and dimensions `960x540`.
+- Static email preview page was restored at `/email-preview.html` so the branded email layout can be checked from the Git-backed project.
+
+Observation:
+- Setup-fee refund handling is now technically trackable because the system can distinguish before-layout and after-layout cancellation states.
+- Actual Stripe refund action/amount decision is still an admin/business workflow decision; no automatic setup-fee refund has been added yet.
+
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, and display playback are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
-- Run a logged-in admin responsive pass after signing into `/admin-login`; the current browser session is a customer session, and correctly redirects admin routes away from the customer.
-- Run the `Start layout work` admin button in a logged-in admin session against a test customer, then verify the timestamp, audit event `layout_work_started`, customer portal locked/refundable message, and subscription `fulfillment_status: layout_started`.
+- Run a logged-in admin responsive pass after signing into `/admin-login`; current automated checks covered protected route/API behavior and public visual pages.
+- Optionally verify the `Start layout work` button itself in a logged-in browser session; the protected admin route, timestamps, audit event, account data, and subscription fulfillment transition have passed.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
