@@ -211,7 +211,34 @@ Expected:
 - Unauthenticated users cannot access admin APIs.
 
 Result:
-- Pending.
+- Pass on 2026-06-28 with synthetic QA customers.
+
+Evidence:
+- Landing request validation rejects invalid plan with HTTP `400` and message `Valj ett giltigt paket.`
+- Landing request validation rejects missing company name with HTTP `400` and message `Foretagsnamn maste anges.`
+- Landing request validation rejects invalid email with HTTP `400` and message `Ange en giltig e-postadress.`
+- Expired onboarding token was tested with customer `TEST - Edge Cases QA 20260628181332`.
+- Expired profile completion returned HTTP `410` and message `Den har startlanken har gatt ut.`
+- Synthetic payment-failed Stripe webhook returned HTTP `200` with `{ received: true }`.
+- Payment-failed customer id: `5b8b6dfc-4b51-4c47-ac18-c9df355e3ef0`.
+- Payment-failed subscription id: `006f4d03-9ed9-4ac0-a61c-b5115493087d`.
+- Payment-failed webhook changed customer status to `suspended`, payment status to `failed`, inactive reason to `payment_failed`, and cancellation source to `stripe`.
+- Payment-failed webhook changed subscription status to `payment_failed` and Stripe payment status to `failed`.
+- Audit event `payment_failed` was stored with timestamp `2026-06-28T18:14:09.762235+00:00`.
+- Stripe webhook without signature returned HTTP `400` and message `Missing signature`.
+- Unauthenticated `GET /api/admin/customer-messages` returned HTTP `401`.
+- Unauthenticated `PATCH /api/admin/customer-messages` returned HTTP `401`.
+- Email failure was tested by temporarily running the server with an intentionally invalid Resend API key.
+- Email-failure customer id: `fabef3bd-cc1b-4606-bb5e-1404ccc125e3`.
+- Landing request returned HTTP `200`, `success: true`, `emailSent: false`, and warning `API key is invalid`.
+- Audit event `request_confirmation_email_failed` was stored with timestamp `2026-06-28T18:17:21.862505+00:00`.
+- Admin notification `Customer email not sent` was stored with priority `urgent` at `2026-06-28T18:17:21.953896+00:00`.
+
+Observation:
+- Failed emails do not block customer request creation; they are surfaced to the admin and tracked for troubleshooting.
+- Failed payments suspend the customer and mark the subscription as `payment_failed` without deleting order/subscription history.
+- Protected admin message endpoints reject unauthenticated requests.
+- Normal dev server was restarted after the temporary invalid-email test and responds on `http://localhost:3000`.
 
 ## Scenario 8: Cleanup And Delete Test Customer
 
