@@ -70,8 +70,8 @@ export function renderBrandedEmail({
           </div>
           ${
             showHelper
-              ? `<div style="padding:8px 24px 0;">
-                  <img src="${helperUrl}" alt="InfoSync hjälper dig med skärmen" width="632" style="display:block; width:100%; max-width:632px; height:auto; border-radius:18px; background:#0f63f4;" />
+              ? `<div style="padding:12px 24px 0; text-align:center;">
+                  <img src="${helperUrl}" alt="InfoSync hj&auml;lper dig med sk&auml;rmen" width="220" style="display:inline-block; width:220px; max-width:68%; height:auto; border-radius:16px; background:#0f63f4;" />
                 </div>`
               : ""
           }
