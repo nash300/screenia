@@ -176,7 +176,7 @@ Expected:
 - Each important message/event has a timestamped record.
 
 Result:
-- Partial pass on 2026-06-28 with synthetic QA customer.
+- Pass on 2026-06-28 with synthetic QA customer.
 
 Evidence:
 - Test customer: `TEST - Account Portal QA 14:27:39`
@@ -189,12 +189,17 @@ Evidence:
 - Admin communication tab displayed the ticket, request type, priority, customer message, timestamp, and status.
 - Admin changed ticket status to `in_progress` from the customer communication tab.
 - Audit event `customer_message_admin_update` was stored with timestamp `2026-06-28T14:52:26.338309+00:00`.
+- Applied migration `supabase/migrations/202606280002_customer_message_admin_notes.sql` in Supabase SQL editor.
+- Admin changed ticket status to `waiting_for_customer` and saved internal admin note.
+- Internal note was stored in `customer_messages.admin_note`.
+- Note timestamp was stored in `customer_messages.admin_note_updated_at` as `2026-06-28T18:08:35.381+00:00`.
+- Latest audit event `customer_message_admin_update` stored metadata with `adminNoteStored: true`.
 
 Observation:
 - Fixed in code: admin can update customer message status and record a timestamped audit event.
 - Fixed in code: admin message update UI has stable form ids/names for testing and accessibility.
-- Added migration `supabase/migrations/202606280002_customer_message_admin_notes.sql` for internal admin notes and resolved timestamps.
-- Live database still needs that migration applied before internal admin notes persist. The fallback correctly saved status and audit metadata with `adminNoteStored: false`.
+- Applied migration `supabase/migrations/202606280002_customer_message_admin_notes.sql` for internal admin notes and resolved timestamps.
+- The fallback path was tested before migration and correctly saved status plus audit metadata with `adminNoteStored: false`.
 
 ## Scenario 7: Error And Edge Cases
 
