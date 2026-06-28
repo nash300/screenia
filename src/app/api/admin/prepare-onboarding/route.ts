@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { renderBrandedEmail } from "@/lib/server/email";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -418,9 +419,11 @@ Länken gäller i 14 dagar.
 
 Vänliga hälsningar,
 InfoSync`,
-      html: `
+      html: renderBrandedEmail({
+        eyebrow: "Offert",
+        title: "Din InfoSync-offert",
+        children: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
-          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #082354;">Din InfoSync-offert</h1>
           <p>Hej ${safeCustomerName},</p>
           <p>Här är offerten för din beställning. Fortsätt via länken för att bekräfta uppgifter och gå vidare till säker betalning. Material samlas in efter betalning.</p>
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
@@ -449,6 +452,7 @@ InfoSync`,
           <p>Vänliga hälsningar,<br />InfoSync</p>
         </div>
       `,
+      }),
     }),
   });
 

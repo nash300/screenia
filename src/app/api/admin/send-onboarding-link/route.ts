@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { renderBrandedEmail } from "@/lib/server/email";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -203,9 +204,11 @@ ${copy.expires}
 
 ${copy.regards},
 InfoSync`,
-      html: `
+      html: renderBrandedEmail({
+        eyebrow: "Startguide",
+        title: copy.heading,
+        children: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
-          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #09244a;">${copy.heading}</h1>
           <p>${copy.greeting} ${customerName},</p>
           <p>${copy.body}</p>
           <p>
@@ -217,6 +220,7 @@ InfoSync`,
           <p>${copy.regards},<br />InfoSync</p>
         </div>
       `,
+      }),
     }),
   });
 

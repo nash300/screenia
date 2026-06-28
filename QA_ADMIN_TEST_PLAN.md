@@ -306,11 +306,11 @@ Verified so far:
 - Admin activation moved the customer to `active`, set `activated_at`, and moved the subscription to `active` / fulfillment `completed` / inventory `assigned`.
 - A QA playlist item was attached to device `XACRVK` using a public MP4 sample because no local MP4 or ffmpeg tool was available for browser upload testing.
 - `/display/XACRVK` rendered playable video with a nonblank screenshot, readyState `4`, dimensions `960x540`, and no media error.
-
-Schema observations:
-- Live Supabase `playlists` schema is missing local-migration columns `video_id`, `created_at`, and `updated_at`; the display still works with `id`, `device_id`, `type`, `src`, and `order_index`, but the production database should be aligned before launch.
+- Live Supabase `playlists` schema was aligned with local migrations by adding `video_id`, `created_at`, `updated_at`, and the `set_updated_at` trigger.
+- Existing QA playlist row `70579921-0138-4c67-a3f9-a5c468b52ab6` was linked to video row `dfe9b634-26d7-4f4d-9d3a-26aafcfb51d2`; `updated_at` changed on update, proving the trigger works.
+- Admin media tab now shows `Media (1)` for `XACRVK`, and `/display/XACRVK` still plays the assigned MP4 after schema alignment.
+- Quote/onboarding and standalone onboarding-link emails now use the shared branded InfoSync email wrapper.
 
 Remaining:
 - Verify browser-based MP4 upload path with a real customer video file.
-- Align live Supabase schema with local migrations for `playlists`.
-- Style and verify remaining customer-facing emails with the branded InfoSync email wrapper.
+- Verify an actual received email rendering for the branded quote/onboarding templates.
