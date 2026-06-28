@@ -109,6 +109,9 @@ type CustomerMessage = {
   subject: string | null;
   message: string;
   status: string;
+  adminNote: string | null;
+  adminNoteUpdatedAt: string | null;
+  resolvedAt: string | null;
   createdAt: string;
   files: Array<{
     id: string;
@@ -246,6 +249,9 @@ export default function CustomerDetailPage({
   const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
+  const [messageDrafts, setMessageDrafts] = useState<
+    Record<string, { status: string; adminNote: string }>
+  >({});
   const [assets, setAssets] = useState<CustomerAsset[]>([]);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -666,10 +672,23 @@ export default function CustomerDetailPage({
         `/api/admin/customer-messages?customerId=${customerId}`,
       );
       const data = await response.json();
-      setMessages(response.ok ? data.messages || [] : []);
+      const nextMessages = response.ok ? data.messages || [] : [];
+      setMessages(nextMessages);
+      setMessageDrafts(
+        Object.fromEntries(
+          nextMessages.map((message: CustomerMessage) => [
+            message.id,
+            {
+              status: message.status || "new",
+              adminNote: message.adminNote || "",
+            },
+          ]),
+        ),
+      );
     } catch (error) {
       console.error("Customer messages error:", error);
       setMessages([]);
+      setMessageDrafts({});
     }
 
     try {
@@ -840,6 +859,37 @@ export default function CustomerDetailPage({
 
     await loadData();
     showAdminNotification("success", "Customer activated.");
+    setSaving(false);
+  };
+
+  const updateCustomerMessage = async (message: CustomerMessage) => {
+    const draft = messageDrafts[message.id] || {
+      status: message.status,
+      adminNote: message.adminNote || "",
+    };
+
+    setSaving(true);
+    const response = await fetch("/api/admin/customer-messages", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerId: customer?.id,
+        messageId: message.id,
+        status: draft.status,
+        adminNote: draft.adminNote,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Update message error:", result);
+      showAdminNotification("error", result.error || "Could not update message.");
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification("success", "Message updated.");
     setSaving(false);
   };
 
@@ -1780,6 +1830,71 @@ export default function CustomerDetailPage({
                 <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
                   {item.message}
                 </p>
+
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="grid gap-3 md:grid-cols-[220px_1fr]">
+                    <label className="text-sm font-semibold text-slate-700">
+                      Status
+                      <select
+                        id={`message-status-${item.id}`}
+                        name={`messageStatus-${item.id}`}
+                        value={messageDrafts[item.id]?.status || item.status}
+                        onChange={(event) =>
+                          setMessageDrafts((current) => ({
+                            ...current,
+                            [item.id]: {
+                              status: event.target.value,
+                              adminNote:
+                                current[item.id]?.adminNote || item.adminNote || "",
+                            },
+                          }))
+                        }
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      >
+                        <option value="new">New</option>
+                        <option value="customer_reply">Customer reply</option>
+                        <option value="in_progress">In progress</option>
+                        <option value="waiting_for_customer">Waiting for customer</option>
+                        <option value="resolved">Resolved</option>
+                      </select>
+                    </label>
+                    <label className="text-sm font-semibold text-slate-700">
+                      Internal admin note
+                      <textarea
+                        id={`message-admin-note-${item.id}`}
+                        name={`messageAdminNote-${item.id}`}
+                        value={messageDrafts[item.id]?.adminNote || ""}
+                        onChange={(event) =>
+                          setMessageDrafts((current) => ({
+                            ...current,
+                            [item.id]: {
+                              status: current[item.id]?.status || item.status,
+                              adminNote: event.target.value,
+                            },
+                          }))
+                        }
+                        rows={3}
+                        placeholder="Record troubleshooting notes or the next action."
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => updateCustomerMessage(item)}
+                      disabled={saving}
+                      className="admin-button-primary disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save message update"}
+                    </button>
+                    {item.adminNoteUpdatedAt && (
+                      <span className="text-xs font-semibold text-slate-500">
+                        Note updated {new Date(item.adminNoteUpdatedAt).toLocaleString("sv-SE")}
+                      </span>
+                    )}
+                  </div>
+                </div>
 
                 {item.files.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-2">

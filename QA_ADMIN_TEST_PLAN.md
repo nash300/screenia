@@ -176,7 +176,25 @@ Expected:
 - Each important message/event has a timestamped record.
 
 Result:
-- Pending.
+- Partial pass on 2026-06-28 with synthetic QA customer.
+
+Evidence:
+- Test customer: `TEST - Account Portal QA 14:27:39`
+- Customer id: `e0cedda7-b4e2-48ce-ae9e-4d5bc5f325ef`
+- Customer sent support ticket `IS-260628-1030F5` from `/account`.
+- Ticket id: `7a566e2a-cd16-407c-a9ae-317a4ed7cb56`
+- Ticket subject: `[IS-260628-1030F5] QA support ticket 14:46:35`
+- Customer message was stored with timestamp `2026-06-28T14:46:19.229213+00:00`.
+- Audit event `customer_message_sent` was stored with timestamp `2026-06-28T14:46:19.450137+00:00`.
+- Admin communication tab displayed the ticket, request type, priority, customer message, timestamp, and status.
+- Admin changed ticket status to `in_progress` from the customer communication tab.
+- Audit event `customer_message_admin_update` was stored with timestamp `2026-06-28T14:52:26.338309+00:00`.
+
+Observation:
+- Fixed in code: admin can update customer message status and record a timestamped audit event.
+- Fixed in code: admin message update UI has stable form ids/names for testing and accessibility.
+- Added migration `supabase/migrations/202606280002_customer_message_admin_notes.sql` for internal admin notes and resolved timestamps.
+- Live database still needs that migration applied before internal admin notes persist. The fallback correctly saved status and audit metadata with `adminNoteStored: false`.
 
 ## Scenario 7: Error And Edge Cases
 

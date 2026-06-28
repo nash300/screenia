@@ -1010,6 +1010,8 @@ export default function AccountPage() {
                   <label>
                     Ärendetyp
                     <select
+                      id="support-request-type"
+                      name="requestType"
                       value={requestType}
                       onChange={(event) => setRequestType(event.target.value)}
                       className="account-input"
@@ -1025,6 +1027,8 @@ export default function AccountPage() {
                   <label>
                     Prioritet
                     <select
+                      id="support-priority"
+                      name="requestPriority"
                       value={requestPriority}
                       onChange={(event) => setRequestPriority(event.target.value)}
                       className="account-input"
@@ -1039,18 +1043,27 @@ export default function AccountPage() {
                 </div>
 
                 <input
+                  id="support-subject"
+                  name="messageSubject"
+                  aria-label="Rubrik"
                   value={messageSubject}
                   onChange={(event) => setMessageSubject(event.target.value)}
                   placeholder="Rubrik"
                   className="account-input"
                 />
                 <input
+                  id="support-related-ticket"
+                  name="relatedTicketNumber"
+                  aria-label="Svar på ärendenummer"
                   value={relatedTicketNumber}
                   onChange={(event) => setRelatedTicketNumber(event.target.value)}
                   placeholder="Svar på ärendenummer, t.ex. IS-260613-ABC123 (valfritt)"
                   className="account-input"
                 />
                 <textarea
+                  id="support-message"
+                  name="messageText"
+                  aria-label="Beskriv ärendet"
                   value={messageText}
                   onChange={(event) => setMessageText(event.target.value)}
                   placeholder="Beskriv problemet, returen, frågan eller uppdateringen. Ange gärna ordernummer, skärmkod, returorsak och önskat nästa steg."
@@ -1059,6 +1072,9 @@ export default function AccountPage() {
                 />
                 <label className="account-compact-upload">
                   <input
+                    id="support-files"
+                    name="messageFiles"
+                    aria-label="Bifoga filer"
                     type="file"
                     multiple
                     accept="image/jpeg,image/png,image/webp,image/heic,application/pdf,text/plain"
@@ -1080,6 +1096,7 @@ export default function AccountPage() {
                   </div>
                 )}
                 <button
+                  type="button"
                   disabled={sending}
                   onClick={sendMessage}
                   className="landing-button landing-button-primary"
