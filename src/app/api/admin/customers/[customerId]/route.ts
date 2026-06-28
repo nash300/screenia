@@ -28,6 +28,55 @@ const createAuthenticatedClient = async () => {
   );
 };
 
+function isMissingRelationError(error: { code?: string; message?: string }) {
+  return (
+    error.code === "42P01" ||
+    error.code === "42703" ||
+    error.code === "PGRST205" ||
+    error.message?.includes("schema cache")
+  );
+}
+
+function deleteErrorResponse(label: string, error: unknown) {
+  console.error(`${label}:`, error);
+
+  return NextResponse.json(
+    {
+      error:
+        process.env.NODE_ENV === "development"
+          ? `${label}: ${error instanceof Error ? error.message : JSON.stringify(error)}`
+          : label,
+    },
+    { status: 500 },
+  );
+}
+
+async function deleteByCustomerId(table: string, customerId: string, label: string) {
+  const { error } = await supabaseAdmin
+    .from(table)
+    .delete()
+    .eq("customer_id", customerId);
+
+  if (error && !isMissingRelationError(error)) {
+    return deleteErrorResponse(label, error);
+  }
+
+  return null;
+}
+
+async function detachCustomerId(table: string, customerId: string, label: string) {
+  const { error } = await supabaseAdmin
+    .from(table)
+    .update({ customer_id: null })
+    .eq("customer_id", customerId);
+
+  if (error && !isMissingRelationError(error)) {
+    return deleteErrorResponse(label, error);
+  }
+
+  return null;
+}
+
 async function listStoragePaths(bucket: string, prefix: string) {
   const paths: string[] = [];
   const { data, error } = await supabaseAdmin.storage
@@ -98,17 +147,55 @@ export async function DELETE(
     .eq("customer_id", customer.id);
   const deviceIds = (devices || []).map((device) => device.id);
 
+  for (const table of [
+    "customer_message_files",
+    "customer_messages",
+    "customer_display_assets",
+    "customer_legal_agreements",
+    "consent_records",
+    "customer_subscriptions",
+  ]) {
+    const response = await deleteByCustomerId(
+      table,
+      customer.id,
+      `Could not delete customer records from ${table}.`,
+    );
+    if (response) return response;
+  }
+
+  for (const table of ["admin_notifications", "audit_events", "inventory_events", "inventory_items", "videos"]) {
+    const response = await detachCustomerId(
+      table,
+      customer.id,
+      `Could not detach customer records from ${table}.`,
+    );
+    if (response) return response;
+  }
+
   if (deviceIds.length > 0) {
+    for (const table of ["inventory_events", "inventory_items"]) {
+      const { error: detachDeviceError } = await supabaseAdmin
+        .from(table)
+        .update({ device_id: null })
+        .in("device_id", deviceIds);
+
+      if (detachDeviceError && !isMissingRelationError(detachDeviceError)) {
+        return deleteErrorResponse(
+          `Could not detach device records from ${table}.`,
+          detachDeviceError,
+        );
+      }
+    }
+
     const { error: playlistDeleteError } = await supabaseAdmin
       .from("playlists")
       .delete()
       .in("device_id", deviceIds);
 
     if (playlistDeleteError) {
-      console.error("Delete customer playlists error:", playlistDeleteError);
-      return NextResponse.json(
-        { error: "Could not delete customer playlists." },
-        { status: 500 },
+      return deleteErrorResponse(
+        "Could not delete customer playlists.",
+        playlistDeleteError,
       );
     }
 
@@ -118,11 +205,7 @@ export async function DELETE(
       .eq("customer_id", customer.id);
 
     if (deviceDeleteError) {
-      console.error("Delete customer devices error:", deviceDeleteError);
-      return NextResponse.json(
-        { error: "Could not delete customer devices." },
-        { status: 500 },
-      );
+      return deleteErrorResponse("Could not delete customer devices.", deviceDeleteError);
     }
   }
 
@@ -132,11 +215,7 @@ export async function DELETE(
     .eq("id", customer.id);
 
   if (deleteError) {
-    console.error("Delete customer error:", deleteError);
-    return NextResponse.json(
-      { error: "Could not delete customer." },
-      { status: 500 },
-    );
+    return deleteErrorResponse("Could not delete customer.", deleteError);
   }
 
   for (const bucket of ["customer-display-assets", "customer-message-files"]) {
