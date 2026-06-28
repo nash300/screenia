@@ -338,6 +338,7 @@ function AdminOrdersContent() {
   };
 
   const saveTracking = async (orderId: string) => {
+    const order = orders.find((item) => item.id === orderId);
     const draft = trackingDrafts[orderId] || {
       tracking_number: "",
       tracking_url: "",
@@ -345,6 +346,9 @@ function AdminOrdersContent() {
     const hasTracking = Boolean(
       draft.tracking_number.trim() || draft.tracking_url.trim(),
     );
+    const shouldMarkShipped =
+      hasTracking &&
+      !["completed", "cancelled"].includes(order?.fulfillment_status || "");
     const updatePayload: {
       tracking_number: string | null;
       tracking_url: string | null;
@@ -353,7 +357,7 @@ function AdminOrdersContent() {
       tracking_number: draft.tracking_number.trim() || null,
       tracking_url: draft.tracking_url.trim() || null,
     };
-    if (hasTracking) updatePayload.fulfillment_status = "shipped";
+    if (shouldMarkShipped) updatePayload.fulfillment_status = "shipped";
 
     setSavingId(orderId);
     const { error } = await supabase
@@ -378,7 +382,7 @@ function AdminOrdersContent() {
                 tracking_number: draft.tracking_number.trim() || null,
                 tracking_url: draft.tracking_url.trim() || null,
                 fulfillment_status:
-                  hasTracking ? "shipped" : order.fulfillment_status,
+                  shouldMarkShipped ? "shipped" : order.fulfillment_status,
               }
             : order,
         ),

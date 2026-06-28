@@ -324,6 +324,10 @@ Verified so far:
 - Database check confirmed device `XACRVK` is active, customer `a2be5fb4-d4c3-4bff-92f6-5a54ed958d6c` is active, and both playlist rows remain assigned with `updated_at` timestamps.
 - Admin device safety-gate toggle was tested: deactivating `XACRVK` from the admin UI showed success, changed the UI to `Inactive`, and `/display/XACRVK` showed `Display inactive` with no video element.
 - Reactivating `XACRVK` from the admin UI showed success, changed the UI back to `Active`, left the database `is_active` as `true`, updated `devices.updated_at` to `2026-06-28T19:42:26.909704+00:00`, and `/display/XACRVK` resumed video playback with readyState `4`, dimensions `960x540`, and no media error.
+- Admin smoke test loaded Dashboard, Customers, Orders, Inventory, Devices, and Pricing without console errors; Orders initially matched the broad error-text detector only because it displays normal `payment failed` status labels.
+- Admin tracking save was tested on dress rehearsal order `1000000009`. Initial save exposed a bug where saving tracking on a `completed` order downgraded fulfillment to `shipped`.
+- Fixed in code: saving tracking now preserves terminal fulfillment states `completed` and `cancelled`; it only auto-marks `shipped` for non-terminal orders.
+- Retest saved tracking number `QA-XACRVK-FIX-1782675926743` and URL `https://example.com/track/QA-XACRVK-FIX-1782675926743`; database verification showed order `1000000009` stayed `completed` and `updated_at` changed to `2026-06-28T19:45:27.098957+00:00`.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
