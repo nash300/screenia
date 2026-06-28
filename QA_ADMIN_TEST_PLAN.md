@@ -393,15 +393,19 @@ Evidence:
 - Landing MP4 loaded with readyState `4` and dimensions `1920x1080`.
 - Display `XACRVK` loaded the assigned Supabase MP4 with readyState `4` and dimensions `960x540`.
 - Static email preview page was restored at `/email-preview.html` so the branded email layout can be checked from the Git-backed project.
+- Logged-in admin responsive pass was completed with the QA admin session on Dashboard, Customers, Orders, Inventory, Devices, and Pricing at mobile `390x844`, tablet `768x1024`, and desktop `1366x768`.
+- The logged-in admin responsive pass found no admin redirects, no page-level horizontal overflow, and no browser console errors.
+- Customers table content remains wider than mobile/tablet viewports, but it stays contained as an admin data table and does not create page-level horizontal overflow.
+- Admin device media page `/admin/devices/XACRVK?section=media` loaded with `Media (2)`, one visible file input accepting `video/mp4`, disabled `Upload video` button before file selection, visible playlist rows, no console errors, and no page overflow.
+- Real Gmail rendering check could not be completed because Gmail required sign-in and displayed CAPTCHA. This must be completed manually after the user signs in to Gmail in the in-app browser.
 
 Observation:
 - Setup-fee refund handling is now technically trackable because the system can distinguish before-layout and after-layout cancellation states.
 - Actual Stripe refund action/amount decision is still an admin/business workflow decision; no automatic setup-fee refund has been added yet.
 
 Remaining:
-- Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, and display playback are already verified; only the OS file chooser interaction remains.
-- Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
-- Run a logged-in admin responsive pass after signing into `/admin-login`; current automated checks covered protected route/API behavior and public visual pages.
+- Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, display playback, and upload UI rendering are already verified; only the OS file chooser selection remains.
+- Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com` after signing in to Gmail, especially that the logo/helper image load and Swedish characters display correctly.
 - Optionally verify the `Start layout work` button itself in a logged-in browser session; the protected admin route, timestamps, audit event, account data, and subscription fulfillment transition have passed.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
