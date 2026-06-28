@@ -3,6 +3,11 @@ import { createClient } from "@supabase/supabase-js";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import {
+  escapeHtml,
+  formatSek,
+  sendTransactionalEmail,
+} from "@/lib/server/email";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,55 +18,84 @@ const validPlanCodes = new Set<string>(PRICING_PLANS.map((plan) => plan.code));
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+type RequestPlan = (typeof PRICING_PLANS)[number];
+
+function requestReceivedAt(value: string) {
+  return new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 async function sendRequestConfirmationEmail({
   email,
   companyName,
-  planName,
+  contactPerson,
+  plan,
   screenQuantity,
+  message,
+  requestedAt,
 }: {
   email: string;
   companyName: string;
-  planName: string;
+  contactPerson: string;
+  plan: RequestPlan;
   screenQuantity: number;
+  message: string;
+  requestedAt: string;
 }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM_EMAIL;
+  const planName = `${plan.name} ${plan.resolution}`;
+  const receivedAt = requestReceivedAt(requestedAt);
+  const safeCompanyName = escapeHtml(companyName);
+  const safeContactPerson = contactPerson ? escapeHtml(contactPerson) : "";
+  const safeMessage = message ? escapeHtml(message) : "";
 
-  if (!apiKey || !from) return;
+  return sendTransactionalEmail({
+    to: email,
+    subject: "InfoSync har tagit emot din förfrågan",
+    text: `Hej ${companyName},
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: email,
-      subject: "InfoSync har tagit emot din förfrågan",
-      text: `Hej ${companyName},
+Tack för din förfrågan. Vi har tagit emot följande:
 
-Tack för din förfrågan. Vi har tagit emot önskemålet om ${screenQuantity} skärm(ar) med paketet ${planName}.
-
+Företag: ${companyName}
+${contactPerson ? `Kontaktperson: ${contactPerson}\n` : ""}E-post: ${email}
+Paket: ${planName}
+Antal skärmar/enheter: ${screenQuantity}
+Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)}
+Skärmenhet: ${formatSek(plan.hardwareFeeSek)} per enhet
+Frakt: ${formatSek(plan.shippingFeeSek)} per enhet
+Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} per enhet
+Kostnadsfri provperiod: ${plan.trialDays} dagar
+Mottaget: ${receivedAt}
+${message ? `\nMeddelande: ${message}\n` : ""}
 InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
 
 Vänliga hälsningar,
 InfoSync`,
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #09244a; line-height: 1.6;">
-          <h1>Förfrågan mottagen</h1>
-          <p>Hej ${companyName},</p>
-          <p>Vi har tagit emot önskemålet om <strong>${screenQuantity} skärm(ar)</strong> med paketet <strong>${planName}</strong>.</p>
-          <p>InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
-          <p>Vänliga hälsningar,<br />InfoSync</p>
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #09244a; line-height: 1.6;">
+        <h1>Förfrågan mottagen</h1>
+        <p>Hej ${safeCompanyName},</p>
+        <p>Vi har tagit emot din förfrågan och sammanfattningen nedan.</p>
+        <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
+          <p><strong>Företag:</strong> ${safeCompanyName}</p>
+          ${safeContactPerson ? `<p><strong>Kontaktperson:</strong> ${safeContactPerson}</p>` : ""}
+          <p><strong>E-post:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Paket:</strong> ${escapeHtml(planName)}</p>
+          <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
+          <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)}</p>
+          <p><strong>Skärmenhet:</strong> ${formatSek(plan.hardwareFeeSek)} per enhet</p>
+          <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} per enhet</p>
+          <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} per enhet</p>
+          <p><strong>Kostnadsfri provperiod:</strong> ${plan.trialDays} dagar</p>
+          <p><strong>Mottaget:</strong> ${receivedAt}</p>
+          ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
         </div>
-      `,
-    }),
+        <p>InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
+        <p>Vänliga hälsningar,<br />InfoSync</p>
+      </div>
+    `,
   });
-
-  if (!response.ok) {
-    console.warn("Could not send onboarding request confirmation email.");
-  }
 }
 
 export async function POST(request: Request) {
@@ -102,10 +136,17 @@ export async function POST(request: Request) {
     }
 
     const selectedPlan = PRICING_PLANS.find((plan) => plan.code === planCode);
+    if (!selectedPlan) {
+      return NextResponse.json(
+        { error: "Välj ett giltigt paket." },
+        { status: 400 },
+      );
+    }
+
     const requestedAt = new Date().toISOString();
     const notes = [
       "Landing purchase request",
-      `Requested plan: ${selectedPlan?.name} ${selectedPlan?.resolution} (${planCode})`,
+      `Requested plan: ${selectedPlan.name} ${selectedPlan.resolution} (${planCode})`,
       `Requested screens/devices: ${screenQuantity}`,
       `Submitted at: ${requestedAt}`,
       message ? `Message: ${message}` : "",
@@ -127,8 +168,8 @@ export async function POST(request: Request) {
         requested_quote_items: [
           {
             pricingPlanCode: planCode,
-            name: selectedPlan?.name,
-            resolution: selectedPlan?.resolution,
+            name: selectedPlan.name,
+            resolution: selectedPlan.resolution,
             quantity: screenQuantity,
           },
         ],
@@ -153,8 +194,8 @@ export async function POST(request: Request) {
       eventDescription: "Customer submitted a package request from the landing page.",
       metadata: {
         planCode,
-        planName: selectedPlan?.name,
-        planResolution: selectedPlan?.resolution,
+        planName: selectedPlan.name,
+        planResolution: selectedPlan.resolution,
         screenQuantity,
       },
       ipAddress,
@@ -165,24 +206,82 @@ export async function POST(request: Request) {
       customerId: data.id,
       eventType: "landing_purchase_request_created",
       title: "New customer request",
-      message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan?.name || planCode}.`,
+      message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan.name}.`,
       priority: "high",
       metadata: {
         planCode,
-        planName: selectedPlan?.name,
+        planName: selectedPlan.name,
         screenQuantity,
         customerEmail: email,
       },
     });
 
-    await sendRequestConfirmationEmail({
+    const emailResult = await sendRequestConfirmationEmail({
       email,
       companyName,
-      planName: `${selectedPlan?.name || "InfoSync"} ${selectedPlan?.resolution || ""}`.trim(),
+      contactPerson,
+      plan: selectedPlan,
       screenQuantity,
+      message,
+      requestedAt,
     });
 
-    return NextResponse.json({ id: data.id, success: true });
+    if (emailResult.ok) {
+      await recordAuditEvent(supabaseAdmin, {
+        customerId: data.id,
+        actorType: "system",
+        eventType: "request_confirmation_email_sent",
+        eventDescription: "System sent request confirmation email to customer.",
+        metadata: {
+          sentTo: email,
+          resendEmailId: emailResult.id || null,
+          planCode,
+          screenQuantity,
+        },
+        ipAddress,
+        userAgent,
+      });
+    } else {
+      const eventType = emailResult.configured
+        ? "request_confirmation_email_failed"
+        : "request_confirmation_email_not_configured";
+
+      await recordAuditEvent(supabaseAdmin, {
+        customerId: data.id,
+        actorType: "system",
+        eventType,
+        eventDescription: emailResult.configured
+          ? "System could not send request confirmation email."
+          : "Request confirmation email was not sent because email is not configured.",
+        metadata: {
+          sentTo: email,
+          error: emailResult.error,
+          planCode,
+          screenQuantity,
+        },
+        ipAddress,
+        userAgent,
+      });
+
+      await createAdminNotification(supabaseAdmin, {
+        customerId: data.id,
+        eventType,
+        title: "Customer email not sent",
+        message: `Confirmation email to ${email} was not sent: ${emailResult.error}`,
+        priority: "urgent",
+        metadata: {
+          planCode,
+          screenQuantity,
+        },
+      });
+    }
+
+    return NextResponse.json({
+      id: data.id,
+      success: true,
+      emailSent: emailResult.ok,
+      warning: emailResult.ok ? null : emailResult.error,
+    });
   } catch (error) {
     console.error("Onboarding request error:", error);
     return NextResponse.json(

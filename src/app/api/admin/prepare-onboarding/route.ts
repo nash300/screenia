@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -345,6 +346,34 @@ export async function POST(request: Request) {
     process.env.RESEND_FROM_EMAIL?.trim() || "InfoSync <onboarding@resend.dev>";
 
   if (!resendApiKey) {
+    await recordAuditEvent(supabaseAdmin, {
+      customerId: customer.id,
+      actorType: "system",
+      eventType: "quote_onboarding_email_not_configured",
+      eventDescription:
+        "Quote and onboarding email was not sent because email is not configured.",
+      metadata: {
+        sentTo: customer.email,
+        orderNumber: order.order_number,
+        pricingPlanCode: plan.code,
+      },
+      ipAddress,
+      userAgent,
+    });
+
+    await createAdminNotification(supabaseAdmin, {
+      customerId: customer.id,
+      eventType: "quote_onboarding_email_not_configured",
+      title: "Onboarding email not sent",
+      message:
+        "Quote and onboarding link were prepared, but RESEND_API_KEY is not configured.",
+      priority: "urgent",
+      metadata: {
+        orderNumber: order.order_number,
+        pricingPlanCode: plan.code,
+      },
+    });
+
     return NextResponse.json({
       success: true,
       emailSent: false,
@@ -426,6 +455,33 @@ InfoSync`,
   if (!emailResponse.ok) {
     const errorMessage = await getResendErrorMessage(emailResponse);
     console.error("Resend quote email error:", errorMessage);
+
+    await recordAuditEvent(supabaseAdmin, {
+      customerId: customer.id,
+      actorType: "system",
+      eventType: "quote_onboarding_email_failed",
+      eventDescription: "System could not send quote and onboarding email.",
+      metadata: {
+        sentTo: customer.email,
+        orderNumber: order.order_number,
+        pricingPlanCode: plan.code,
+        error: errorMessage,
+      },
+      ipAddress,
+      userAgent,
+    });
+
+    await createAdminNotification(supabaseAdmin, {
+      customerId: customer.id,
+      eventType: "quote_onboarding_email_failed",
+      title: "Onboarding email failed",
+      message: `Quote ${order.order_number} could not be sent to ${customer.email}: ${errorMessage}`,
+      priority: "urgent",
+      metadata: {
+        orderNumber: order.order_number,
+        pricingPlanCode: plan.code,
+      },
+    });
 
     return NextResponse.json(
       {
