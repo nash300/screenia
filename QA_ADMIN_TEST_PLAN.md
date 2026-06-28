@@ -318,7 +318,8 @@ Verified so far:
 - Backend MP4 media upload path was verified with `.tmp/infosync-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
 - Admin media tab now shows `Media (2)` for `XACRVK`.
 - `/display/XACRVK` advanced from the public sample MP4 to the Supabase Storage MP4 URL and played it with readyState `4`, dimensions `960x540`, and no media error.
+- Browser check of `/admin/devices/XACRVK` confirmed the Media tab loads with the MP4-only upload area, disabled `Upload video` button before file selection, and both playlist items listed.
 
 Remaining:
-- Verify native browser file-picker MP4 upload manually with a real customer video file.
+- Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
