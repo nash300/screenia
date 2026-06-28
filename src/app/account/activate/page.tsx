@@ -1,9 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
+import {
+  syncCurrentSession,
+  syncEmailLinkSession,
+} from "@/lib/supabase/sync-browser-session";
 import InfoSyncLogo from "@/components/InfoSyncLogo";
 
 export default function ActivateAccountPage() {
@@ -11,9 +15,29 @@ export default function ActivateAccountPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+
+    syncEmailLinkSession().then((result) => {
+      if (cancelled) return;
+      setSessionReady(result.ready);
+      setMessage(result.error || "");
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const activate = async () => {
+    if (!sessionReady) {
+      setMessage("Verifierar kontolänken. Försök igen om några sekunder.");
+      return;
+    }
+
     if (password.length < 8) {
       setMessage("Lösenordet måste vara minst 8 tecken.");
       return;
@@ -35,7 +59,8 @@ export default function ActivateAccountPage() {
       return;
     }
 
-    router.push("/account");
+    await syncCurrentSession();
+    router.replace("/account");
     router.refresh();
   };
 
@@ -61,7 +86,7 @@ export default function ActivateAccountPage() {
       <button
         type="button"
         onClick={activate}
-        disabled={loading || !password || !confirmPassword}
+        disabled={loading || !sessionReady || !password || !confirmPassword}
         className="mt-7 inline-flex min-h-12 min-w-44 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-7 py-3 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
       >
         {loading ? "Aktiverar..." : "Aktivera konto"}

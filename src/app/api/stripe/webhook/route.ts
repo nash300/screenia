@@ -44,7 +44,9 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
   if (customer?.auth_user_id) return customer.auth_user_id;
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  const redirectTo = appUrl ? `${appUrl}/account/activate` : undefined;
+  const redirectTo = appUrl
+    ? `${appUrl}/auth/callback?next=/account/activate`
+    : undefined;
 
   const { data: invitedUser, error: inviteError } =
     await supabaseAdmin.auth.admin.inviteUserByEmail(email, {

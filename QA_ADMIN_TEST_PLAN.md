@@ -7,7 +7,7 @@ Prefix test companies with `TEST -` so they can be cleaned up safely.
 
 | Date | Tester | Environment | Result | Notes |
 | --- | --- | --- | --- | --- |
-| 2026-06-28 | Codex + admin | Localhost + live Supabase/Stripe test services | In progress | Initial structured admin acceptance run. |
+| 2026-06-28 | Codex + admin | Localhost + live Supabase/Stripe test services | In progress | Landing request, quote/onboarding, payment webhook, account activation, password login, and content setup passed. |
 
 ## Scenario 1: Customer Request From Landing Page
 
@@ -77,7 +77,7 @@ Evidence:
 - Audit event: `onboarding_profile_completed`.
 
 Observation:
-- The onboarding input fields are visually labelled by placeholders but have no stable `id`, `name`, or `aria-label`. This should be improved for accessibility and reliable automated testing.
+- Fixed in code: onboarding follow-up fields now have stable `id`, `name`, and `aria-label` attributes for accessibility and reliable automated testing.
 
 ## Scenario 4: Stripe Test Payment
 
@@ -117,6 +117,34 @@ Expected:
 
 Result:
 - Pending.
+
+## Scenario 5A: Customer Account Activation And Content Setup
+
+Expected:
+- Paid customer can set a password from the email link.
+- Customer can log in later with that password.
+- Customer can submit first content setup from the portal.
+- Submission updates customer/order state and creates timestamped audit/admin records.
+
+Result:
+- Pass on 2026-06-28 with synthetic QA customer.
+
+Evidence:
+- Test customer: `TEST - Account Portal QA`
+- Customer id: `e0cedda7-b4e2-48ce-ae9e-4d5bc5f325ef`
+- Order number: `1000000006`
+- Account link session synced successfully into server cookies.
+- Password login landed on `/account`.
+- Customer status after setup: `content_received`
+- Content option: `template`
+- Preview status: `waiting_for_admin`
+- Subscription fulfillment status: `content_received`
+- Audit event: `content_setup_submitted`
+- Admin notification: `Content setup submitted`, priority `high`, unread.
+
+Observation:
+- Fixed in code: account activation/reset email links now sync Supabase browser hash sessions into server cookies before redirecting to the account portal.
+- Fixed in code: customer portal content setup fields now have stable accessible labels for testing and screen-reader support.
 
 ## Scenario 6: Admin Communication And Support
 

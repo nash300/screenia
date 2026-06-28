@@ -698,24 +698,41 @@ export default function AccountPage() {
 
                 <div className="flow-form-grid">
                   <input
+                    id="setup-business-name"
+                    name="setupBusinessName"
+                    aria-label="Företagsnamn"
                     value={setupBusinessName}
                     onChange={(event) => setSetupBusinessName(event.target.value)}
                     placeholder="Företagsnamn *"
+                    autoComplete="organization"
+                    required
                     className="account-input"
                   />
                   <input
+                    id="setup-website-url"
+                    name="setupWebsiteUrl"
+                    aria-label="Webbplats"
                     value={setupWebsiteUrl}
                     onChange={(event) => setSetupWebsiteUrl(event.target.value)}
                     placeholder="Webbplats"
+                    autoComplete="url"
+                    inputMode="url"
                     className="account-input"
                   />
                   <input
+                    id="setup-social-media"
+                    name="setupSocialMedia"
+                    aria-label="Sociala medier"
                     value={setupSocialMedia}
                     onChange={(event) => setSetupSocialMedia(event.target.value)}
                     placeholder="Sociala medier"
+                    inputMode="url"
                     className="account-input"
                   />
                   <input
+                    id="setup-opening-hours"
+                    name="setupOpeningHours"
+                    aria-label="Öppettider"
                     value={setupOpeningHours}
                     onChange={(event) => setSetupOpeningHours(event.target.value)}
                     placeholder="Öppettider"
@@ -723,13 +740,20 @@ export default function AccountPage() {
                   />
                 </div>
                 <textarea
+                  id="setup-business-description"
+                  name="setupBusinessDescription"
+                  aria-label="Beskriv verksamheten kort"
                   value={setupBusinessDescription}
                   onChange={(event) => setSetupBusinessDescription(event.target.value)}
                   placeholder="Beskriv verksamheten kort. Exempel: restaurang med lunchmeny, kampanjer och QR-kod till onlinebeställning. *"
                   rows={4}
+                  required
                   className="account-input"
                 />
                 <textarea
+                  id="setup-promotions"
+                  name="setupPromotions"
+                  aria-label="Aktuella kampanjer, priser eller budskap"
                   value={setupPromotions}
                   onChange={(event) => setSetupPromotions(event.target.value)}
                   placeholder="Aktuella kampanjer, priser eller budskap"
@@ -770,6 +794,9 @@ export default function AccountPage() {
                     }}
                   >
                     <input
+                      id="setup-display-files"
+                      name="setupDisplayFiles"
+                      aria-label="Välj innehållsfiler"
                       type="file"
                       multiple
                       accept="image/jpeg,image/png,image/webp,image/heic,application/pdf"
@@ -818,6 +845,9 @@ export default function AccountPage() {
                 </div>
 
                 <textarea
+                  id="setup-notes"
+                  name="setupNotes"
+                  aria-label="Önskemål för skärmen"
                   value={setupNotes}
                   onChange={(event) => setSetupNotes(event.target.value)}
                   placeholder="Skriv önskemål för skärmen: färger, meny, kampanj, QR-kod, bilder eller annat vi ska tänka på."
@@ -826,6 +856,7 @@ export default function AccountPage() {
                   className="account-input"
                 />
                 <button
+                  type="button"
                   disabled={savingSetup}
                   onClick={submitContentSetup}
                   className="landing-button landing-button-primary"

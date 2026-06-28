@@ -229,18 +229,21 @@ export default function OnboardingPage({
             logotyp, meny eller bilder nu.
           </p>
           <div className="flow-form-grid">
-            <FlowInput placeholder="Kontaktperson *" value={contactPerson} onChange={setContactPerson} />
-            <FlowInput placeholder="Telefon" value={phone} onChange={setPhone} />
-            <FlowInput placeholder="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} />
-            <FlowInput placeholder="Faktura-e-post (valfritt)" value={billingEmail} onChange={setBillingEmail} />
-            <FlowInput placeholder="Leveransadress *" value={address} onChange={setAddress} />
-            <FlowInput placeholder="Postnummer *" value={postalCode} onChange={setPostalCode} />
-            <FlowInput placeholder="Ort *" value={city} onChange={setCity} />
-            <FlowInput placeholder="Bransch (t.ex. restaurang, salong)" value={businessCategory} onChange={setBusinessCategory} />
-            <FlowInput placeholder="Webbplats eller social länk" value={websiteUrl} onChange={setWebsiteUrl} />
+            <FlowInput id="contact-person" name="contactPerson" label="Kontaktperson" placeholder="Kontaktperson *" value={contactPerson} onChange={setContactPerson} autoComplete="name" required />
+            <FlowInput id="phone" name="phone" label="Telefon" placeholder="Telefon" value={phone} onChange={setPhone} autoComplete="tel" inputMode="tel" />
+            <FlowInput id="organisation-number" name="organisationNumber" label="Organisationsnummer" placeholder="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} required />
+            <FlowInput id="billing-email" name="billingEmail" label="Faktura-e-post" placeholder="Faktura-e-post (valfritt)" value={billingEmail} onChange={setBillingEmail} autoComplete="email" inputMode="email" />
+            <FlowInput id="delivery-address" name="address" label="Leveransadress" placeholder="Leveransadress *" value={address} onChange={setAddress} autoComplete="street-address" required />
+            <FlowInput id="postal-code" name="postalCode" label="Postnummer" placeholder="Postnummer *" value={postalCode} onChange={setPostalCode} autoComplete="postal-code" inputMode="numeric" required />
+            <FlowInput id="city" name="city" label="Ort" placeholder="Ort *" value={city} onChange={setCity} autoComplete="address-level2" required />
+            <FlowInput id="business-category" name="businessCategory" label="Bransch" placeholder="Bransch (t.ex. restaurang, salong)" value={businessCategory} onChange={setBusinessCategory} />
+            <FlowInput id="website-url" name="websiteUrl" label="Webbplats eller social länk" placeholder="Webbplats eller social länk" value={websiteUrl} onChange={setWebsiteUrl} autoComplete="url" inputMode="url" />
             <label className="flow-select-label">
               <span>Föredragen kontakt</span>
               <select
+                id="preferred-contact-channel"
+                name="preferredContactChannel"
+                aria-label="Föredragen kontakt"
                 value={preferredContactChannel}
                 onChange={(event) => setPreferredContactChannel(event.target.value)}
               >
@@ -251,7 +254,13 @@ export default function OnboardingPage({
             </label>
             <label className="flow-select-label">
               <span>Land</span>
-              <select value={country} onChange={(event) => setCountry(event.target.value)}>
+              <select
+                id="country"
+                name="country"
+                aria-label="Land"
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+              >
                 <option value="Sverige">Sverige</option>
               </select>
             </label>
@@ -329,18 +338,36 @@ function FlowShell({
 }
 
 function FlowInput({
+  id,
+  name,
+  label,
   placeholder,
   value,
   onChange,
+  autoComplete,
+  inputMode,
+  required = false,
 }: {
+  id: string;
+  name: string;
+  label: string;
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  autoComplete?: string;
+  inputMode?: "email" | "numeric" | "search" | "tel" | "text" | "url";
+  required?: boolean;
 }) {
   return (
     <input
+      id={id}
+      name={name}
+      aria-label={label}
       placeholder={placeholder}
       value={value}
+      autoComplete={autoComplete}
+      inputMode={inputMode}
+      required={required}
       onChange={(event) => onChange(event.target.value)}
     />
   );
