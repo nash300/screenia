@@ -257,7 +257,6 @@ export default function CustomerDetailPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
-  const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
   const [editName, setEditName] = useState("");
   const [editContactPerson, setEditContactPerson] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -1034,11 +1033,6 @@ export default function CustomerDetailPage({
   const deleteCustomer = async () => {
     if (!customer) return;
 
-    if (deleteConfirmationText !== "DELETE") {
-      showAdminNotification("warning", "Type DELETE to confirm customer deletion.");
-      return;
-    }
-
     setSaving(true);
 
     const response = await fetch(`/api/admin/customers/${customer.id}`, {
@@ -1058,7 +1052,6 @@ export default function CustomerDetailPage({
 
     showAdminNotification("success", "Customer deleted.");
     setDeleteConfirmationOpen(false);
-    setDeleteConfirmationText("");
     router.push("/admin/customers");
   };
 
@@ -1352,10 +1345,7 @@ export default function CustomerDetailPage({
           </p>
           <button
             type="button"
-            onClick={() => {
-              setDeleteConfirmationText("");
-              setDeleteConfirmationOpen(true);
-            }}
+            onClick={() => setDeleteConfirmationOpen(true)}
             disabled={saving}
             className="mt-3 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
@@ -2220,22 +2210,17 @@ export default function CustomerDetailPage({
                 </p>
               </div>
 
-              <label className="block text-sm font-bold text-slate-800">
-                Type DELETE to confirm
-                <input
-                  value={deleteConfirmationText}
-                  onChange={(event) => setDeleteConfirmationText(event.target.value)}
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-950 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
-                  autoFocus
-                />
-              </label>
+              <p className="text-sm leading-6 text-slate-700">
+                This cannot be undone from the admin panel. Use it only for
+                wrong drafts, duplicates, or test customers. Production customer
+                history should normally be suspended instead of deleted.
+              </p>
 
               <div className="flex flex-wrap justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setDeleteConfirmationOpen(false);
-                    setDeleteConfirmationText("");
                   }}
                   disabled={saving}
                   className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
@@ -2245,7 +2230,7 @@ export default function CustomerDetailPage({
                 <button
                   type="button"
                   onClick={deleteCustomer}
-                  disabled={saving || deleteConfirmationText !== "DELETE"}
+                  disabled={saving}
                   className="rounded-xl bg-red-800 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-950/20 transition hover:bg-red-900 disabled:opacity-50"
                 >
                   {saving ? "Deleting..." : "Delete customer"}

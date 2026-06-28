@@ -346,9 +346,21 @@ Verified so far:
 - File upload audit event `customer_display_material_uploaded` was stored at `2026-06-28T20:00:20.488515+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T20:00:20.628168+00:00`.
 - Customer material UI showed both uploaded files after reload with `Ladda ner` actions.
 - Invalid customer upload with MIME type `application/x-msdownload` returned HTTP `400` and message `Endast JPG, PNG, WEBP, HEIC och PDF kan laddas upp.`
+- Responsive smoke test ran on mobile `390x844`, tablet `768x1024`, and desktop `1366x768` for `/`, `/sa-fungerar-det`, `/account`, `/admin/orders`, and `/display/XACRVK`.
+- Found and fixed tablet navigation overflow: at `768px`, the customer/public top navigation previously kept the desktop layout and pushed `Kontakta oss`, `Logga in`, or `Logga ut` offscreen. The shared landing/customer navigation now switches to the compact menu at `900px`.
+- Responsive retest confirmed no visible horizontal overflow on the landing page, how-it-works page, account portal, admin-login redirect page, or display page at the tested mobile/tablet/desktop sizes.
+- Account portal responsive retest confirmed the customer session loads the dress rehearsal account, overview counters, section navigation, and no stuck loading state at mobile/tablet/desktop sizes.
+- `/admin/orders` in the current customer browser session redirects to `/admin-login` at all tested viewport sizes. This is the expected security behavior; logged-in admin responsive views still need a separate admin-session pass.
+- `/display/XACRVK` responsive retest confirmed video playback at all tested viewport sizes with readyState `4`, dimensions `960x540`, no media error, and no horizontal overflow.
+- Database verification confirmed `XACRVK` remains active, its customer remains active, and the playlist has two videos: the sample MP4 at order `1` and the uploaded Supabase MP4 at order `2`.
+- Admin customer deletion UI was simplified from manual `DELETE` typing to a clear warning modal with explicit Cancel/Delete actions. The API still records a `customer_deleted` audit event before cleanup.
+- Unauthorized delete protection was tested against `/api/admin/customers/00000000-0000-0000-0000-000000000000`; with no admin session it returned HTTP `401` and `Not authenticated.`
+- `npx tsc --noEmit` passed.
+- `npm run lint` passed with warnings only. Existing warnings are unused variables in `public/sw.js`, existing exhaustive-deps warnings in admin/display pages, and existing `<img>` optimization warnings.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, and display playback are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
+- Run a logged-in admin responsive pass after signing into `/admin-login`; the current browser session is a customer session, and correctly redirects admin routes away from the customer.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
