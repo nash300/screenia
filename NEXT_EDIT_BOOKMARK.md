@@ -19,7 +19,11 @@ Server: `http://localhost:3000`
   - Final route smoke passed for `/`, `/admin`, `/display/XACRVK`, and `/email-preview.html`.
   - XACRVK playlist now has 3 videos, including final smoke upload `2633a2f4-3a55-44a1-b1b8-51789ec7bbe4`.
 - Current remaining product decisions:
-  - Product decisions for Canva tracking and admin/Stripe pricing sync.
+  - Product decision for Canva tracking.
+- Admin pricing sync is now implemented:
+  - `/admin/pricing` edits live Supabase pricing plans.
+  - Protected `/api/admin/pricing-plans` saves pricing changes and syncs Stripe prices.
+  - Both `standard_fhd` and `premium_4k` have setup, hardware, shipping, and monthly Stripe price IDs stored.
 
 ## Next Edit List
 
@@ -43,6 +47,7 @@ Current system state:
 - Gmail check found an old manual branded email with oversized helper image and mojibake test copy; fixed the shared email wrapper and Swedish email source strings.
 - Gmail check confirmed a real app quote email renders Swedish characters correctly.
 - Fresh app-generated branded email after the fix also renders Swedish correctly and applies the logo/helper image sizes, but Gmail places current dev/test sender emails in Spam/Bin and blocks remote image URLs there. Remaining email work is deliverability/domain trust, not template rendering.
+- Admin pricing page now edits live Supabase plans and can sync Stripe products/prices. Checkout already reads Supabase pricing dynamically, so saved price changes affect new checkout sessions immediately.
 
 Recommended future implementation:
 - Add admin/customer cancellation logic:

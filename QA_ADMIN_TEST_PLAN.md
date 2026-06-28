@@ -412,6 +412,11 @@ Evidence:
 - `/display/XACRVK` retest played the newly uploaded Supabase MP4 with readyState `4`, dimensions `1920x1080`, no media error, no console errors, and no page overflow.
 - Final route smoke returned HTTP `200` for `/`, `/admin`, `/display/XACRVK`, and `/email-preview.html`.
 - Database verification confirmed device `XACRVK` remains active, its customer remains active, and the playlist has three ordered videos.
+- Admin pricing sync implementation was added after functional QA: `/admin/pricing` now loads live Supabase `pricing_plans`, edits setup/hardware/shipping/monthly/trial/binding/active fields, and exposes per-plan `Save prices` and `Sync Stripe` actions.
+- Protected pricing API verification passed: unauthenticated `GET /api/admin/pricing-plans` returned HTTP `401`; authenticated GET/PATCH/POST returned HTTP `200`.
+- Standard FHD Stripe sync passed. Stored price IDs: setup `price_1TlUqJGhi0eDHRQZ5iL9KiKU`, hardware `price_1TnQA3Ghi0eDHRQZyn6miHnx`, shipping `price_1TnQA4Ghi0eDHRQZYPuZ3uw2`, monthly `price_1TlUqIGhi0eDHRQZNAsZyeHu`.
+- Premium 4K Stripe sync passed. Stored price IDs: setup `price_1TlUqIGhi0eDHRQZIYxQgDVz`, hardware `price_1TnQANGhi0eDHRQZltjmwtjL`, shipping `price_1TnQANGhi0eDHRQZOYJQ6vrx`, monthly `price_1TlUqIGhi0eDHRQZT1IX23Dg`.
+- `/admin/pricing` responsive smoke passed on mobile `390x844` and desktop `1366x768`: both plans showed synced, 12 numeric inputs rendered, two save buttons rendered, two sync buttons rendered, no page overflow, and no console errors.
 
 Observation:
 - Setup-fee refund handling is now technically trackable because the system can distinguish before-layout and after-layout cancellation states.
@@ -423,4 +428,4 @@ Remaining:
 - Improve email deliverability before launch by using a verified domain instead of the Resend test sender; current Gmail test places fresh dev/test emails in Spam/Bin, which blocks remote image loading. Content, UTF-8 Swedish text, and image sizing are verified.
 - Optionally verify the `Start layout work` button itself in a logged-in browser session; the protected admin route, timestamps, audit event, account data, and subscription fulfillment transition have passed.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
-- Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
+- Admin pricing is no longer a static reference page; it is editable and can sync Stripe products/prices. Checkout already reads Supabase pricing dynamically, so saved changes affect new checkout sessions immediately.
