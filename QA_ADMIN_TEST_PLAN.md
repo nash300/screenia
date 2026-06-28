@@ -330,6 +330,12 @@ Verified so far:
 - Retest saved tracking number `QA-XACRVK-FIX-1782675926743` and URL `https://example.com/track/QA-XACRVK-FIX-1782675926743`; database verification showed order `1000000009` stayed `completed` and `updated_at` changed to `2026-06-28T19:45:27.098957+00:00`.
 - Product gap: no Canva-specific assignment/integration workflow was found. Today the system tracks customer content setup, preview status/URL, admin device assignment, video upload, playlist assignment, and display playback; Canva design/assignment remains an external admin production step.
 - Product gap: admin Pricing page is currently informational/static from local pricing constants. Stripe Checkout uses the current app pricing data with dynamic `price_data`, so old Stripe Price IDs should not drive checkout, but pricing is not yet editable or synced from the admin UI.
+- Customer portal login was verified with a Supabase magic link for `nadeesha7314@gmail.com`; `/account` resolved to the dress rehearsal customer through Auth metadata.
+- Customer portal overview showed active customer status, one active screen, journey steps, and device `Scenario 9 Welcome Screen`.
+- Customer billing section showed order `1000000009`, package `Standard FHD`, monthly price `249 kr`, setup fee `1 599 kr`, fulfillment `completed`, tracking number `QA-XACRVK-FIX-1782675926743`, and the matching tracking URL.
+- Stripe customer billing portal button created a valid `billing.stripe.com` test portal session.
+- Customer cancellation validation was tested without selecting a reason; the portal showed `Välj en avslutsorsak först.` and did not continue to subscription cancellation.
+- Customer portal smoke test loaded Overview, Content setup, Screen material, Messages, Billing, and Legal sections without console errors or obvious error states.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
