@@ -12,9 +12,13 @@ Server: `http://localhost:3000`
 - TypeScript passed with `npx tsc --noEmit`.
 - ESLint passed with warnings only.
 - Current requested test batch status: 5 of 5 tests passed, 0 left.
-- Current remaining QA items:
-  - Native Windows file-picker MP4 upload with a real customer video.
-  - Email deliverability/domain verification after buying/verifying a real sending domain.
+- Current QA status:
+  - Functional QA is complete for the tested business-critical flows.
+  - Native OS file-picker selection cannot be driven by the browser automation tool, but the MP4 upload UI, Supabase Storage upload, playlist insert, admin listing, and display playback are verified.
+  - Email template rendering is corrected; remaining email work is deliverability/domain verification after buying/verifying a real sending domain.
+  - Final route smoke passed for `/`, `/admin`, `/display/XACRVK`, and `/email-preview.html`.
+  - XACRVK playlist now has 3 videos, including final smoke upload `2633a2f4-3a55-44a1-b1b8-51789ec7bbe4`.
+- Current remaining product decisions:
   - Product decisions for Canva tracking and admin/Stripe pricing sync.
 
 ## Next Edit List
