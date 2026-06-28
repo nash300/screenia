@@ -336,6 +336,10 @@ Verified so far:
 - Stripe customer billing portal button created a valid `billing.stripe.com` test portal session.
 - Customer cancellation validation was tested without selecting a reason; the portal showed `Välj en avslutsorsak först.` and did not continue to subscription cancellation.
 - Customer portal smoke test loaded Overview, Content setup, Screen material, Messages, Billing, and Legal sections without console errors or obvious error states.
+- Customer portal notice handling was tested after cancellation validation; fixed in code so section-level notices clear when switching portal sections and do not leak into unrelated workflows.
+- Active customer submitted a text-only screen material update from the `Skärmmaterial` section: `QA material update 2026-06-28T19:51:38.517Z`.
+- The material update appeared immediately in customer history, created `customer_display_assets` row `31fc9284-d0af-4cf0-b650-323cb291b418` with `source: account`, `status: new`, and timestamp `2026-06-28T19:51:39.456832+00:00`.
+- Audit event `customer_display_material_uploaded` was stored at `2026-06-28T19:51:39.720398+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T19:51:39.897057+00:00`.
 
 Remaining:
 - Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.

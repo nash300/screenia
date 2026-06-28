@@ -345,6 +345,10 @@ export default function AccountPage() {
   }, [loadAccount]);
 
   useEffect(() => {
+    setNotice("");
+  }, [activeSection]);
+
+  useEffect(() => {
     if (!data?.customer) return;
     setSetupBusinessName(data.customer.name || "");
     setSetupBusinessDescription(data.customer.business_description || "");
