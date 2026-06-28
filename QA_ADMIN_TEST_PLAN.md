@@ -340,9 +340,15 @@ Verified so far:
 - Active customer submitted a text-only screen material update from the `Skärmmaterial` section: `QA material update 2026-06-28T19:51:38.517Z`.
 - The material update appeared immediately in customer history, created `customer_display_assets` row `31fc9284-d0af-4cf0-b650-323cb291b418` with `source: account`, `status: new`, and timestamp `2026-06-28T19:51:39.456832+00:00`.
 - Audit event `customer_display_material_uploaded` was stored at `2026-06-28T19:51:39.720398+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T19:51:39.897057+00:00`.
+- Customer image/PDF upload API was tested with `infosync-qa-logo.png` and `infosync-qa-menu.pdf`; the route returned HTTP `200` with `{ success: true }`.
+- Supabase stored `infosync-qa-logo.png` as customer display asset `0d790f98-94b0-4bae-888f-f0d900a062b0` with `content_type: image/png`, `asset_category: logo`, timestamp `2026-06-28T20:00:19.723121+00:00`, and a working signed download URL.
+- Supabase stored `infosync-qa-menu.pdf` as customer display asset `94e2bf71-3c83-4226-b9fe-cd6c140a2a05` with `content_type: application/pdf`, `asset_category: menu`, timestamp `2026-06-28T20:00:20.316103+00:00`, and a working signed download URL.
+- File upload audit event `customer_display_material_uploaded` was stored at `2026-06-28T20:00:20.488515+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T20:00:20.628168+00:00`.
+- Customer material UI showed both uploaded files after reload with `Ladda ner` actions.
+- Invalid customer upload with MIME type `application/x-msdownload` returned HTTP `400` and message `Endast JPG, PNG, WEBP, HEIC och PDF kan laddas upp.`
 
 Remaining:
-- Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload and media listing are already verified; only the OS file chooser interaction remains.
+- Verify native Windows file-picker MP4 upload manually with a real customer video file. Backend upload, media listing, and display playback are already verified; only the OS file chooser interaction remains.
 - Visually confirm the latest received branded email rendering in `nadeesha7314@gmail.com`, especially that the logo/helper image load and Swedish characters display correctly.
 - Decide whether Canva production tracking should be added as first-class admin fields/actions, for example design status, Canva link, preview approval, assigned device/layout, and timestamped admin/customer notifications.
 - Decide whether admin pricing should become editable and optionally synced to Stripe products/prices, instead of being a static reference page.
