@@ -310,7 +310,11 @@ Verified so far:
 - Existing QA playlist row `70579921-0138-4c67-a3f9-a5c468b52ab6` was linked to video row `dfe9b634-26d7-4f4d-9d3a-26aafcfb51d2`; `updated_at` changed on update, proving the trigger works.
 - Admin media tab now shows `Media (1)` for `XACRVK`, and `/display/XACRVK` still plays the assigned MP4 after schema alignment.
 - Quote/onboarding and standalone onboarding-link emails now use the shared branded InfoSync email wrapper.
+- Branded email sample was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `fc673bc7-b3ac-4ced-b97b-e58cc7751dd9`.
+- Backend MP4 media upload path was verified with `.tmp/infosync-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
+- Admin media tab now shows `Media (2)` for `XACRVK`.
+- `/display/XACRVK` advanced from the public sample MP4 to the Supabase Storage MP4 URL and played it with readyState `4`, dimensions `960x540`, and no media error.
 
 Remaining:
-- Verify browser-based MP4 upload path with a real customer video file.
-- Verify an actual received email rendering for the branded quote/onboarding templates.
+- Verify native browser file-picker MP4 upload manually with a real customer video file.
+- Visually confirm the received branded email rendering in `nadeesha7314@gmail.com`.
