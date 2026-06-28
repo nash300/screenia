@@ -116,7 +116,29 @@ Expected:
 - Device, inventory, and customer history update with timestamps.
 
 Result:
-- Pending.
+- Pass on 2026-06-28 for device assignment, order fulfillment state, customer activation, playlist assignment, and display playback.
+
+Evidence:
+- Test customer: `TEST - Account Portal QA 14:27:39`
+- Customer id: `e0cedda7-b4e2-48ce-ae9e-4d5bc5f325ef`
+- Device: `QA Fulfillment Screen 143248`
+- Device code: `RPNJAV`
+- Order number: `1000000006`
+- Admin created a device from the customer detail page.
+- Admin updated order fulfillment/inventory/tracking from the Orders page.
+- Admin marked the paid customer active from the customer onboarding section.
+- Customer status: `active`
+- Order status: `active`
+- Fulfillment status: `completed`
+- Inventory status: `assigned`
+- Display URL `/display/RPNJAV` rendered an assigned video playlist item.
+- Device media page showed `Media (1)`.
+- Audit events include `devices_insert`, `customers_update`, and `customer_subscriptions_update` with timestamps.
+
+Observation:
+- Fixed in code: paid customers now have a `Mark customer active` admin action so assigned displays can run after content/device readiness.
+- Fixed in code: the Add Device form now has stable accessible labels for reliable QA and screen-reader support.
+- Added migration `202606280001_devices_updated_at_alignment.sql` to align missing live timestamp columns on `devices` and `playlists`.
 
 ## Scenario 5A: Customer Account Activation And Content Setup
 

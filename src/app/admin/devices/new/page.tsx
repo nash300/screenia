@@ -125,6 +125,8 @@ function NewDevicePageContent() {
       <div className="admin-card p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <SelectInput
+            id="device-customer"
+            name="customerId"
             label="Customer *"
             value={customerId}
             onChange={setCustomerId}
@@ -138,6 +140,8 @@ function NewDevicePageContent() {
           </SelectInput>
 
           <TextInput
+            id="device-name"
+            name="deviceName"
             label="Device name *"
             value={name}
             onChange={setName}
@@ -145,15 +149,19 @@ function NewDevicePageContent() {
           />
 
           <TextInput
+            id="device-location"
+            name="location"
             label="Location"
             value={location}
             onChange={setLocation}
             placeholder="Reception, entrance, waiting area..."
           />
 
-          <TextInput label="Make" value={make} onChange={setMake} />
+          <TextInput id="device-make" name="make" label="Make" value={make} onChange={setMake} />
 
           <TextInput
+            id="device-model"
+            name="model"
             label="Model"
             value={model}
             onChange={setModel}
@@ -161,12 +169,16 @@ function NewDevicePageContent() {
           />
 
           <TextInput
+            id="device-serial-number"
+            name="serialNumber"
             label="Serial number"
             value={serialNumber}
             onChange={setSerialNumber}
           />
 
           <TextInput
+            id="device-purchase-cost"
+            name="purchaseCost"
             label="Purchase cost"
             type="number"
             value={purchaseCost}
@@ -175,6 +187,8 @@ function NewDevicePageContent() {
           />
 
           <TextInput
+            id="device-purchase-date"
+            name="purchaseDate"
             label="Purchase date"
             type="date"
             value={purchaseDate}
@@ -182,6 +196,8 @@ function NewDevicePageContent() {
           />
 
           <TextInput
+            id="device-warranty-period"
+            name="warrantyPeriod"
             label="Warranty period (months)"
             type="number"
             value={warrantyPeriod}
@@ -190,6 +206,8 @@ function NewDevicePageContent() {
           />
 
           <TextInput
+            id="device-supplier"
+            name="supplier"
             label="Supplier"
             value={supplier}
             onChange={setSupplier}
@@ -198,10 +216,12 @@ function NewDevicePageContent() {
         </div>
 
         <div className="mt-4">
-          <label className="text-sm font-semibold text-slate-700">
+          <label htmlFor="device-internal-notes" className="text-sm font-semibold text-slate-700">
             Internal notes
           </label>
           <textarea
+            id="device-internal-notes"
+            name="internalNotes"
             value={internalNotes}
             onChange={(e) => setInternalNotes(e.target.value)}
             className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
@@ -222,12 +242,16 @@ function NewDevicePageContent() {
 }
 
 function TextInput({
+  id,
+  name,
   label,
   value,
   onChange,
   placeholder,
   type = "text",
 }: {
+  id: string;
+  name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -236,8 +260,10 @@ function TextInput({
 }) {
   return (
     <div>
-      <label className="text-sm font-semibold text-slate-700">{label}</label>
+      <label htmlFor={id} className="text-sm font-semibold text-slate-700">{label}</label>
       <input
+        id={id}
+        name={name}
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
@@ -249,11 +275,15 @@ function TextInput({
 }
 
 function SelectInput({
+  id,
+  name,
   label,
   value,
   onChange,
   children,
 }: {
+  id: string;
+  name: string;
   label: string;
   value: string;
   onChange: (value: string) => void;
@@ -261,8 +291,10 @@ function SelectInput({
 }) {
   return (
     <div>
-      <label className="text-sm font-semibold text-slate-700">{label}</label>
+      <label htmlFor={id} className="text-sm font-semibold text-slate-700">{label}</label>
       <select
+        id={id}
+        name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"

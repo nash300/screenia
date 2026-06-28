@@ -784,6 +784,65 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const activateCustomer = async () => {
+    if (!customer) return;
+    if (!confirm("Mark this customer active and allow assigned displays to run")) return;
+
+    setSaving(true);
+
+    const activatedAt = new Date().toISOString();
+    const { error: customerError } = await supabase
+      .from("customers")
+      .update({
+        status: "active",
+        activated_at: activatedAt,
+        inactive_reason: null,
+        cancelled_at: null,
+        cancellation_source: null,
+      })
+      .eq("id", customer.id);
+
+    if (customerError) {
+      console.error("Activate customer error:", customerError);
+      showAdminNotification("error", "Could not activate customer.");
+      setSaving(false);
+      return;
+    }
+
+    const subscriptionResult = await supabase
+      .from("customer_subscriptions")
+      .update({
+        status: "active",
+        fulfillment_status: "completed",
+        inventory_status: "assigned",
+        activated_at: activatedAt,
+      })
+      .eq("customer_id", customer.id)
+      .in("status", ["paid", "active", "checkout_started"]);
+
+    if (isSchemaMismatch(subscriptionResult.error)) {
+      await supabase
+        .from("customer_subscriptions")
+        .update({
+          status: "active",
+          fulfillment_status: "completed",
+          inventory_status: "assigned",
+        })
+        .eq("customer_id", customer.id)
+        .in("status", ["paid", "active", "checkout_started"]);
+    } else if (subscriptionResult.error) {
+      console.error("Activate subscription error:", subscriptionResult.error);
+      showAdminNotification(
+        "warning",
+        "Customer activated, but the order status could not be updated.",
+      );
+    }
+
+    await loadData();
+    showAdminNotification("success", "Customer activated.");
+    setSaving(false);
+  };
+
   const cancelSubscription = async () => {
     if (!customer) return;
 
@@ -840,6 +899,7 @@ export default function CustomerDetailPage({
       .from("customers")
       .update({
         status: "active",
+        activated_at: customer.activated_at || new Date().toISOString(),
         inactive_reason: null,
         cancelled_at: null,
         cancellation_source: null,
@@ -1616,6 +1676,24 @@ export default function CustomerDetailPage({
             </>
           ) : (
             <>
+              {customer.payment_status === "paid" && (
+                <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-4">
+                  <p className="text-sm font-medium text-green-800">
+                    Payment is complete. Activate the customer when content and
+                    device assignment are ready; assigned display URLs will then
+                    be allowed to run.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={activateCustomer}
+                    disabled={saving}
+                    className="mt-4 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving ? "Saving..." : "Mark customer active"}
+                  </button>
+                </div>
+              )}
+
               {customer.onboarding_token && (
                 <p className="mt-4 break-all rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
                   Onboarding link: /onboarding/{customer.onboarding_token}
