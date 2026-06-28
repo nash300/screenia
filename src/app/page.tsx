@@ -92,6 +92,8 @@ const copy = {
     screenCountLabel: "Antal skärmar *",
     screenCountHelp: "Välj hur många skärmar eller enheter du vill beställa.",
     placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bör känna till."],
+    requestPrivacy:
+      "Vi använder uppgifterna för att hantera din förfrågan och skapa en personlig startguide. Skicka inte känsliga personuppgifter i meddelandet.",
     sending: "Skickar förfrågan...",
     submit: "Skicka förfrågan",
     success:
@@ -180,6 +182,8 @@ const copy = {
     screenCountLabel: "Number of screens *",
     screenCountHelp: "Choose how many screens or devices you want to order.",
     placeholders: ["Example: Salon Bella", "name@company.com", "Your name", "+46...", "Location, industry, or anything else we should know."],
+    requestPrivacy:
+      "We use these details to handle your request and create a personal setup guide. Do not include sensitive personal data in the message.",
     sending: "Sending request...",
     submit: "Send request",
     success: "Thanks. Your request has been received and InfoSync will send your personal setup guide.",
@@ -845,6 +849,10 @@ export default function Home() {
                 <span>{t.fields[4]}</span>
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} placeholder={t.placeholders[4]} />
               </label>
+
+              <p className="landing-request-privacy landing-request-form-wide">
+                {t.requestPrivacy} <a href="/privacy" target="_blank">Integritetspolicy</a>
+              </p>
 
               {requestMessage && (
                 <p className={`landing-request-message landing-request-${requestStatus}`}>

@@ -3014,6 +3014,7 @@
 }
 
 .landing-request-form-wide,
+.landing-request-privacy,
 .landing-request-message,
 .landing-request-submit {
   grid-column: 1 / -1;
@@ -3037,6 +3038,20 @@
   border: 1px solid #f1c0c0;
   background: #fff2f2;
   color: #9a1c1c !important;
+}
+
+.landing-request-privacy {
+  margin: 0;
+  color: var(--landing-muted);
+  font-family: var(--landing-font-ui);
+  font-size: 0.82rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.landing-request-privacy a {
+  color: var(--landing-blue-700);
+  font-weight: 800;
 }
 
 .landing-request-submit {

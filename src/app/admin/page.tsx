@@ -15,10 +15,30 @@ type AdminCustomer = {
   }[];
 };
 
+type AdminNotification = {
+  id: string;
+  customer_id: string | null;
+  event_type: string;
+  title: string;
+  message: string;
+  priority: string;
+  read_at: string | null;
+  created_at: string;
+  customers?:
+    | {
+    name: string | null;
+      }
+    | Array<{
+        name: string | null;
+      }>
+    | null;
+};
+
 export default function AdminHomePage() {
   const [customerCount, setCustomerCount] = useState(0);
   const [deviceCount, setDeviceCount] = useState(0);
   const [newMaterialCount, setNewMaterialCount] = useState(0);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -61,6 +81,9 @@ export default function AdminHomePage() {
   const suspendedCustomerCount = customers.filter(
     (customer) => customer.status === "suspended",
   ).length;
+  const unreadNotificationCount = notifications.filter(
+    (notification) => !notification.read_at,
+  ).length;
   const readyCustomerCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
     const hasDeviceWithoutPlaylist = customer.devices?.some(
@@ -102,6 +125,14 @@ export default function AdminHomePage() {
       .select("*", { count: "exact", head: true })
       .eq("status", "new");
 
+    const { data: notificationData, error: notificationError } = await supabase
+      .from("admin_notifications")
+      .select(
+        "id, customer_id, event_type, title, message, priority, read_at, created_at, customers(name)",
+      )
+      .order("created_at", { ascending: false })
+      .limit(5);
+
     const { data, error } = await supabase.from("customers").select(`
       id,
       name,
@@ -124,6 +155,12 @@ export default function AdminHomePage() {
     }
     setDeviceCount(devices || 0);
     setNewMaterialCount(newMaterials || 0);
+    if (notificationError) {
+      console.warn("Load admin notifications error:", notificationError.message);
+      setNotifications([]);
+    } else {
+      setNotifications((notificationData || []) as AdminNotification[]);
+    }
     setLoading(false);
   };
 
@@ -278,6 +315,41 @@ export default function AdminHomePage() {
             <StatusRow label="Total attention" value={attentionCount + newMaterialCount} tone="info" />
           </div>
         </section>
+
+        <section className="admin-card admin-dashboard-panel p-6">
+          <h2 className="admin-card-title text-xl">Notifications</h2>
+          <div className="admin-status-list">
+            <StatusRow label="Unread" value={unreadNotificationCount} tone="warning" />
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {notifications.length ? (
+              notifications.map((notification) => (
+                <Link
+                  key={notification.id}
+                  href={
+                    notification.customer_id
+                      ? `/admin/customers/${notification.customer_id}`
+                      : "/admin/customers"
+                  }
+                  className="block rounded-2xl border border-slate-200 bg-white/70 p-3 text-sm no-underline"
+                >
+                  <strong className="block text-slate-950">
+                    {notification.title}
+                  </strong>
+                  <span className="mt-1 block text-slate-600">
+                    {notificationCustomerName(notification)
+                      ? `${notificationCustomerName(notification)} - `
+                      : ""}
+                    {notification.message}
+                  </span>
+                </Link>
+              ))
+            ) : (
+              <p className="admin-muted mt-3 text-sm">No notifications yet.</p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
@@ -316,6 +388,14 @@ function StatCard({
   }
 
   return <div className="admin-card admin-stat-card">{content}</div>;
+}
+
+function notificationCustomerName(notification: AdminNotification) {
+  const customer = Array.isArray(notification.customers)
+    ? notification.customers[0]
+    : notification.customers;
+
+  return customer?.name || "";
 }
 
 function StatusRow({

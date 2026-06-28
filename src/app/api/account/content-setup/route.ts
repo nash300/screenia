@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 import {
   getAuthenticatedUser,
   getCustomerForUser,
@@ -144,6 +145,21 @@ export async function POST(request: Request) {
     },
     ipAddress,
     userAgent,
+  });
+
+  await createAdminNotification(supabaseAdmin, {
+    customerId: customer.id,
+    eventType: "content_setup_submitted",
+    title: "Content setup submitted",
+    message: `${businessName} submitted content setup and is waiting for admin review.`,
+    priority: contentOption === "later" ? "normal" : "high",
+    metadata: {
+      contentOption,
+      storedFiles,
+      hasOpeningHours: Boolean(openingHours),
+      hasPromotions: Boolean(promotions),
+      hasSocialMedia: Boolean(socialMedia),
+    },
   });
 
   return NextResponse.json({ success: true });

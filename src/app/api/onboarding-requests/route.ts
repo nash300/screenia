@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -158,6 +159,20 @@ export async function POST(request: Request) {
       },
       ipAddress,
       userAgent,
+    });
+
+    await createAdminNotification(supabaseAdmin, {
+      customerId: data.id,
+      eventType: "landing_purchase_request_created",
+      title: "New customer request",
+      message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan?.name || planCode}.`,
+      priority: "high",
+      metadata: {
+        planCode,
+        planName: selectedPlan?.name,
+        screenQuantity,
+        customerEmail: email,
+      },
     });
 
     await sendRequestConfirmationEmail({

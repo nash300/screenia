@@ -10,7 +10,6 @@ type Customer = {
   email: string;
   status: string;
   payment_status: string | null;
-  notes: string | null;
   onboarding_token_expires_at: string | null;
 };
 
@@ -49,7 +48,7 @@ export default function OnboardingPage({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
-  const [analyticsConsent, setAnalyticsConsent] = useState(true);
+  const [analyticsConsent, setAnalyticsConsent] = useState(false);
   const [remoteSupportConsent, setRemoteSupportConsent] = useState(false);
 
   useEffect(() => {
@@ -57,7 +56,7 @@ export default function OnboardingPage({
       const { data, error } = await supabase
         .from("customers")
         .select(
-          "id, name, email, status, payment_status, notes, onboarding_token_expires_at",
+          "id, name, email, status, payment_status, onboarding_token_expires_at",
         )
         .eq("onboarding_token", token)
         .single();
@@ -145,14 +144,6 @@ export default function OnboardingPage({
   const startPayment = async () => {
     if (!customer) return;
 
-    const pricingPlanCode =
-      customer.notes?.match(/\((standard_fhd|premium_4k)\)/)?.[1] || "";
-
-    if (!pricingPlanCode) {
-      setMessage("Inget prispaket är kopplat till din startlänk. Kontakta InfoSync.");
-      return;
-    }
-
     setSaving(true);
     const response = await fetch("/api/stripe/checkout", {
       method: "POST",
@@ -160,7 +151,6 @@ export default function OnboardingPage({
       body: JSON.stringify({
         customerId: customer.id,
         email: customer.email,
-        pricingPlanCode,
         legalAccepted: true,
       }),
     });

@@ -43,9 +43,9 @@ export async function POST(request: Request) {
     const ipAddress = getRequestIp(request);
     const userAgent = request.headers.get("user-agent");
 
-    if (!customerId || !email || !pricingPlanCode) {
+    if (!customerId || !email) {
       return NextResponse.json(
-        { error: "Kund, e-post eller prispaket saknas." },
+        { error: "Kund eller e-post saknas." },
         { status: 400 },
       );
     }
@@ -65,26 +65,6 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
-
-    const { data: plan, error: planError } = await supabaseAdmin
-      .from("pricing_plans")
-      .select("*")
-      .eq("code", pricingPlanCode)
-      .eq("is_active", true)
-      .single();
-
-    if (planError || !plan) {
-      return NextResponse.json(
-        { error: "Prispaketet hittades inte." },
-        { status: 404 },
-      );
-    }
-
-    const hardwareFeeSek =
-      plan.hardware_fee_sek ??
-      (plan.code === "premium_4k" ? 1099 : 699);
-    const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
-    const currency = plan.currency || "sek";
 
     const { data: customer, error: customerError } = await supabaseAdmin
       .from("customers")
@@ -114,10 +94,9 @@ export async function POST(request: Request) {
     const { data: quotedOrder, error: quotedOrderError } = await supabaseAdmin
       .from("customer_subscriptions")
       .select(
-        "id, order_number, screen_quantity, device_discount_percent, device_discount_months, quote_items",
+        "id, order_number, screen_quantity, device_discount_percent, device_discount_months, quote_items, pricing_plan_id, pricing_plans(*)",
       )
       .eq("customer_id", customerId)
-      .eq("pricing_plan_id", plan.id)
       .in("status", ["quote_prepared", "quote_sent", "checkout_started"])
       .order("created_at", { ascending: false })
       .limit(1)
@@ -135,6 +114,41 @@ export async function POST(request: Request) {
         { status: 409 },
       );
     }
+
+    const relatedPlan = Array.isArray(quotedOrder?.pricing_plans)
+      ? quotedOrder?.pricing_plans[0]
+      : quotedOrder?.pricing_plans;
+    let plan = relatedPlan || null;
+    let planError = null;
+
+    if (!plan) {
+      const planQuery = supabaseAdmin
+        .from("pricing_plans")
+        .select("*")
+        .eq("is_active", true);
+      const planResult = pricingPlanCode
+        ? await planQuery.eq("code", pricingPlanCode).single()
+        : await planQuery.eq("id", quotedOrder?.pricing_plan_id || "").single();
+
+      plan = planResult.data;
+      planError = planResult.error;
+    }
+
+    if (planError || !plan) {
+      return NextResponse.json(
+        {
+          error:
+            "Prispaketet hittades inte. Be InfoSync kontrollera offerten innan betalning.",
+        },
+        { status: 404 },
+      );
+    }
+
+    const hardwareFeeSek =
+      plan.hardware_fee_sek ??
+      (plan.code === "premium_4k" ? 1099 : 699);
+    const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
+    const currency = plan.currency || "sek";
 
     const screenQuantity = Math.min(
       50,

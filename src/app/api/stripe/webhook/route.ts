@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -147,6 +148,22 @@ export async function POST(request: Request) {
             orderNumber,
             taxAmountSek: session.total_details?.amount_tax,
             totalAmountSek: session.amount_total,
+          },
+        });
+
+        await createAdminNotification(supabaseAdmin, {
+          customerId,
+          eventType: "payment_completed",
+          title: "Payment completed",
+          message: `Stripe checkout completed for order ${orderNumber || session.id}.`,
+          priority: "urgent",
+          metadata: {
+            stripeCustomerId: session.customer,
+            stripeSubscriptionId: session.subscription,
+            stripeCheckoutSessionId: session.id,
+            customerSubscriptionId,
+            orderNumber,
+            customerEmail,
           },
         });
       }

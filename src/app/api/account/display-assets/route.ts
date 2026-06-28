@@ -5,6 +5,7 @@ import {
   supabaseAdmin,
 } from "@/lib/server/customer-account";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 import {
   saveDisplayAssets,
   validateDisplayAssetRequest,
@@ -52,6 +53,18 @@ export async function POST(request: Request) {
       },
       ipAddress,
       userAgent,
+    });
+
+    await createAdminNotification(supabaseAdmin, {
+      customerId: customer.id,
+      eventType: "customer_display_material_uploaded",
+      title: "New display material",
+      message: `${customer.name} uploaded display material for admin review.`,
+      priority: "high",
+      metadata: {
+        descriptionProvided: Boolean(description),
+        files: result.storedFiles,
+      },
     });
 
     return NextResponse.json({ success: true });
