@@ -779,7 +779,7 @@
   width: max-content;
   height: 100%;
   align-items: center;
-  animation: logo-marquee 36s linear infinite;
+  animation: logo-marquee 48s linear infinite;
   will-change: transform;
 }
 
@@ -972,11 +972,11 @@
 
 @keyframes logo-marquee {
   from {
-    transform: translateX(0);
+    transform: translateX(-33.3333%);
   }
 
   to {
-    transform: translateX(-33.3333%);
+    transform: translateX(0);
   }
 }
 
@@ -3776,7 +3776,7 @@
   }
 
   .landing-logo-track {
-    animation-duration: 22s;
+    animation-duration: 34s;
   }
 
   .landing-hero-benefits {
