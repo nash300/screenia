@@ -256,6 +256,8 @@ export default function CustomerDetailPage({
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState("");
   const [editName, setEditName] = useState("");
   const [editContactPerson, setEditContactPerson] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -1032,11 +1034,10 @@ export default function CustomerDetailPage({
   const deleteCustomer = async () => {
     if (!customer) return;
 
-    const confirmation = window.prompt(
-      `Type DELETE to permanently delete ${customer.name}.`,
-    );
-
-    if (confirmation !== "DELETE") return;
+    if (deleteConfirmationText !== "DELETE") {
+      showAdminNotification("warning", "Type DELETE to confirm customer deletion.");
+      return;
+    }
 
     setSaving(true);
 
@@ -1056,6 +1057,8 @@ export default function CustomerDetailPage({
     }
 
     showAdminNotification("success", "Customer deleted.");
+    setDeleteConfirmationOpen(false);
+    setDeleteConfirmationText("");
     router.push("/admin/customers");
   };
 
@@ -1349,7 +1352,10 @@ export default function CustomerDetailPage({
           </p>
           <button
             type="button"
-            onClick={deleteCustomer}
+            onClick={() => {
+              setDeleteConfirmationText("");
+              setDeleteConfirmationOpen(true);
+            }}
             disabled={saving}
             className="mt-3 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
           >
@@ -2179,6 +2185,75 @@ export default function CustomerDetailPage({
         )}
       </div>
       </>
+      )}
+      {deleteConfirmationOpen && customer && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-customer-title"
+        >
+          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-red-200 bg-white shadow-2xl">
+            <div className="bg-gradient-to-br from-slate-950 via-red-950 to-red-800 p-6 text-white">
+              <p className="text-xs font-black uppercase tracking-[0.22em] text-red-100">
+                Permanent action
+              </p>
+              <h2 id="delete-customer-title" className="mt-3 text-2xl font-black">
+                Delete customer?
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-red-50">
+                This removes the customer and cleanup-safe related records. Audit
+                history is kept without the customer link for troubleshooting.
+              </p>
+            </div>
+
+            <div className="space-y-4 p-6">
+              <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-red-700">
+                  Customer
+                </p>
+                <p className="mt-1 break-words text-base font-black text-red-950">
+                  {customer.name}
+                </p>
+                <p className="mt-1 break-all text-xs font-semibold text-red-700">
+                  {customer.email || customer.id}
+                </p>
+              </div>
+
+              <label className="block text-sm font-bold text-slate-800">
+                Type DELETE to confirm
+                <input
+                  value={deleteConfirmationText}
+                  onChange={(event) => setDeleteConfirmationText(event.target.value)}
+                  className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-950 outline-none transition focus:border-red-500 focus:ring-2 focus:ring-red-100"
+                  autoFocus
+                />
+              </label>
+
+              <div className="flex flex-wrap justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDeleteConfirmationOpen(false);
+                    setDeleteConfirmationText("");
+                  }}
+                  disabled={saving}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={deleteCustomer}
+                  disabled={saving || deleteConfirmationText !== "DELETE"}
+                  className="rounded-xl bg-red-800 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-950/20 transition hover:bg-red-900 disabled:opacity-50"
+                >
+                  {saving ? "Deleting..." : "Delete customer"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

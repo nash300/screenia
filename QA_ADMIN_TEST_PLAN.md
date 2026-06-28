@@ -269,3 +269,15 @@ Evidence:
 Observation:
 - Delete protection, child-row cleanup, log detachment, and admin list rendering passed.
 - Browser automation could not trigger the `window.prompt` confirmation reliably, so the destructive operation was executed through the same protected admin DELETE route using an authenticated admin session cookie.
+
+## Scenario 9: Realistic End-To-End Dress Rehearsal
+
+Expected:
+- A fresh customer can start on the landing page and move through the full live workflow.
+- Admin can prepare a quote, send onboarding, verify payment, handle content/support, and assign display content.
+- Customer-facing subpages and transactional emails follow the InfoSync visual theme.
+- Each major activity has a timestamped audit/admin record.
+- Final device display renders assigned content without broken states.
+
+Result:
+- Pending.

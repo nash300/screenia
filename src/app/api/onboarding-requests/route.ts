@@ -6,6 +6,7 @@ import { createAdminNotification } from "@/lib/server/admin-notifications";
 import {
   escapeHtml,
   formatSek,
+  renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
 
@@ -72,9 +73,12 @@ InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte 
 
 Vänliga hälsningar,
 InfoSync`,
-    html: `
-      <div style="font-family: Arial, sans-serif; color: #09244a; line-height: 1.6;">
-          <h1 style="font-family: 'Special Elite', Georgia, serif; font-weight: 400; letter-spacing: 0; color: #09244a;">Förfrågan mottagen</h1>
+    html: renderBrandedEmail({
+      eyebrow: "InfoSync",
+      title: "F&ouml;rfr&aring;gan mottagen",
+      intro: "Vi har tagit emot din f&ouml;rfr&aring;gan och sammanfattningen finns h&auml;r.",
+      footer: "V&auml;nliga h&auml;lsningar,<br />InfoSync",
+      children: `
         <p>Hej ${safeCompanyName},</p>
         <p>Vi har tagit emot din förfrågan och sammanfattningen nedan.</p>
         <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
@@ -92,9 +96,8 @@ InfoSync`,
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
         </div>
         <p>InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
-        <p>Vänliga hälsningar,<br />InfoSync</p>
-      </div>
-    `,
+      `,
+    }),
   });
 }
 

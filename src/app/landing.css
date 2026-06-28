@@ -3383,6 +3383,81 @@
   gap: 12px;
 }
 
+.flow-result-page {
+  display: grid;
+  align-items: center;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(244, 122, 32, 0.2), transparent 28%),
+    linear-gradient(135deg, #07182f 0%, #0c2b62 48%, #f8fbff 48.2%, #eef6ff 100%);
+}
+
+.flow-result-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.55fr);
+  align-items: stretch;
+  gap: clamp(22px, 4vw, 46px);
+  overflow: hidden;
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 248, 255, 0.98)),
+    #ffffff;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.flow-result-shell-warning {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 248, 237, 0.98)),
+    #ffffff;
+}
+
+.flow-result-copy {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: 14px;
+}
+
+.flow-result-copy h1 {
+  color: var(--landing-blue-950);
+  font-family: var(--landing-font-display);
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.03;
+}
+
+.flow-result-copy p:not(.landing-eyebrow) {
+  max-width: 620px;
+  color: var(--landing-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.flow-result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.flow-result-visual {
+  display: grid;
+  min-height: 320px;
+  place-items: end center;
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(6, 25, 66, 0.94), rgba(47, 125, 246, 0.8)),
+    #061942;
+  overflow: hidden;
+}
+
+.flow-result-visual img {
+  width: min(94%, 320px);
+  max-height: 360px;
+  object-fit: contain;
+  object-position: bottom center;
+  filter: drop-shadow(0 22px 32px rgba(0, 0, 0, 0.32));
+}
+
 .flow-result-icon {
   display: inline-grid;
   width: 58px;
@@ -4107,6 +4182,25 @@
   .flow-helper {
     width: min(210px, 48vw);
     margin-left: auto;
+  }
+
+  .flow-result-page {
+    align-items: start;
+    background:
+      linear-gradient(180deg, #07182f 0%, #0c2b62 34%, #eef6ff 34.2%, #f8fbff 100%);
+  }
+
+  .flow-result-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-result-visual {
+    min-height: 220px;
+    place-items: end center;
+  }
+
+  .flow-result-visual img {
+    width: min(76%, 240px);
   }
 }
 

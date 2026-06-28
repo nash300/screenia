@@ -22,6 +22,60 @@ export function formatSek(amount: number | null | undefined) {
   return `${(amount ?? 0).toLocaleString("sv-SE")} kr`;
 }
 
+export function renderBrandedEmail({
+  eyebrow,
+  title,
+  intro,
+  children,
+  footer = "InfoSync",
+}: {
+  eyebrow?: string;
+  title: string;
+  intro?: string;
+  children: string;
+  footer?: string;
+}) {
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "").replace(/\/$/, "");
+  const logoUrl = appUrl
+    ? `${appUrl}/brand/infosync-logo-full-dark-bg.png`
+    : "";
+
+  return `
+    <div style="margin:0; padding:0; background:#eef6ff;">
+      <div style="max-width:680px; margin:0 auto; padding:28px 16px; font-family:Arial, sans-serif; color:#102033; line-height:1.6;">
+        <div style="overflow:hidden; border:1px solid #d9e5f7; border-radius:22px; background:#ffffff; box-shadow:0 18px 48px rgba(6,25,66,0.12);">
+          <div style="background:#061942; padding:22px 24px;">
+            ${
+              logoUrl
+                ? `<img src="${logoUrl}" alt="InfoSync" width="180" style="display:block; max-width:180px; height:auto;" />`
+                : `<div style="font-family:'Special Elite', Georgia, serif; color:#ffffff; font-size:30px;">InfoSync</div>`
+            }
+          </div>
+          <div style="padding:26px 24px 8px;">
+            ${
+              eyebrow
+                ? `<p style="margin:0 0 10px; color:#f47a20; font-size:12px; font-weight:800; letter-spacing:0.16em; text-transform:uppercase;">${eyebrow}</p>`
+                : ""
+            }
+            <h1 style="margin:0; font-family:'Special Elite', Georgia, serif; font-size:34px; font-weight:400; line-height:1.1; color:#09244a;">${title}</h1>
+            ${
+              intro
+                ? `<p style="margin:14px 0 0; color:#526579; font-size:16px;">${intro}</p>`
+                : ""
+            }
+          </div>
+          <div style="padding:12px 24px 26px;">
+            ${children}
+          </div>
+          <div style="border-top:1px solid #e5eef8; background:#f8fbff; padding:18px 24px; color:#65788d; font-size:13px;">
+            ${footer}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 async function getResendErrorMessage(response: Response) {
   const text = await response.text();
 
