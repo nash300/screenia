@@ -696,6 +696,7 @@ export default function Home() {
                   <div className="landing-plan-price">
                     <strong>{plan.monthlyFee}</strong>
                     <span>{t.monthly}</span>
+                    <span>exkl. moms</span>
                   </div>
                   <div className="landing-price-mini-grid">
                     <PriceRow label={t.setupFee} value={plan.setupFee} />
@@ -714,6 +715,7 @@ export default function Home() {
           </div>
           <div className="landing-pricing-note">
             <h3>Vilken version passar mig?</h3>
+            <p>Alla priser visas exkl. moms. Svensk moms beräknas i Stripe Checkout.</p>
             <p>
               För skärmar på 50 tum kan både Full HD och 4K fungera bra
               beroende på innehållet. Om skärmen visar mycket text, menyer

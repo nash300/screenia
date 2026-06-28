@@ -149,6 +149,10 @@ export async function POST(request: Request) {
       (plan.code === "premium_4k" ? 1099 : 699);
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
+    const priceTaxBehavior =
+      plan.tax_behavior === "inclusive"
+        ? ("inclusive" as const)
+        : ("exclusive" as const);
 
     const screenQuantity = Math.min(
       50,
@@ -345,6 +349,7 @@ export async function POST(request: Request) {
           price_data: {
             currency,
             unit_amount: toOre(plan.setup_fee_sek),
+            tax_behavior: priceTaxBehavior,
             product_data: {
               name: `${plan.name} start- och konfigurationsavgift`,
               description: "Engångsavgift. Återbetalas inte när setupen har startat.",
@@ -357,6 +362,7 @@ export async function POST(request: Request) {
           price_data: {
             currency,
             unit_amount: toOre(checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek),
+            tax_behavior: priceTaxBehavior,
             product_data: {
               name: `${plan.name} ${plan.resolution} skärmenhet`,
               images: [deviceImage],
@@ -368,6 +374,7 @@ export async function POST(request: Request) {
           price_data: {
             currency,
             unit_amount: toOre(checkoutQuoteItems[0]?.shippingFeeSek ?? shippingFeeSek),
+            tax_behavior: priceTaxBehavior,
             product_data: {
               name: "Frakt inom Sverige",
               images: [subscriptionImage],
@@ -379,6 +386,7 @@ export async function POST(request: Request) {
           price_data: {
             currency,
             unit_amount: toOre(checkoutQuoteItems[0]?.monthlyFeeSek ?? plan.monthly_fee_sek),
+            tax_behavior: priceTaxBehavior,
             recurring: {
               interval: "month",
             },
@@ -394,6 +402,7 @@ export async function POST(request: Request) {
             price_data: {
               currency,
               unit_amount: toOre(item.discountedHardwareFeeSek),
+              tax_behavior: priceTaxBehavior,
               product_data: {
                 name: `${item.name} ${item.resolution} skärmenhet`,
                 images: [deviceImage],
@@ -405,6 +414,7 @@ export async function POST(request: Request) {
             price_data: {
               currency,
               unit_amount: toOre(item.shippingFeeSek),
+              tax_behavior: priceTaxBehavior,
               product_data: {
                 name: `Frakt ${item.name} ${item.resolution}`,
                 images: [subscriptionImage],
@@ -416,6 +426,7 @@ export async function POST(request: Request) {
             price_data: {
               currency,
               unit_amount: toOre(item.monthlyFeeSek),
+              tax_behavior: priceTaxBehavior,
               recurring: {
                 interval: "month" as const,
               },

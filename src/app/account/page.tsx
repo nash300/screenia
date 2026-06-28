@@ -181,6 +181,11 @@ function money(amount: number | null) {
   return `${formatter.format(amount)} kr`;
 }
 
+function stripeMoney(amount: number | null) {
+  if (typeof amount !== "number") return "-";
+  return `${formatter.format(amount / 100)} kr`;
+}
+
 function date(value: string | null) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("sv-SE", {
@@ -1192,8 +1197,10 @@ export default function AccountPage() {
                         value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
-                      <Fact label="Månadspris" value={money(activeSubscription.monthly_fee_sek)} />
-                      <Fact label="Startavgift" value={money(activeSubscription.setup_fee_sek)} />
+                      <Fact label="Månadspris exkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
+                      <Fact label="Startavgift exkl. moms" value={money(activeSubscription.setup_fee_sek)} />
+                      <Fact label="Moms" value={stripeMoney(activeSubscription.tax_amount_sek)} />
+                      <Fact label="Betalt inkl. moms" value={stripeMoney(activeSubscription.total_amount_sek)} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
                       <Fact

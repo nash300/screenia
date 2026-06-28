@@ -324,9 +324,9 @@ function CustomersContent() {
     return new Date(value).toLocaleDateString("sv-SE");
   };
 
-  const formatSek = (value: number | null | undefined) => {
+  const formatStripeSek = (value: number | null | undefined) => {
     if (value === null || typeof value === "undefined") return "-";
-    return `${value.toLocaleString("sv-SE")} kr`;
+    return `${(value / 100).toLocaleString("sv-SE")} kr`;
   };
 
   const navigateFilter = (filter: string) => {
@@ -518,7 +518,7 @@ function CustomersContent() {
                           <small>{formatDate(subscription?.created_at)}</small>
                         </td>
                         <td>
-                          <strong>{formatSek(subscription?.total_amount_sek)}</strong>
+                          <strong>{formatStripeSek(subscription?.total_amount_sek)}</strong>
                           <span>{subscription?.stripe_payment_status || customer.payment_status || "-"}</span>
                           <small>{formatDate(subscription?.updated_at)}</small>
                         </td>
