@@ -1197,10 +1197,10 @@ export default function AccountPage() {
                         value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
-                      <Fact label="Månadspris exkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
-                      <Fact label="Startavgift exkl. moms" value={money(activeSubscription.setup_fee_sek)} />
+                      <Fact label="Månadspris inkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
+                      <Fact label="Startavgift inkl. moms" value={money(activeSubscription.setup_fee_sek)} />
                       <Fact label="Moms" value={stripeMoney(activeSubscription.tax_amount_sek)} />
-                      <Fact label="Betalt inkl. moms" value={stripeMoney(activeSubscription.total_amount_sek)} />
+                      <Fact label="Betalt totalt" value={stripeMoney(activeSubscription.total_amount_sek)} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
                       <Fact

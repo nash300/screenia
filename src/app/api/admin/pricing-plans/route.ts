@@ -159,6 +159,7 @@ async function ensurePrice({
         existingPrice.active &&
         existingPrice.currency === currency &&
         existingPrice.unit_amount === unitAmount &&
+        existingPrice.tax_behavior === (plan.tax_behavior || "inclusive") &&
         recurringMatches
       ) {
         return existingPrice.id;
@@ -182,7 +183,7 @@ async function ensurePrice({
     currency,
     unit_amount: unitAmount,
     recurring: spec.recurring,
-    tax_behavior: plan.tax_behavior || "exclusive",
+    tax_behavior: plan.tax_behavior || "inclusive",
     product: productId,
     metadata: {
       pricing_plan_id: plan.id,

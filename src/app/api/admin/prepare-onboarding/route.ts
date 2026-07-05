@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
+import { includedVatFromGross } from "@/lib/pricing/vat";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { renderBrandedEmail } from "@/lib/server/email";
 
@@ -13,7 +14,6 @@ const supabaseAdmin = createClient(
 );
 
 const DEFAULT_SHIPPING_FEE_SEK = 99;
-const SWEDISH_STANDARD_VAT_RATE = 0.25;
 
 const createAuthenticatedClient = async () => {
   const cookieStore = await cookies();
@@ -43,9 +43,6 @@ const escapeHtml = (value: string) =>
 
 const formatSek = (amount: number | null | undefined) =>
   `${(amount ?? 0).toLocaleString("sv-SE")} kr`;
-
-const addVat = (amount: number) =>
-  amount + Math.round(amount * SWEDISH_STANDARD_VAT_RATE);
 
 type QuoteItemInput = {
   pricingPlanCode?: string;
@@ -228,17 +225,14 @@ export async function POST(request: Request) {
     (sum, item) => sum + item.shippingFeeSek * item.quantity,
     0,
   );
-  const firstPaymentExVatSek =
+  const firstPaymentGrossSek =
     plan.setup_fee_sek +
     deviceSubtotalSek +
     shippingSubtotalSek -
     deviceDiscountAmountSek;
-  const firstPaymentVatSek = Math.round(
-    firstPaymentExVatSek * SWEDISH_STANDARD_VAT_RATE,
-  );
-  const firstPaymentIncVatSek = firstPaymentExVatSek + firstPaymentVatSek;
-  const monthlyExVatSek = monthlySubtotalSek - monthlyDiscountAmountSek;
-  const monthlyIncVatSek = addVat(monthlyExVatSek);
+  const firstPaymentVat = includedVatFromGross(firstPaymentGrossSek);
+  const monthlyGrossSek = monthlySubtotalSek - monthlyDiscountAmountSek;
+  const monthlyVat = includedVatFromGross(monthlyGrossSek);
 
   const { data: existingOrder } = await supabaseAdmin
     .from("customer_subscriptions")
@@ -431,9 +425,9 @@ Screens/devices: ${screenQuantity}
 Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
 Månadsabonnemang: ${formatSek(plan.monthly_fee_sek)}
 Kostnadsfri provperiod: ${plan.trial_days} dagar
-Priser ovan visas exkl. moms. Svensk moms beräknas med 25% i Stripe Checkout.
-Första betalning: ${formatSek(firstPaymentExVatSek)} exkl. moms + ${formatSek(firstPaymentVatSek)} moms = ${formatSek(firstPaymentIncVatSek)} inkl. moms.
-Månadsabonnemang efter provperiod: ${formatSek(monthlyExVatSek)} exkl. moms, ca ${formatSek(monthlyIncVatSek)} inkl. moms.
+Priserna ovan är totalsummor kunden betalar inklusive svensk moms.
+Första betalning: ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
+Månadsabonnemang efter provperiod: ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.
 Ordernummer: ${order.order_number}
 ${quoteNotes ? `\nMeddelande: ${quoteNotes}\n` : ""}
 Fortsätt här för att bekräfta uppgifter och gå vidare till betalning. Material samlas in efter betalning:
@@ -468,9 +462,9 @@ InfoSync`,
             ${safeQuoteNotes ? `<p><strong>Meddelande:</strong> ${safeQuoteNotes}</p>` : ""}
           </div>
           <div style="border: 1px solid #ffd9bf; border-radius: 14px; padding: 16px; background: #fff7f0; margin-top: 14px;">
-            <p style="margin: 0 0 8px;"><strong>Moms:</strong> Priserna ovan visas exkl. moms. Svensk moms beräknas med 25% i Stripe Checkout.</p>
-            <p style="margin: 0;"><strong>Första betalning:</strong> ${formatSek(firstPaymentExVatSek)} exkl. moms + ${formatSek(firstPaymentVatSek)} moms = ${formatSek(firstPaymentIncVatSek)} inkl. moms.</p>
-            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang efter provperiod:</strong> ${formatSek(monthlyExVatSek)} exkl. moms, ca ${formatSek(monthlyIncVatSek)} inkl. moms.</p>
+            <p style="margin: 0 0 8px;"><strong>Moms:</strong> Priserna ovan är totalsummor kunden betalar inklusive svensk moms.</p>
+            <p style="margin: 0;"><strong>Första betalning:</strong> ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.</p>
+            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang efter provperiod:</strong> ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.</p>
           </div>
           <p>
             <a href="${onboardingUrl}" style="display: inline-block; background: #2f7df6; color: #ffffff; padding: 12px 18px; border-radius: 10px; text-decoration: none; font-weight: 700;">

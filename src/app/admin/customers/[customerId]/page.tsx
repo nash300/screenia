@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
+import { includedVatFromGross } from "@/lib/pricing/vat";
 
 type Customer = {
   id: string;
@@ -1287,6 +1288,11 @@ export default function CustomerDetailPage({
       quoteDeviceDiscountAmount +
       quoteShippingSubtotal
     : 0;
+  const quoteStartupVat = includedVatFromGross(quoteStartupTotal);
+  const quoteMonthlyVat = includedVatFromGross(
+    quoteMonthlySubtotal -
+      (quoteDiscountMonths > 0 ? quoteMonthlyDiscountAmount : 0),
+  );
   const currentOnboardingLink = customer.onboarding_token
     ? `/onboarding/${customer.onboarding_token}`
     : "";
@@ -1686,17 +1692,17 @@ export default function CustomerDetailPage({
                         <strong>x {line.quantity}</strong>
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
-                        <span>Hardware</span>
-                        <strong>{formatSek(line.deviceSubtotal)}</strong>
-                      </div>
-                      <div className="mt-1 flex justify-between gap-3 text-xs">
-                        <span>Monthly</span>
-                        <strong>{formatSek(line.monthlySubtotal)} / month</strong>
-                      </div>
+                    <span>Hardware incl. VAT</span>
+                    <strong>{formatSek(line.deviceSubtotal)}</strong>
+                  </div>
+                  <div className="mt-1 flex justify-between gap-3 text-xs">
+                    <span>Monthly incl. VAT</span>
+                    <strong>{formatSek(line.monthlySubtotal)} / month</strong>
+                  </div>
                     </div>
                   ))}
                   <div className="flex justify-between gap-3">
-                    <span>Setup fee</span>
+                    <span>Setup fee incl. VAT</span>
                     <strong>{formatSek(primaryQuotePlan.setup_fee_sek)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -1704,11 +1710,11 @@ export default function CustomerDetailPage({
                     <strong>-{formatSek(quoteDeviceDiscountAmount)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Shipping</span>
+                    <span>Shipping incl. VAT</span>
                     <strong>{formatSek(quoteShippingSubtotal)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Monthly</span>
+                    <span>Monthly incl. VAT</span>
                     <strong>{formatSek(quoteMonthlySubtotal)} / month</strong>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -1720,14 +1726,19 @@ export default function CustomerDetailPage({
                     </strong>
                   </div>
                   <div className="flex justify-between gap-3 border-t border-slate-200 pt-2">
-                    <span>Due at checkout before trial</span>
+                    <span>Due at checkout incl. VAT</span>
                     <strong>{formatSek(quoteStartupTotal)}</strong>
+                  </div>
+                  <div className="flex justify-between gap-3 text-xs text-slate-500">
+                    <span>Included VAT</span>
+                    <strong>{formatSek(quoteStartupVat.vat)}</strong>
                   </div>
                   <p className="text-xs text-slate-500">
                     Screens: {quoteScreenQuantity}. Trial:{" "}
                     {primaryQuotePlan.trial_days} days. Monthly
-                    discount duration: {quoteDiscountMonths} months. Stripe
-                    handles the subscription after checkout.
+                    discount duration: {quoteDiscountMonths} months. Monthly
+                    VAT included: {formatSek(quoteMonthlyVat.vat)}. Stripe
+                    shows the VAT portion without increasing these totals.
                   </p>
                 </div>
               ) : (

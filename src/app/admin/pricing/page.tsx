@@ -38,14 +38,14 @@ type Notice = {
   message: string;
 };
 
-const VAT_RATE = 0.25;
-
 function formatSek(value: number | null | undefined) {
   return `${(value ?? 0).toLocaleString("sv-SE")} SEK`;
 }
 
-function incVat(value: number | null | undefined) {
-  return Math.round((value ?? 0) * (1 + VAT_RATE));
+function includedVat(value: number | null | undefined) {
+  const gross = Math.max(0, Math.round(value ?? 0));
+  const net = Math.round(gross / 1.25);
+  return gross - net;
 }
 
 function toForm(plan: PricingPlan): PricingForm {
@@ -226,9 +226,8 @@ export default function PricingPage() {
         <h1>Pricing</h1>
         <p>
           Edit live package prices, then sync matching Stripe products and
-          prices for tracking. Amounts are exkl. moms; Checkout uses these
-          Supabase values immediately and Stripe adds Swedish VAT when automatic
-          tax is enabled.
+          prices for tracking. Amounts are customer-pay totals including Swedish
+          VAT; Checkout keeps the same totals and reports the included VAT.
         </p>
       </div>
 
@@ -351,14 +350,14 @@ export default function PricingPage() {
 
                 <div className="admin-pricing-summary">
                   <div>
-                    <span>First payment exkl. moms</span>
+                    <span>First payment incl. moms</span>
                     <strong>{formatSek(firstPaymentByPlan[plan.id])}</strong>
-                    <small>{formatSek(incVat(firstPaymentByPlan[plan.id]))} inkl. moms</small>
+                    <small>{formatSek(includedVat(firstPaymentByPlan[plan.id]))} moms included</small>
                   </div>
                   <div>
-                    <span>Monthly subscription exkl. moms</span>
+                    <span>Monthly subscription incl. moms</span>
                     <strong>{formatSek(parseInteger(form.monthlyFeeSek))}</strong>
-                    <small>{formatSek(incVat(parseInteger(form.monthlyFeeSek)))} inkl. moms</small>
+                    <small>{formatSek(includedVat(parseInteger(form.monthlyFeeSek)))} moms included</small>
                   </div>
                   <div>
                     <span>Stripe sync</span>

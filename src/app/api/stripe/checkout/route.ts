@@ -152,9 +152,9 @@ export async function POST(request: Request) {
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
     const priceTaxBehavior =
-      plan.tax_behavior === "inclusive"
-        ? ("inclusive" as const)
-        : ("exclusive" as const);
+      plan.tax_behavior === "exclusive"
+        ? ("exclusive" as const)
+        : ("inclusive" as const);
 
     const screenQuantity = Math.min(
       50,

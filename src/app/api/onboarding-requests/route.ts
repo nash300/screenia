@@ -62,10 +62,10 @@ Företag: ${companyName}
 ${contactPerson ? `Kontaktperson: ${contactPerson}\n` : ""}E-post: ${email}
 Paket: ${planName}
 Antal skärmar/enheter: ${screenQuantity}
-Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)}
-Skärmenhet: ${formatSek(plan.hardwareFeeSek)} per enhet
-Frakt: ${formatSek(plan.shippingFeeSek)} per enhet
-Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} per enhet
+Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)} inkl. moms
+Skärmenhet: ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet
+Frakt: ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet
+Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet
 Kostnadsfri provperiod: ${plan.trialDays} dagar
 Mottaget: ${receivedAt}
 ${message ? `\nMeddelande: ${message}\n` : ""}
@@ -87,10 +87,10 @@ InfoSync`,
           <p><strong>E-post:</strong> ${escapeHtml(email)}</p>
           <p><strong>Paket:</strong> ${escapeHtml(planName)}</p>
           <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
-          <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)}</p>
-          <p><strong>Skärmenhet:</strong> ${formatSek(plan.hardwareFeeSek)} per enhet</p>
-          <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} per enhet</p>
-          <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} per enhet</p>
+          <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)} inkl. moms</p>
+          <p><strong>Skärmenhet:</strong> ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet</p>
+          <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet</p>
+          <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet</p>
           <p><strong>Kostnadsfri provperiod:</strong> ${plan.trialDays} dagar</p>
           <p><strong>Mottaget:</strong> ${receivedAt}</p>
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
