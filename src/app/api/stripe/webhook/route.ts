@@ -249,24 +249,148 @@ export async function POST(request: Request) {
         .update({
           status: "payment_failed",
           stripe_payment_status: "failed",
+          fulfillment_status: "payment_failed",
         })
         .eq("stripe_customer_id", customerId);
 
       await Promise.all(
         data.map((customer) =>
-          recordAuditEvent(supabaseAdmin, {
-            customerId: customer.id,
-            actorType: "stripe",
-            eventType: "payment_failed",
-            eventDescription:
-              "Stripe reported a failed payment. Customer was suspended.",
-            metadata: {
-              stripeCustomerId: customerId,
-              invoiceId: invoice.id,
-            },
-          }),
+          Promise.all([
+            recordAuditEvent(supabaseAdmin, {
+              customerId: customer.id,
+              actorType: "stripe",
+              eventType: "payment_failed",
+              eventDescription:
+                "Stripe reported a failed payment. Customer was suspended.",
+              metadata: {
+                stripeCustomerId: customerId,
+                invoiceId: invoice.id,
+              },
+            }),
+            createAdminNotification(supabaseAdmin, {
+              customerId: customer.id,
+              eventType: "payment_failed",
+              title: "Payment failed",
+              message: `Stripe reported a failed payment for invoice ${invoice.id}.`,
+              priority: "urgent",
+              metadata: {
+                stripeCustomerId: customerId,
+                invoiceId: invoice.id,
+              },
+            }),
+          ]),
         ),
       );
+    }
+  }
+
+  if (event.type === "invoice.paid") {
+    const invoice = event.data.object as Stripe.Invoice;
+    const billingReason = invoice.billing_reason;
+
+    if (billingReason && billingReason !== "subscription_create") {
+      const stripeCustomerId =
+        typeof invoice.customer === "string"
+          ? invoice.customer
+          : invoice.customer?.id;
+      const invoiceWithSubscription = invoice as Stripe.Invoice & {
+        parent?: {
+          subscription_details?: {
+            subscription?: string | null;
+          } | null;
+        } | null;
+        subscription?: string | Stripe.Subscription | null;
+      };
+      const stripeSubscriptionId =
+        typeof invoiceWithSubscription.subscription === "string"
+          ? invoiceWithSubscription.subscription
+          : invoiceWithSubscription.subscription?.id ||
+            invoiceWithSubscription.parent?.subscription_details?.subscription ||
+            null;
+
+      if (stripeCustomerId) {
+        const { data: customers, error: customerError } = await supabaseAdmin
+          .from("customers")
+          .select("id, payment_status")
+          .eq("stripe_customer_id", stripeCustomerId);
+
+        if (customerError) {
+          console.error("Invoice paid customer lookup error:", customerError);
+        }
+
+        const { data: existingAudit, error: auditLookupError } =
+          await supabaseAdmin
+            .from("audit_events")
+            .select("id")
+            .eq("event_type", "subscription_invoice_paid")
+            .contains("metadata", { invoiceId: invoice.id })
+            .limit(1);
+
+        if (auditLookupError) {
+          console.error("Invoice paid audit lookup error:", auditLookupError);
+        }
+
+        if (stripeSubscriptionId) {
+          const { data: localSubscription, error: subscriptionLookupError } =
+            await supabaseAdmin
+              .from("customer_subscriptions")
+              .select("id, status")
+              .eq("stripe_subscription_id", stripeSubscriptionId)
+              .maybeSingle();
+
+          if (subscriptionLookupError) {
+            console.error(
+              "Invoice paid subscription lookup error:",
+              subscriptionLookupError,
+            );
+          } else if (
+            localSubscription &&
+            !["refunded", "cancelled"].includes(localSubscription.status)
+          ) {
+            const { error: subscriptionError } = await supabaseAdmin
+              .from("customer_subscriptions")
+              .update({
+                status: "active",
+                stripe_payment_status: "paid",
+                fulfillment_status: "active",
+              })
+              .eq("id", localSubscription.id);
+
+            if (subscriptionError) {
+              console.error(
+                "Invoice paid subscription update error:",
+                subscriptionError,
+              );
+            }
+          }
+        }
+
+        if (!existingAudit?.length) {
+          await Promise.all(
+            (customers || [])
+              .filter((customer) => customer.payment_status !== "refunded")
+              .map((customer) =>
+                recordAuditEvent(supabaseAdmin, {
+                  customerId: customer.id,
+                  actorType: "stripe",
+                  eventType: "subscription_invoice_paid",
+                  eventDescription:
+                    "Stripe reported a paid subscription invoice.",
+                  metadata: {
+                    stripeCustomerId,
+                    stripeSubscriptionId,
+                    invoiceId: invoice.id,
+                    billingReason,
+                    amountPaid: invoice.amount_paid,
+                    amountDue: invoice.amount_due,
+                    total: invoice.total,
+                    totalTaxes: invoice.total_taxes,
+                  },
+                }),
+              ),
+          );
+        }
+      }
     }
   }
 
