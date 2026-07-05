@@ -8,6 +8,24 @@ import "../landing.css";
 
 type AccountSection = "overview" | "setup" | "material" | "messages" | "billing" | "legal";
 
+const accountSectionIds: AccountSection[] = [
+  "overview",
+  "setup",
+  "material",
+  "messages",
+  "billing",
+  "legal",
+];
+
+function getInitialAccountSection(): AccountSection {
+  if (typeof window === "undefined") return "overview";
+
+  const section = new URLSearchParams(window.location.search).get("section");
+  return accountSectionIds.includes(section as AccountSection)
+    ? (section as AccountSection)
+    : "overview";
+}
+
 type AccountData = {
   customer: {
     id: string;
@@ -181,21 +199,6 @@ function money(amount: number | null) {
   return `${formatter.format(amount)} kr`;
 }
 
-function stripeMoney(amount: number | null) {
-  if (typeof amount !== "number") return "-";
-  const hasOre = amount % 100 !== 0;
-  const stripeFormatter = new Intl.NumberFormat("sv-SE", {
-    minimumFractionDigits: hasOre ? 2 : 0,
-    maximumFractionDigits: 2,
-  });
-
-  return `${stripeFormatter.format(amount / 100)} kr`;
-}
-
-function includedVatOreFromSek(amountSek: number) {
-  return Math.round(Math.max(0, amountSek) * 100 * 0.2);
-}
-
 function date(value: string | null) {
   if (!value) return "-";
   return new Intl.DateTimeFormat("sv-SE", {
@@ -313,7 +316,9 @@ function journeySteps(data: AccountData) {
 export default function AccountPage() {
   const [data, setData] = useState<AccountData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState<AccountSection>("overview");
+  const [activeSection, setActiveSection] = useState<AccountSection>(
+    getInitialAccountSection,
+  );
   const [messageSubject, setMessageSubject] = useState("");
   const [messageText, setMessageText] = useState("");
   const [messageFiles, setMessageFiles] = useState<File[]>([]);
@@ -347,17 +352,7 @@ export default function AccountPage() {
       (activeSubscription.hardware_fee_sek || 0) +
       (activeSubscription.shipping_fee_sek || 0)
     : 0;
-  const initialPaymentVatOre = includedVatOreFromSek(initialPaymentSek);
-  const initialPaymentNetOre = Math.max(
-    0,
-    initialPaymentSek * 100 - initialPaymentVatOre,
-  );
   const monthlyPaymentSek = activeSubscription?.monthly_fee_sek || 0;
-  const monthlyPaymentVatOre = includedVatOreFromSek(monthlyPaymentSek);
-  const monthlyPaymentNetOre = Math.max(
-    0,
-    monthlyPaymentSek * 100 - monthlyPaymentVatOre,
-  );
   const dashboardStats = useMemo(
     () => [
       { label: "Skärmar", value: String(data?.devices.length || 0) },
@@ -386,6 +381,18 @@ export default function AccountPage() {
   useEffect(() => {
     setNotice("");
   }, [activeSection]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    params.set("section", activeSection);
+    window.history.replaceState(null, "", `?${params.toString()}`);
+  }, [activeSection]);
+
+  useEffect(() => {
+    const onPopState = () => setActiveSection(getInitialAccountSection());
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   useEffect(() => {
     if (!data?.customer) return;
@@ -1223,15 +1230,8 @@ export default function AccountPage() {
                         value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
-                      <Fact label="Startavgift inkl. moms" value={money(activeSubscription.setup_fee_sek)} />
-                      <Fact label="Skärmenhet inkl. moms" value={money(activeSubscription.hardware_fee_sek)} />
-                      <Fact label="Frakt inkl. moms" value={money(activeSubscription.shipping_fee_sek)} />
-                      <Fact label="Initial betalning inkl. moms" value={money(initialPaymentSek)} />
-                      <Fact label="Initial betalning exkl. moms" value={stripeMoney(initialPaymentNetOre)} />
-                      <Fact label="Moms i initial betalning" value={stripeMoney(initialPaymentVatOre)} />
+                      <Fact label="Första betalning" value={money(initialPaymentSek)} />
                       <Fact label="Månadspris efter provperiod" value={money(monthlyPaymentSek)} />
-                      <Fact label="Månadspris exkl. moms" value={stripeMoney(monthlyPaymentNetOre)} />
-                      <Fact label="Moms i månadspris" value={stripeMoney(monthlyPaymentVatOre)} />
                       <Fact label="Provperiod" value={`${activeSubscription.trial_days || 0} dagar`} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
@@ -1239,6 +1239,11 @@ export default function AccountPage() {
                         label="Spårningslänk"
                         value={activeSubscription.tracking_url || "-"}
                       />
+                      <p className="account-price-note">
+                        Första betalningen består av startavgift {money(activeSubscription.setup_fee_sek)},
+                        skärmenhet {money(activeSubscription.hardware_fee_sek)} och frakt {money(activeSubscription.shipping_fee_sek)}.
+                        Alla priser visas inklusive moms.
+                      </p>
                     </div>
                   ) : (
                     <p>Inget abonnemang är kopplat till kontot ännu.</p>

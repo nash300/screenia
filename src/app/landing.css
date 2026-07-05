@@ -4496,6 +4496,15 @@
   font-weight: 900;
 }
 
+.account-price-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: rgba(12, 32, 64, 0.62);
+  font-size: 0.86rem;
+  font-style: italic;
+  line-height: 1.55;
+}
+
 .account-input {
   width: 100%;
   border: 1px solid rgba(122, 145, 178, 0.28);
