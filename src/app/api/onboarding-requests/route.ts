@@ -63,7 +63,7 @@ ${contactPerson ? `Kontaktperson: ${contactPerson}\n` : ""}E-post: ${email}
 Paket: ${planName}
 Antal skärmar/enheter: ${screenQuantity}
 Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)} inkl. moms
-Skärmenhet: ingår
+Skärmenhet: tillhandahålls av InfoSync
 Frakt: ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet
 Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet
 Startperiod: ${plan.trialDays} dagar ingår
@@ -88,7 +88,7 @@ InfoSync`,
           <p><strong>Paket:</strong> ${escapeHtml(planName)}</p>
           <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
           <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)} inkl. moms</p>
-          <p><strong>Skärmenhet:</strong> Ingår</p>
+          <p><strong>Skärmenhet:</strong> Tillhandahålls av InfoSync</p>
           <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet</p>
           <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet</p>
           <p><strong>Startperiod:</strong> ${plan.trialDays} dagar ingår</p>

@@ -1695,7 +1695,7 @@ export default function CustomerDetailPage({
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
                         <span>Screen device</span>
-                        <strong>Included</strong>
+                        <strong>Provided by InfoSync</strong>
                   </div>
                   <div className="mt-1 flex justify-between gap-3 text-xs">
                     <span>Monthly incl. VAT</span>
@@ -2226,7 +2226,7 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Device: included x {subscription.screen_quantity || 1}
+                      Device: provided by InfoSync x {subscription.screen_quantity || 1}
                     </p>
                     <p>
                       Device discount:{" "}

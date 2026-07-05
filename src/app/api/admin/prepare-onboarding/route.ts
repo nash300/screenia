@@ -425,7 +425,7 @@ Här är din InfoSync-offert.
 
 Paket: ${plan.name} ${plan.resolution}
 Start- och konfigurationsavgift: ${formatSek(plan.setup_fee_sek)}
-Skärmenhet: ingår
+Skärmenhet: tillhandahålls av InfoSync
 Frakt: ${formatSek(shippingFeeSek)}
 Screens/devices: ${screenQuantity}
 Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
@@ -454,7 +454,7 @@ InfoSync`,
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
             <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setup_fee_sek)}</p>
-            <p><strong>Skärmenhet:</strong> Ingår</p>
+            <p><strong>Skärmenhet:</strong> Tillhandahålls av InfoSync</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>
             <p><strong>Frakt:</strong> ${formatSek(shippingFeeSek)}</p>

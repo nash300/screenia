@@ -1216,7 +1216,7 @@ export default function AccountPage() {
                       <Fact label="Månadspris inkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
                       <Fact label="Startavgift inkl. moms" value={money(activeSubscription.setup_fee_sek)} />
                       <Fact label="Frakt inkl. moms" value={money(activeSubscription.shipping_fee_sek)} />
-                      <Fact label="Skärmenhet" value="Ingår" />
+                      <Fact label="Skärmenhet" value="Tillhandahålls av InfoSync" />
                       <Fact label="Moms ingår" value={stripeMoney(billingVatOre)} />
                       <Fact label="Totalt inkl. moms" value={money(billingTotalSek)} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />

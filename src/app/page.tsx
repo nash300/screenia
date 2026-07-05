@@ -161,7 +161,7 @@ const copy = {
       ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
       ["Can I change the content later", "Yes. Send new material or updated prices to InfoSync and we help update the screen."],
       ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
-      ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and device dispatch."],
+      ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and preparing the device for dispatch."],
     ],
     companyTitle: "Company information",
     companyText:
@@ -698,7 +698,7 @@ export default function Home() {
                   </div>
                   <div className="landing-price-mini-grid">
                     <PriceRow label={t.setupFee} value={plan.setupFee} />
-                    <PriceRow label="Skärmenhet" value="Ingår" />
+                    <PriceRow label="Skärmenhet" value="Tillhandahålls" />
                   </div>
                   <button
                     type="button"
