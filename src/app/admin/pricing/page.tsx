@@ -126,7 +126,7 @@ export default function PricingPage() {
       const form = forms[plan.id] || toForm(plan);
       const firstPayment =
         parseInteger(form.setupFeeSek) +
-        parseInteger(form.monthlyFeeSek) +
+        parseInteger(form.hardwareFeeSek) +
         parseInteger(form.shippingFeeSek);
       return [plan.id, firstPayment] as const;
     });
@@ -350,7 +350,7 @@ export default function PricingPage() {
 
                 <div className="admin-pricing-summary">
                   <div>
-                    <span>Setup + first month + shipping incl. moms</span>
+                    <span>Initial payment incl. moms</span>
                     <strong>{formatSek(firstPaymentByPlan[plan.id])}</strong>
                     <small>{formatSek(includedVat(firstPaymentByPlan[plan.id]))} moms included</small>
                   </div>

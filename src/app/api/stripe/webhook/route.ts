@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { includedVatFromGross } from "@/lib/pricing/vat";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -12,6 +13,11 @@ const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
+
+function includedVatOreFromStripeTotal(amountOre: number | null | undefined) {
+  if (!amountOre) return null;
+  return Math.round(includedVatFromGross(amountOre / 100).vat * 100);
+}
 
 async function saveCustomerAuthUser(customerId: string, authUserId: string) {
   const { error } = await supabaseAdmin
@@ -118,6 +124,9 @@ export async function POST(request: Request) {
       session.metadata?.stripe_discount_coupon_id || null;
     const customerEmail =
       session.customer_details?.email || session.customer_email || null;
+    const includedVatOre =
+      session.total_details?.amount_tax ||
+      includedVatOreFromStripeTotal(session.amount_total);
 
     if (customerId) {
       await ensureCustomerAuthUser(customerId, customerEmail);
@@ -148,7 +157,7 @@ export async function POST(request: Request) {
             stripeCheckoutSessionId: session.id,
             customerSubscriptionId,
             orderNumber,
-            taxAmountSek: session.total_details?.amount_tax,
+            taxAmountSek: includedVatOre,
             totalAmountSek: session.amount_total,
           },
         });
@@ -196,7 +205,7 @@ export async function POST(request: Request) {
           tax_status: session.automatic_tax?.enabled
             ? session.automatic_tax.status || "complete"
             : "not_enabled",
-          tax_amount_sek: session.total_details?.amount_tax ?? null,
+          tax_amount_sek: includedVatOre,
           total_amount_sek: session.amount_total ?? null,
           fulfillment_status: "content_collection",
           inventory_status: "ready_to_reserve",

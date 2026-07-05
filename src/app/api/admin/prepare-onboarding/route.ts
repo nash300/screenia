@@ -232,8 +232,6 @@ export async function POST(request: Request) {
   const firstPaymentGrossSek =
     plan.setup_fee_sek +
     deviceSubtotalSek +
-    monthlySubtotalSek -
-    monthlyDiscountAmountSek +
     shippingSubtotalSek -
     deviceDiscountAmountSek;
   const firstPaymentVat = includedVatFromGross(firstPaymentGrossSek);
@@ -425,15 +423,15 @@ Här är din InfoSync-offert.
 
 Paket: ${plan.name} ${plan.resolution}
 Start- och konfigurationsavgift: ${formatSek(plan.setup_fee_sek)}
-Skärmenhet: tillhandahålls av InfoSync
-Frakt: ${formatSek(shippingFeeSek)}
+Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
+Frakt: ${formatSek(shippingSubtotalSek)} inkl. moms
 Screens/devices: ${screenQuantity}
 Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
-Månadsabonnemang: ${formatSek(plan.monthly_fee_sek)}
-Startperiod: ${plan.trial_days} dagar ingår
+Månadsabonnemang: ${formatSek(monthlySubtotalSek)} inkl. moms per månad
+Kostnadsfri provperiod: ${plan.trial_days} dagar
 Priserna ovan är totalsummor kunden betalar inklusive svensk moms.
-Start + första månaden + frakt: ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
-Månadsabonnemang därefter: ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.
+Initial betalning (startavgift + skärmenhet + frakt): ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
+Månadsabonnemang efter provperiod: ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.
 Ordernummer: ${order.order_number}
 ${quoteNotes ? `\nMeddelande: ${quoteNotes}\n` : ""}
 Fortsätt här för att bekräfta uppgifter och gå vidare till betalning. Material samlas in efter betalning:
@@ -454,23 +452,23 @@ InfoSync`,
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
             <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setup_fee_sek)}</p>
-            <p><strong>Skärmenhet:</strong> Tillhandahålls av InfoSync</p>
+            <p><strong>Skärmenhet:</strong> ${formatSek(deviceSubtotalSek)} inkl. moms</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>
-            <p><strong>Frakt:</strong> ${formatSek(shippingFeeSek)}</p>
-            <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthly_fee_sek)}</p>
+            <p><strong>Frakt:</strong> ${formatSek(shippingSubtotalSek)} inkl. moms</p>
+            <p><strong>Månadsabonnemang:</strong> ${formatSek(monthlySubtotalSek)} inkl. moms per månad</p>
             <p><strong>Månadsrabatt:</strong> ${
               deviceDiscountMonths > 0
                 ? `${deviceDiscountPercent}% i ${deviceDiscountMonths} månader`
                 : "Ingen"
             }</p>
-            <p><strong>Startperiod:</strong> ${plan.trial_days} dagar ingår</p>
+            <p><strong>Kostnadsfri provperiod:</strong> ${plan.trial_days} dagar</p>
             ${safeQuoteNotes ? `<p><strong>Meddelande:</strong> ${safeQuoteNotes}</p>` : ""}
           </div>
           <div style="border: 1px solid #ffd9bf; border-radius: 14px; padding: 16px; background: #fff7f0; margin-top: 14px;">
             <p style="margin: 0 0 8px;"><strong>Moms:</strong> Priserna ovan är totalsummor kunden betalar inklusive svensk moms.</p>
-            <p style="margin: 0;"><strong>Start + första månaden + frakt:</strong> ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.</p>
-            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang därefter:</strong> ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.</p>
+            <p style="margin: 0;"><strong>Initial betalning (startavgift + skärmenhet + frakt):</strong> ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.</p>
+            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang efter provperiod:</strong> ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.</p>
           </div>
           <p>
             <a href="${onboardingUrl}" style="display: inline-block; background: #2f7df6; color: #ffffff; padding: 12px 18px; border-radius: 10px; text-decoration: none; font-weight: 700;">

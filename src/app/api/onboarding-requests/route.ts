@@ -63,10 +63,10 @@ ${contactPerson ? `Kontaktperson: ${contactPerson}\n` : ""}E-post: ${email}
 Paket: ${planName}
 Antal skärmar/enheter: ${screenQuantity}
 Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)} inkl. moms
-Skärmenhet: tillhandahålls av InfoSync
+Skärmenhet: ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet
 Frakt: ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet
 Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet
-Startperiod: ${plan.trialDays} dagar ingår
+Kostnadsfri provperiod: ${plan.trialDays} dagar
 Mottaget: ${receivedAt}
 ${message ? `\nMeddelande: ${message}\n` : ""}
 InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
@@ -88,10 +88,10 @@ InfoSync`,
           <p><strong>Paket:</strong> ${escapeHtml(planName)}</p>
           <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
           <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)} inkl. moms</p>
-          <p><strong>Skärmenhet:</strong> Tillhandahålls av InfoSync</p>
+          <p><strong>Skärmenhet:</strong> ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet</p>
           <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet</p>
           <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet</p>
-          <p><strong>Startperiod:</strong> ${plan.trialDays} dagar ingår</p>
+          <p><strong>Kostnadsfri provperiod:</strong> ${plan.trialDays} dagar</p>
           <p><strong>Mottaget:</strong> ${receivedAt}</p>
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
         </div>

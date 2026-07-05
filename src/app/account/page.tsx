@@ -342,12 +342,22 @@ export default function AccountPage() {
   const router = useRouter();
 
   const activeSubscription = data?.subscriptions[0];
-  const billingTotalSek = activeSubscription
+  const initialPaymentSek = activeSubscription
     ? (activeSubscription.setup_fee_sek || 0) +
-      (activeSubscription.monthly_fee_sek || 0) +
+      (activeSubscription.hardware_fee_sek || 0) +
       (activeSubscription.shipping_fee_sek || 0)
     : 0;
-  const billingVatOre = includedVatOreFromSek(billingTotalSek);
+  const initialPaymentVatOre = includedVatOreFromSek(initialPaymentSek);
+  const initialPaymentNetOre = Math.max(
+    0,
+    initialPaymentSek * 100 - initialPaymentVatOre,
+  );
+  const monthlyPaymentSek = activeSubscription?.monthly_fee_sek || 0;
+  const monthlyPaymentVatOre = includedVatOreFromSek(monthlyPaymentSek);
+  const monthlyPaymentNetOre = Math.max(
+    0,
+    monthlyPaymentSek * 100 - monthlyPaymentVatOre,
+  );
   const dashboardStats = useMemo(
     () => [
       { label: "Skärmar", value: String(data?.devices.length || 0) },
@@ -1213,12 +1223,16 @@ export default function AccountPage() {
                         value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
-                      <Fact label="Månadspris inkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
                       <Fact label="Startavgift inkl. moms" value={money(activeSubscription.setup_fee_sek)} />
+                      <Fact label="Skärmenhet inkl. moms" value={money(activeSubscription.hardware_fee_sek)} />
                       <Fact label="Frakt inkl. moms" value={money(activeSubscription.shipping_fee_sek)} />
-                      <Fact label="Skärmenhet" value="Tillhandahålls av InfoSync" />
-                      <Fact label="Moms ingår" value={stripeMoney(billingVatOre)} />
-                      <Fact label="Totalt inkl. moms" value={money(billingTotalSek)} />
+                      <Fact label="Initial betalning inkl. moms" value={money(initialPaymentSek)} />
+                      <Fact label="Initial betalning exkl. moms" value={stripeMoney(initialPaymentNetOre)} />
+                      <Fact label="Moms i initial betalning" value={stripeMoney(initialPaymentVatOre)} />
+                      <Fact label="Månadspris efter provperiod" value={money(monthlyPaymentSek)} />
+                      <Fact label="Månadspris exkl. moms" value={stripeMoney(monthlyPaymentNetOre)} />
+                      <Fact label="Moms i månadspris" value={stripeMoney(monthlyPaymentVatOre)} />
+                      <Fact label="Provperiod" value={`${activeSubscription.trial_days || 0} dagar`} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
                       <Fact

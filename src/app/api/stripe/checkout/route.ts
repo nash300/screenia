@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
+import { includedVatFromGross } from "@/lib/pricing/vat";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -146,8 +147,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const configuredPlan = PRICING_PLANS.find((item) => item.code === plan.code);
     const hardwareFeeSek =
       plan.hardware_fee_sek ??
+      configuredPlan?.hardwareFeeSek ??
       0;
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
@@ -233,6 +236,18 @@ export async function POST(request: Request) {
     const checkoutScreenQuantity = checkoutQuoteItems.reduce(
       (sum, item) => sum + item.quantity,
       0,
+    );
+    const expectedInitialPaymentSek =
+      plan.setup_fee_sek +
+      checkoutQuoteItems.reduce(
+        (sum, item) =>
+          sum +
+          item.discountedHardwareFeeSek * item.quantity +
+          item.shippingFeeSek * item.quantity,
+        0,
+      );
+    const expectedInitialVatOre = toOre(
+      includedVatFromGross(expectedInitialPaymentSek).vat,
     );
 
     const orderPayload = {
@@ -491,6 +506,7 @@ export async function POST(request: Request) {
         ]),
       ],
       subscription_data: {
+        trial_period_days: plan.trial_days,
         metadata: {
           customer_id: customerId,
           customer_subscription_id: order.id,
@@ -525,8 +541,10 @@ export async function POST(request: Request) {
         tax_status: session.automatic_tax?.enabled
           ? session.automatic_tax.status || "pending"
           : "not_enabled",
-        tax_amount_sek: session.total_details?.amount_tax ?? null,
-        total_amount_sek: session.amount_total ?? null,
+        tax_amount_sek:
+          session.total_details?.amount_tax || expectedInitialVatOre,
+        total_amount_sek:
+          session.amount_total ?? toOre(expectedInitialPaymentSek),
         stripe_payment_status: session.payment_status,
         stripe_discount_coupon_id: coupon?.id ?? null,
       })

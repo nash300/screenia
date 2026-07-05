@@ -1286,8 +1286,6 @@ export default function CustomerDetailPage({
     ? primaryQuotePlan.setup_fee_sek +
       quoteDeviceSubtotal -
       quoteDeviceDiscountAmount +
-      quoteMonthlySubtotal -
-      (quoteDiscountMonths > 0 ? quoteMonthlyDiscountAmount : 0) +
       quoteShippingSubtotal
     : 0;
   const quoteStartupVat = includedVatFromGross(quoteStartupTotal);
@@ -1695,7 +1693,7 @@ export default function CustomerDetailPage({
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
                         <span>Screen device</span>
-                        <strong>Provided by InfoSync</strong>
+                        <strong>{formatSek(line.deviceSubtotal)}</strong>
                   </div>
                   <div className="mt-1 flex justify-between gap-3 text-xs">
                     <span>Monthly incl. VAT</span>
@@ -1728,7 +1726,7 @@ export default function CustomerDetailPage({
                     </strong>
                   </div>
                   <div className="flex justify-between gap-3 border-t border-slate-200 pt-2">
-                    <span>Setup + first month + shipping incl. VAT</span>
+                    <span>Initial payment incl. VAT</span>
                     <strong>{formatSek(quoteStartupTotal)}</strong>
                   </div>
                   <div className="flex justify-between gap-3 text-xs text-slate-500">
@@ -1736,7 +1734,7 @@ export default function CustomerDetailPage({
                     <strong>{formatSek(quoteStartupVat.vat)}</strong>
                   </div>
                   <p className="text-xs text-slate-500">
-                    Screens: {quoteScreenQuantity}. Trial:{" "}
+                    Screens: {quoteScreenQuantity}. Free trial:{" "}
                     {primaryQuotePlan.trial_days} days. Monthly
                     discount duration: {quoteDiscountMonths} months. Monthly
                     VAT included: {formatSek(quoteMonthlyVat.vat)}. Stripe
@@ -2226,7 +2224,7 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Device: provided by InfoSync x {subscription.screen_quantity || 1}
+                      Device: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
                     </p>
                     <p>
                       Device discount:{" "}
