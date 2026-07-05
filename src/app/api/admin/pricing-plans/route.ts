@@ -316,11 +316,15 @@ export async function POST(request: Request) {
       name: `${baseName} setup`,
       description: "One-time setup and configuration fee.",
     },
-    {
-      field: "stripe_hardware_price_id",
-      amountSek: hardwareFeeSek,
-      name: `${baseName} screen device`,
-    },
+    ...(hardwareFeeSek > 0
+      ? [
+          {
+            field: "stripe_hardware_price_id" as const,
+            amountSek: hardwareFeeSek,
+            name: `${baseName} screen device`,
+          },
+        ]
+      : []),
     {
       field: "stripe_shipping_price_id",
       amountSek: shippingFeeSek,
@@ -334,9 +338,10 @@ export async function POST(request: Request) {
     },
   ];
 
-  const stripeIds: Record<StripePriceField, string> = {
+  const stripeIds: Record<StripePriceField, string | null> = {
     stripe_setup_price_id: plan.stripe_setup_price_id || "",
-    stripe_hardware_price_id: plan.stripe_hardware_price_id || "",
+    stripe_hardware_price_id:
+      hardwareFeeSek > 0 ? plan.stripe_hardware_price_id || "" : null,
     stripe_shipping_price_id: plan.stripe_shipping_price_id || "",
     stripe_monthly_price_id: plan.stripe_monthly_price_id || "",
   };

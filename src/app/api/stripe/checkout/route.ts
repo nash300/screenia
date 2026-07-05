@@ -148,7 +148,7 @@ export async function POST(request: Request) {
 
     const hardwareFeeSek =
       plan.hardware_fee_sek ??
-      (plan.code === "premium_4k" ? 1099 : 699);
+      0;
     const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
     const currency = plan.currency || "sek";
     const priceTaxBehavior =
@@ -208,7 +208,7 @@ export async function POST(request: Request) {
         item.hardwareFeeSek ??
         itemPlan.hardware_fee_sek ??
         configuredPlan?.hardwareFeeSek ??
-        (itemPlan.code === "premium_4k" ? 1099 : 699);
+        0;
       const itemShippingFee =
         item.shippingFeeSek ??
         itemPlan.shipping_fee_sek ??
@@ -398,18 +398,25 @@ export async function POST(request: Request) {
           },
           quantity: 1,
         },
-        {
-          price_data: {
-            currency,
-            unit_amount: toOre(checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek),
-            tax_behavior: priceTaxBehavior,
-            product_data: {
-              name: `${plan.name} ${plan.resolution} skärmenhet`,
-              images: [deviceImage],
-            },
-          },
-          quantity: checkoutQuoteItems[0]?.quantity ?? screenQuantity,
-        },
+        ...((checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek) > 0
+          ? [
+              {
+                price_data: {
+                  currency,
+                  unit_amount: toOre(
+                    checkoutQuoteItems[0]?.discountedHardwareFeeSek ??
+                      discountedHardwareFeeSek,
+                  ),
+                  tax_behavior: priceTaxBehavior,
+                  product_data: {
+                    name: `${plan.name} ${plan.resolution} skärmenhet`,
+                    images: [deviceImage],
+                  },
+                },
+                quantity: checkoutQuoteItems[0]?.quantity ?? screenQuantity,
+              },
+            ]
+          : []),
         {
           price_data: {
             currency,
@@ -438,18 +445,22 @@ export async function POST(request: Request) {
           quantity: checkoutQuoteItems[0]?.quantity ?? 1,
         },
         ...checkoutQuoteItems.slice(1).flatMap((item) => [
-          {
-            price_data: {
-              currency,
-              unit_amount: toOre(item.discountedHardwareFeeSek),
-              tax_behavior: priceTaxBehavior,
-              product_data: {
-                name: `${item.name} ${item.resolution} skärmenhet`,
-                images: [deviceImage],
-              },
-            },
-            quantity: item.quantity,
-          },
+          ...(item.discountedHardwareFeeSek > 0
+            ? [
+                {
+                  price_data: {
+                    currency,
+                    unit_amount: toOre(item.discountedHardwareFeeSek),
+                    tax_behavior: priceTaxBehavior,
+                    product_data: {
+                      name: `${item.name} ${item.resolution} skärmenhet`,
+                      images: [deviceImage],
+                    },
+                  },
+                  quantity: item.quantity,
+                },
+              ]
+            : []),
           {
             price_data: {
               currency,
@@ -480,7 +491,6 @@ export async function POST(request: Request) {
         ]),
       ],
       subscription_data: {
-        trial_period_days: plan.trial_days,
         metadata: {
           customer_id: customerId,
           customer_subscription_id: order.id,

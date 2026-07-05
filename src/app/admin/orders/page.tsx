@@ -558,7 +558,7 @@ function AdminOrdersContent() {
 
                 <div className="admin-order-money">
                   <span>Setup {formatSek(order.setup_fee_sek)}</span>
-                  <span>Device {formatSek(order.hardware_fee_sek)}</span>
+                  <span>Device included</span>
                   <span>Shipping {formatSek(order.shipping_fee_sek)}</span>
                   <span>Monthly {formatSek(order.monthly_fee_sek)}</span>
                   <strong>Total {formatStripeSek(order.total_amount_sek)}</strong>

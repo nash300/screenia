@@ -1244,7 +1244,7 @@ export default function CustomerDetailPage({
         ) || pricingPlans[0];
       const quantity = Math.min(50, Math.max(1, Number(item.quantity) || 1));
       const hardwareFee =
-        plan?.hardware_fee_sek ?? (plan?.code === "premium_4k" ? 1099 : 699);
+        plan?.hardware_fee_sek ?? 0;
       const shippingFee = plan?.shipping_fee_sek ?? 99;
 
       return {
@@ -1286,6 +1286,8 @@ export default function CustomerDetailPage({
     ? primaryQuotePlan.setup_fee_sek +
       quoteDeviceSubtotal -
       quoteDeviceDiscountAmount +
+      quoteMonthlySubtotal -
+      (quoteDiscountMonths > 0 ? quoteMonthlyDiscountAmount : 0) +
       quoteShippingSubtotal
     : 0;
   const quoteStartupVat = includedVatFromGross(quoteStartupTotal);
@@ -1692,8 +1694,8 @@ export default function CustomerDetailPage({
                         <strong>x {line.quantity}</strong>
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
-                    <span>Hardware incl. VAT</span>
-                    <strong>{formatSek(line.deviceSubtotal)}</strong>
+                        <span>Screen device</span>
+                        <strong>Included</strong>
                   </div>
                   <div className="mt-1 flex justify-between gap-3 text-xs">
                     <span>Monthly incl. VAT</span>
@@ -1726,7 +1728,7 @@ export default function CustomerDetailPage({
                     </strong>
                   </div>
                   <div className="flex justify-between gap-3 border-t border-slate-200 pt-2">
-                    <span>Due at checkout incl. VAT</span>
+                    <span>Setup + first month + shipping incl. VAT</span>
                     <strong>{formatSek(quoteStartupTotal)}</strong>
                   </div>
                   <div className="flex justify-between gap-3 text-xs text-slate-500">
@@ -2224,9 +2226,7 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Hardware:{" "}
-                      {formatSek(subscription.hardware_fee_sek) || "Not recorded"}
-                      {" "}x {subscription.screen_quantity || 1}
+                      Device: included x {subscription.screen_quantity || 1}
                     </p>
                     <p>
                       Device discount:{" "}
@@ -2456,7 +2456,10 @@ export default function CustomerDetailPage({
 function formatSek(amount: number | null) {
   if (amount === null) return "";
 
-  return `${amount.toLocaleString("sv-SE")} kr`;
+  return `${amount.toLocaleString("sv-SE", {
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: 2,
+  })} kr`;
 }
 
 function formatStripeSek(amount: number | null) {

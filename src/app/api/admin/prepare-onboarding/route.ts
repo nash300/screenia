@@ -41,8 +41,15 @@ const escapeHtml = (value: string) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-const formatSek = (amount: number | null | undefined) =>
-  `${(amount ?? 0).toLocaleString("sv-SE")} kr`;
+const formatSek = (amount: number | null | undefined) => {
+  const value = amount ?? 0;
+  const formatter = new Intl.NumberFormat("sv-SE", {
+    minimumFractionDigits: Number.isInteger(value) ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+
+  return `${formatter.format(value)} kr`;
+};
 
 type QuoteItemInput = {
   pricingPlanCode?: string;
@@ -163,8 +170,7 @@ export async function POST(request: Request) {
 
   const configuredPlan = PRICING_PLANS.find((item) => item.code === plan.code);
   const hardwareFeeSek =
-    plan.hardware_fee_sek ??
-    configuredPlan?.hardwareFeeSek ?? (plan.code === "premium_4k" ? 1099 : 699);
+    plan.hardware_fee_sek ?? configuredPlan?.hardwareFeeSek ?? 0;
   const shippingFeeSek =
     plan.shipping_fee_sek ??
     configuredPlan?.shippingFeeSek ?? DEFAULT_SHIPPING_FEE_SEK;
@@ -188,9 +194,7 @@ export async function POST(request: Request) {
       (pricingPlan) => pricingPlan.code === itemPlan.code,
     );
     const itemHardwareFee =
-      itemPlan.hardware_fee_sek ??
-      configuredItemPlan?.hardwareFeeSek ??
-      (itemPlan.code === "premium_4k" ? 1099 : 699);
+      itemPlan.hardware_fee_sek ?? configuredItemPlan?.hardwareFeeSek ?? 0;
     const itemShippingFee =
       itemPlan.shipping_fee_sek ??
       configuredItemPlan?.shippingFeeSek ??
@@ -228,6 +232,8 @@ export async function POST(request: Request) {
   const firstPaymentGrossSek =
     plan.setup_fee_sek +
     deviceSubtotalSek +
+    monthlySubtotalSek -
+    monthlyDiscountAmountSek +
     shippingSubtotalSek -
     deviceDiscountAmountSek;
   const firstPaymentVat = includedVatFromGross(firstPaymentGrossSek);
@@ -419,15 +425,15 @@ Här är din InfoSync-offert.
 
 Paket: ${plan.name} ${plan.resolution}
 Start- och konfigurationsavgift: ${formatSek(plan.setup_fee_sek)}
-Skärmenhet: ${formatSek(hardwareFeeSek)}
+Skärmenhet: ingår
 Frakt: ${formatSek(shippingFeeSek)}
 Screens/devices: ${screenQuantity}
 Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
 Månadsabonnemang: ${formatSek(plan.monthly_fee_sek)}
-Kostnadsfri provperiod: ${plan.trial_days} dagar
+Startperiod: ${plan.trial_days} dagar ingår
 Priserna ovan är totalsummor kunden betalar inklusive svensk moms.
-Första betalning: ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
-Månadsabonnemang efter provperiod: ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.
+Start + första månaden + frakt: ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
+Månadsabonnemang därefter: ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.
 Ordernummer: ${order.order_number}
 ${quoteNotes ? `\nMeddelande: ${quoteNotes}\n` : ""}
 Fortsätt här för att bekräfta uppgifter och gå vidare till betalning. Material samlas in efter betalning:
@@ -448,7 +454,7 @@ InfoSync`,
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
             <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setup_fee_sek)}</p>
-            <p><strong>Skärmenhet:</strong> ${formatSek(hardwareFeeSek)}</p>
+            <p><strong>Skärmenhet:</strong> Ingår</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>
             <p><strong>Frakt:</strong> ${formatSek(shippingFeeSek)}</p>
@@ -458,13 +464,13 @@ InfoSync`,
                 ? `${deviceDiscountPercent}% i ${deviceDiscountMonths} månader`
                 : "Ingen"
             }</p>
-            <p><strong>Kostnadsfri provperiod:</strong> ${plan.trial_days} dagar</p>
+            <p><strong>Startperiod:</strong> ${plan.trial_days} dagar ingår</p>
             ${safeQuoteNotes ? `<p><strong>Meddelande:</strong> ${safeQuoteNotes}</p>` : ""}
           </div>
           <div style="border: 1px solid #ffd9bf; border-radius: 14px; padding: 16px; background: #fff7f0; margin-top: 14px;">
             <p style="margin: 0 0 8px;"><strong>Moms:</strong> Priserna ovan är totalsummor kunden betalar inklusive svensk moms.</p>
-            <p style="margin: 0;"><strong>Första betalning:</strong> ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.</p>
-            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang efter provperiod:</strong> ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.</p>
+            <p style="margin: 0;"><strong>Start + första månaden + frakt:</strong> ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.</p>
+            <p style="margin: 8px 0 0;"><strong>Månadsabonnemang därefter:</strong> ${formatSek(monthlyVat.gross)} inkl. moms, varav moms ${formatSek(monthlyVat.vat)}.</p>
           </div>
           <p>
             <a href="${onboardingUrl}" style="display: inline-block; background: #2f7df6; color: #ffffff; padding: 12px 18px; border-radius: 10px; text-decoration: none; font-weight: 700;">

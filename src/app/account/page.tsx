@@ -183,7 +183,17 @@ function money(amount: number | null) {
 
 function stripeMoney(amount: number | null) {
   if (typeof amount !== "number") return "-";
-  return `${formatter.format(amount / 100)} kr`;
+  const hasOre = amount % 100 !== 0;
+  const stripeFormatter = new Intl.NumberFormat("sv-SE", {
+    minimumFractionDigits: hasOre ? 2 : 0,
+    maximumFractionDigits: 2,
+  });
+
+  return `${stripeFormatter.format(amount / 100)} kr`;
+}
+
+function includedVatOreFromSek(amountSek: number) {
+  return Math.round(Math.max(0, amountSek) * 100 * 0.2);
 }
 
 function date(value: string | null) {
@@ -332,6 +342,12 @@ export default function AccountPage() {
   const router = useRouter();
 
   const activeSubscription = data?.subscriptions[0];
+  const billingTotalSek = activeSubscription
+    ? (activeSubscription.setup_fee_sek || 0) +
+      (activeSubscription.monthly_fee_sek || 0) +
+      (activeSubscription.shipping_fee_sek || 0)
+    : 0;
+  const billingVatOre = includedVatOreFromSek(billingTotalSek);
   const dashboardStats = useMemo(
     () => [
       { label: "Skärmar", value: String(data?.devices.length || 0) },
@@ -1199,8 +1215,10 @@ export default function AccountPage() {
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
                       <Fact label="Månadspris inkl. moms" value={money(activeSubscription.monthly_fee_sek)} />
                       <Fact label="Startavgift inkl. moms" value={money(activeSubscription.setup_fee_sek)} />
-                      <Fact label="Moms" value={stripeMoney(activeSubscription.tax_amount_sek)} />
-                      <Fact label="Betalt totalt" value={stripeMoney(activeSubscription.total_amount_sek)} />
+                      <Fact label="Frakt inkl. moms" value={money(activeSubscription.shipping_fee_sek)} />
+                      <Fact label="Skärmenhet" value="Ingår" />
+                      <Fact label="Moms ingår" value={stripeMoney(billingVatOre)} />
+                      <Fact label="Totalt inkl. moms" value={money(billingTotalSek)} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
                       <Fact

@@ -126,7 +126,7 @@ export default function PricingPage() {
       const form = forms[plan.id] || toForm(plan);
       const firstPayment =
         parseInteger(form.setupFeeSek) +
-        parseInteger(form.hardwareFeeSek) +
+        parseInteger(form.monthlyFeeSek) +
         parseInteger(form.shippingFeeSek);
       return [plan.id, firstPayment] as const;
     });
@@ -279,7 +279,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Hardware
+                    Screen device
                     <input
                       type="number"
                       min="0"
@@ -350,7 +350,7 @@ export default function PricingPage() {
 
                 <div className="admin-pricing-summary">
                   <div>
-                    <span>First payment incl. moms</span>
+                    <span>Setup + first month + shipping incl. moms</span>
                     <strong>{formatSek(firstPaymentByPlan[plan.id])}</strong>
                     <small>{formatSek(includedVat(firstPaymentByPlan[plan.id]))} moms included</small>
                   </div>
@@ -371,7 +371,7 @@ export default function PricingPage() {
                     {shortStripeId(plan.stripe_setup_price_id)}
                   </p>
                   <p>
-                    <strong>Hardware:</strong>{" "}
+                    <strong>Device:</strong>{" "}
                     {shortStripeId(plan.stripe_hardware_price_id)}
                   </p>
                   <p>

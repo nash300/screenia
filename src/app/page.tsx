@@ -17,7 +17,7 @@ const copy = {
     workflowCta: "Se fördelarna",
     stats: [
       ["24/7", "kontinuerlig skärmvisning"],
-      ["3 veckor", "kostnadsfri provperiod"],
+      ["3 veckor", "startperiod ingår"],
       ["0", "månaders bindningstid"],
     ],
     platformTitle: "En enklare väg till professionell skärmvisning",
@@ -25,7 +25,7 @@ const copy = {
       "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. InfoSync hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
     features: [
       ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
-      ["Tydlig kostnad", "Du ser startavgift, månadskostnad, provperiod och bindningstid innan du går vidare."],
+      ["Tydlig kostnad", "Du ser startavgift, månadskostnad, startperiod och bindningstid innan du går vidare."],
       ["Hjälp med skärmen", "Efter betalning samlar vi in material, gör layouten och skickar enheten med instruktioner."],
       ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
     ],
@@ -42,7 +42,7 @@ const copy = {
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgiften betalas en gång och månadsabonnemanget har 3 veckors kostnadsfri provperiod.",
+      "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgift, första månaden och eventuell frakt visas tydligt innan betalning.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
     monthly: "Per månad",
@@ -110,13 +110,13 @@ const copy = {
       "InfoSync helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose a package, send your details, and get help launching without technical hassle.",
     pricingCta: "See packages",
     workflowCta: "How it works",
-    stats: [["24/7", "continuous screen playback"], ["3 weeks", "free subscription trial"], ["0", "months commitment"]],
+    stats: [["24/7", "continuous screen playback"], ["3 weeks", "start period included"], ["0", "months commitment"]],
     platformTitle: "A simpler path to professional screen display",
     platformText:
       "You do not need to build your own system or manage technical settings. InfoSync helps you from the first request to a screen that shows the right content in your business.",
     features: [
       ["Smooth start", "Choose a package and receive a personal setup guide where everything continues clearly."],
-      ["Clear costs", "See setup fee, monthly price, trial period, and commitment before you continue."],
+      ["Clear costs", "See setup fee, monthly price, start period, and commitment before you continue."],
       ["Screen support", "We build the layout from your material and send the device with instructions."],
       ["Visible content", "Show offers, price lists, news, or information that fits your space."],
     ],
@@ -132,7 +132,7 @@ const copy = {
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
     pricingText:
-      "Choose Full HD for smaller screens and simpler content, or 4K when text, menus, and details need extra sharpness. The setup fee is paid once and the monthly subscription has a 3-week free trial.",
+      "Choose Full HD for smaller screens and simpler content, or 4K when text, menus, and details need extra sharpness. Setup, first month, and any shipping are shown clearly before payment.",
     recommended: "Recommended",
     setupFee: "Setup fee",
     monthly: "Per month",
@@ -198,7 +198,6 @@ const plans = [
     name: "Standard",
     resolution: "FHD",
     setupFee: "1 599 kr",
-    hardwareFee: "699 kr",
     monthlyFee: "249 kr",
     cardAccent: "blue",
     deviceLabel: "FHD HDMI Stick",
@@ -210,7 +209,6 @@ const plans = [
     name: "Premium",
     resolution: "4K",
     setupFee: "1 599 kr",
-    hardwareFee: "1 099 kr",
     monthlyFee: "349 kr",
     cardAccent: "gold",
     deviceLabel: "4K TV Box",
@@ -228,7 +226,7 @@ const planCopy = {
         "Uppspelning i Full HD (1080p)",
         "Rekommenderas för skärmar upp till 43 tum",
         "Passar kampanjer, erbjudanden och informationsskärmar",
-        "3 veckors kostnadsfri provperiod",
+        "3 veckors startperiod ingår",
         "Ingen bindningstid",
       ],
     },
@@ -239,7 +237,7 @@ const planCopy = {
         "Rekommenderas för skärmar från 55 tum",
         "Skarpare text, menyer och detaljerade bilder",
         "Bäst för restauranger, butiker och premiumvisning",
-        "3 veckors kostnadsfri provperiod",
+        "3 veckors startperiod ingår",
         "Ingen bindningstid",
       ],
     },
@@ -252,7 +250,7 @@ const planCopy = {
         "Full HD playback (1080p)",
         "Recommended for screens up to 43 inches",
         "Fits campaigns, offers, and information screens",
-        "3-week free trial",
+        "3-week start period included",
         "No commitment",
       ],
     },
@@ -263,7 +261,7 @@ const planCopy = {
         "Recommended for screens from 55 inches",
         "Sharper text, menus, and detailed images",
         "Best for restaurants, shops, and premium display",
-        "3-week free trial",
+        "3-week start period included",
         "No commitment",
       ],
     },
@@ -291,7 +289,7 @@ const visualCopy = {
 
 const heroBenefits = [
   ["Ingen bindningstid", "Avsluta när som helst."],
-  ["Kostnadsfri provperiod", "2 veckor", "3 veckor"],
+  ["Startperiod ingår", "2 veckor", "3 veckor"],
   ["Alla HDMI-skärmar", "Smart TV och signage."],
   ["100 % nöjdhetsgaranti", "Trygg start med oss."],
 ] as const;
@@ -700,7 +698,7 @@ export default function Home() {
                   </div>
                   <div className="landing-price-mini-grid">
                     <PriceRow label={t.setupFee} value={plan.setupFee} />
-                    <PriceRow label="Enhet" value={plan.hardwareFee} />
+                    <PriceRow label="Skärmenhet" value="Ingår" />
                   </div>
                   <button
                     type="button"
