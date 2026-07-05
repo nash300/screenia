@@ -326,7 +326,11 @@ function CustomersContent() {
 
   const formatStripeSek = (value: number | null | undefined) => {
     if (value === null || typeof value === "undefined") return "-";
-    return `${(value / 100).toLocaleString("sv-SE")} kr`;
+    const hasOre = value % 100 !== 0;
+    return `${(value / 100).toLocaleString("sv-SE", {
+      minimumFractionDigits: hasOre ? 2 : 0,
+      maximumFractionDigits: 2,
+    })} kr`;
   };
 
   const navigateFilter = (filter: string) => {

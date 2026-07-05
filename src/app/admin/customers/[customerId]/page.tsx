@@ -2463,7 +2463,11 @@ function formatSek(amount: number | null) {
 function formatStripeSek(amount: number | null) {
   if (amount === null) return "";
 
-  return `${(amount / 100).toLocaleString("sv-SE")} kr`;
+  const hasOre = amount % 100 !== 0;
+  return `${(amount / 100).toLocaleString("sv-SE", {
+    minimumFractionDigits: hasOre ? 2 : 0,
+    maximumFractionDigits: 2,
+  })} kr`;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
