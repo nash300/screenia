@@ -277,7 +277,7 @@ export async function POST(request: Request) {
 
     const { data: customers, error: customerLookupError } = await supabaseAdmin
       .from("customers")
-      .select("id, inactive_reason, cancellation_source, cancelled_at")
+      .select("id, payment_status, inactive_reason, cancellation_reason, cancellation_source, cancelled_at")
       .eq("stripe_customer_id", customerId);
 
     if (customerLookupError) {
@@ -289,12 +289,15 @@ export async function POST(request: Request) {
         const appInitiatedCancellation =
           customer.cancellation_source === "customer" ||
           customer.cancellation_source === "admin";
+        const refundBeforeProduction =
+          customer.payment_status === "refunded" ||
+          customer.cancellation_reason === "refunded_before_production";
 
         const { error } = await supabaseAdmin
           .from("customers")
           .update({
             status: "suspended",
-            payment_status: "cancelled",
+            payment_status: refundBeforeProduction ? "refunded" : "cancelled",
             inactive_reason: appInitiatedCancellation
               ? customer.inactive_reason || "subscription_cancelled"
               : "subscription_cancelled",
@@ -313,10 +316,18 @@ export async function POST(request: Request) {
       await supabaseAdmin
         .from("customer_subscriptions")
         .update({
-          status: "cancelled",
           fulfillment_status: "cancelled",
         })
         .eq("stripe_subscription_id", subscription.id);
+
+      await supabaseAdmin
+        .from("customer_subscriptions")
+        .update({
+          status: "cancelled",
+          fulfillment_status: "cancelled",
+        })
+        .eq("stripe_subscription_id", subscription.id)
+        .neq("status", "refunded");
 
       await Promise.all(
         (customers || []).map((customer) =>

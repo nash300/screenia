@@ -44,6 +44,8 @@ type Customer = {
   setup_fee_locked_at: string | null;
   activated_at: string | null;
   inactive_reason: string | null;
+  cancellation_reason: string | null;
+  cancellation_details: string | null;
   cancelled_at: string | null;
   cancellation_source: string | null;
 };
@@ -212,6 +214,8 @@ const normalizeCustomer = (row: Partial<Customer>): Customer => ({
   setup_fee_locked_at: row.setup_fee_locked_at ?? null,
   activated_at: row.activated_at ?? null,
   inactive_reason: row.inactive_reason ?? null,
+  cancellation_reason: row.cancellation_reason ?? null,
+  cancellation_details: row.cancellation_details ?? null,
   cancelled_at: row.cancelled_at ?? null,
   cancellation_source: row.cancellation_source ?? null,
 });
@@ -292,10 +296,16 @@ export default function CustomerDetailPage({
   const [quoteDiscountMonths, setQuoteDiscountMonths] = useState(0);
   const [schemaNotice, setSchemaNotice] = useState("");
 
-  const formatInactiveReason = (reason: string | null) => {
+  const formatInactiveReason = (
+    reason: string | null,
+    cancellationReason?: string | null,
+  ) => {
+    if (cancellationReason === "refunded_before_production") {
+      return "Refunded before production";
+    }
     if (reason === "manual_suspend") return "Manually suspended";
     if (reason === "payment_failed") return "Payment failed";
-    if (reason === "subscription_cancelled") return "Subscription cancelled";
+    if (reason === "subscription_cancelled") return "Subscription cancelled / refunded";
     if (reason === "customer_cancelled") return "Cancelled by customer";
     return "None";
   };
@@ -371,6 +381,8 @@ export default function CustomerDetailPage({
         setup_fee_locked_at,
         activated_at,
         inactive_reason,
+        cancellation_reason,
+        cancellation_details,
         cancelled_at,
         cancellation_source
       `,
@@ -407,6 +419,8 @@ export default function CustomerDetailPage({
         stripe_subscription_id,
         activated_at,
         inactive_reason,
+        cancellation_reason,
+        cancellation_details,
         cancelled_at,
         cancellation_source
       `,
@@ -434,6 +448,8 @@ export default function CustomerDetailPage({
         stripe_subscription_id,
         activated_at,
         inactive_reason,
+        cancellation_reason,
+        cancellation_details,
         cancelled_at,
         cancellation_source
       `,
@@ -996,6 +1012,39 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const refundFirstPayment = async () => {
+    if (!customer) return;
+
+    if (
+      !confirm(
+        "Refund this customer's first payment? This is only allowed before layout work starts.",
+      )
+    ) {
+      return;
+    }
+
+    setSaving(true);
+
+    const response = await fetch(`/api/admin/customers/${customer.id}/refund`, {
+      method: "POST",
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Refund payment error:", data);
+      showAdminNotification(
+        "error",
+        data.error || "Could not refund the first payment.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification("success", "First payment refunded and customer suspended.");
+    setSaving(false);
+  };
+
   const reactivateCustomer = async () => {
     if (!customer) return;
     if (!confirm("Reactivate this customer")) return;
@@ -1066,8 +1115,12 @@ export default function CustomerDetailPage({
 
     if (!response.ok) {
       console.error("Prepare quote and onboarding error:", data);
+      if (data.onboardingUrl) {
+        setQuoteResultUrl(data.onboardingUrl);
+        await loadData();
+      }
       showAdminNotification(
-        "error",
+        data.onboardingUrl ? "warning" : "error",
         data.error || "Could not prepare quote and onboarding.",
       );
       setSaving(false);
@@ -1746,6 +1799,8 @@ export default function CustomerDetailPage({
                     ? "Migration needed"
                     : customer.setup_fee_locked_at
                     ? "Locked as non-refundable"
+                    : customer.payment_status === "refunded"
+                      ? "Already refunded before production"
                     : customer.payment_status === "paid"
                       ? "Refundable until layout work starts"
                       : "Not paid yet"}
@@ -1771,6 +1826,8 @@ export default function CustomerDetailPage({
               <h3 className="mt-1 text-lg font-black text-slate-950">
                 {customer.setup_fee_locked_at
                   ? "Layout work has started"
+                  : customer.payment_status === "refunded"
+                    ? "First payment refunded before production"
                   : !productionTrackingReady
                     ? "Production tracking migration is needed"
                   : "Setup fee still refundable before production starts"}
@@ -1778,6 +1835,8 @@ export default function CustomerDetailPage({
               <p className="mt-2 text-sm leading-6 text-slate-700">
                 {customer.setup_fee_locked_at
                   ? `Started ${formatDateTime(customer.layout_started_at)}. The setup/layout fee is marked non-refundable from this point.`
+                  : customer.payment_status === "refunded"
+                    ? "The first payment was refunded before layout work started. Keep the customer suspended unless a new quote and payment are created."
                   : !productionTrackingReady
                     ? "Apply the latest Supabase migration before using the layout-start and refund-boundary tools."
                   : "If the customer cancels before layout work starts, the setup/layout fee can still be handled as refundable. Mark layout work started only when production actually begins."}
@@ -1785,14 +1844,24 @@ export default function CustomerDetailPage({
             </div>
 
             {productionTrackingReady && !customer.setup_fee_locked_at && customer.payment_status === "paid" && (
-              <button
-                type="button"
-                onClick={startLayoutWork}
-                disabled={saving}
-                className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Mark layout work started"}
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={startLayoutWork}
+                  disabled={saving}
+                  className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Mark layout work started"}
+                </button>
+                <button
+                  type="button"
+                  onClick={refundFirstPayment}
+                  disabled={saving}
+                  className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {saving ? "Saving..." : "Refund first payment"}
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -1856,6 +1925,16 @@ export default function CustomerDetailPage({
                   >
                     {saving ? "Saving..." : "Mark customer active"}
                   </button>
+                  {customer.stripe_subscription_id && (
+                    <button
+                      type="button"
+                      onClick={cancelSubscription}
+                      disabled={saving}
+                      className="ml-3 mt-4 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Cancel subscription"}
+                    </button>
+                  )}
                 </div>
               )}
 

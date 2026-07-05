@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@supabase/supabase-js";
+import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -101,6 +102,19 @@ export async function POST(request: NextRequest) {
         subscriptionUpdateError,
       );
     }
+
+    await recordAuditEvent(supabaseAdmin, {
+      customerId,
+      actorType: "admin",
+      actorId: user.id,
+      eventType: "subscription_cancelled",
+      eventDescription: "Admin cancelled the Stripe subscription.",
+      metadata: {
+        stripeSubscriptionId: subscriptionId,
+      },
+      ipAddress: getRequestIp(request),
+      userAgent: request.headers.get("user-agent"),
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

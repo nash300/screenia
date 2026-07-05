@@ -33,6 +33,7 @@ yarn-error.log*
 .next-dev*.log
 dev-server*.log
 stripe-listen*.log
+.stripe-listen*.log
 supabase/.temp/
 
 # env files (can opt-in for committing if needed)

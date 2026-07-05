@@ -68,7 +68,9 @@ export async function POST(request: Request) {
 
     const { data: customer, error: customerError } = await supabaseAdmin
       .from("customers")
-      .select("country, postal_code, address, city")
+      .select(
+        "id, name, email, phone, country, postal_code, address, city, stripe_customer_id",
+      )
       .eq("id", customerId)
       .single();
 
@@ -326,10 +328,43 @@ export async function POST(request: Request) {
     const setupImage = checkoutImageUrl(appUrl, "/brand/infosync-logo-full-white-bg.png");
     const deviceImage = checkoutImageUrl(appUrl, "/brand/infosync-helper.png");
     const subscriptionImage = checkoutImageUrl(appUrl, "/brand/infosync-icon-512-transparent.png");
+    const stripeAddress = {
+      city: customer.city,
+      country: "SE",
+      line1: customer.address,
+      postal_code: String(customer.postal_code || "").replace(/\s/g, ""),
+    };
+    const stripeCustomerPayload = {
+      address: stripeAddress,
+      email,
+      metadata: {
+        customer_id: customerId,
+      },
+      name: customer.name || undefined,
+      phone: customer.phone || undefined,
+      shipping: {
+        address: stripeAddress,
+        name: customer.name || email,
+        phone: customer.phone || undefined,
+      },
+    };
+    const stripeCustomer = customer.stripe_customer_id
+      ? await stripe.customers.update(
+          customer.stripe_customer_id,
+          stripeCustomerPayload,
+        )
+      : await stripe.customers.create(stripeCustomerPayload);
+
+    if (!customer.stripe_customer_id) {
+      await supabaseAdmin
+        .from("customers")
+        .update({ stripe_customer_id: stripeCustomer.id })
+        .eq("id", customerId);
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
-      customer_email: email,
+      customer: stripeCustomer.id,
       client_reference_id: order.order_number,
       locale: "sv",
       automatic_tax: {
@@ -343,6 +378,11 @@ export async function POST(request: Request) {
         : "auto",
       tax_id_collection: {
         enabled: stripeAutomaticTaxEnabled,
+      },
+      customer_update: {
+        address: "auto",
+        name: "auto",
+        shipping: "auto",
       },
       line_items: [
         {
