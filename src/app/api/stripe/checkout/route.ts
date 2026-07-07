@@ -387,9 +387,9 @@ export async function POST(request: Request) {
             },
           })
         : null;
-    const setupImage = checkoutImageUrl(appUrl, "/brand/infosync-logo-full-white-bg.png");
-    const deviceImage = checkoutImageUrl(appUrl, "/brand/infosync-helper.png");
-    const subscriptionImage = checkoutImageUrl(appUrl, "/brand/infosync-icon-512-transparent.png");
+    const setupImage = checkoutImageUrl(appUrl, "/brand/screenia-logo-full-white-bg.png");
+    const deviceImage = checkoutImageUrl(appUrl, "/brand/screenia-helper.png");
+    const subscriptionImage = checkoutImageUrl(appUrl, "/brand/screenia-icon-512-transparent.png");
     const stripeAddress = {
       city: customer.city,
       country: "SE",

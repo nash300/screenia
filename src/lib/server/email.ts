@@ -44,8 +44,8 @@ export function renderBrandedEmail({
   const emailAssetBase =
     process.env.NEXT_PUBLIC_EMAIL_ASSET_BASE_URL?.replace(/\/$/, "") ||
     `${supabaseUrl}/storage/v1/object/public/email-assets`;
-  const logoUrl = `${emailAssetBase}/brand/infosync-logo-full-dark-bg.png`;
-  const helperUrl = `${emailAssetBase}/brand/infosync-helper.png`;
+  const logoUrl = `${emailAssetBase}/brand/screenia-logo-full-dark-bg.png`;
+  const helperUrl = `${emailAssetBase}/brand/screenia-helper.png`;
 
   return `<!doctype html>
     <html lang="sv">

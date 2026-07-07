@@ -38,7 +38,7 @@ const reasons = [
   ["07", "Bättre läsbarhet", "Förklara skillnaden mellan Full HD och 4K för menyer, text och detaljerade bilder.", "/landing/hero-slides/03/image.png"],
   ["08", "Uppdateringar vid behov", "Berätta hur kunden kan skicka nya bilder, priser eller kampanjer när innehållet ändras.", "/salon2.jpg"],
   ["09", "Trygg betalning", "Visa att uppgifter, villkor och betalning sker i ett samlat och säkert flöde.", "/m.jpg"],
-  ["10", "Enhet förberedd av oss", "Beskriv hur Screenia förbereder enheten så kunden kan fokusera på sin verksamhet.", "/brand/infosync-helper.png"],
+  ["10", "Enhet förberedd av oss", "Beskriv hur Screenia förbereder enheten så kunden kan fokusera på sin verksamhet.", "/brand/screenia-helper.png"],
   ["11", "Skalbart över tid", "Förklara hur kunden kan lägga till fler skärmar eller fler platser när behovet växer.", "/salon3.jpg"],
   ["12", "Personlig hjälp", "Lyft support, rådgivning och hjälp med innehåll som en del av helhetskänslan.", "/salon4.jpg"],
 ] as const;

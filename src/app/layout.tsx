@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/infosync-logo-full-white-bg.png",
+        url: "/brand/screenia-logo-full-white-bg.png",
         width: 219,
         height: 66,
         alt: "Screenia",
@@ -82,14 +82,14 @@ export const metadata: Metadata = {
     title: "Screenia | Digital skyltning för företag i Sverige",
     description:
       "Digital signage, skärmreklam och hanterat skärminnehåll för företag i Sverige.",
-    images: ["/brand/infosync-logo-full-white-bg.png"],
+    images: ["/brand/screenia-logo-full-white-bg.png"],
   },
   icons: {
     icon: [
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
       { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
-      { url: "/brand/infosync-icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/brand/screenia-icon.png", sizes: "512x512", type: "image/png" },
     ],
     apple: "/apple-touch-icon.png",
   },

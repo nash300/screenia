@@ -203,7 +203,7 @@ export default function OnboardingPage({
             Material, logotyp och kampanjer samlar vi in först efter betalning.
           </p>
         </div>
-        <img src="/brand/infosync-helper.png" alt="Screenia" className="flow-helper" />
+        <img src="/brand/screenia-helper.png" alt="Screenia" className="flow-helper" />
       </div>
 
       <WizardSteps active={step} />

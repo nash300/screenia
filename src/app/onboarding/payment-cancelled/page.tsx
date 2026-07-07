@@ -26,7 +26,7 @@ export default function PaymentCancelledPage() {
         </section>
         <aside className="flow-result-visual" aria-hidden="true">
           <Image
-            src="/brand/infosync-helper.png"
+            src="/brand/screenia-helper.png"
             alt=""
             width={420}
             height={420}

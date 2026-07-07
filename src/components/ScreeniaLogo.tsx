@@ -11,7 +11,7 @@ export default function ScreeniaLogo({
     <span className={`screenia-logo ${className}`.trim()} aria-label="Screenia">
       <img
         className="screenia-logo-mark"
-        src="/brand/infosync-icon.png"
+        src="/brand/screenia-icon.png"
         alt=""
         aria-hidden="true"
       />

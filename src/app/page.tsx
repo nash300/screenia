@@ -204,7 +204,7 @@ const plans = [
     monthlyFee: "249 kr",
     cardAccent: "blue",
     deviceLabel: "FHD HDMI Stick",
-    deviceImage: "/brand/infosync-standard-device.png",
+    deviceImage: "/brand/screenia-standard-device.png",
     featured: false,
   },
   {
@@ -216,7 +216,7 @@ const plans = [
     monthlyFee: "349 kr",
     cardAccent: "gold",
     deviceLabel: "4K TV Box",
-    deviceImage: "/brand/infosync-premium-device.png",
+    deviceImage: "/brand/screenia-premium-device.png",
     featured: true,
   },
 ] as const;
@@ -390,8 +390,8 @@ export default function Home() {
       "@id": `${publicSiteUrl}/#business`,
       name: "Screenia",
       url: publicSiteUrl,
-      image: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
-      logo: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
+      image: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
+      logo: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
       email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@screenia.se",
       areaServed: {
         "@type": "Country",
@@ -815,8 +815,8 @@ export default function Home() {
           <div className="landing-film-stage" role="img" aria-label="Animerad film om Screenias arbetsflöde">
             <div className="landing-film-screen">
               <video
-                src="/brand/infosync-service-overview.mp4"
-                poster="/brand/infosync-pricing-devices.png"
+                src="/brand/screenia-service-overview.mp4"
+                poster="/brand/screenia-pricing-devices.png"
                 autoPlay
                 muted
                 loop

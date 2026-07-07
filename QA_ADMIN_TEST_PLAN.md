@@ -313,11 +313,11 @@ Verified so far:
 - Branded email sample was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `fc673bc7-b3ac-4ced-b97b-e58cc7751dd9`.
 - Gmail visual check showed the first branded email could not load the logo because email clients cannot fetch `localhost` images.
 - Email-safe brand assets were uploaded to public Supabase Storage bucket `email-assets` and the shared email wrapper now uses those HTTPS URLs for the logo and Screenia helper image.
-- Public email asset URLs were verified with HTTP `200` for `brand/infosync-logo-full-dark-bg.png` and `brand/infosync-helper.png`.
+- Public email asset URLs were verified with HTTP `200` for `brand/screenia-logo-full-dark-bg.png` and `brand/screenia-helper.png`.
 - Follow-up email image test was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `0c4b2dc6-471b-46fd-b21f-e9afcc87e323`.
 - User confirmed the email images now load in Gmail; the helper image was then reduced from full-width to a compact `220px` centered image in the shared email wrapper.
 - Live Supabase `devices.updated_at` alignment was applied through the Supabase SQL editor and verified from the app connection; updating `XACRVK` changed `updated_at` from `2026-06-28T19:37:43.387699+00:00` to `2026-06-28T19:38:10.198654+00:00`.
-- Backend MP4 media upload path was verified with `.tmp/infosync-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
+- Backend MP4 media upload path was verified with `.tmp/screenia-upload-test.mp4`: file uploaded to Supabase Storage bucket `videos`, video row `2de58957-bb3b-4ad9-8b82-08e547cf241b` was created, and playlist row `2029af42-ea7d-493c-b453-332854dbf392` was added as order `2`.
 - Admin media tab now shows `Media (2)` for `XACRVK`.
 - `/display/XACRVK` advanced from the public sample MP4 to the Supabase Storage MP4 URL and played it with readyState `4`, dimensions `960x540`, and no media error.
 - Browser check of `/admin/devices/XACRVK` confirmed the Media tab loads with the MP4-only upload area, disabled `Upload video` button before file selection, and both playlist items listed.
@@ -340,9 +340,9 @@ Verified so far:
 - Active customer submitted a text-only screen material update from the `Skärmmaterial` section: `QA material update 2026-06-28T19:51:38.517Z`.
 - The material update appeared immediately in customer history, created `customer_display_assets` row `31fc9284-d0af-4cf0-b650-323cb291b418` with `source: account`, `status: new`, and timestamp `2026-06-28T19:51:39.456832+00:00`.
 - Audit event `customer_display_material_uploaded` was stored at `2026-06-28T19:51:39.720398+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T19:51:39.897057+00:00`.
-- Customer image/PDF upload API was tested with `infosync-qa-logo.png` and `infosync-qa-menu.pdf`; the route returned HTTP `200` with `{ success: true }`.
-- Supabase stored `infosync-qa-logo.png` as customer display asset `0d790f98-94b0-4bae-888f-f0d900a062b0` with `content_type: image/png`, `asset_category: logo`, timestamp `2026-06-28T20:00:19.723121+00:00`, and a working signed download URL.
-- Supabase stored `infosync-qa-menu.pdf` as customer display asset `94e2bf71-3c83-4226-b9fe-cd6c140a2a05` with `content_type: application/pdf`, `asset_category: menu`, timestamp `2026-06-28T20:00:20.316103+00:00`, and a working signed download URL.
+- Customer image/PDF upload API was tested with `screenia-qa-logo.png` and `screenia-qa-menu.pdf`; the route returned HTTP `200` with `{ success: true }`.
+- Supabase stored `screenia-qa-logo.png` as customer display asset `0d790f98-94b0-4bae-888f-f0d900a062b0` with `content_type: image/png`, `asset_category: logo`, timestamp `2026-06-28T20:00:19.723121+00:00`, and a working signed download URL.
+- Supabase stored `screenia-qa-menu.pdf` as customer display asset `94e2bf71-3c83-4226-b9fe-cd6c140a2a05` with `content_type: application/pdf`, `asset_category: menu`, timestamp `2026-06-28T20:00:20.316103+00:00`, and a working signed download URL.
 - File upload audit event `customer_display_material_uploaded` was stored at `2026-06-28T20:00:20.488515+00:00`, and admin notification `New display material` was stored with priority `high` at `2026-06-28T20:00:20.628168+00:00`.
 - Customer material UI showed both uploaded files after reload with `Ladda ner` actions.
 - Invalid customer upload with MIME type `application/x-msdownload` returned HTTP `400` and message `Endast JPG, PNG, WEBP, HEIC och PDF kan laddas upp.`
@@ -406,7 +406,7 @@ Evidence:
 - Fresh app-generated landing confirmation email was sent successfully through `/api/onboarding-requests` for customer `6d3bfeda-e15c-4026-818f-9f37c5d71d6a` / `TEST - Gmail Email Render 20260628211036`; response returned `emailSent: true`.
 - Gmail found the fresh app-generated email, but it was also placed in Spam/Bin. The rendered Spam view showed correct Swedish characters with no mojibake and showed the logo/helper placeholders sized correctly: logo `180px` wide and helper `220 x 331`.
 - Conclusion: current app-generated email content and sizing are corrected; full remote image loading in Gmail Inbox still depends on deliverability/domain trust because Gmail blocks remote images for messages it classifies as Spam/Bin.
-- Final MP4 upload-path smoke test uploaded `public/brand/infosync-service-overview.mp4` to Supabase Storage path `XACRVK/1782681267486-native-picker-final-smoke.mp4`.
+- Final MP4 upload-path smoke test uploaded `public/brand/screenia-service-overview.mp4` to Supabase Storage path `XACRVK/1782681267486-native-picker-final-smoke.mp4`.
 - Supabase Storage returned a public video URL with HTTP `200`; playlist row `2633a2f4-3a55-44a1-b1b8-51789ec7bbe4` was inserted as order `3` with timestamp `2026-06-28T21:14:29.124777+00:00`.
 - Admin media page retest showed `Media (3)`, `Order: 3`, MP4-only input, disabled upload button before file selection, no page overflow, and no console errors.
 - `/display/XACRVK` retest played the newly uploaded Supabase MP4 with readyState `4`, dimensions `1920x1080`, no media error, no console errors, and no page overflow.
