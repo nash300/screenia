@@ -8,6 +8,8 @@ import InfoSyncLogo from "@/components/InfoSyncLogo";
 
 const missingSupabaseMessage =
   "Supabase saknas i lokal miljö. Lägg till NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY i .env.local och starta om servern.";
+const isGoogleAuthEnabled =
+  process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -68,6 +70,11 @@ export default function LoginPage() {
   };
 
   const signInWithGoogle = async () => {
+    if (!isGoogleAuthEnabled) {
+      setMessage("Google-inloggning är snart klar. Använd e-post och lösenord under tiden.");
+      return;
+    }
+
     setGoogleLoading(true);
     setMessage("");
 
@@ -218,7 +225,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={signInWithGoogle}
-                disabled={googleLoading}
+                disabled={googleLoading || !isGoogleAuthEnabled}
                 className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-blue-100 bg-white px-5 py-3 text-sm font-black text-[#061942] shadow-[0_14px_34px_rgba(6,25,66,0.08)] transition hover:-translate-y-0.5 hover:border-[#2f7df6] hover:shadow-[0_18px_44px_rgba(6,25,66,0.12)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
               >
                 <span
@@ -227,12 +234,17 @@ export default function LoginPage() {
                 >
                   G
                 </span>
-                {googleLoading ? "Öppnar Google..." : "Fortsätt med Google"}
+                {googleLoading
+                  ? "Öppnar Google..."
+                  : isGoogleAuthEnabled
+                    ? "Fortsätt med Google"
+                    : "Google-inloggning kommer snart"}
               </button>
 
               <p className="text-xs font-semibold leading-5 text-[#52617d]">
-                Google fungerar bara om e-postadressen redan hör till ett betalt
-                InfoSync-konto.
+                {isGoogleAuthEnabled
+                  ? "Google fungerar bara om e-postadressen redan hör till ett betalt InfoSync-konto."
+                  : "Google aktiveras när Google Cloud och Supabase OAuth är färdigkonfigurerade."}
               </p>
             </div>
 

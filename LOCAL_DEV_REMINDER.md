@@ -138,6 +138,12 @@ NEXT_PUBLIC_COMPANY_ADDRESS
 NEXT_PUBLIC_COMPANY_EMAIL
 ```
 
+Social login feature flags:
+
+```text
+NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
+```
+
 ## Current Pricing Rule
 
 Customer-facing prices are Swedish customer-pay totals including moms.
@@ -210,6 +216,8 @@ Manual Google setup checklist:
 8. Enable Google and paste the Client ID and Client Secret.
 9. Open Supabase `Authentication -> URL Configuration`.
 10. Add local and production app redirect URLs.
+11. Set `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` only after the provider and
+    redirect URLs are working, then restart the app.
 
 Supabase OAuth callback URL shape:
 

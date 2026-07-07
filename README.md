@@ -38,6 +38,7 @@ NEXT_PUBLIC_COMPANY_LEGAL_NAME=InfoSync
 NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
 NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
 NEXT_PUBLIC_COMPANY_EMAIL=hello@infosync.se
+NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
 Without `RESEND_FROM_EMAIL`, local development uses Resend's starter sender:
