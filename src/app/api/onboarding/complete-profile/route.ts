@@ -139,7 +139,7 @@ export async function POST(request: Request) {
     );
   }
 
-  await Promise.all([
+  void Promise.allSettled([
     recordConsent(supabaseAdmin, {
       customerId: customer.id,
       consentType: "terms",

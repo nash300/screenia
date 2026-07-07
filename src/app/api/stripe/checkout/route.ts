@@ -29,6 +29,21 @@ function checkoutImageUrl(appUrl: string, path: string) {
   return new URL(path, imageBaseUrl).toString();
 }
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<null>((resolve) => {
+        timeout = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 type QuoteItem = {
   pricingPlanCode?: string;
   quantity?: number;
@@ -138,6 +153,34 @@ export async function POST(request: Request) {
     }
 
     if (planError || !plan) {
+      const quotedPlanCode =
+        Array.isArray(quotedOrder?.quote_items) &&
+        quotedOrder.quote_items.length > 0
+          ? (quotedOrder.quote_items[0] as QuoteItem).pricingPlanCode
+          : pricingPlanCode;
+      const fallbackPlan = PRICING_PLANS.find(
+        (item) => item.code === quotedPlanCode,
+      );
+
+      if (fallbackPlan && quotedOrder?.pricing_plan_id) {
+        plan = {
+          id: quotedOrder.pricing_plan_id,
+          code: fallbackPlan.code,
+          name: fallbackPlan.name,
+          resolution: fallbackPlan.resolution,
+          setup_fee_sek: fallbackPlan.setupFeeSek,
+          hardware_fee_sek: fallbackPlan.hardwareFeeSek,
+          shipping_fee_sek: fallbackPlan.shippingFeeSek,
+          monthly_fee_sek: fallbackPlan.monthlyFeeSek,
+          trial_days: fallbackPlan.trialDays,
+          currency: "sek",
+          tax_behavior: "inclusive",
+        };
+        planError = null;
+      }
+    }
+
+    if (planError || !plan) {
       return NextResponse.json(
         {
           error:
@@ -195,12 +238,16 @@ export async function POST(request: Request) {
           .filter((code): code is string => Boolean(code)),
       ),
     );
-    const { data: quotePlans } = await supabaseAdmin
-      .from("pricing_plans")
-      .select(
-        "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek",
-      )
-      .in("code", quotePlanCodes);
+    const quotePlansResult = await withTimeout(
+      supabaseAdmin
+        .from("pricing_plans")
+        .select(
+          "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek",
+        )
+        .in("code", quotePlanCodes),
+      3000,
+    );
+    const quotePlans = quotePlansResult?.data || [];
     const checkoutQuoteItems = quoteItems.map((item) => {
       const itemPlan =
         quotePlans?.find((row) => row.code === item.pricingPlanCode) || plan;

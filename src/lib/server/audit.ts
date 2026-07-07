@@ -58,6 +58,21 @@ type LegalAgreementInput = {
   userAgent?: string | null;
 };
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<null>((resolve) => {
+        timeout = setTimeout(() => resolve(null), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
+
 export async function recordConsent(
   supabaseAdmin: SupabaseClient,
   consent: ConsentRecordInput,
@@ -84,16 +99,25 @@ export async function recordLegalAgreement(
   supabaseAdmin: SupabaseClient,
   agreement: LegalAgreementInput,
 ) {
-  const { data: document } = await supabaseAdmin
-    .from("legal_documents")
-    .select("id")
-    .eq("document_type", agreement.documentType)
-    .eq("version", agreement.documentVersion)
-    .maybeSingle();
+  const documentResult = await withTimeout(
+    supabaseAdmin
+      .from("legal_documents")
+      .select("id")
+      .eq("document_type", agreement.documentType)
+      .eq("version", agreement.documentVersion)
+      .maybeSingle(),
+    2500,
+  );
+
+  if (!documentResult) {
+    console.warn("Legal document lookup timed out; storing agreement without legal_document_id.");
+  } else if (documentResult.error) {
+    console.warn("Legal document lookup failed:", documentResult.error.message);
+  }
 
   const { error } = await supabaseAdmin.from("customer_legal_agreements").insert({
     customer_id: agreement.customerId,
-    legal_document_id: document?.id || null,
+    legal_document_id: documentResult?.data?.id || null,
     document_type: agreement.documentType,
     document_title: agreement.documentTitle,
     document_version: agreement.documentVersion,
