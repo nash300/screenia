@@ -1919,19 +1919,9 @@
   transform-origin: left center;
 }
 
-.admin-sidebar-logo-card .screenia-logo-mark {
-  width: 3.65rem !important;
-  height: 3.65rem !important;
+.admin-sidebar-logo-card .screenia-logo-wordmark {
+  width: min(100%, 13.25rem);
   filter: none;
-}
-
-.admin-sidebar-logo-card .screenia-logo-name {
-  font-size: 1.55rem;
-}
-
-.admin-sidebar-logo-card .screenia-logo-tagline {
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
 }
 
 .admin-sidebar-kicker,

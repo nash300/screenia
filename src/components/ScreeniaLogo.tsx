@@ -5,27 +5,15 @@ type ScreeniaLogoProps = {
 
 export default function ScreeniaLogo({
   className = "",
-  showTagline = true,
 }: ScreeniaLogoProps) {
   return (
     <span className={`screenia-logo ${className}`.trim()} aria-label="Screenia">
       <img
-        className="screenia-logo-mark"
-        src="/brand/screenia-icon.png"
+        className="screenia-logo-wordmark"
+        src="/brand/screenia-logo-full-transparent.png"
         alt=""
         aria-hidden="true"
       />
-      <span className="screenia-logo-copy">
-        <span className="screenia-logo-name">
-          <span>Screen</span>
-          <span>ia</span>
-        </span>
-        {showTagline && (
-          <span className="screenia-logo-tagline">
-            DIGITAL DISPLAYS, SIMPLIFIED,
-          </span>
-        )}
-      </span>
     </span>
   );
 }

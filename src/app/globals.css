@@ -106,107 +106,42 @@ section h1 {
 .screenia-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.62rem;
   color: var(--brand-navy);
   line-height: 1;
   text-decoration: none;
+  max-width: 100%;
 }
 
-.screenia-logo-mark {
+.screenia-logo-wordmark {
   display: block;
-  width: 3rem !important;
-  height: 3rem !important;
+  width: 12.5rem;
+  height: auto;
   flex: 0 0 auto;
-  max-width: none !important;
   object-fit: contain;
-  filter: drop-shadow(0 6px 14px rgba(47, 125, 246, 0.18));
-}
-
-.screenia-logo-copy {
-  display: grid;
-  gap: 0.22rem;
-  min-width: 0;
-}
-
-.screenia-logo-name {
-  display: inline-flex;
-  align-items: baseline;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 1.62rem;
-  font-weight: 950;
-  letter-spacing: -0.015em;
-  line-height: 0.9;
-  white-space: nowrap;
-}
-
-.screenia-logo-name span:first-child {
-  color: #03091d;
-}
-
-.screenia-logo-name span:last-child {
-  color: #0a84ff;
-}
-
-.screenia-logo-tagline {
-  color: #061942;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
+  filter: drop-shadow(0 10px 22px rgba(47, 125, 246, 0.16));
 }
 
 .screenia-logo-nav {
   transform-origin: left center;
 }
 
-.screenia-logo-nav .screenia-logo-mark {
-  width: 3.35rem !important;
-  height: 3.35rem !important;
-}
-
-.screenia-logo-nav .screenia-logo-name {
-  font-size: 1.72rem;
-}
-
-.screenia-logo-nav .screenia-logo-tagline {
-  font-size: 0.68rem;
-}
-
-.screenia-logo-auth-card .screenia-logo-tagline {
-  font-size: 0.62rem;
-  letter-spacing: 0.13em;
+.screenia-logo-nav .screenia-logo-wordmark {
+  width: clamp(9.75rem, 15vw, 13.5rem);
 }
 
 .screenia-logo-auth-card {
   border-radius: 1rem;
   background: rgba(255, 255, 255, 0.96);
-  padding: 0.58rem 0.86rem;
+  padding: 0.7rem 0.9rem;
   box-shadow: 0 24px 58px rgba(3, 15, 38, 0.2);
 }
 
-.screenia-logo-auth-card .screenia-logo-mark {
-  width: 3.1rem !important;
-  height: 3.1rem !important;
+.screenia-logo-auth-card .screenia-logo-wordmark {
+  width: min(12rem, 62vw);
 }
 
-.screenia-logo-auth-card .screenia-logo-name {
-  font-size: 1.55rem;
-}
-
-.screenia-logo-auth-inline .screenia-logo-mark {
-  width: 2.65rem !important;
-  height: 2.65rem !important;
-}
-
-.screenia-logo-auth-inline .screenia-logo-name {
-  font-size: 1.35rem;
-}
-
-.screenia-logo-auth-inline .screenia-logo-tagline {
-  font-size: 0.54rem;
+.screenia-logo-auth-inline .screenia-logo-wordmark {
+  width: min(10rem, 58vw);
 }
 
 .navbar-brand {

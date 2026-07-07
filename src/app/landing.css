@@ -372,6 +372,10 @@
   max-width: min(62vw, 286px);
 }
 
+.landing-brand .screenia-logo-wordmark {
+  width: 100%;
+}
+
 .landing-header-controls {
   display: flex;
   align-items: center;
