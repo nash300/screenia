@@ -9,6 +9,10 @@ import {
   syncEmailLinkSession,
 } from "@/lib/supabase/sync-browser-session";
 import InfoSyncLogo from "@/components/InfoSyncLogo";
+import {
+  passwordPolicyDescription,
+  validatePasswordPolicy,
+} from "@/lib/auth/password-policy";
 
 export default function ActivateAccountPage() {
   const router = useRouter();
@@ -38,8 +42,8 @@ export default function ActivateAccountPage() {
       return;
     }
 
-    if (password.length < 8) {
-      setMessage("Lösenordet måste vara minst 8 tecken.");
+    if (!validatePasswordPolicy(password)) {
+      setMessage(passwordPolicyDescription);
       return;
     }
 
@@ -116,7 +120,7 @@ function PasswordFields({
         </span>
         <input
           type="password"
-          placeholder="Minst 8 tecken"
+          placeholder="Minst 6 tecken, bokstäver och siffror"
           value={password}
           onChange={(event) => onPassword(event.target.value)}
           onKeyDown={(event) => {

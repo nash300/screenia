@@ -81,3 +81,22 @@ Remaining issue:
 
 Manual launch action:
 - Configure and verify production email delivery for both Resend and Supabase Auth before launch.
+
+## 2026-07-07 - Customer Password Policy
+
+Status: implemented.
+
+Rule:
+- Password must be at least 6 characters.
+- Password must contain at least one letter.
+- Password must contain at least one number.
+
+Applied to:
+- First-time customer account activation.
+- Customer password reset.
+
+Verification:
+- `abc12` rejected.
+- `abcdef` rejected.
+- `123456` rejected.
+- `abc123` accepted.
