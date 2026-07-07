@@ -1618,17 +1618,49 @@
 
 .admin-compact-info-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.55rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem 0.75rem;
 }
 
-.admin-compact-info-grid > div,
 .admin-compact-note,
 .admin-edit-panel {
   border: 1px solid rgba(47, 125, 246, 0.14);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.72);
   padding: 0.6rem;
+}
+
+.admin-customer-detail-row {
+  display: grid;
+  grid-template-columns: minmax(128px, 0.38fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.75rem;
+  min-height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.62rem 0.7rem;
+}
+
+.admin-customer-detail-row:nth-child(4n + 1),
+.admin-customer-detail-row:nth-child(4n + 2) {
+  background: rgba(238, 245, 255, 0.72);
+}
+
+.admin-customer-detail-row span {
+  color: #52627a;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.admin-customer-detail-row strong {
+  min-width: 0;
+  color: #061942;
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .admin-compact-note p {
@@ -2566,5 +2598,10 @@
 
   .admin-compact-info-grid {
     grid-template-columns: 1fr;
+  }
+
+  .admin-customer-detail-row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
   }
 }
