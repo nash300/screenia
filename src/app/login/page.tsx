@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isSupabaseBrowserConfigured, supabase } from "@/lib/supabase/client";
 import InfoSyncLogo from "@/components/InfoSyncLogo";
@@ -13,9 +13,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [message, setMessage] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    const urlMessage = new URLSearchParams(window.location.search).get("message");
+    if (urlMessage) setMessage(urlMessage);
+  }, []);
 
   const submit = async () => {
     setLoading(true);
@@ -59,6 +65,30 @@ export default function LoginPage() {
     await supabase.auth.signOut();
     setMessage("Den här inloggningen är inte kopplad till ett InfoSync-konto.");
     setLoading(false);
+  };
+
+  const signInWithGoogle = async () => {
+    setGoogleLoading(true);
+    setMessage("");
+
+    if (!isSupabaseBrowserConfigured) {
+      setMessage(missingSupabaseMessage);
+      setGoogleLoading(false);
+      return;
+    }
+
+    const redirectTo = `${window.location.origin}/auth/callback?next=/account&provider=google`;
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+      },
+    });
+
+    if (error) {
+      setMessage(error.message);
+      setGoogleLoading(false);
+    }
   };
 
   const sendResetEmail = async () => {
@@ -157,12 +187,12 @@ export default function LoginPage() {
               </p>
             )}
 
-            <div className="mt-10 mb-9">
+            <div className="mt-10 space-y-4">
               <button
                 type="button"
                 onClick={submit}
                 disabled={loading || !email || !password}
-                className="group inline-flex min-h-12 min-w-44 items-center justify-between gap-4 border border-white/50 bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-4 py-2 pl-7 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] outline outline-1 outline-[#2f7df6]/20 transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
+                className="group inline-flex min-h-12 w-full items-center justify-between gap-4 border border-white/50 bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-4 py-2 pl-7 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] outline outline-1 outline-[#2f7df6]/20 transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
                 style={{ borderRadius: "999px" }}
               >
                 <span>{loading ? "Kontrollerar..." : "Logga in"}</span>
@@ -178,9 +208,35 @@ export default function LoginPage() {
                   </svg>
                 </span>
               </button>
+
+              <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-[#7b8aaa]">
+                <span className="h-px flex-1 bg-blue-100" />
+                eller
+                <span className="h-px flex-1 bg-blue-100" />
+              </div>
+
+              <button
+                type="button"
+                onClick={signInWithGoogle}
+                disabled={googleLoading}
+                className="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-full border border-blue-100 bg-white px-5 py-3 text-sm font-black text-[#061942] shadow-[0_14px_34px_rgba(6,25,66,0.08)] transition hover:-translate-y-0.5 hover:border-[#2f7df6] hover:shadow-[0_18px_44px_rgba(6,25,66,0.12)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
+              >
+                <span
+                  aria-hidden="true"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-black text-[#4285f4]"
+                >
+                  G
+                </span>
+                {googleLoading ? "Öppnar Google..." : "Fortsätt med Google"}
+              </button>
+
+              <p className="text-xs font-semibold leading-5 text-[#52617d]">
+                Google fungerar bara om e-postadressen redan hör till ett betalt
+                InfoSync-konto.
+              </p>
             </div>
 
-            <div className="flex flex-wrap gap-4 text-sm">
+            <div className="mt-9 flex flex-wrap gap-4 text-sm">
               <button
                 type="button"
                 onClick={sendResetEmail}

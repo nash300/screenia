@@ -157,6 +157,14 @@ admin/audit views, not as clutter in the customer portal.
 This project uses Supabase Auth, so customer social login is possible through
 Supabase OAuth providers.
 
+Current app support:
+
+```text
+/login now has "Fortsatt med Google".
+/auth/callback links a Google user only when the email belongs to an existing
+paid/content-received/active customer.
+```
+
 Recommended order:
 
 1. Add Google login first. This is what customers usually mean by "login with Gmail".
@@ -189,6 +197,20 @@ Supabase Dashboard -> Authentication -> URL Configuration
 Google Cloud Console -> APIs and services -> Credentials
 ```
 
+Manual Google setup checklist:
+
+1. Open Google Cloud Console and create/select the InfoSync project.
+2. Go to `APIs and services -> OAuth consent screen` and set the app name,
+   support email, logo, and authorized domains.
+3. Go to `APIs and services -> Credentials`.
+4. Create an OAuth Client ID for a web application.
+5. Add the Supabase callback URL below as an authorized redirect URI.
+6. Copy the Google Client ID and Client Secret.
+7. Open Supabase `Authentication -> Providers -> Google`.
+8. Enable Google and paste the Client ID and Client Secret.
+9. Open Supabase `Authentication -> URL Configuration`.
+10. Add local and production app redirect URLs.
+
 Supabase OAuth callback URL shape:
 
 ```text
@@ -196,6 +218,12 @@ https://<project-ref>.supabase.co/auth/v1/callback
 ```
 
 Local app callback route already exists:
+
+```text
+http://localhost:3000/auth/callback
+```
+
+Local redirect URL to allow in Supabase:
 
 ```text
 http://localhost:3000/auth/callback

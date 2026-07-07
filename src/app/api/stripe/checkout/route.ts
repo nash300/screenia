@@ -29,7 +29,7 @@ function checkoutImageUrl(appUrl: string, path: string) {
   return new URL(path, imageBaseUrl).toString();
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T | null> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 
   try {

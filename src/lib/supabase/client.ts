@@ -30,6 +30,10 @@ function createMissingSupabaseClient() {
           data: { user: null, session: null },
           error: missingSupabaseConfigError,
         }),
+        signInWithOAuth: async () => ({
+          data: { provider: null, url: null },
+          error: missingSupabaseConfigError,
+        }),
         getUser: async () => ({
           data: { user: null },
           error: missingSupabaseConfigError,
