@@ -2,6 +2,13 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+For the full local platform checklist, including Stripe webhooks, Supabase,
+Resend, dashboard links, and social-login planning, see:
+
+```text
+LOCAL_DEV_REMINDER.md
+```
+
 First, run the development server:
 
 ```bash
