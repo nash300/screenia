@@ -35,8 +35,12 @@ export const metadata: Metadata = {
     template: "%s | InfoSync",
   },
   description:
-    "InfoSync hjälper salonger, butiker, restauranger och serviceföretag i Sverige med digital skyltning, skärmreklam, menyer, prislistor och kampanjer på TV-skärm.",
+    "InfoSync hjälper salonger, butiker, restauranger och serviceföretag i Sverige med digital skyltning, skärminnehåll och kampanjer på TV-skärm.",
   applicationName: "InfoSync",
+  authors: [{ name: "InfoSync" }],
+  creator: "InfoSync",
+  publisher: "InfoSync",
+  category: "Digital signage",
   keywords: [
     "digital skyltning",
     "digital signage Sverige",
@@ -47,9 +51,14 @@ export const metadata: Metadata = {
     "digital skyltning salong",
     "digital skyltning butik",
     "digital skyltning restaurang",
+    "skärminnehåll företag",
+    "reklamskärm butik",
   ],
   alternates: {
     canonical: "/",
+    languages: {
+      "sv-SE": "/",
+    },
   },
   openGraph: {
     title: "InfoSync | Digital skyltning för företag i Sverige",
@@ -92,7 +101,13 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
   },
   other: {
     google: "notranslate",

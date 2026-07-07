@@ -1,5 +1,32 @@
+import type { Metadata } from "next";
 import { LandingNav } from "@/components/LandingNav";
 import "../landing.css";
+
+export const metadata: Metadata = {
+  title: "Så fungerar digital skyltning",
+  description:
+    "Se hur InfoSync hjälper lokala företag att komma igång med digital skyltning, skärminnehåll, betalning, leverans och löpande uppdateringar.",
+  alternates: {
+    canonical: "/sa-fungerar-det",
+  },
+  openGraph: {
+    title: "Så fungerar digital skyltning | InfoSync",
+    description:
+      "En enkel guide till hur InfoSync hjälper salonger, butiker och restauranger att visa professionellt innehåll på TV-skärm.",
+    url: "/sa-fungerar-det",
+    siteName: "InfoSync",
+    locale: "sv_SE",
+    type: "website",
+    images: [
+      {
+        url: "/brand/how-it-works-sv-banner.png",
+        width: 1200,
+        height: 630,
+        alt: "InfoSync digital skyltning för lokala företag",
+      },
+    ],
+  },
+};
 
 const reasons = [
   ["01", "Byggt för småföretag", "Visa varför InfoSync passar restauranger, salonger, butiker och lokala verksamheter.", "/window_screen2.jpg"],
@@ -46,7 +73,7 @@ export default function HowItWorksPage() {
           <div className="how-reason-grid" aria-label="InfoSync fördelar">
             {reasons.map(([number, title, text, image]) => (
               <article key={number} className="how-reason-card">
-                <img src={image} alt="" />
+                <img src={image} alt={`${title} med InfoSync`} />
                 <div>
                   <span>{number}</span>
                   <h3>{title}</h3>

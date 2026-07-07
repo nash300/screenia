@@ -4,6 +4,8 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { LandingNav } from "@/components/LandingNav";
 import "./landing.css";
 
+const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://infosync.se";
+
 const copy = {
   sv: {
     nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
@@ -381,31 +383,90 @@ export default function Home() {
     { label: "Support & Service Policy", href: "/support-service-policy" },
     { label: "Contact", href: "#contact" },
   ];
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name: "InfoSync",
-    url: "https://infosync.se",
-    image: "https://infosync.se/brand/infosync-logo-full-white-bg.png",
-    email: "hello@infosync.se",
-    areaServed: "Sweden",
-    priceRange: "SEK 249-349 per month",
-    description: t.seoIntro,
-    knowsAbout: [
-      "digital skyltning",
-      "digital signage",
-      "skärmreklam",
-      "menyskärm",
-      "informationsskärm",
-      "TV skyltning",
-    ],
-    makesOffer: plans.map((plan) => ({
-      "@type": "Offer",
-      name: `${plan.name} ${plan.resolution}`,
-      priceCurrency: "SEK",
-      category: "Digital signage service",
-    })),
-  };
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "@id": `${publicSiteUrl}/#business`,
+      name: "InfoSync",
+      url: publicSiteUrl,
+      image: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
+      logo: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@infosync.se",
+      areaServed: {
+        "@type": "Country",
+        name: "Sweden",
+      },
+      priceRange: "SEK 249-349 per månad",
+      description: t.seoIntro,
+      knowsAbout: [
+        "digital skyltning",
+        "digital signage",
+        "skärmreklam",
+        "menyskärm",
+        "informationsskärm",
+        "TV skyltning",
+      ],
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": `${publicSiteUrl}/#website`,
+      name: "InfoSync",
+      url: publicSiteUrl,
+      inLanguage: "sv-SE",
+      publisher: {
+        "@id": `${publicSiteUrl}/#business`,
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "@id": `${publicSiteUrl}/#digital-signage-service`,
+      name: "Digital skyltning för företag",
+      serviceType: "Digital signage",
+      provider: {
+        "@id": `${publicSiteUrl}/#business`,
+      },
+      areaServed: {
+        "@type": "Country",
+        name: "Sweden",
+      },
+      description: t.seoIntro,
+      hasOfferCatalog: {
+        "@type": "OfferCatalog",
+        name: "InfoSync paket",
+        itemListElement: plans.map((plan) => ({
+          "@type": "Offer",
+          name: `${plan.name} ${plan.resolution}`,
+          description: planCopy.sv[plan.code].description,
+          priceCurrency: "SEK",
+          price: Number(plan.monthlyFee.replace(/\D/g, "")),
+          category: "Digital signage subscription",
+          availability: "https://schema.org/InStock",
+          eligibleDuration: {
+            "@type": "QuantitativeValue",
+            value: 3,
+            unitText: "veckors kostnadsfri provperiod",
+          },
+        })),
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": `${publicSiteUrl}/#faq`,
+      inLanguage: "sv-SE",
+      mainEntity: t.faqs.map(([question, answer]) => ({
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: answer,
+        },
+      })),
+    },
+  ];
 
   useEffect(() => {
     let isMounted = true;
