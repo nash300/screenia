@@ -85,7 +85,7 @@ export default function OnboardingPage({
     }
     if (!city.trim()) return "Ort måste anges.";
     if (!["sverige", "sweden", "se"].includes(country.trim().toLowerCase())) {
-      return "InfoSync tar bara emot beställningar från svenska kunder.";
+      return "Screenia tar bara emot beställningar från svenska kunder.";
     }
     if (!acceptedTerms) return "Du måste godkänna villkoren.";
     if (!acceptedPrivacy) return "Du måste godkänna integritetspolicyn.";
@@ -196,14 +196,14 @@ export default function OnboardingPage({
     <FlowShell wide>
       <div className="flow-hero">
         <div>
-          <p className="landing-eyebrow">InfoSync</p>
+          <p className="landing-eyebrow">Screenia</p>
           <h1>Bekräfta din beställning</h1>
           <p>
             Kontrollera företagets uppgifter, godkänn villkoren och betala säkert.
             Material, logotyp och kampanjer samlar vi in först efter betalning.
           </p>
         </div>
-        <img src="/brand/infosync-helper.png" alt="InfoSync" className="flow-helper" />
+        <img src="/brand/infosync-helper.png" alt="Screenia" className="flow-helper" />
       </div>
 
       <WizardSteps active={step} />
@@ -274,13 +274,13 @@ export default function OnboardingPage({
               Jag godkänner <a href="/privacy" target="_blank">integritetspolicyn</a>. *
             </FlowCheck>
             <FlowCheck checked={marketingConsent} onChange={setMarketingConsent}>
-              Jag vill få relevanta nyheter och erbjudanden från InfoSync.
+              Jag vill få relevanta nyheter och erbjudanden från Screenia.
             </FlowCheck>
             <FlowCheck checked={analyticsConsent} onChange={setAnalyticsConsent}>
-              InfoSync får använda order- och användningsdata för statistik och förbättring av tjänsten.
+              Screenia får använda order- och användningsdata för statistik och förbättring av tjänsten.
             </FlowCheck>
             <FlowCheck checked={remoteSupportConsent} onChange={setRemoteSupportConsent}>
-              InfoSync får kontakta mig och ge fjärrsupport när jag ber om hjälp.
+              Screenia får kontakta mig och ge fjärrsupport när jag ber om hjälp.
             </FlowCheck>
           </div>
 
@@ -295,7 +295,7 @@ export default function OnboardingPage({
           <h2>2. Säker betalning</h2>
           <p>
             När betalningen är klar öppnas nästa steg där du kan skicka material,
-            välja InfoSync-mall eller låta oss kontakta dig senare.
+            välja Screenia-mall eller låta oss kontakta dig senare.
           </p>
           <button onClick={startPayment} disabled={saving} className="landing-button landing-button-primary">
             {saving ? "Startar betalning..." : "Fortsätt till betalning"}

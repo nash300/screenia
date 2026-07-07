@@ -252,7 +252,7 @@ function statusLabel(value: string | null) {
 
 function contentOptionLabel(value: string | null) {
   if (value === "upload") return "Eget material";
-  if (value === "template") return "InfoSync-mall";
+  if (value === "template") return "Screenia-mall";
   if (value === "later") return "Skickas senare";
   return "-";
 }
@@ -270,7 +270,7 @@ function journeySteps(data: AccountData) {
   return [
     {
       label: "Förfrågan",
-      detail: "InfoSync har tagit emot din förfrågan.",
+      detail: "Screenia har tagit emot din förfrågan.",
       done: Boolean(data.customer.created_at),
     },
     {
@@ -290,7 +290,7 @@ function journeySteps(data: AccountData) {
     },
     {
       label: "Förhandsvisning",
-      detail: "InfoSync tar fram första skärmförslaget.",
+      detail: "Screenia tar fram första skärmförslaget.",
       done:
         productionStatus === "layout_started" ||
         ["layout_started", "preview_approved", "in_production", "ready_to_ship", "shipped", "completed"].includes(fulfillment || ""),
@@ -485,7 +485,7 @@ export default function AccountPage() {
 
     setSetupFiles([]);
     setSetupNotes("");
-    setNotice("Innehållsunderlaget har skickats till InfoSync.");
+    setNotice("Innehållsunderlaget har skickats till Screenia.");
     setSavingSetup(false);
     loadAccount();
   };
@@ -519,7 +519,7 @@ export default function AccountPage() {
 
     setMaterialDescription("");
     setMaterialFiles([]);
-    setNotice("Materialet har skickats till InfoSync.");
+    setNotice("Materialet har skickats till Screenia.");
     setUploadingMaterial(false);
     loadAccount();
   };
@@ -560,7 +560,7 @@ export default function AccountPage() {
     setNotice(
       result.ticketNumber
         ? `Ärendet har skickats. Ärendenummer: ${result.ticketNumber}`
-        : "Ärendet har skickats till InfoSync.",
+        : "Ärendet har skickats till Screenia.",
     );
     setSending(false);
     loadAccount();
@@ -586,7 +586,7 @@ export default function AccountPage() {
     }
 
     const confirmed = window.confirm(
-      "Vill du avsluta ditt InfoSync-abonnemang? Skärmtjänsten kan sluta fungera efter avslut.",
+      "Vill du avsluta ditt Screenia-abonnemang? Skärmtjänsten kan sluta fungera efter avslut.",
     );
     if (!confirmed) return;
 
@@ -707,7 +707,7 @@ export default function AccountPage() {
                   <p>
                     {data.customer.setup_fee_locked_at
                       ? `Startavgiften är markerad som ej återbetalningsbar från ${date(data.customer.setup_fee_locked_at)}.`
-                      : "Om du avbokar innan InfoSync har startat layoutarbetet kan startavgiften hanteras som återbetalningsbar."}
+                      : "Om du avbokar innan Screenia har startat layoutarbetet kan startavgiften hanteras som återbetalningsbar."}
                   </p>
                 </div>
                 <div className="account-facts">
@@ -764,7 +764,7 @@ export default function AccountPage() {
             <div className="account-panel-stack">
               <AccountCard title="Första innehållssetup">
                 <p>
-                  Här samlar vi allt InfoSync behöver för att skapa första
+                  Här samlar vi allt Screenia behöver för att skapa första
                   skärmförslaget. Du kan skicka filer nu, välja mall eller be oss
                   kontakta dig senare.
                 </p>
@@ -851,7 +851,7 @@ export default function AccountPage() {
                   />
                   <AccountChoice
                     active={setupContentOption === "template"}
-                    title="Använd InfoSync-mall"
+                    title="Använd Screenia-mall"
                     text="Vi skapar första versionen utifrån dina uppgifter."
                     onClick={() => setSetupContentOption("template")}
                   />
@@ -959,7 +959,7 @@ export default function AccountPage() {
                     </a>
                   </div>
                 ) : (
-                  <p>Förhandsvisningen visas här när InfoSync har skapat första förslaget.</p>
+                  <p>Förhandsvisningen visas här när Screenia har skapat första förslaget.</p>
                 )}
               </AccountCard>
             </div>
@@ -1055,7 +1055,7 @@ export default function AccountPage() {
                   onClick={uploadDisplayMaterial}
                   className="landing-button landing-button-primary"
                 >
-                  {uploadingMaterial ? "Skickar..." : "Skicka till InfoSync"}
+                  {uploadingMaterial ? "Skickar..." : "Skicka till Screenia"}
                 </button>
               </AccountCard>
 

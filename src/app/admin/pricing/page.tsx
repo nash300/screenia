@@ -222,7 +222,7 @@ export default function PricingPage() {
   return (
     <main>
       <div className="page-header">
-        <p className="eyebrow">InfoSync Admin</p>
+        <p className="eyebrow">Screenia Admin</p>
         <h1>Pricing</h1>
         <p>
           Edit live package prices, then sync matching Stripe products and

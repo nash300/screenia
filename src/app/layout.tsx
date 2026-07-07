@@ -26,20 +26,20 @@ const specialElite = Special_Elite({
   weight: "400",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://infosync.se";
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "InfoSync | Digital skyltning för företag i Sverige",
-    template: "%s | InfoSync",
+    default: "Screenia | Digital skyltning för företag i Sverige",
+    template: "%s | Screenia",
   },
   description:
-    "InfoSync hjälper salonger, butiker, restauranger och serviceföretag i Sverige med digital skyltning, skärminnehåll och kampanjer på TV-skärm.",
-  applicationName: "InfoSync",
-  authors: [{ name: "InfoSync" }],
-  creator: "InfoSync",
-  publisher: "InfoSync",
+    "Screenia hjälper salonger, butiker, restauranger och serviceföretag i Sverige med digital skyltning, skärminnehåll och kampanjer på TV-skärm.",
+  applicationName: "Screenia",
+  authors: [{ name: "Screenia" }],
+  creator: "Screenia",
+  publisher: "Screenia",
   category: "Digital signage",
   keywords: [
     "digital skyltning",
@@ -61,11 +61,11 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "InfoSync | Digital skyltning för företag i Sverige",
+    title: "Screenia | Digital skyltning för företag i Sverige",
     description:
       "Professionellt skärminnehåll för lokala företag. Visa menyer, prislistor, erbjudanden och information på TV-skärm.",
     url: "/",
-    siteName: "InfoSync",
+    siteName: "Screenia",
     locale: "sv_SE",
     type: "website",
     images: [
@@ -73,13 +73,13 @@ export const metadata: Metadata = {
         url: "/brand/infosync-logo-full-white-bg.png",
         width: 219,
         height: 66,
-        alt: "InfoSync",
+        alt: "Screenia",
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "InfoSync | Digital skyltning för företag i Sverige",
+    title: "Screenia | Digital skyltning för företag i Sverige",
     description:
       "Digital signage, skärmreklam och hanterat skärminnehåll för företag i Sverige.",
     images: ["/brand/infosync-logo-full-white-bg.png"],

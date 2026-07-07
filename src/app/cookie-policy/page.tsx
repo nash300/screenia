@@ -9,7 +9,7 @@ export default function CookiePolicyPage() {
         <h1>Cookie Policy</h1>
         <p>
           Den fullständiga cookiepolicyn läggs in här när dokumentet är klart.
-          Tills vidare använder InfoSync endast nödvändiga tekniska funktioner
+          Tills vidare använder Screenia endast nödvändiga tekniska funktioner
           för att webbplatsen och kundflödet ska fungera.
         </p>
 

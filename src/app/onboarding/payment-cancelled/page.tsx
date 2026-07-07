@@ -12,7 +12,7 @@ export default function PaymentCancelledPage() {
           <h1 id="payment-cancelled-title">Betalningen avbr&ouml;ts</h1>
           <p>
             Ingen betalning genomf&ouml;rdes. Din startl&auml;nk kan anv&auml;ndas igen om
-            du vill forts&auml;tta, och du kan alltid kontakta InfoSync om n&aring;got
+            du vill forts&auml;tta, och du kan alltid kontakta Screenia om n&aring;got
             k&auml;ndes oklart i betalningssteget.
           </p>
           <div className="flow-result-actions">

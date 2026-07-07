@@ -34,17 +34,17 @@ to `.env.local` and to your production environment:
 RESEND_API_KEY=your_resend_api_key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 STRIPE_AUTOMATIC_TAX_ENABLED=false
-NEXT_PUBLIC_COMPANY_LEGAL_NAME=InfoSync
+NEXT_PUBLIC_COMPANY_LEGAL_NAME=Screenia
 NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
 NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
-NEXT_PUBLIC_COMPANY_EMAIL=hello@infosync.se
+NEXT_PUBLIC_COMPANY_EMAIL=hello@screenia.se
 NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
 Without `RESEND_FROM_EMAIL`, local development uses Resend's starter sender:
 
 ```bash
-RESEND_FROM_EMAIL=InfoSync <onboarding@resend.dev>
+RESEND_FROM_EMAIL=Screenia <onboarding@resend.dev>
 ```
 
 Use a verified Resend domain for `RESEND_FROM_EMAIL` before sending to real

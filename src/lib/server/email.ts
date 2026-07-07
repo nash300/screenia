@@ -27,7 +27,7 @@ export function renderBrandedEmail({
   title,
   intro,
   children,
-  footer = "InfoSync",
+  footer = "Screenia",
   showHelper = true,
 }: {
   eyebrow?: string;
@@ -58,8 +58,8 @@ export function renderBrandedEmail({
       <div style="max-width:680px; margin:0 auto; padding:28px 16px; font-family:Arial, sans-serif; color:#102033; line-height:1.6;">
         <div style="overflow:hidden; border:1px solid #d9e5f7; border-radius:22px; background:#ffffff; box-shadow:0 18px 48px rgba(6,25,66,0.12);">
           <div style="background:#061942; padding:22px 24px;">
-            <img src="${logoUrl}" alt="InfoSync" width="180" style="display:block; max-width:180px; height:auto; color:#ffffff; font-family:Arial, sans-serif; font-size:22px; font-weight:700;" />
-            <div style="font-family:'Special Elite', Georgia, serif; color:#ffffff; font-size:0; line-height:0;">InfoSync</div>
+            <img src="${logoUrl}" alt="Screenia" width="180" style="display:block; max-width:180px; height:auto; color:#ffffff; font-family:Arial, sans-serif; font-size:22px; font-weight:700;" />
+            <div style="font-family:'Special Elite', Georgia, serif; color:#ffffff; font-size:0; line-height:0;">Screenia</div>
           </div>
           <div style="padding:26px 24px 8px;">
             ${
@@ -77,7 +77,7 @@ export function renderBrandedEmail({
           ${
             showHelper
               ? `<div style="padding:12px 24px 0; text-align:center;">
-                  <img src="${helperUrl}" alt="InfoSync hj&auml;lper dig med sk&auml;rmen" width="220" height="331" style="display:inline-block; width:220px !important; max-width:220px !important; height:auto !important; border-radius:16px; background:#0f63f4;" />
+                  <img src="${helperUrl}" alt="Screenia hj&auml;lper dig med sk&auml;rmen" width="220" height="331" style="display:inline-block; width:220px !important; max-width:220px !important; height:auto !important; border-radius:16px; background:#0f63f4;" />
                 </div>`
               : ""
           }

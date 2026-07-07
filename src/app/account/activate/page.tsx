@@ -8,7 +8,7 @@ import {
   syncCurrentSession,
   syncEmailLinkSession,
 } from "@/lib/supabase/sync-browser-session";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 import {
   passwordPolicyDescription,
   validatePasswordPolicy,
@@ -71,7 +71,7 @@ export default function ActivateAccountPage() {
   return (
     <AuthShell eyebrow="Aktivera kundkonto" title="Välj ditt lösenord">
       <p className="text-sm font-semibold leading-6 text-[#52617d]">
-        Din betalning är klar och ditt InfoSync-konto är skapat. Välj ett
+        Din betalning är klar och ditt Screenia-konto är skapat. Välj ett
         lösenord för att aktivera kundportalen.
       </p>
 
@@ -163,7 +163,7 @@ function AuthShell({
       <div className="relative mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[0.85fr_1.15fr]">
         <section className="hidden text-white lg:block">
           <Link href="/" className="inline-flex no-underline">
-            <InfoSyncLogo className="infosync-logo-auth-card" />
+            <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
           <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
             Kundportal
@@ -176,7 +176,7 @@ function AuthShell({
         <section className="mx-auto w-full max-w-md">
           <div className="rounded-[28px] border border-white/70 bg-white/[0.92] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
             <Link href="/" className="inline-flex no-underline lg:hidden">
-              <InfoSyncLogo className="infosync-logo-auth-inline" />
+              <ScreeniaLogo className="screenia-logo-auth-inline" />
             </Link>
             <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6] lg:mt-0">
               {eyebrow}

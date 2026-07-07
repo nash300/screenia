@@ -363,7 +363,7 @@ export async function POST(request: Request) {
 
   const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
   const resendFromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim() || "InfoSync <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL?.trim() || "Screenia <onboarding@resend.dev>";
 
   if (!resendApiKey) {
     await recordAuditEvent(supabaseAdmin, {
@@ -416,10 +416,10 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       from: resendFromEmail,
       to: customer.email,
-      subject: `Din InfoSync-offert ${order.order_number}`,
+      subject: `Din Screenia-offert ${order.order_number}`,
       text: `Hej ${customer.name},
 
-Här är din InfoSync-offert.
+Här är din Screenia-offert.
 
 Paket: ${plan.name} ${plan.resolution}
 Start- och konfigurationsavgift: ${formatSek(plan.setup_fee_sek)}
@@ -440,10 +440,10 @@ ${onboardingUrl}
 Länken gäller i 14 dagar.
 
 Vänliga hälsningar,
-InfoSync`,
+Screenia`,
       html: renderBrandedEmail({
         eyebrow: "Offert",
-        title: "Din InfoSync-offert",
+        title: "Din Screenia-offert",
         children: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
           <p>Hej ${safeCustomerName},</p>
@@ -476,7 +476,7 @@ InfoSync`,
             </a>
           </p>
           <p style="color: #5f7187;">Länken gäller i 14 dagar.</p>
-          <p>Vänliga hälsningar,<br />InfoSync</p>
+          <p>Vänliga hälsningar,<br />Screenia</p>
         </div>
       `,
       }),

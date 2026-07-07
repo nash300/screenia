@@ -1,4 +1,4 @@
-const CACHE_NAME = "infosync-cache-v1";
+const CACHE_NAME = "screenia-cache-v1";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();

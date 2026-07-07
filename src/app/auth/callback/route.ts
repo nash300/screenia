@@ -89,7 +89,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(
           withLoginMessage(
             requestUrl.origin,
-            "Google-kontot är inte kopplat till ett betalt InfoSync-konto.",
+            "Google-kontot är inte kopplat till ett betalt Screenia-konto.",
           ),
         );
       }
@@ -105,7 +105,7 @@ export async function GET(request: Request) {
           return NextResponse.redirect(
             withLoginMessage(
               requestUrl.origin,
-              "InfoSync-kontot hittades, men Google-kopplingen kunde inte sparas.",
+              "Screenia-kontot hittades, men Google-kopplingen kunde inte sparas.",
             ),
           );
         }

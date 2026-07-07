@@ -4,7 +4,7 @@ import "./admin.css";
 import AdminPageTitle from "@/components/AdminPageTitle";
 import AdminNotifications from "@/components/AdminNotifications";
 import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 import AdminSidebarNav from "@/components/AdminSidebarNav";
 
 export default function AdminLayout({
@@ -16,13 +16,13 @@ export default function AdminLayout({
     <div className="admin-layout">
       <aside className="admin-sidebar fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden shadow-2xl">
         <div className="admin-window-titlebar">
-          <span className="admin-window-titlebar-text">InfoSync Admin</span>
+          <span className="admin-window-titlebar-text">Screenia Admin</span>
         </div>
 
         <div className="relative px-6 py-6">
           <Link href="/admin" className="block no-underline">
             <div className="admin-sidebar-logo-card">
-              <InfoSyncLogo className="infosync-logo-admin" />
+              <ScreeniaLogo className="screenia-logo-admin" />
             </div>
           </Link>
 
@@ -37,7 +37,7 @@ export default function AdminLayout({
         <AdminSidebarNav />
 
         <div className="admin-sidebar-footer">
-          <p className="admin-sidebar-kicker">InfoSync</p>
+          <p className="admin-sidebar-kicker">Screenia</p>
           <p className="admin-sidebar-version">Version 0.1</p>
         </div>
           <Suspense fallback={null}>

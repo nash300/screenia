@@ -1,4 +1,4 @@
-# InfoSync Admin QA Test Plan
+# Screenia Admin QA Test Plan
 
 Use this checklist with Stripe test mode, Supabase test data, and a test email address.
 Prefix test companies with `TEST -` so they can be cleaned up safely.
@@ -22,7 +22,7 @@ Result:
 - Pass on 2026-06-28.
 
 Evidence:
-- Test customer: `TEST - InfoSync QA 202606281359`
+- Test customer: `TEST - Screenia QA 202606281359`
 - Customer id: `c13cbcd6-0bf6-4b33-a2cc-c0291ee43af8`
 - Customer number: `10000008`
 - Status: `new_request`
@@ -275,7 +275,7 @@ Observation:
 Expected:
 - A fresh customer can start on the landing page and move through the full live workflow.
 - Admin can prepare a quote, send onboarding, verify payment, handle content/support, and assign display content.
-- Customer-facing subpages and transactional emails follow the InfoSync visual theme.
+- Customer-facing subpages and transactional emails follow the Screenia visual theme.
 - Each major activity has a timestamped audit/admin record.
 - Final device display renders assigned content without broken states.
 
@@ -296,7 +296,7 @@ Verified so far:
 - Admin notification created for `payment_completed` with priority `urgent`.
 - Customer account portal login was verified through the Supabase email-link session for `nadeesha7314@gmail.com`.
 - Account portal resolved to the new paid dress rehearsal customer using Supabase Auth metadata, even though the email had an older QA customer linked by `auth_user_id`.
-- Customer content setup was submitted with InfoSync template choice, business description, opening hours, promotions, social media, and display instructions.
+- Customer content setup was submitted with Screenia template choice, business description, opening hours, promotions, social media, and display instructions.
 - Customer moved to `content_received`, preview status moved to `waiting_for_admin`, subscription fulfillment moved to `content_received`, and `content_collected_at` was timestamped.
 - Customer display instructions were stored as a text display asset and appended to customer notes for admin review.
 - Latest content setup audit/admin notification includes `hasDisplayNotes: true`.
@@ -309,10 +309,10 @@ Verified so far:
 - Live Supabase `playlists` schema was aligned with local migrations by adding `video_id`, `created_at`, `updated_at`, and the `set_updated_at` trigger.
 - Existing QA playlist row `70579921-0138-4c67-a3f9-a5c468b52ab6` was linked to video row `dfe9b634-26d7-4f4d-9d3a-26aafcfb51d2`; `updated_at` changed on update, proving the trigger works.
 - Admin media tab now shows `Media (1)` for `XACRVK`, and `/display/XACRVK` still plays the assigned MP4 after schema alignment.
-- Quote/onboarding and standalone onboarding-link emails now use the shared branded InfoSync email wrapper.
+- Quote/onboarding and standalone onboarding-link emails now use the shared branded Screenia email wrapper.
 - Branded email sample was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `fc673bc7-b3ac-4ced-b97b-e58cc7751dd9`.
 - Gmail visual check showed the first branded email could not load the logo because email clients cannot fetch `localhost` images.
-- Email-safe brand assets were uploaded to public Supabase Storage bucket `email-assets` and the shared email wrapper now uses those HTTPS URLs for the logo and InfoSync helper image.
+- Email-safe brand assets were uploaded to public Supabase Storage bucket `email-assets` and the shared email wrapper now uses those HTTPS URLs for the logo and Screenia helper image.
 - Public email asset URLs were verified with HTTP `200` for `brand/infosync-logo-full-dark-bg.png` and `brand/infosync-helper.png`.
 - Follow-up email image test was sent successfully through Resend to `nadeesha7314@gmail.com`; Resend id `0c4b2dc6-471b-46fd-b21f-e9afcc87e323`.
 - User confirmed the email images now load in Gmail; the helper image was then reduced from full-width to a compact `220px` centered image in the shared email wrapper.
@@ -398,10 +398,10 @@ Evidence:
 - Customers table content remains wider than mobile/tablet viewports, but it stays contained as an admin data table and does not create page-level horizontal overflow.
 - Admin device media page `/admin/devices/XACRVK?section=media` loaded with `Media (2)`, one visible file input accepting `video/mp4`, disabled `Upload video` button before file selection, visible playlist rows, no console errors, and no page overflow.
 - Gmail rendering check resumed after the user signed in.
-- Older manual branded email `InfoSync email image test` in Inbox showed both remote images loading, but the helper image was oversized in that previously sent email and the manual test copy had mojibake.
+- Older manual branded email `Screenia email image test` in Inbox showed both remote images loading, but the helper image was oversized in that previously sent email and the manual test copy had mojibake.
 - Fixed in code: shared branded email wrapper now declares UTF-8 metadata and constrains the helper image to `220px` width / `331px` height for email clients.
 - Fixed in code: Swedish email copy in landing request, quote/onboarding, and onboarding-link routes no longer contains mojibake source strings.
-- Real app quote email `Din InfoSync-offert 1000000009` in Gmail rendered Swedish characters correctly: `Här`, `Skärmenhet`, `Månadsabonnemang`, `Öppna`, `Länken`, and `Vänliga hälsningar`; no mojibake was detected in that app-generated email.
+- Real app quote email `Din Screenia-offert 1000000009` in Gmail rendered Swedish characters correctly: `Här`, `Skärmenhet`, `Månadsabonnemang`, `Öppna`, `Länken`, and `Vänliga hälsningar`; no mojibake was detected in that app-generated email.
 - Fresh direct branded test email was accepted by Resend with id `2e527e76-2b41-4b5c-83e5-5640d88184c0`, but Gmail placed it in Spam. In Spam, Gmail blocked remote image sources, so image loading could not be fully reverified there; sizing attributes were visible as `220 x 331`.
 - Fresh app-generated landing confirmation email was sent successfully through `/api/onboarding-requests` for customer `6d3bfeda-e15c-4026-818f-9f37c5d71d6a` / `TEST - Gmail Email Render 20260628211036`; response returned `emailSent: true`.
 - Gmail found the fresh app-generated email, but it was also placed in Spam/Bin. The rendered Spam view showed correct Swedish characters with no mojibake and showed the logo/helper placeholders sized correctly: logo `180px` wide and helper `220 x 331`.

@@ -1,4 +1,4 @@
-# InfoSync Next Edit Bookmark
+# Screenia Next Edit Bookmark
 
 Date: 2026-06-28
 Branch: `codex/local-service-setup`
@@ -30,7 +30,7 @@ Server: `http://localhost:3000`
 ### Stripe Payment / Refund Rules
 
 Business rule to add:
-- The initial setup/layout price is refundable only until InfoSync starts layout/design work.
+- The initial setup/layout price is refundable only until Screenia starts layout/design work.
 - Once layout/design work starts, the setup/layout fee should be marked non-refundable.
 
 Current system state:
@@ -76,7 +76,7 @@ Current page:
 - Uses functional cards and portal sections, but needs stronger visual theme polish.
 
 Recommended future change:
-- Style the customer portal with the InfoSync visual language:
+- Style the customer portal with the Screenia visual language:
   - richer hero panel,
   - helper image/graphic area,
   - softer shadows,

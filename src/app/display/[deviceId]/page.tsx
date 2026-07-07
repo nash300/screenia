@@ -15,7 +15,7 @@ type Device = {
   } | null;
 };
 
-const CACHE_NAME = "infosync-video-cache-v1";
+const CACHE_NAME = "screenia-video-cache-v1";
 
 export default function DisplayPage({
   params,
@@ -163,7 +163,7 @@ export default function DisplayPage({
     return (
       <DisplayMessage
         title="Display inactive"
-        subtitle="Please contact InfoSync."
+        subtitle="Please contact Screenia."
         deviceId={deviceId}
       />
     );

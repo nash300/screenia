@@ -127,7 +127,7 @@ function NewSubscriptionPageContent() {
   return (
     <main>
       <div className="page-header">
-        <p className="eyebrow">InfoSync Admin</p>
+        <p className="eyebrow">Screenia Admin</p>
         <h1>Start subscription</h1>
         <p>Select a pricing plan and start Stripe Checkout.</p>
       </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isSupabaseBrowserConfigured, supabase } from "@/lib/supabase/client";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 
 const missingSupabaseMessage =
   "Supabase saknas i lokal miljö. Lägg till NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY i .env.local och starta om servern.";
@@ -65,7 +65,7 @@ export default function LoginPage() {
     }
 
     await supabase.auth.signOut();
-    setMessage("Den här inloggningen är inte kopplad till ett InfoSync-konto.");
+    setMessage("Den här inloggningen är inte kopplad till ett Screenia-konto.");
     setLoading(false);
   };
 
@@ -121,7 +121,7 @@ export default function LoginPage() {
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage("Vi har skickat en återställningslänk om e-postadressen finns hos InfoSync.");
+      setMessage("Vi har skickat en återställningslänk om e-postadressen finns hos Screenia.");
     }
 
     setResetLoading(false);
@@ -134,7 +134,7 @@ export default function LoginPage() {
       <div className="relative mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[0.85fr_1.15fr]">
         <section className="hidden text-white lg:block">
           <Link href="/" className="inline-flex no-underline">
-            <InfoSyncLogo className="infosync-logo-auth-card" />
+            <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
 
           <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
@@ -148,11 +148,11 @@ export default function LoginPage() {
         <section className="mx-auto w-full max-w-md">
           <div className="rounded-[28px] border border-white/70 bg-white/[0.92] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
             <Link href="/" className="inline-flex no-underline lg:hidden">
-              <InfoSyncLogo className="infosync-logo-auth-inline" />
+              <ScreeniaLogo className="screenia-logo-auth-inline" />
             </Link>
 
             <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6] lg:mt-0">
-              InfoSync kundportal
+              Screenia kundportal
             </p>
 
             <div className="mt-7 space-y-4">
@@ -243,7 +243,7 @@ export default function LoginPage() {
 
               <p className="text-xs font-semibold leading-5 text-[#52617d]">
                 {isGoogleAuthEnabled
-                  ? "Google fungerar bara om e-postadressen redan hör till ett betalt InfoSync-konto."
+                  ? "Google fungerar bara om e-postadressen redan hör till ett betalt Screenia-konto."
                   : "Google aktiveras när Google Cloud och Supabase OAuth är färdigkonfigurerade."}
               </p>
             </div>

@@ -308,7 +308,7 @@ export async function POST(request: Request) {
 
   const hardwareFeeSek = plan.hardware_fee_sek ?? 0;
   const shippingFeeSek = plan.shipping_fee_sek ?? 0;
-  const baseName = `InfoSync ${plan.name} ${plan.resolution}`;
+  const baseName = `Screenia ${plan.name} ${plan.resolution}`;
   const specs: PriceSpec[] = [
     {
       field: "stripe_setup_price_id",

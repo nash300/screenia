@@ -35,7 +35,7 @@ export default function AdminPageTitle() {
     const title = section
       ? `${sectionTitles[section] || section} - ${titles[pathname] || "Admin"}`
       : titles[pathname] || "Admin";
-    document.title = `${title} - InfoSync`;
+    document.title = `${title} - Screenia`;
   }, [pathname, searchParams]);
 
   return null;

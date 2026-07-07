@@ -1,41 +1,74 @@
-%PDF-1.4
+%PDF-1.3
+%“Œ‹ž ReportLab Generated PDF document (opensource)
 1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
+<<
+/F1 2 0 R /F2 3 0 R
+>>
 endobj
 2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
 endobj
 3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
 endobj
 4 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+<<
+/Contents 8 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 7 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
 endobj
 5 0 obj
-<< /Length 197 >>
+<<
+/PageMode /UseNone /Pages 7 0 R /Type /Catalog
+>>
+endobj
+6 0 obj
+<<
+/Author (anonymous) /CreationDate (D:20260707230729+02'00') /Creator (anonymous) /Keywords () /ModDate (D:20260707230729+02'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (unspecified) /Title (untitled) /Trapped /False
+>>
+endobj
+7 0 obj
+<<
+/Count 1 /Kids [ 4 0 R ] /Type /Pages
+>>
+endobj
+8 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 534
+>>
 stream
-BT
-/F1 18 Tf
-72 760 Td
-(InfoSync Integritetspolicy) Tj
-/F1 11 Tf
-0 -32 Td
-(Platshallare for integritetspolicy. Ersatt denna PDF med slutlig juridisk text fore produktion.) Tj
-0 -20 Td
-(Version: 2026-05-28-draft) Tj
-ET
-endstream
+Gas1[_2ctu&A@6Wh@Yi1A/rW]p4sIq&gnU->E,+uRlZhp0'qKU\4`*i8nGtB7PjMHGr(CA*_uIl!.8POnI'sQg+?Ei7/J!sgPg.R@ZXFUI?q/A7*6/-Oqm$T$E.^^$SG:V"k@0iTKV5hHK1!)<o]YWVY<!90HJ3MDI21pI7!fS;+4S:5Z0553)>.E*MT:%>)G'IrA&i-UO.O4Kj*U"9%9oelYTbngqr!,=I&G.2X#+K*q1uPos?7qY+rQ4e0t7iRW30DGNLM#Wa_urEBks&&lS9H1gkad8X?>=7J6["<.uHT<O9-SEIU"d(P;I(XXlf>Lg=Alj"*3!(Nd\[Pq,```>RHaTV4N-_f=%3g?E%mhI&Ekr#=Stqf[^Ia&k&*V_Hb0A(DFq#Mo,qnpT]E\tLP3]I(834`5Ff5#9T$`9+EoGg^Ju;71c%Y)?^.rRd\7+m.2#M.0ec32^fU7$ESNn!a1N?>]!8SaC:@"/c%?&=dlknfiN0kWXl+8#`pU[sKZIVFi[m%;n6:?5+OZ$X6Hi[f~>endstream
 endobj
 xref
-0 6
-0000000000 65535 f
-0000000009 00000 n
-0000000058 00000 n
-0000000115 00000 n
-0000000241 00000 n
-0000000311 00000 n
+0 9
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000524 00000 n 
+0000000592 00000 n 
+0000000853 00000 n 
+0000000912 00000 n 
 trailer
-<< /Root 1 0 R /Size 6 >>
+<<
+/ID 
+[<9826e013f9430e2ea077662506c26ef3><9826e013f9430e2ea077662506c26ef3>]
+% ReportLab generated PDF document -- digest (opensource)
+
+/Info 6 0 R
+/Root 5 0 R
+/Size 9
+>>
 startxref
-558
+1536
 %%EOF

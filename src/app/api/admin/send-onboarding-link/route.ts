@@ -46,9 +46,9 @@ const getResendErrorMessage = async (response: Response) => {
 
 const emailCopy = {
   sv: {
-    subject: "Din startlänk till InfoSync",
-    intro: "Nu kan du färdigställa dina uppgifter för InfoSync här:",
-    heading: "Dags att komma igång med InfoSync",
+    subject: "Din startlänk till Screenia",
+    intro: "Nu kan du färdigställa dina uppgifter för Screenia här:",
+    heading: "Dags att komma igång med Screenia",
     body:
       "Bekräfta företagets uppgifter och gå vidare till betalning via den säkra länken nedan. Material samlas in efter betalning.",
     cta: "Öppna startguiden",
@@ -57,9 +57,9 @@ const emailCopy = {
     greeting: "Hej",
   },
   en: {
-    subject: "Your InfoSync setup link",
-    intro: "You can now complete your InfoSync details here:",
-    heading: "Time to get started with InfoSync",
+    subject: "Your Screenia setup link",
+    intro: "You can now complete your Screenia details here:",
+    heading: "Time to get started with Screenia",
     body:
       "Confirm your company details and continue to payment using the secure link below. Content is collected after payment.",
     cta: "Open setup guide",
@@ -111,7 +111,7 @@ export async function POST(request: Request) {
 
   const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
   const resendFromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim() || "InfoSync <onboarding@resend.dev>";
+    process.env.RESEND_FROM_EMAIL?.trim() || "Screenia <onboarding@resend.dev>";
 
   const canSendEmail = Boolean(resendApiKey);
 
@@ -203,7 +203,7 @@ ${onboardingUrl}
 ${copy.expires}
 
 ${copy.regards},
-InfoSync`,
+Screenia`,
       html: renderBrandedEmail({
         eyebrow: "Startguide",
         title: copy.heading,
@@ -217,7 +217,7 @@ InfoSync`,
             </a>
           </p>
           <p style="color: #5f7187;">${copy.expires}</p>
-          <p>${copy.regards},<br />InfoSync</p>
+          <p>${copy.regards},<br />Screenia</p>
         </div>
       `,
       }),

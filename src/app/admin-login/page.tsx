@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { isSupabaseBrowserConfigured, supabase } from "@/lib/supabase/client";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 
 const missingSupabaseMessage =
   "Supabase saknas i lokal miljö. Lägg till NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY i .env.local och starta om servern.";
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
       <div className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="text-white">
           <Link href="/" className="inline-flex no-underline">
-            <InfoSyncLogo className="infosync-logo-auth-card" />
+            <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
           <p className="mt-12 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
             Admin
@@ -73,7 +73,7 @@ export default function AdminLoginPage() {
 
         <section className="rounded-[28px] border border-white/70 bg-white/[0.94] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6]">
-            InfoSync admin
+            Screenia admin
           </p>
 
           <div className="mt-7 space-y-4">
@@ -83,7 +83,7 @@ export default function AdminLoginPage() {
               </span>
               <input
                 type="email"
-                placeholder="admin@infosync.se"
+                placeholder="admin@screenia.se"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"

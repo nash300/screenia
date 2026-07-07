@@ -23,7 +23,7 @@ function toOre(amountSek: number) {
 
 function checkoutImageUrl(appUrl: string, path: string) {
   const imageBaseUrl = appUrl.includes("localhost")
-    ? "https://infosync.se"
+    ? "https://screenia.se"
     : appUrl;
 
   return new URL(path, imageBaseUrl).toString();
@@ -184,7 +184,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Prispaketet hittades inte. Be InfoSync kontrollera offerten innan betalning.",
+            "Prispaketet hittades inte. Be Screenia kontrollera offerten innan betalning.",
         },
         { status: 404 },
       );
@@ -380,7 +380,7 @@ export async function POST(request: Request) {
             percent_off: deviceDiscountPercent,
             duration: "repeating",
             duration_in_months: deviceDiscountMonths,
-            name: `InfoSync device discount ${deviceDiscountPercent}%`,
+            name: `Screenia device discount ${deviceDiscountPercent}%`,
             metadata: {
               customer_id: customerId,
               order_number: order.order_number,
@@ -500,7 +500,7 @@ export async function POST(request: Request) {
               interval: "month",
             },
             product_data: {
-              name: `InfoSync ${plan.name} ${plan.resolution} månadsabonnemang`,
+              name: `Screenia ${plan.name} ${plan.resolution} månadsabonnemang`,
               images: [subscriptionImage],
             },
           },
@@ -544,7 +544,7 @@ export async function POST(request: Request) {
                 interval: "month" as const,
               },
               product_data: {
-                name: `InfoSync ${item.name} ${item.resolution} månadsabonnemang`,
+                name: `Screenia ${item.name} ${item.resolution} månadsabonnemang`,
                 images: [subscriptionImage],
               },
             },

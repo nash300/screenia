@@ -1,107 +1,107 @@
-ï»¿"use client";
+"use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { LandingNav } from "@/components/LandingNav";
 import "./landing.css";
 
-const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://infosync.se";
+const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
 
 const copy = {
   sv: {
-    nav: ["TjÃ¤nsten", "SÃ¥ fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
+    nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
     demo: "Kontakta oss",
-    eyebrow: "Digital skyltning fÃ¶r fÃ¶retag",
+    eyebrow: "Digital skyltning för företag",
     hero:
-      "Professionellt skÃ¤rminnehÃ¥ll, hanterat frÃ¥n en tydlig plattform.",
+      "Professionellt skärminnehåll, hanterat från en tydlig plattform.",
     lede:
-      "InfoSync hjÃ¤lper salonger, butiker och servicefÃ¶retag att visa kampanjer, prislistor och information pÃ¥ skÃ¤rm. Du vÃ¤ljer paket, skickar in dina uppgifter och fÃ¥r hjÃ¤lp att komma igÃ¥ng utan tekniskt krÃ¥ngel.",
+      "Screenia hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer paket, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
     pricingCta: "Se paket",
-    workflowCta: "Se fÃ¶rdelarna",
+    workflowCta: "Se fördelarna",
     stats: [
-      ["24/7", "kontinuerlig skÃ¤rmvisning"],
+      ["24/7", "kontinuerlig skärmvisning"],
       ["3 veckor", "kostnadsfri provperiod"],
-      ["0", "mÃ¥naders bindningstid"],
+      ["0", "månaders bindningstid"],
     ],
-    platformTitle: "En enklare vÃ¤g till professionell skÃ¤rmvisning",
+    platformTitle: "En enklare väg till professionell skärmvisning",
     platformText:
-      "Du behÃ¶ver inte bygga ett eget system eller hantera tekniska instÃ¤llningar. InfoSync hjÃ¤lper dig frÃ¥n fÃ¶rsta fÃ¶rfrÃ¥gan till en skÃ¤rm som visar rÃ¤tt innehÃ¥ll i din verksamhet.",
+      "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. Screenia hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
     features: [
-      ["Smidig start", "Du vÃ¤ljer paket och fÃ¥r en personlig startguide dÃ¤r allt fortsÃ¤tter pÃ¥ ett tydligt sÃ¤tt."],
-      ["Tydlig kostnad", "Du ser startavgift, enhetspris, mÃ¥nadskostnad, provperiod och bindningstid innan du gÃ¥r vidare."],
-      ["HjÃ¤lp med skÃ¤rmen", "Efter betalning samlar vi in material, gÃ¶r layouten och skickar enheten med instruktioner."],
-      ["InnehÃ¥ll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
+      ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
+      ["Tydlig kostnad", "Du ser startavgift, enhetspris, månadskostnad, provperiod och bindningstid innan du går vidare."],
+      ["Hjälp med skärmen", "Efter betalning samlar vi in material, gör layouten och skickar enheten med instruktioner."],
+      ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
     ],
-    workflowTitle: "FrÃ¥n paketval till fungerande skÃ¤rm",
+    workflowTitle: "Från paketval till fungerande skärm",
     workflowText:
-      "Startguiden Ã¤r den sÃ¤kra sidan dÃ¤r du bekrÃ¤ftar uppgifter och betalar. Material samlas in fÃ¶rst efter betalning sÃ¥ att fÃ¶rfrÃ¥gan gÃ¥r snabbt.",
+      "Startguiden är den säkra sidan där du bekräftar uppgifter och betalar. Material samlas in först efter betalning så att förfrågan går snabbt.",
     steps: [
-      ["01", "VÃ¤lj paket", "VÃ¤lj Standard eller Premium och skicka en kort fÃ¶rfrÃ¥gan med fÃ¶retagets uppgifter.", "Det Ã¤r inte en bestÃ¤llning Ã¤nnu. Vi anvÃ¤nder uppgifterna fÃ¶r att skapa din personliga startguide."],
-      ["02", "FÃ¤rdigstÃ¤ll uppgifter och betala", "I startguiden bekrÃ¤ftar du uppgifter, godkÃ¤nner villkor och gÃ¥r vidare till betalning.", "Du behÃ¶ver inte fÃ¶rbereda logotyp, meny eller bilder innan betalning."],
-      ["03", "Skicka innehÃ¥ll efter betalning", "Efter betalning vÃ¤ljer du om du vill ladda upp material, anvÃ¤nda InfoSync-mall eller skicka innehÃ¥ll senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner rÃ¤cker fint."],
-      ["04", "Vi bygger layouten", "InfoSync skapar fÃ¶rsta skÃ¤rmfÃ¶rslaget, fÃ¶rbereder hÃ¥rdvaran och skickar enheten nÃ¤r allt Ã¤r klart.", "Du kan fÃ¶lja status i kundportalen."],
-      ["05", "Koppla in och starta", "NÃ¤r enheten kommer kopplar du den till TV och Wi-Fi enligt instruktionerna vi skickar med.", "Sedan bÃ¶rjar skÃ¤rmen visa ditt innehÃ¥ll."],
+      ["01", "Välj paket", "Välj Standard eller Premium och skicka en kort förfrågan med företagets uppgifter.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
+      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor och går vidare till betalning.", "Du behöver inte förbereda logotyp, meny eller bilder innan betalning."],
+      ["03", "Skicka innehåll efter betalning", "Efter betalning väljer du om du vill ladda upp material, använda Screenia-mall eller skicka innehåll senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
+      ["04", "Vi bygger layouten", "Screenia skapar första skärmförslaget, förbereder hårdvaran och skickar enheten när allt är klart.", "Du kan följa status i kundportalen."],
+      ["05", "Koppla in och starta", "När enheten kommer kopplar du den till TV och Wi-Fi enligt instruktionerna vi skickar med.", "Sedan börjar skärmen visa ditt innehåll."],
     ],
-    process: [["FÃ¶rfrÃ¥gan", "Paket valt"], ["Betalning", "SÃ¤ker checkout"], ["InnehÃ¥ll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
-    pricingTitle: "Tydliga paket fÃ¶r hanterade skÃ¤rmar",
+    process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
+    pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "VÃ¤lj Full HD fÃ¶r mindre skÃ¤rmar och enklare innehÃ¥ll, eller 4K nÃ¤r text, menyer och detaljer ska vara extra skarpa. Startavgift, skÃ¤rmenhet och eventuell frakt betalas fÃ¶rst. MÃ¥nadsabonnemanget startar efter provperioden.",
+      "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgift, skärmenhet och eventuell frakt betalas först. Månadsabonnemanget startar efter provperioden.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
-    monthly: "Per mÃ¥nad",
-    choose: "VÃ¤lj",
-    trustTitle: "Betalning och uppgifter hanteras sÃ¤kert",
+    monthly: "Per månad",
+    choose: "Välj",
+    trustTitle: "Betalning och uppgifter hanteras säkert",
     trustText:
-      "Betalningen sker via en sÃ¤ker betalningssida med kort, Klarna och andra betalningssÃ¤tt som Ã¤r aktiverade fÃ¶r din betalning.",
+      "Betalningen sker via en säker betalningssida med kort, Klarna och andra betalningssätt som är aktiverade för din betalning.",
     deliveryTitle: "Leveransalternativ i Sverige",
     deliveryText:
-      "Vi kan skicka skÃ¤rmenheten med etablerade transportÃ¶rer i Sverige och vÃ¤ljer alternativ efter adress, paketstorlek och ledtid.",
-    galleryTitle: "Exempel pÃ¥ skÃ¤rmar och mallar",
+      "Vi kan skicka skärmenheten med etablerade transportörer i Sverige och väljer alternativ efter adress, paketstorlek och ledtid.",
+    galleryTitle: "Exempel på skärmar och mallar",
     galleryText:
-      "NÃ¥gra exempel pÃ¥ hur kampanjer, menyer och information kan visas pÃ¥ en kundskÃ¤rm.",
+      "Några exempel på hur kampanjer, menyer och information kan visas på en kundskärm.",
     galleryItems: [
       ["Restaurangmeny", "Kampanjer, menyer och dagens erbjudanden."],
-      ["SkyltfÃ¶nster", "Synligt innehÃ¥ll fÃ¶r kunder som passerar lokalen."],
+      ["Skyltfönster", "Synligt innehåll för kunder som passerar lokalen."],
       ["Salong och service", "Priser, behandlingar och aktuell information."],
-      ["Produktvisning", "Tydliga bilder och budskap fÃ¶r butiksmiljÃ¶er."],
+      ["Produktvisning", "Tydliga bilder och budskap för butiksmiljöer."],
     ],
-    faqTitle: "Svar innan du vÃ¤ljer paket",
+    faqTitle: "Svar innan du väljer paket",
     faqs: [
-      ["Vad hÃ¤nder efter att jag valt paket", "Du skickar en kort fÃ¶rfrÃ¥gan. NÃ¤r InfoSync har granskat den fÃ¥r du en personlig startguide dÃ¤r du bekrÃ¤ftar uppgifter och betalar."],
-      ["Vilket material behÃ¶ver jag skicka", "Inget material behÃ¶vs fÃ¶re betalning. Efter betalning kan du ladda upp meny, prislista, logotyp, bilder eller vÃ¤lja en InfoSync-mall."],
-      ["Hur snabbt kan jag komma igÃ¥ng", "Efter betalning samlar vi in innehÃ¥ll, skapar fÃ¶rsta layouten, fÃ¶rbereder hÃ¥rdvaran och skickar enheten nÃ¤r den Ã¤r klar."],
-      ["BehÃ¶ver jag kÃ¶pa en sÃ¤rskild TV", "Du behÃ¶ver en Smart TV eller skÃ¤rm med HDMI-ingÃ¥ng och tillgÃ¥ng till Wi-Fi."],
-      ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, Ã¶ppettider, QR-kod och bildmaterial i samma visning."],
-      ["Kan jag Ã¤ndra innehÃ¥llet senare", "Ja. Skicka nytt material eller nya priser till InfoSync sÃ¥ hjÃ¤lper vi dig att uppdatera skÃ¤rmen."],
-      ["Hur skickas enheten", "Vi vÃ¤ljer ett lÃ¤mpligt leveranssÃ¤tt utifrÃ¥n adress, paketstorlek och ledtid. Du fÃ¥r tydliga instruktioner nÃ¤r enheten skickas."],
-      ["Vad ingÃ¥r i startavgiften", "Start- och konfigurationsavgiften Ã¤r 1 599 kr fÃ¶r bÃ¥da paketen och tÃ¤cker personlig startguide, layoutarbete och fÃ¶rberedelse av skÃ¤rminnehÃ¥ll. Avgiften Ã¥terbetalas inte nÃ¤r arbetet har startat."],
+      ["Vad händer efter att jag valt paket", "Du skickar en kort förfrågan. När Screenia har granskat den får du en personlig startguide där du bekräftar uppgifter och betalar."],
+      ["Vilket material behöver jag skicka", "Inget material behövs före betalning. Efter betalning kan du ladda upp meny, prislista, logotyp, bilder eller välja en Screenia-mall."],
+      ["Hur snabbt kan jag komma igång", "Efter betalning samlar vi in innehåll, skapar första layouten, förbereder hårdvaran och skickar enheten när den är klar."],
+      ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
+      ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
+      ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till Screenia så hjälper vi dig att uppdatera skärmen."],
+      ["Hur skickas enheten", "Vi väljer ett lämpligt leveranssätt utifrån adress, paketstorlek och ledtid. Du får tydliga instruktioner när enheten skickas."],
+      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för båda paketen och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Avgiften återbetalas inte när arbetet har startat."],
     ],
-    companyTitle: "FÃ¶retagsinformation",
+    companyTitle: "Företagsinformation",
     companyText:
-      "InfoSync hanterar kunduppgifter, betalning och leverans enligt vÃ¥ra villkor och vÃ¥r integritetspolicy.",
-    contactEyebrow: "Redo att komma igÃ¥ng",
-    contactTitle: "Starta din nÃ¤sta skÃ¤rm med ett enklare arbetsflÃ¶de.",
+      "Screenia hanterar kunduppgifter, betalning och leverans enligt våra villkor och vår integritetspolicy.",
+    contactEyebrow: "Redo att komma igång",
+    contactTitle: "Starta din nästa skärm med ett enklare arbetsflöde.",
     contactText:
-      "BerÃ¤tta hur mÃ¥nga skÃ¤rmar du vill hantera och vilket innehÃ¥ll du vill visa. Vi hjÃ¤lper dig att vÃ¤lja rÃ¤tt paket.",
-    contactButton: "Kontakta InfoSync",
+      "Berätta hur många skärmar du vill hantera och vilket innehåll du vill visa. Vi hjälper dig att välja rätt paket.",
+    contactButton: "Kontakta Screenia",
     seoIntro:
-      "InfoSync erbjuder digital skyltning i Sverige fÃ¶r salonger, butiker, restauranger och lokala servicefÃ¶retag som vill visa menyer, prislistor, kampanjer och kundinformation pÃ¥ TV-skÃ¤rm.",
-    modalEyebrow: "Skicka fÃ¶rfrÃ¥gan",
+      "Screenia erbjuder digital skyltning i Sverige för salonger, butiker, restauranger och lokala serviceföretag som vill visa menyer, prislistor, kampanjer och kundinformation på TV-skärm.",
+    modalEyebrow: "Skicka förfrågan",
     modalTitle: "Starta med",
     modalText:
-      "Skicka fÃ¶retagets uppgifter sÃ¥ kontaktar InfoSync dig med en personlig startguide fÃ¶r uppgifter, villkor och betalning.",
-    close: "StÃ¤ng",
-    fields: ["FÃ¶retagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
-    screenCountLabel: "Antal skÃ¤rmar *",
-    screenCountHelp: "VÃ¤lj hur mÃ¥nga skÃ¤rmar eller enheter du vill bestÃ¤lla.",
-    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bÃ¶r kÃ¤nna till."],
+      "Skicka företagets uppgifter så kontaktar Screenia dig med en personlig startguide för uppgifter, villkor och betalning.",
+    close: "Stäng",
+    fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
+    screenCountLabel: "Antal skärmar *",
+    screenCountHelp: "Välj hur många skärmar eller enheter du vill beställa.",
+    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bör känna till."],
     requestPrivacy:
-      "Vi anvÃ¤nder uppgifterna fÃ¶r att hantera din fÃ¶rfrÃ¥gan och skapa en personlig startguide. Skicka inte kÃ¤nsliga personuppgifter i meddelandet.",
-    sending: "Skickar fÃ¶rfrÃ¥gan...",
-    submit: "Skicka fÃ¶rfrÃ¥gan",
+      "Vi använder uppgifterna för att hantera din förfrågan och skapa en personlig startguide. Skicka inte känsliga personuppgifter i meddelandet.",
+    sending: "Skickar förfrågan...",
+    submit: "Skicka förfrågan",
     success:
-      "Tack. Din fÃ¶rfrÃ¥gan Ã¤r mottagen och InfoSync Ã¥terkommer med en personlig startguide.",
-    error: "Det gick inte att skicka din fÃ¶rfrÃ¥gan.",
-    legal: ["Villkor", "Integritet", "Alla rÃ¤ttigheter fÃ¶rbehÃ¥llna."],
+      "Tack. Din förfrågan är mottagen och Screenia återkommer med en personlig startguide.",
+    error: "Det gick inte att skicka din förfrågan.",
+    legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
   },
   en: {
     nav: ["Service", "How it works", "Pricing", "Examples", "FAQ", "Contact"],
@@ -109,13 +109,13 @@ const copy = {
     eyebrow: "Digital signage for businesses",
     hero: "Professional screen content, managed from one clear platform.",
     lede:
-      "InfoSync helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose a package, send your details, and get help launching without technical hassle.",
+      "Screenia helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose a package, send your details, and get help launching without technical hassle.",
     pricingCta: "See packages",
     workflowCta: "How it works",
     stats: [["24/7", "continuous screen playback"], ["3 weeks", "free subscription trial"], ["0", "months commitment"]],
     platformTitle: "A simpler path to professional screen display",
     platformText:
-      "You do not need to build your own system or manage technical settings. InfoSync helps you from the first request to a screen that shows the right content in your business.",
+      "You do not need to build your own system or manage technical settings. Screenia helps you from the first request to a screen that shows the right content in your business.",
     features: [
       ["Smooth start", "Choose a package and receive a personal setup guide where everything continues clearly."],
       ["Clear costs", "See setup fee, device price, monthly price, trial period, and commitment before you continue."],
@@ -161,24 +161,24 @@ const copy = {
       ["How quickly can I start", "After payment, we build the layout and post the USB device within 4 working days. Delivery time depends on the postal service."],
       ["Do I need a special TV", "You need a Smart TV or screen with HDMI and access to Wi-Fi."],
       ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
-      ["Can I change the content later", "Yes. Send new material or updated prices to InfoSync and we help update the screen."],
+      ["Can I change the content later", "Yes. Send new material or updated prices to Screenia and we help update the screen."],
       ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
       ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and preparing the device for dispatch."],
     ],
     companyTitle: "Company information",
     companyText:
-      "InfoSync handles customer details, payment, and delivery according to our terms and privacy policy.",
+      "Screenia handles customer details, payment, and delivery according to our terms and privacy policy.",
     contactEyebrow: "Ready to get started",
     contactTitle: "Launch your next screen with a simpler workflow.",
     contactText:
       "Tell us how many screens you want to manage and what content you want to show. We help you choose the right package.",
-    contactButton: "Contact InfoSync",
+    contactButton: "Contact Screenia",
     seoIntro:
-      "InfoSync provides digital signage in Sweden for salons, shops, restaurants, and local service businesses that want to show menus, price lists, campaigns, and customer information on TV screens.",
+      "Screenia provides digital signage in Sweden for salons, shops, restaurants, and local service businesses that want to show menus, price lists, campaigns, and customer information on TV screens.",
     modalEyebrow: "Send request",
     modalTitle: "Start with",
     modalText:
-      "Send your company details and InfoSync will contact you with a personal setup guide for details, terms, and payment.",
+      "Send your company details and Screenia will contact you with a personal setup guide for details, terms, and payment.",
     close: "Close",
     fields: ["Company name *", "Email *", "Contact person", "Phone", "Message"],
     screenCountLabel: "Number of screens *",
@@ -188,7 +188,7 @@ const copy = {
       "We use these details to handle your request and create a personal setup guide. Do not include sensitive personal data in the message.",
     sending: "Sending request...",
     submit: "Send request",
-    success: "Thanks. Your request has been received and InfoSync will send your personal setup guide.",
+    success: "Thanks. Your request has been received and Screenia will send your personal setup guide.",
     error: "We could not send your request.",
     legal: ["Terms", "Privacy", "All rights reserved."],
   },
@@ -225,22 +225,22 @@ const planCopy = {
   sv: {
     standard_fhd: {
       description:
-        "FÃ¶r mindre skÃ¤rmar och standardinnehÃ¥ll i Full HD.",
+        "För mindre skärmar och standardinnehåll i Full HD.",
       features: [
         "Uppspelning i Full HD (1080p)",
-        "Rekommenderas fÃ¶r skÃ¤rmar upp till 43 tum",
-        "Passar kampanjer, erbjudanden och informationsskÃ¤rmar",
+        "Rekommenderas för skärmar upp till 43 tum",
+        "Passar kampanjer, erbjudanden och informationsskärmar",
         "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
       ],
     },
     premium_4k: {
-      description: "FÃ¶r stÃ¶rre skÃ¤rmar och extra skarpt innehÃ¥ll i 4K.",
+      description: "För större skärmar och extra skarpt innehåll i 4K.",
       features: [
-        "Uppspelning i Ã¤kta 4K (3840Ã—2160)",
-        "Rekommenderas fÃ¶r skÃ¤rmar frÃ¥n 55 tum",
+        "Uppspelning i äkta 4K (3840×2160)",
+        "Rekommenderas för skärmar från 55 tum",
         "Skarpare text, menyer och detaljerade bilder",
-        "BÃ¤st fÃ¶r restauranger, butiker och premiumvisning",
+        "Bäst för restauranger, butiker och premiumvisning",
         "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
       ],
@@ -261,7 +261,7 @@ const planCopy = {
     premium_4k: {
       description: "For businesses that want extra sharp 4K content.",
       features: [
-        "True 4K playback (3840Ã—2160)",
+        "True 4K playback (3840×2160)",
         "Recommended for screens from 55 inches",
         "Sharper text, menus, and detailed images",
         "Best for restaurants, shops, and premium display",
@@ -280,9 +280,9 @@ const galleryImages = [
 ] as const;
 const visualCopy = {
   sv: [
-    ["Planera innehÃ¥ll", "Meny, kampanj och logotyp samlas pÃ¥ ett stÃ¤lle."],
-    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flÃ¶de."],
-    ["FÃ¤rdig visning", "Enheten kopplas in och visar materialet utan krÃ¥nglig installation."],
+    ["Planera innehåll", "Meny, kampanj och logotyp samlas på ett ställe."],
+    ["Trygg betalning", "Villkor, uppgifter och betalning sker i samma tydliga flöde."],
+    ["Färdig visning", "Enheten kopplas in och visar materialet utan krånglig installation."],
   ],
   en: [
     ["Plan content", "Menu, campaign, and logo are collected in one place."],
@@ -292,10 +292,10 @@ const visualCopy = {
 } as const;
 
 const heroBenefits = [
-  ["Ingen bindningstid", "Avsluta nÃ¤r som helst."],
+  ["Ingen bindningstid", "Avsluta när som helst."],
   ["Kostnadsfri provperiod", "2 veckor", "3 veckor"],
-  ["Alla HDMI-skÃ¤rmar", "Smart TV och signage."],
-  ["100 % nÃ¶jdhetsgaranti", "Trygg start med oss."],
+  ["Alla HDMI-skärmar", "Smart TV och signage."],
+  ["100 % nöjdhetsgaranti", "Trygg start med oss."],
 ] as const;
 
 type LandingAsset = {
@@ -319,9 +319,9 @@ type HeroSlideAsset = LandingAsset & {
 };
 
 const heroHighlightWords: Record<string, string[]> = {
-  "01": ["kunder", "unikt", "fler besÃ¶kare"],
-  "02": ["befintliga skÃ¤rm", "allt som behÃ¶vs", "olika storlekar"],
-  "03": ["Slipp dyra installationer", "nÃ¥gra minuter", "Enkelt", "prisvÃ¤rt", "smÃ¥fÃ¶retag"],
+  "01": ["kunder", "unikt", "fler besökare"],
+  "02": ["befintliga skärm", "allt som behövs", "olika storlekar"],
+  "03": ["Slipp dyra installationer", "några minuter", "Enkelt", "prisvärt", "småföretag"],
 };
 
 function renderHighlightedText(text: string, words: string[]) {
@@ -368,12 +368,12 @@ export default function Home() {
 
   const t = copy.sv;
   const companyDetails = [
-    process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME || "InfoSync",
+    process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME || "Screenia",
     process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER
       ? `Organisationsnummer: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
       : "",
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
-    process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@infosync.se",
+    process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@screenia.se",
   ].filter(Boolean);
   const footerLinks = [
     { label: "Terms of Service", href: "/terms" },
@@ -388,23 +388,23 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       "@id": `${publicSiteUrl}/#business`,
-      name: "InfoSync",
+      name: "Screenia",
       url: publicSiteUrl,
       image: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
       logo: `${publicSiteUrl}/brand/infosync-logo-full-white-bg.png`,
-      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@infosync.se",
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@screenia.se",
       areaServed: {
         "@type": "Country",
         name: "Sweden",
       },
-      priceRange: "SEK 249-349 per mÃ¥nad",
+      priceRange: "SEK 249-349 per månad",
       description: t.seoIntro,
       knowsAbout: [
         "digital skyltning",
         "digital signage",
-        "skÃ¤rmreklam",
-        "menyskÃ¤rm",
-        "informationsskÃ¤rm",
+        "skärmreklam",
+        "menyskärm",
+        "informationsskärm",
         "TV skyltning",
       ],
     },
@@ -412,7 +412,7 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "WebSite",
       "@id": `${publicSiteUrl}/#website`,
-      name: "InfoSync",
+      name: "Screenia",
       url: publicSiteUrl,
       inLanguage: "sv-SE",
       publisher: {
@@ -423,7 +423,7 @@ export default function Home() {
       "@context": "https://schema.org",
       "@type": "Service",
       "@id": `${publicSiteUrl}/#digital-signage-service`,
-      name: "Digital skyltning fÃ¶r fÃ¶retag",
+      name: "Digital skyltning för företag",
       serviceType: "Digital signage",
       provider: {
         "@id": `${publicSiteUrl}/#business`,
@@ -435,7 +435,7 @@ export default function Home() {
       description: t.seoIntro,
       hasOfferCatalog: {
         "@type": "OfferCatalog",
-        name: "InfoSync paket",
+        name: "Screenia paket",
         itemListElement: plans.map((plan) => ({
           "@type": "Offer",
           name: `${plan.name} ${plan.resolution}`,
@@ -634,7 +634,7 @@ export default function Home() {
               </div>
               <p className="landing-seo-copy">{t.seoIntro}</p>
             </div>
-            <div className="landing-hero-benefits" aria-label="InfoSync benefits">
+            <div className="landing-hero-benefits" aria-label="Screenia benefits">
               {heroBenefits.map(([title, text, highlight]) => (
                 <div key={title} className="landing-hero-benefit">
                   <span className="landing-hero-benefit-icon" aria-hidden="true" />
@@ -678,11 +678,11 @@ export default function Home() {
                 type="button"
                 className="landing-hero-arrow"
                 onClick={goToPreviousHeroSlide}
-                aria-label="Visa fÃ¶regÃ¥ende bild"
+                aria-label="Visa föregående bild"
               >
-                <span aria-hidden="true">â€¹</span>
+                <span aria-hidden="true">‹</span>
               </button>
-              <div className="landing-hero-dots" role="tablist" aria-label="VÃ¤lj bild">
+              <div className="landing-hero-dots" role="tablist" aria-label="Välj bild">
                 {heroSlides.map((slide, index) => (
                   <button
                     key={slide.id}
@@ -699,9 +699,9 @@ export default function Home() {
                 type="button"
                 className="landing-hero-arrow"
                 onClick={goToNextHeroSlide}
-                aria-label="Visa nÃ¤sta bild"
+                aria-label="Visa nästa bild"
               >
-                <span aria-hidden="true">â€º</span>
+                <span aria-hidden="true">›</span>
               </button>
             </div>
           )}
@@ -724,7 +724,7 @@ export default function Home() {
           <img
             className="landing-workflow-banner"
             src="/brand/how-it-works-sv-banner.png"
-            alt="InfoSync process: vÃ¤lj paket, slutfÃ¶r uppsÃ¤ttning, fÃ¥ hÃ¥rdvara, anslut och begÃ¤r uppdateringar"
+            alt="Screenia process: välj paket, slutför uppsättning, få hårdvara, anslut och begär uppdateringar"
           />
         </section>
 
@@ -761,7 +761,7 @@ export default function Home() {
                   </div>
                   <div className="landing-price-mini-grid">
                     <PriceRow label={t.setupFee} value={plan.setupFee} />
-                    <PriceRow label="SkÃ¤rmenhet" value={plan.hardwareFee} />
+                    <PriceRow label="Skärmenhet" value={plan.hardwareFee} />
                   </div>
                   <button
                     type="button"
@@ -776,12 +776,12 @@ export default function Home() {
           </div>
           <div className="landing-pricing-note">
             <h3>Vilken version passar mig?</h3>
-            <p>Alla priser visas inklusive svensk moms. Stripe Checkout visar momsbeloppet utan att hÃ¶ja totalsumman.</p>
+            <p>Alla priser visas inklusive svensk moms. Stripe Checkout visar momsbeloppet utan att höja totalsumman.</p>
             <p>
-              FÃ¶r skÃ¤rmar pÃ¥ 50 tum kan bÃ¥de Full HD och 4K fungera bra
-              beroende pÃ¥ innehÃ¥llet. Om skÃ¤rmen visar mycket text, menyer
-              eller detaljerade bilder rekommenderar vi 4K fÃ¶r bÃ¤sta skÃ¤rpa och
-              lÃ¤sbarhet.
+              För skärmar på 50 tum kan både Full HD och 4K fungera bra
+              beroende på innehållet. Om skärmen visar mycket text, menyer
+              eller detaljerade bilder rekommenderar vi 4K för bästa skärpa och
+              läsbarhet.
             </p>
           </div>
         </LandingSection>
@@ -802,17 +802,17 @@ export default function Home() {
           </div>
         </LandingSection>
 
-        <section className="landing-section landing-service-film" aria-label="InfoSync servicefilm">
+        <section className="landing-section landing-service-film" aria-label="Screenia servicefilm">
           <div className="landing-service-film-copy">
             <p className="landing-eyebrow">20 sekunder</p>
-            <h2>FrÃ¥n idÃ© till levande skÃ¤rm, utan tekniskt krÃ¥ngel.</h2>
+            <h2>Från idé till levande skärm, utan tekniskt krångel.</h2>
             <p>
-              En snabb Ã¶verblick Ã¶ver hur InfoSync hjÃ¤lper svenska fÃ¶retag att
-              vÃ¤lja paket, skicka material, fÃ¥ hÃ¥rdvara och hÃ¥lla skÃ¤rmen
-              uppdaterad Ã¶ver tid.
+              En snabb överblick över hur Screenia hjälper svenska företag att
+              välja paket, skicka material, få hårdvara och hålla skärmen
+              uppdaterad över tid.
             </p>
           </div>
-          <div className="landing-film-stage" role="img" aria-label="Animerad film om InfoSyncs arbetsflÃ¶de">
+          <div className="landing-film-stage" role="img" aria-label="Animerad film om Screenias arbetsflöde">
             <div className="landing-film-screen">
               <video
                 src="/brand/infosync-service-overview.mp4"
@@ -848,7 +848,7 @@ export default function Home() {
             <h2>{t.contactTitle}</h2>
             <p>{t.contactText}</p>
           </div>
-          <a href="mailto:hello@infosync.se" className="landing-button landing-button-primary">
+          <a href="mailto:hello@screenia.se" className="landing-button landing-button-primary">
             {t.contactButton}
           </a>
         </section>
@@ -856,7 +856,7 @@ export default function Home() {
 
       <footer className="landing-footer">
         <div className="landing-footer-company">
-          <p className="landing-eyebrow">InfoSync</p>
+          <p className="landing-eyebrow">Screenia</p>
           <h2>{t.companyTitle}</h2>
           <p>{t.companyText}</p>
           <ul className="landing-company-details">
@@ -866,8 +866,8 @@ export default function Home() {
           </ul>
         </div>
         <div className="landing-footer-card">
-          <span>InfoSync</span>
-          <strong>Digital skyltning fÃ¶r lokala fÃ¶retag i Sverige</strong>
+          <span>Screenia</span>
+          <strong>Digital skyltning för lokala företag i Sverige</strong>
           <nav>
             {footerLinks.map((link) => (
               <a key={link.href} href={link.href}>
@@ -875,7 +875,7 @@ export default function Home() {
               </a>
             ))}
           </nav>
-          <p>{new Date().getFullYear()} InfoSync. {t.legal[2]}</p>
+          <p>{new Date().getFullYear()} Screenia. {t.legal[2]}</p>
         </div>
       </footer>
 

@@ -11,7 +11,7 @@ export const CURRENT_TERMS_DOCUMENT = {
   summary:
     "Utkast. Den slutliga villkorstexten ersätts här innan publicering.",
   content:
-    "Detta är en platshållare för InfoSyncs villkor. Den slutliga juridiska texten läggs in här och versioneras innan tjänsten används i produktion.",
+    "Detta är en platshållare för Screenias villkor. Den slutliga juridiska texten läggs in här och versioneras innan tjänsten används i produktion.",
 } as const;
 
 export const CURRENT_PRIVACY_DOCUMENT = {
@@ -24,5 +24,5 @@ export const CURRENT_PRIVACY_DOCUMENT = {
   summary:
     "Utkast. Den slutliga integritetstexten ersätts här innan publicering.",
   content:
-    "Detta är en platshållare för InfoSyncs integritetspolicy. Den slutliga texten läggs in här och versioneras innan tjänsten används i produktion.",
+    "Detta är en platshållare för Screenias integritetspolicy. Den slutliga texten läggs in här och versioneras innan tjänsten används i produktion.",
 } as const;

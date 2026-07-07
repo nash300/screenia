@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 
 const navItems = [
   { href: "/#platform", homeHref: "#platform", label: "Tjänsten" },
@@ -33,7 +33,7 @@ export function LandingNav({
         href={isHome ? "#top" : "/"}
         onClick={() => setMenuOpen(false)}
       >
-        <InfoSyncLogo className="infosync-logo-nav" />
+        <ScreeniaLogo className="screenia-logo-nav" />
       </Link>
 
       <div className="landing-header-controls">

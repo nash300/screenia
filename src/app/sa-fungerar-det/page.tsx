@@ -5,16 +5,16 @@ import "../landing.css";
 export const metadata: Metadata = {
   title: "Så fungerar digital skyltning",
   description:
-    "Se hur InfoSync hjälper lokala företag att komma igång med digital skyltning, skärminnehåll, betalning, leverans och löpande uppdateringar.",
+    "Se hur Screenia hjälper lokala företag att komma igång med digital skyltning, skärminnehåll, betalning, leverans och löpande uppdateringar.",
   alternates: {
     canonical: "/sa-fungerar-det",
   },
   openGraph: {
-    title: "Så fungerar digital skyltning | InfoSync",
+    title: "Så fungerar digital skyltning | Screenia",
     description:
-      "En enkel guide till hur InfoSync hjälper salonger, butiker och restauranger att visa professionellt innehåll på TV-skärm.",
+      "En enkel guide till hur Screenia hjälper salonger, butiker och restauranger att visa professionellt innehåll på TV-skärm.",
     url: "/sa-fungerar-det",
-    siteName: "InfoSync",
+    siteName: "Screenia",
     locale: "sv_SE",
     type: "website",
     images: [
@@ -22,14 +22,14 @@ export const metadata: Metadata = {
         url: "/brand/how-it-works-sv-banner.png",
         width: 1200,
         height: 630,
-        alt: "InfoSync digital skyltning för lokala företag",
+        alt: "Screenia digital skyltning för lokala företag",
       },
     ],
   },
 };
 
 const reasons = [
-  ["01", "Byggt för småföretag", "Visa varför InfoSync passar restauranger, salonger, butiker och lokala verksamheter.", "/window_screen2.jpg"],
+  ["01", "Byggt för småföretag", "Visa varför Screenia passar restauranger, salonger, butiker och lokala verksamheter.", "/window_screen2.jpg"],
   ["02", "Ingen tekniker behövs", "Beskriv hur kunden slipper installationer, abonnemangsdjungel och komplicerade system.", "/landing/hero-slides/02/image.png"],
   ["03", "Professionellt uttryck", "Förklara hur skärmen hjälper företaget att se mer modernt och förtroendeingivande ut.", "/salon1.jpg"],
   ["04", "Snabbare start", "Lyft hur kunden kan komma igång på dagar istället för veckor.", "/window_screen1.jpg"],
@@ -38,7 +38,7 @@ const reasons = [
   ["07", "Bättre läsbarhet", "Förklara skillnaden mellan Full HD och 4K för menyer, text och detaljerade bilder.", "/landing/hero-slides/03/image.png"],
   ["08", "Uppdateringar vid behov", "Berätta hur kunden kan skicka nya bilder, priser eller kampanjer när innehållet ändras.", "/salon2.jpg"],
   ["09", "Trygg betalning", "Visa att uppgifter, villkor och betalning sker i ett samlat och säkert flöde.", "/m.jpg"],
-  ["10", "Enhet förberedd av oss", "Beskriv hur InfoSync förbereder enheten så kunden kan fokusera på sin verksamhet.", "/brand/infosync-helper.png"],
+  ["10", "Enhet förberedd av oss", "Beskriv hur Screenia förbereder enheten så kunden kan fokusera på sin verksamhet.", "/brand/infosync-helper.png"],
   ["11", "Skalbart över tid", "Förklara hur kunden kan lägga till fler skärmar eller fler platser när behovet växer.", "/salon3.jpg"],
   ["12", "Personlig hjälp", "Lyft support, rådgivning och hjälp med innehåll som en del av helhetskänslan.", "/salon4.jpg"],
 ] as const;
@@ -53,7 +53,7 @@ export default function HowItWorksPage() {
           <p className="landing-eyebrow">Fördelar</p>
           <h1>Mer synlighet för företaget, utan mer tekniskt arbete.</h1>
           <p>
-            Den här sidan kan användas för att lyfta värdet med InfoSync:
+            Den här sidan kan användas för att lyfta värdet med Screenia:
             varför tjänsten är enkel att komma igång med, hur den hjälper
             kunden att synas bättre och varför den passar lokala företag.
           </p>
@@ -62,7 +62,7 @@ export default function HowItWorksPage() {
         <section className="how-promo-section">
           <div className="how-section-heading">
             <p className="landing-eyebrow">Det här gör skillnaden</p>
-            <h2>12 platser för att visa varför InfoSync är ett smart val.</h2>
+            <h2>12 platser för att visa varför Screenia är ett smart val.</h2>
             <p>
               Här kan vi senare lägga dina egna bilder och texter som säljer in
               tjänsten tydligare, skapar förtroende och visar konkreta fördelar
@@ -70,10 +70,10 @@ export default function HowItWorksPage() {
             </p>
           </div>
 
-          <div className="how-reason-grid" aria-label="InfoSync fördelar">
+          <div className="how-reason-grid" aria-label="Screenia fördelar">
             {reasons.map(([number, title, text, image]) => (
               <article key={number} className="how-reason-card">
-                <img src={image} alt={`${title} med InfoSync`} />
+                <img src={image} alt={`${title} med Screenia`} />
                 <div>
                   <span>{number}</span>
                   <h3>{title}</h3>

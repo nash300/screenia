@@ -121,7 +121,7 @@
   padding: 0.2rem 0;
 }
 
-.admin-sidebar-logo-card .infosync-logo {
+.admin-sidebar-logo-card .screenia-logo {
   max-width: 100%;
 }
 
@@ -470,7 +470,7 @@
     var(--admin-titlebar-end)
   );
   color: var(--win95-title-text);
-  content: "InfoSync Admin";
+  content: "Screenia Admin";
   font-weight: 700;
   line-height: 1;
 }
@@ -1845,7 +1845,7 @@
 }
 
 /* =========================================
-   INFOSYNC BRAND REFRESH
+   SCREENIA BRAND REFRESH
 ========================================= */
 .admin-layout {
   --win95-desktop: #f4f8ff;
@@ -1914,22 +1914,22 @@
   padding: 0.5rem 0.65rem;
 }
 
-.admin-sidebar-logo-card .infosync-logo {
+.admin-sidebar-logo-card .screenia-logo {
   width: 100%;
   transform-origin: left center;
 }
 
-.admin-sidebar-logo-card .infosync-logo-mark {
+.admin-sidebar-logo-card .screenia-logo-mark {
   width: 3.65rem !important;
   height: 3.65rem !important;
   filter: none;
 }
 
-.admin-sidebar-logo-card .infosync-logo-name {
+.admin-sidebar-logo-card .screenia-logo-name {
   font-size: 1.55rem;
 }
 
-.admin-sidebar-logo-card .infosync-logo-tagline {
+.admin-sidebar-logo-card .screenia-logo-tagline {
   font-size: 0.56rem;
   letter-spacing: 0.1em;
 }

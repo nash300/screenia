@@ -57,7 +57,7 @@ values
     '2026-05-28T00:00:00+02:00',
     null,
     'active',
-    'Detta är en platshållare för InfoSyncs villkor. Den slutliga juridiska texten läggs in här och versioneras innan tjänsten används i produktion.',
+    'Detta är en platshållare för Screenias villkor. Den slutliga juridiska texten läggs in här och versioneras innan tjänsten används i produktion.',
     'Utkast. Den slutliga villkorstexten ersätts här innan publicering.',
     '/legal/villkor-current.pdf'
   ),
@@ -68,7 +68,7 @@ values
     '2026-05-28T00:00:00+02:00',
     null,
     'active',
-    'Detta är en platshållare för InfoSyncs integritetspolicy. Den slutliga texten läggs in här och versioneras innan tjänsten används i produktion.',
+    'Detta är en platshållare för Screenias integritetspolicy. Den slutliga texten läggs in här och versioneras innan tjänsten används i produktion.',
     'Utkast. Den slutliga integritetstexten ersätts här innan publicering.',
     '/legal/integritetspolicy-current.pdf'
   )

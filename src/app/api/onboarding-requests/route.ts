@@ -53,7 +53,7 @@ async function sendRequestConfirmationEmail({
 
   return sendTransactionalEmail({
     to: email,
-    subject: "InfoSync har tagit emot din förfrågan",
+    subject: "Screenia har tagit emot din förfrågan",
     text: `Hej ${companyName},
 
 Tack för din förfrågan. Vi har tagit emot följande:
@@ -69,15 +69,15 @@ Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet
 Kostnadsfri provperiod: ${plan.trialDays} dagar
 Mottaget: ${receivedAt}
 ${message ? `\nMeddelande: ${message}\n` : ""}
-InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
+Screenia granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
 
 Vänliga hälsningar,
-InfoSync`,
+Screenia`,
     html: renderBrandedEmail({
-      eyebrow: "InfoSync",
+      eyebrow: "Screenia",
       title: "F&ouml;rfr&aring;gan mottagen",
       intro: "Vi har tagit emot din f&ouml;rfr&aring;gan och sammanfattningen finns h&auml;r.",
-      footer: "V&auml;nliga h&auml;lsningar,<br />InfoSync",
+      footer: "V&auml;nliga h&auml;lsningar,<br />Screenia",
       children: `
         <p>Hej ${safeCompanyName},</p>
         <p>Vi har tagit emot din förfrågan och sammanfattningen nedan.</p>
@@ -95,7 +95,7 @@ InfoSync`,
           <p><strong>Mottaget:</strong> ${receivedAt}</p>
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
         </div>
-        <p>InfoSync granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
+        <p>Screenia granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.</p>
       `,
     }),
   });

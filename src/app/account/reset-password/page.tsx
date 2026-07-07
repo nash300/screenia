@@ -8,7 +8,7 @@ import {
   syncCurrentSession,
   syncEmailLinkSession,
 } from "@/lib/supabase/sync-browser-session";
-import InfoSyncLogo from "@/components/InfoSyncLogo";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 import {
   passwordPolicyDescription,
   validatePasswordPolicy,
@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
       <div className="relative mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[0.85fr_1.15fr]">
         <section className="hidden text-white lg:block">
           <Link href="/" className="inline-flex no-underline">
-            <InfoSyncLogo className="infosync-logo-auth-card" />
+            <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
           <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
             Kundportal
@@ -86,7 +86,7 @@ export default function ResetPasswordPage() {
         <section className="mx-auto w-full max-w-md">
           <div className="rounded-[28px] border border-white/70 bg-white/[0.92] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
             <Link href="/" className="inline-flex no-underline lg:hidden">
-              <InfoSyncLogo className="infosync-logo-auth-inline" />
+              <ScreeniaLogo className="screenia-logo-auth-inline" />
             </Link>
             <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6] lg:mt-0">
               Nytt lösenord
@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
               Välj nytt lösenord
             </h1>
             <p className="mt-5 text-sm font-semibold leading-6 text-[#52617d]">
-              Ange ett nytt lösenord för ditt InfoSync-konto.
+              Ange ett nytt lösenord för ditt Screenia-konto.
             </p>
 
             <div className="mt-6 space-y-4">

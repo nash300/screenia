@@ -1,4 +1,4 @@
-# InfoSync QA Test Log
+# Screenia QA Test Log
 
 This file records end-to-end business-flow tests, issues found, fixes applied, and remaining launch risks.
 

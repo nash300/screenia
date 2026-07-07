@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
   if (!["sverige", "sweden", "se"].includes(country.toLowerCase())) {
     return NextResponse.json(
-      { error: "InfoSync tar bara emot beställningar från svenska kunder." },
+      { error: "Screenia tar bara emot beställningar från svenska kunder." },
       { status: 400 },
     );
   }
@@ -194,7 +194,7 @@ export async function POST(request: Request) {
       customerId: customer.id,
       consentType: "marketing",
       granted: marketingConsent,
-      statement: "Jag vill få relevanta nyheter och erbjudanden från InfoSync.",
+      statement: "Jag vill få relevanta nyheter och erbjudanden från Screenia.",
       documentName: "Samtycke till marknadskommunikation",
       documentVersion: "2026-05-28",
       collectionPoint: "customer_onboarding",
@@ -206,7 +206,7 @@ export async function POST(request: Request) {
       consentType: "analytics",
       granted: analyticsConsent,
       statement:
-        "InfoSync får använda order- och användningsdata för statistik och förbättring av tjänsten.",
+        "Screenia får använda order- och användningsdata för statistik och förbättring av tjänsten.",
       documentName: "Samtycke till statistik och tjänsteförbättring",
       documentVersion: "2026-06-04",
       collectionPoint: "customer_onboarding",
@@ -218,7 +218,7 @@ export async function POST(request: Request) {
       consentType: "remote_support",
       granted: remoteSupportConsent,
       statement:
-        "InfoSync får kontakta kunden och ge fjärrsupport när kunden ber om hjälp.",
+        "Screenia får kontakta kunden och ge fjärrsupport när kunden ber om hjälp.",
       documentName: "Samtycke till fjärrsupport",
       documentVersion: "2026-06-04",
       collectionPoint: "customer_onboarding",
