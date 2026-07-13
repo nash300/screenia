@@ -63,6 +63,9 @@ export default function AdminLegalChangeNoticesPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: string; reason: string }>
+  >({});
   const openCount = useMemo(
     () =>
       notices.filter(
@@ -127,8 +130,11 @@ export default function AdminLegalChangeNoticesPage() {
     notice: LegalChangeNotice,
     status: string,
   ) => {
-    const reason = prompt(`Reason for marking notice as ${status}:`)?.trim();
-    if (!reason) return;
+    const reason = actionDrafts[notice.id]?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
 
     setUpdatingId(notice.id);
     const response = await fetch(`/api/admin/legal-change-notices/${notice.id}`, {
@@ -147,6 +153,11 @@ export default function AdminLegalChangeNoticesPage() {
         result.error || "Could not update legal change notice.",
       );
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[notice.id];
+        return next;
+      });
       await loadNotices();
       showAdminNotification("success", "Legal change notice updated.");
     }
@@ -340,7 +351,15 @@ export default function AdminLegalChangeNoticesPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === notice.id}
-                        onClick={() => updateNoticeStatus(notice, "approved")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [notice.id]: {
+                              status: "approved",
+                              reason: current[notice.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Approve
                       </button>
@@ -348,7 +367,15 @@ export default function AdminLegalChangeNoticesPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === notice.id}
-                        onClick={() => updateNoticeStatus(notice, "sent")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [notice.id]: {
+                              status: "sent",
+                              reason: current[notice.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Sent
                       </button>
@@ -356,11 +383,68 @@ export default function AdminLegalChangeNoticesPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === notice.id}
-                        onClick={() => updateNoticeStatus(notice, "needs_review")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [notice.id]: {
+                              status: "needs_review",
+                              reason: current[notice.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Needs review
                       </button>
                     </div>
+                    {actionDrafts[notice.id] && (
+                      <div className="admin-inline-flow">
+                        <label>
+                          <span>Reason for {actionDrafts[notice.id].status}</span>
+                          <textarea
+                            value={actionDrafts[notice.id].reason}
+                            onChange={(event) =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [notice.id]: {
+                                  ...current[notice.id],
+                                  reason: event.target.value,
+                                },
+                              }))
+                            }
+                            rows={2}
+                          />
+                        </label>
+                        <div className="admin-inline-flow-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={updatingId === notice.id}
+                            onClick={() =>
+                              updateNoticeStatus(
+                                notice,
+                                actionDrafts[notice.id].status,
+                              )
+                            }
+                          >
+                            {updatingId === notice.id ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={updatingId === notice.id}
+                            onClick={() =>
+                              setActionDrafts((current) => {
+                                const next = { ...current };
+                                delete next[notice.id];
+                                return next;
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

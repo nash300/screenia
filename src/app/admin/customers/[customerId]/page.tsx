@@ -175,6 +175,29 @@ type CustomerDetailSection =
 
 type CommunicationView = "messages" | "uploads";
 
+type CustomerOperationId =
+  | "activate_customer"
+  | "suspend_customer"
+  | "reactivate_customer"
+  | "pause_subscription"
+  | "resume_subscription"
+  | "apply_temporary_discount"
+  | "cancel_period_end"
+  | "cancel_immediately"
+  | "start_layout"
+  | "refund_first_payment";
+
+type CustomerOperation = {
+  id: CustomerOperationId;
+  title: string;
+  description: string;
+  result: string;
+  tone: "primary" | "warning" | "danger" | "success";
+  requiresStripe?: boolean;
+  requiresDiscount?: boolean;
+  requiresConfirmation?: boolean;
+};
+
 const customerDetailSectionIds: CustomerDetailSection[] = [
   "overview",
   "onboarding",
@@ -285,14 +308,14 @@ export default function CustomerDetailPage({
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
   const [messageDrafts, setMessageDrafts] = useState<
-    Record<string, { status: string; adminNote: string }>
+    Record<string, { status: string; adminNote: string; reason: string }>
   >({});
   const [messageReplyDrafts, setMessageReplyDrafts] = useState<
     Record<string, string>
   >({});
   const [assets, setAssets] = useState<CustomerAsset[]>([]);
   const [assetDrafts, setAssetDrafts] = useState<
-    Record<string, { status: string; adminNote: string }>
+    Record<string, { status: string; adminNote: string; reason: string }>
   >({});
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -313,6 +336,10 @@ export default function CustomerDetailPage({
     useState("email");
   const [editNotes, setEditNotes] = useState("");
   const [editReason, setEditReason] = useState("");
+  const [anonymizeReason, setAnonymizeReason] = useState("");
+  const [anonymizeConfirmed, setAnonymizeConfirmed] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [activeSection, setActiveSection] =
     useState<CustomerDetailSection>("overview");
@@ -320,6 +347,7 @@ export default function CustomerDetailPage({
     useState<CommunicationView>("messages");
   const [quotePlanCode, setQuotePlanCode] = useState("");
   const [quoteNotes, setQuoteNotes] = useState("");
+  const [quoteReason, setQuoteReason] = useState("");
   const [quoteResultUrl, setQuoteResultUrl] = useState("");
   const [quoteItems, setQuoteItems] = useState<QuoteItem[]>([
     { id: "quote-item-1", pricingPlanCode: "", quantity: 1 },
@@ -327,6 +355,12 @@ export default function CustomerDetailPage({
   const [quoteDiscountPercent, setQuoteDiscountPercent] = useState(0);
   const [quoteDiscountMonths, setQuoteDiscountMonths] = useState(0);
   const [schemaNotice, setSchemaNotice] = useState("");
+  const [selectedOperationId, setSelectedOperationId] =
+    useState<CustomerOperationId | "">("");
+  const [operationReason, setOperationReason] = useState("");
+  const [operationDiscountPercent, setOperationDiscountPercent] = useState("20");
+  const [operationDiscountMonths, setOperationDiscountMonths] = useState("3");
+  const [operationConfirmed, setOperationConfirmed] = useState(false);
 
   const formatInactiveReason = (
     reason: string | null,
@@ -777,6 +811,7 @@ export default function CustomerDetailPage({
             {
               status: message.status || "new",
               adminNote: message.adminNote || "",
+              reason: "",
             },
           ]),
         ),
@@ -810,6 +845,7 @@ export default function CustomerDetailPage({
             {
               status: asset.status || "new",
               adminNote: asset.adminNote || "",
+              reason: "",
             },
           ]),
         ),
@@ -942,58 +978,8 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
-  const requireReason = (message: string) => {
-    const reason = window.prompt(message);
-    const cleanedReason = reason?.trim() || "";
-
-    if (cleanedReason && cleanedReason.length < 5) {
-      showAdminNotification(
-        "error",
-        "A reason of at least 5 characters is required.",
-      );
-      return "";
-    }
-
-    return cleanedReason;
-  };
-
-  const suspendCustomer = async () => {
+  const startLayoutWork = async (reason: string) => {
     if (!customer) return;
-    const reason = requireReason("Reason for suspending this customer:");
-    if (!reason) return;
-    await runSubscriptionAction({
-      action: "suspend_customer",
-      payload: { reason },
-      successMessage: "Customer suspended and audit history recorded.",
-    });
-  };
-
-  const activateCustomer = async () => {
-    if (!customer) return;
-    const reason = requireReason("Reason for activating this customer:");
-    if (!reason) return;
-    if (!confirm("Mark this customer active and allow assigned displays to run")) return;
-    await runSubscriptionAction({
-      action: "activate_customer",
-      payload: { reason },
-      successMessage: "Customer activated and audit history recorded.",
-    });
-  };
-
-  const startLayoutWork = async () => {
-    if (!customer) return;
-    const reason = requireReason(
-      "Reason for starting layout work and locking the setup fee:",
-    );
-    if (!reason) return;
-
-    if (
-      !confirm(
-        "Mark layout work as started? This locks the setup/layout fee as non-refundable.",
-      )
-    ) {
-      return;
-    }
 
     setSaving(true);
 
@@ -1027,11 +1013,16 @@ export default function CustomerDetailPage({
     const draft = messageDrafts[message.id] || {
       status: message.status,
       adminNote: message.adminNote || "",
+      reason: "",
     };
-    const reason = requireReason(
-      "Reason for updating this support message review:",
-    );
-    if (!reason) return;
+    const reason = draft.reason.trim();
+    if (reason.length < 5) {
+      showAdminNotification(
+        "error",
+        "Add a reason of at least 5 characters before saving this message review.",
+      );
+      return;
+    }
 
     setSaving(true);
     const response = await fetch("/api/admin/customer-messages", {
@@ -1055,6 +1046,10 @@ export default function CustomerDetailPage({
     }
 
     await loadData();
+    setMessageDrafts((current) => ({
+      ...current,
+      [message.id]: { ...draft, reason: "" },
+    }));
     showAdminNotification("success", "Message updated.");
     setSaving(false);
   };
@@ -1073,6 +1068,7 @@ export default function CustomerDetailPage({
     const draft = messageDrafts[message.id] || {
       status: "waiting_for_customer",
       adminNote: message.adminNote || "",
+      reason: "",
     };
 
     setSaving(true);
@@ -1113,11 +1109,16 @@ export default function CustomerDetailPage({
     const draft = assetDrafts[asset.id] || {
       status: asset.status || "new",
       adminNote: asset.adminNote || "",
+      reason: "",
     };
-    const reason = requireReason(
-      "Reason for updating this display material review:",
-    );
-    if (!reason) return;
+    const reason = draft.reason.trim();
+    if (reason.length < 5) {
+      showAdminNotification(
+        "error",
+        "Add a reason of at least 5 characters before saving this material review.",
+      );
+      return;
+    }
 
     setSaving(true);
     const response = await fetch("/api/admin/customer-assets", {
@@ -1144,111 +1145,16 @@ export default function CustomerDetailPage({
     }
 
     await loadData();
+    setAssetDrafts((current) => ({
+      ...current,
+      [asset.id]: { ...draft, reason: "" },
+    }));
     showAdminNotification("success", "Display material updated.");
     setSaving(false);
   };
 
-  const cancelSubscription = async () => {
+  const refundFirstPayment = async (reason: string) => {
     if (!customer) return;
-
-    if (!customer.stripe_subscription_id) {
-      showAdminNotification("warning", "No Stripe subscription found.");
-      return;
-    }
-
-    const reason = requireReason(
-      "Reason for scheduling cancellation at the end of the paid period:",
-    );
-    if (!reason) return;
-
-    await runSubscriptionAction({
-      action: "cancel_period_end",
-      payload: { reason },
-      successMessage:
-        "Cancellation scheduled. Customer keeps access until the paid period ends.",
-    });
-  };
-
-  const cancelSubscriptionImmediately = async () => {
-    if (!customer) return;
-    const reason = requireReason(
-      "Reason for immediate cancellation. This blocks display access now:",
-    );
-    if (!reason) return;
-    if (!confirm("Immediately cancel Stripe subscription and block displays now?")) {
-      return;
-    }
-    await runSubscriptionAction({
-      action: "cancel_immediately",
-      payload: { reason },
-      successMessage: "Subscription cancelled immediately and access blocked.",
-    });
-  };
-
-  const pauseSubscription = async () => {
-    if (!customer) return;
-    const reason = requireReason("Reason for pausing billing and display access:");
-    if (!reason) return;
-    await runSubscriptionAction({
-      action: "pause_subscription",
-      payload: { reason },
-      successMessage: "Subscription paused. Display access is blocked.",
-    });
-  };
-
-  const resumeSubscription = async () => {
-    if (!customer) return;
-    const reason = requireReason("Reason for resuming billing and display access:");
-    if (!reason) return;
-    if (!confirm("Resume billing collection and display access?")) return;
-    await runSubscriptionAction({
-      action: "resume_subscription",
-      payload: { reason },
-      successMessage: "Subscription resumed.",
-    });
-  };
-
-  const applyTemporaryDiscount = async () => {
-    if (!customer) return;
-    const percentOff = Number(window.prompt("Discount percent, 1-100:"));
-    if (!Number.isFinite(percentOff) || percentOff <= 0 || percentOff > 100) {
-      showAdminNotification("warning", "Enter a discount between 1 and 100%.");
-      return;
-    }
-    const durationMonths = Number(window.prompt("Discount duration in months, 1-36:"));
-    if (
-      !Number.isFinite(durationMonths) ||
-      durationMonths < 1 ||
-      durationMonths > 36
-    ) {
-      showAdminNotification("warning", "Enter a duration between 1 and 36 months.");
-      return;
-    }
-    const reason = requireReason("Reason for this temporary discount:");
-    if (!reason) return;
-    await runSubscriptionAction({
-      action: "apply_temporary_discount",
-      payload: {
-        percentOff,
-        durationMonths,
-        reason,
-      },
-      successMessage: "Temporary Stripe discount applied and recorded.",
-    });
-  };
-
-  const refundFirstPayment = async () => {
-    if (!customer) return;
-    const reason = requireReason("Reason for refunding the first payment:");
-    if (!reason) return;
-
-    if (
-      !confirm(
-        "Refund this customer's first payment? This is only allowed before layout work starts.",
-      )
-    ) {
-      return;
-    }
 
     setSaving(true);
 
@@ -1274,16 +1180,114 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
-  const reactivateCustomer = async () => {
-    if (!customer) return;
-    const reason = requireReason("Reason for reactivating this customer:");
-    if (!reason) return;
-    if (!confirm("Reactivate this customer")) return;
+  const openCustomerOperation = (operationId: CustomerOperationId) => {
+    setSelectedOperationId(operationId);
+    setOperationReason("");
+    setOperationDiscountPercent("20");
+    setOperationDiscountMonths("3");
+    setOperationConfirmed(false);
+  };
+
+  const closeCustomerOperation = () => {
+    if (saving) return;
+    setSelectedOperationId("");
+    setOperationReason("");
+    setOperationConfirmed(false);
+  };
+
+  const completeCustomerOperation = async () => {
+    if (!customer || !selectedOperationId) return;
+
+    const cleanedReason = operationReason.trim();
+    if (cleanedReason.length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before continuing.",
+      );
+      return;
+    }
+
+    const selectedOperation = customerOperations.find(
+      (operation) => operation.id === selectedOperationId,
+    );
+
+    if (selectedOperation?.requiresConfirmation && !operationConfirmed) {
+      showAdminNotification("warning", "Confirm the impact before continuing.");
+      return;
+    }
+
+    const finish = () => {
+      setSelectedOperationId("");
+      setOperationReason("");
+      setOperationConfirmed(false);
+    };
+
+    if (selectedOperationId === "start_layout") {
+      await startLayoutWork(cleanedReason);
+      finish();
+      return;
+    }
+
+    if (selectedOperationId === "refund_first_payment") {
+      await refundFirstPayment(cleanedReason);
+      finish();
+      return;
+    }
+
+    if (selectedOperationId === "apply_temporary_discount") {
+      const percentOff = Number(operationDiscountPercent);
+      const durationMonths = Number(operationDiscountMonths);
+
+      if (!Number.isFinite(percentOff) || percentOff <= 0 || percentOff > 100) {
+        showAdminNotification("warning", "Enter a discount between 1 and 100%.");
+        return;
+      }
+
+      if (
+        !Number.isFinite(durationMonths) ||
+        durationMonths < 1 ||
+        durationMonths > 36
+      ) {
+        showAdminNotification(
+          "warning",
+          "Enter a duration between 1 and 36 months.",
+        );
+        return;
+      }
+
+      await runSubscriptionAction({
+        action: "apply_temporary_discount",
+        payload: {
+          percentOff,
+          durationMonths,
+          reason: cleanedReason,
+        },
+        successMessage: "Temporary Stripe discount applied and recorded.",
+      });
+      finish();
+      return;
+    }
+
+    const successMessages: Record<CustomerOperationId, string> = {
+      activate_customer: "Customer activated and audit history recorded.",
+      suspend_customer: "Customer suspended and audit history recorded.",
+      reactivate_customer: "Customer reactivated and audit history recorded.",
+      pause_subscription: "Subscription paused. Display access is blocked.",
+      resume_subscription: "Subscription resumed.",
+      apply_temporary_discount: "Temporary Stripe discount applied and recorded.",
+      cancel_period_end:
+        "Cancellation scheduled. Customer keeps access until the paid period ends.",
+      cancel_immediately: "Subscription cancelled immediately and access blocked.",
+      start_layout: "Layout work started.",
+      refund_first_payment: "First payment refunded.",
+    };
+
     await runSubscriptionAction({
-      action: "reactivate_customer",
-      payload: { reason },
-      successMessage: "Customer reactivated and audit history recorded.",
+      action: selectedOperationId,
+      payload: { reason: cleanedReason },
+      successMessage: successMessages[selectedOperationId],
     });
+    finish();
   };
 
   const prepareQuoteAndOnboarding = async () => {
@@ -1301,8 +1305,14 @@ export default function CustomerDetailPage({
       return;
     }
 
-    const reason = requireReason("Reason for preparing this quote and onboarding link:");
-    if (!reason) return;
+    const reason = quoteReason.trim();
+    if (reason.length < 5) {
+      showAdminNotification(
+        "error",
+        "Add a quote preparation reason of at least 5 characters.",
+      );
+      return;
+    }
 
     setSaving(true);
     setQuoteResultUrl("");
@@ -1345,6 +1355,7 @@ export default function CustomerDetailPage({
 
     setQuoteResultUrl(data.onboardingUrl || "");
     setQuoteNotes("");
+    setQuoteReason("");
     await loadData();
     showAdminNotification(
       data.emailSent ? "success" : "warning",
@@ -1358,11 +1369,19 @@ export default function CustomerDetailPage({
   const deleteCustomer = async () => {
     if (!customer) return;
 
-    const reason = window.prompt(
-      "Reason for permanently deleting this draft customer:",
-    )?.trim();
+    const reason = deleteReason.trim();
+    if (reason.length < 5) {
+      showAdminNotification(
+        "error",
+        "Add a deletion reason of at least 5 characters.",
+      );
+      return;
+    }
 
-    if (!reason) return;
+    if (!deleteConfirmed) {
+      showAdminNotification("error", "Confirm customer deletion before continuing.");
+      return;
+    }
 
     setSaving(true);
 
@@ -1385,23 +1404,27 @@ export default function CustomerDetailPage({
 
     showAdminNotification("success", "Customer deleted.");
     setDeleteConfirmationOpen(false);
+    setDeleteReason("");
+    setDeleteConfirmed(false);
     router.push("/admin/customers");
   };
 
   const anonymizeCustomer = async () => {
     if (!customer) return;
 
-    const confirmed = window.confirm(
-      "Anonymize this customer? Contact details, uploaded material, and support messages will be removed, while payment/order/audit references are retained.",
-    );
+    const reason = anonymizeReason.trim();
+    if (reason.length < 5) {
+      showAdminNotification(
+        "error",
+        "Add an anonymization reason of at least 5 characters.",
+      );
+      return;
+    }
 
-    if (!confirmed) return;
-
-    const reason = window.prompt(
-      "Reason for anonymizing this customer and removing personal data:",
-    )?.trim();
-
-    if (!reason) return;
+    if (!anonymizeConfirmed) {
+      showAdminNotification("error", "Confirm customer anonymization before continuing.");
+      return;
+    }
 
     setSaving(true);
     const response = await fetch(`/api/admin/customers/${customer.id}`, {
@@ -1423,6 +1446,8 @@ export default function CustomerDetailPage({
 
     await loadData();
     showAdminNotification("success", "Customer anonymized.");
+    setAnonymizeReason("");
+    setAnonymizeConfirmed(false);
     setSaving(false);
   };
 
@@ -1561,6 +1586,125 @@ export default function CustomerDetailPage({
     customer.production_status !== null ||
     customer.layout_started_at !== null ||
     customer.setup_fee_locked_at !== null;
+  const customerOperations: CustomerOperation[] = [
+    customer.payment_status === "paid" &&
+    customer.status !== "active" &&
+    customer.status !== "suspended"
+      ? {
+          id: "activate_customer",
+          title: "Activate customer",
+          description: "Use after payment, content, and device assignment are ready.",
+          result: "Customer status becomes active and qualified displays can run.",
+          tone: "success",
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.status === "active"
+      ? {
+          id: "suspend_customer",
+          title: "Suspend customer",
+          description: "Use for manual business holds that should stop displays.",
+          result: "Customer access is suspended and displays are blocked.",
+          tone: "warning",
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.status === "suspended" &&
+    customer.service_access_status !== "paused"
+      ? {
+          id: "reactivate_customer",
+          title: "Reactivate customer",
+          description: "Use when the manual hold is resolved.",
+          result: "Customer status is restored and audit history records the reason.",
+          tone: "success",
+          requiresConfirmation: true,
+        }
+      : null,
+    productionTrackingReady &&
+    !customer.setup_fee_locked_at &&
+    customer.payment_status === "paid"
+      ? {
+          id: "start_layout",
+          title: "Start layout work",
+          description: "Use only when production actually begins.",
+          result: "The setup/layout fee becomes non-refundable from this point.",
+          tone: "warning",
+          requiresConfirmation: true,
+        }
+      : null,
+    productionTrackingReady &&
+    !customer.setup_fee_locked_at &&
+    customer.payment_status === "paid"
+      ? {
+          id: "refund_first_payment",
+          title: "Refund first payment",
+          description: "Use only before layout work starts.",
+          result: "The first payment is refunded and the customer is suspended.",
+          tone: "danger",
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.stripe_subscription_id &&
+    customer.service_access_status !== "paused"
+      ? {
+          id: "pause_subscription",
+          title: "Pause subscription",
+          description: "Use when billing collection and display access should pause.",
+          result: "Stripe collection is paused and displays are blocked immediately.",
+          tone: "warning",
+          requiresStripe: true,
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.stripe_subscription_id &&
+    customer.service_access_status === "paused"
+      ? {
+          id: "resume_subscription",
+          title: "Resume subscription",
+          description: "Use when billing and display access can restart.",
+          result: "Stripe collection resumes and access is restored if otherwise paid.",
+          tone: "success",
+          requiresStripe: true,
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.stripe_subscription_id
+      ? {
+          id: "apply_temporary_discount",
+          title: "Apply temporary discount",
+          description: "Use for post-sale customer-specific discount adjustments.",
+          result: "A temporary Stripe coupon is applied and recorded.",
+          tone: "primary",
+          requiresStripe: true,
+          requiresDiscount: true,
+        }
+      : null,
+    customer.stripe_subscription_id
+      ? {
+          id: "cancel_period_end",
+          title: "Cancel at period end",
+          description: "Default cancellation path for normal customer/admin cancellations.",
+          result: "Customer keeps access until the paid-through period ends.",
+          tone: "warning",
+          requiresStripe: true,
+          requiresConfirmation: true,
+        }
+      : null,
+    customer.stripe_subscription_id
+      ? {
+          id: "cancel_immediately",
+          title: "Cancel now",
+          description: "Exceptional path for urgent cases only.",
+          result: "Stripe cancellation happens now and display access is blocked.",
+          tone: "danger",
+          requiresStripe: true,
+          requiresConfirmation: true,
+        }
+      : null,
+  ].filter(Boolean) as CustomerOperation[];
+  const selectedOperation = customerOperations.find(
+    (operation) => operation.id === selectedOperationId,
+  );
 
   return (
     <div>
@@ -1734,11 +1878,35 @@ export default function CustomerDetailPage({
             this only for wrong drafts or duplicates without payment history.
             Use anonymization for retained customer history.
           </p>
+          <label className="mt-4 block text-sm font-semibold text-red-900">
+            Anonymization reason
+            <textarea
+              value={anonymizeReason}
+              onChange={(event) => {
+                setAnonymizeReason(event.target.value);
+                setAnonymizeConfirmed(false);
+              }}
+              rows={2}
+              placeholder="Example: Customer requested deletion of personal data under GDPR."
+              className="mt-1 w-full rounded-xl border border-red-200 px-3 py-2 text-slate-900 outline-none"
+            />
+          </label>
+          <label className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-sm font-semibold text-red-900">
+            <input
+              type="checkbox"
+              checked={anonymizeConfirmed}
+              onChange={(event) => setAnonymizeConfirmed(event.target.checked)}
+              className="mt-1"
+            />
+            I understand anonymization removes contact details, uploaded
+            material, and support messages while retained payment/order/audit
+            references stay.
+          </label>
           <div className="mt-3 flex flex-wrap gap-3">
             <button
               type="button"
               onClick={anonymizeCustomer}
-              disabled={saving}
+              disabled={saving || !anonymizeReason.trim() || !anonymizeConfirmed}
               className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
             >
               {saving ? "Saving..." : "Anonymize customer"}
@@ -1940,10 +2108,21 @@ export default function CustomerDetailPage({
                 />
               </label>
 
+              <label className="text-sm font-semibold text-slate-700">
+                Quote preparation reason *
+                <textarea
+                  value={quoteReason}
+                  onChange={(event) => setQuoteReason(event.target.value)}
+                  rows={2}
+                  placeholder="Example: Customer requested this package and pricing has been reviewed."
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                />
+              </label>
+
               <button
                 type="button"
                 onClick={prepareQuoteAndOnboarding}
-                disabled={saving || quoteLines.length === 0}
+                disabled={saving || quoteLines.length === 0 || !quoteReason.trim()}
                 className="admin-button-primary disabled:opacity-50"
               >
                 {saving ? "Preparing..." : "Prepare quote and send onboarding"}
@@ -2109,200 +2288,160 @@ export default function CustomerDetailPage({
           </table>
         </div>
 
-        <div
-          className={`mt-6 rounded-2xl border p-4 ${
-            customer.setup_fee_locked_at
-              ? "border-amber-200 bg-amber-50"
-              : "border-blue-200 bg-blue-50"
-          }`}
-        >
-          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+        <div className="admin-operation-panel mt-6">
+          <div className="admin-operation-header">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-                Refund rule
-              </p>
-              <h3 className="mt-1 text-lg font-black text-slate-950">
-                {customer.setup_fee_locked_at
-                  ? "Layout work has started"
-                  : customer.payment_status === "refunded"
-                    ? "First payment refunded before production"
-                  : !productionTrackingReady
-                    ? "Production tracking migration is needed"
-                  : "Setup fee still refundable before production starts"}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-700">
-                {customer.setup_fee_locked_at
-                  ? `Started ${formatDateTime(customer.layout_started_at)}. The setup/layout fee is marked non-refundable from this point.`
-                  : customer.payment_status === "refunded"
-                    ? "The first payment was refunded before layout work started. Keep the customer suspended unless a new quote and payment are created."
-                  : !productionTrackingReady
-                    ? "Apply the latest Supabase migration before using the layout-start and refund-boundary tools."
-                  : "If the customer cancels before layout work starts, the setup/layout fee can still be handled as refundable. Mark layout work started only when production actually begins."}
+              <p className="admin-operation-kicker">Customer operation flow</p>
+              <h3>Choose one business action</h3>
+              <p>
+                Subscription, production, refund, and access changes are handled
+                here so each action has a reason, impact review, and audit trail.
               </p>
             </div>
-
-            {productionTrackingReady && !customer.setup_fee_locked_at && customer.payment_status === "paid" && (
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={startLayoutWork}
-                  disabled={saving}
-                  className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Mark layout work started"}
-                </button>
-                <button
-                  type="button"
-                  onClick={refundFirstPayment}
-                  disabled={saving}
-                  className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Refund first payment"}
-                </button>
-              </div>
-            )}
+            <div className="admin-operation-summary">
+              <span>{customer.status || "draft"}</span>
+              <strong>{customer.service_access_status || "access not set"}</strong>
+            </div>
           </div>
-        </div>
 
-        <div className="mt-6">
-          {customer.status === "active" ? (
-            <>
-              <p className="rounded-2xl bg-green-50 p-4 text-sm font-medium text-green-700">
-                Onboarding completed. Customer is active and paid.
-              </p>
+          {customer.onboarding_token && (
+            <p className="admin-operation-link">
+              Onboarding link: /onboarding/{customer.onboarding_token}
+            </p>
+          )}
 
-              <div className="mt-4 flex flex-wrap gap-3">
-                <button
-                  onClick={suspendCustomer}
-                  disabled={saving}
-                  className="rounded-xl bg-yellow-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                >
-                  {saving ? "Saving..." : "Suspend customer"}
-                </button>
+          {!customer.onboarding_token && (
+            <p className="admin-operation-note">
+              No onboarding link yet. Use the quote workflow above to create the
+              order, setup link, material upload path, and payment flow together.
+            </p>
+          )}
 
-                {customer.stripe_subscription_id && (
-                  <>
-                    <button
-                      onClick={pauseSubscription}
-                      disabled={saving}
-                      className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Pause subscription"}
-                    </button>
-                    <button
-                      onClick={applyTemporaryDiscount}
-                      disabled={saving}
-                      className="rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Apply discount"}
-                    </button>
-                    <button
-                      onClick={cancelSubscription}
-                      disabled={saving}
-                      className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Cancel at period end"}
-                    </button>
-                    <button
-                      onClick={cancelSubscriptionImmediately}
-                      disabled={saving}
-                      className="rounded-xl bg-red-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Cancel now"}
-                    </button>
-                  </>
-                )}
-              </div>
-            </>
-          ) : customer.status === "suspended" ? (
-            <>
-              <p className="rounded-2xl bg-red-50 p-4 text-sm font-medium text-red-700">
-                Customer is suspended. Displays should not run for this
-                customer.
-              </p>
-
-              {customer.stripe_subscription_id &&
-              customer.service_access_status === "paused" ? (
+          <div className="admin-operation-grid">
+            <div className="admin-operation-list" aria-label="Available customer operations">
+              {customerOperations.length === 0 ? (
+                <p className="admin-muted">
+                  No customer operations are currently available for this state.
+                </p>
+              ) : (
+                customerOperations.map((operation) => (
                   <button
-                    onClick={resumeSubscription}
-                    disabled={saving}
-                    className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    {saving ? "Saving..." : "Resume subscription"}
-                  </button>
-                ) : (
-                  <button
-                    onClick={reactivateCustomer}
-                    disabled={saving}
-                    className="mt-4 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    {saving ? "Saving..." : "Reactivate customer"}
-                  </button>
-                )}
-            </>
-          ) : (
-            <>
-              {customer.payment_status === "paid" && (
-                <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-4">
-                  <p className="text-sm font-medium text-green-800">
-                    Payment is complete. Activate the customer when content and
-                    device assignment are ready; assigned display URLs will then
-                    be allowed to run.
-                  </p>
-                  <button
+                    key={operation.id}
                     type="button"
-                    onClick={activateCustomer}
+                    onClick={() => openCustomerOperation(operation.id)}
                     disabled={saving}
-                    className="mt-4 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    className={`admin-operation-card admin-operation-${operation.tone} ${
+                      selectedOperationId === operation.id ? "is-selected" : ""
+                    }`}
                   >
-                    {saving ? "Saving..." : "Mark customer active"}
+                    <span>
+                      <strong>{operation.title}</strong>
+                      <small>{operation.description}</small>
+                    </span>
+                    <em>{operation.requiresStripe ? "Stripe" : "Screenia"}</em>
                   </button>
-                  {customer.stripe_subscription_id && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={pauseSubscription}
-                        disabled={saving}
-                        className="ml-3 mt-4 rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                      >
-                        {saving ? "Saving..." : "Pause subscription"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={applyTemporaryDiscount}
-                        disabled={saving}
-                        className="ml-3 mt-4 rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                      >
-                        {saving ? "Saving..." : "Apply discount"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={cancelSubscription}
-                        disabled={saving}
-                        className="ml-3 mt-4 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                      >
-                        {saving ? "Saving..." : "Cancel at period end"}
-                      </button>
-                    </>
+                ))
+              )}
+            </div>
+
+            <div className="admin-operation-flow">
+              {selectedOperation ? (
+                <>
+                  <div className="admin-operation-flow-header">
+                    <p className="admin-operation-kicker">Selected action</p>
+                    <h4>{selectedOperation.title}</h4>
+                    <p>{selectedOperation.result}</p>
+                  </div>
+
+                  {selectedOperation.requiresDiscount && (
+                    <div className="admin-operation-fields">
+                      <label>
+                        Discount percent
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          value={operationDiscountPercent}
+                          onChange={(event) =>
+                            setOperationDiscountPercent(event.target.value)
+                          }
+                        />
+                      </label>
+                      <label>
+                        Duration months
+                        <input
+                          type="number"
+                          min="1"
+                          max="36"
+                          value={operationDiscountMonths}
+                          onChange={(event) =>
+                            setOperationDiscountMonths(event.target.value)
+                          }
+                        />
+                      </label>
+                    </div>
                   )}
+
+                  <label className="admin-operation-reason">
+                    Reason for audit history
+                    <textarea
+                      value={operationReason}
+                      onChange={(event) => setOperationReason(event.target.value)}
+                      rows={4}
+                      placeholder="Write the operational reason before saving."
+                    />
+                  </label>
+
+                  {selectedOperation.requiresConfirmation && (
+                    <label className="admin-operation-confirm">
+                      <input
+                        type="checkbox"
+                        checked={operationConfirmed}
+                        onChange={(event) =>
+                          setOperationConfirmed(event.target.checked)
+                        }
+                      />
+                      I have reviewed the impact of this action.
+                    </label>
+                  )}
+
+                  <div className="admin-operation-actions">
+                    <button
+                      type="button"
+                      onClick={completeCustomerOperation}
+                      disabled={saving}
+                      className={
+                        selectedOperation.tone === "danger"
+                          ? "admin-button-danger"
+                          : selectedOperation.tone === "warning"
+                            ? "admin-button-warning"
+                            : "admin-button-primary"
+                      }
+                    >
+                      {saving ? "Saving..." : `Run: ${selectedOperation.title}`}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={closeCustomerOperation}
+                      disabled={saving}
+                      className="admin-button-secondary"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="admin-operation-empty">
+                  <p className="admin-operation-kicker">Step 1</p>
+                  <h4>Select an action</h4>
+                  <p>
+                    Pick one operation from the left. The next step will show
+                    the required reason, discount fields, or confirmation.
+                  </p>
                 </div>
               )}
-
-              {customer.onboarding_token && (
-                <p className="mt-4 break-all rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
-                  Onboarding link: /onboarding/{customer.onboarding_token}
-                </p>
-              )}
-
-              {!customer.onboarding_token && (
-                <p className="rounded-2xl bg-blue-50 p-4 text-sm font-medium text-blue-700">
-                  No onboarding link yet. Use the quote workflow above to create
-                  the order, setup link, material upload path, and payment flow
-                  together.
-                </p>
-              )}
-            </>
-          )}
+            </div>
+          </div>
         </div>
       </div>
       )}
@@ -2390,6 +2529,7 @@ export default function CustomerDetailPage({
                               status: event.target.value,
                               adminNote:
                                 current[item.id]?.adminNote || item.adminNote || "",
+                              reason: current[item.id]?.reason || "",
                             },
                           }))
                         }
@@ -2414,6 +2554,7 @@ export default function CustomerDetailPage({
                             [item.id]: {
                               status: current[item.id]?.status || item.status,
                               adminNote: event.target.value,
+                              reason: current[item.id]?.reason || "",
                             },
                           }))
                         }
@@ -2423,11 +2564,31 @@ export default function CustomerDetailPage({
                       />
                     </label>
                   </div>
+                  <label className="mt-3 block text-sm font-semibold text-slate-700">
+                    Review reason *
+                    <textarea
+                      value={messageDrafts[item.id]?.reason || ""}
+                      onChange={(event) =>
+                        setMessageDrafts((current) => ({
+                          ...current,
+                          [item.id]: {
+                            status: current[item.id]?.status || item.status,
+                            adminNote:
+                              current[item.id]?.adminNote || item.adminNote || "",
+                            reason: event.target.value,
+                          },
+                        }))
+                      }
+                      rows={2}
+                      placeholder="Example: Customer issue reviewed and assigned to support."
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                    />
+                  </label>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={() => updateCustomerMessage(item)}
-                      disabled={saving}
+                      disabled={saving || !(messageDrafts[item.id]?.reason || "").trim()}
                       className="admin-button-primary disabled:opacity-50"
                     >
                       {saving ? "Saving..." : "Save message update"}
@@ -2560,6 +2721,7 @@ export default function CustomerDetailPage({
                               status: event.target.value,
                               adminNote:
                                 current[asset.id]?.adminNote || asset.adminNote || "",
+                              reason: current[asset.id]?.reason || "",
                             },
                           }))
                         }
@@ -2582,6 +2744,7 @@ export default function CustomerDetailPage({
                             [asset.id]: {
                               status: current[asset.id]?.status || asset.status || "new",
                               adminNote: event.target.value,
+                              reason: current[asset.id]?.reason || "",
                             },
                           }))
                         }
@@ -2592,11 +2755,32 @@ export default function CustomerDetailPage({
                       />
                     </label>
                   </div>
+                  <label className="mt-3 block text-sm font-semibold text-slate-700">
+                    Review reason *
+                    <textarea
+                      value={assetDrafts[asset.id]?.reason || ""}
+                      onChange={(event) =>
+                        setAssetDrafts((current) => ({
+                          ...current,
+                          [asset.id]: {
+                            status:
+                              current[asset.id]?.status || asset.status || "new",
+                            adminNote:
+                              current[asset.id]?.adminNote || asset.adminNote || "",
+                            reason: event.target.value,
+                          },
+                        }))
+                      }
+                      rows={2}
+                      placeholder="Example: Uploaded display material reviewed for publishing."
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                    />
+                  </label>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
                     <button
                       type="button"
                       onClick={() => updateCustomerAsset(asset)}
-                      disabled={saving}
+                      disabled={saving || !(assetDrafts[asset.id]?.reason || "").trim()}
                       className="admin-button-primary disabled:opacity-50"
                     >
                       {saving ? "Saving..." : "Save material review"}
@@ -2884,11 +3068,38 @@ export default function CustomerDetailPage({
                 cancelled, or anonymized instead of deleted.
               </p>
 
+              <label className="block text-sm font-semibold text-red-900">
+                Deletion reason *
+                <textarea
+                  value={deleteReason}
+                  onChange={(event) => {
+                    setDeleteReason(event.target.value);
+                    setDeleteConfirmed(false);
+                  }}
+                  rows={3}
+                  placeholder="Example: Duplicate draft created during testing and no payment history exists."
+                  className="mt-1 w-full rounded-xl border border-red-200 px-3 py-2 text-slate-900 outline-none"
+                />
+              </label>
+
+              <label className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-sm font-semibold text-red-900">
+                <input
+                  type="checkbox"
+                  checked={deleteConfirmed}
+                  onChange={(event) => setDeleteConfirmed(event.target.checked)}
+                  className="mt-1"
+                />
+                I checked that this is a wrong draft or duplicate without
+                payment history, and I want to delete it.
+              </label>
+
               <div className="flex flex-wrap justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => {
                     setDeleteConfirmationOpen(false);
+                    setDeleteReason("");
+                    setDeleteConfirmed(false);
                   }}
                   disabled={saving}
                   className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
@@ -2898,7 +3109,7 @@ export default function CustomerDetailPage({
                 <button
                   type="button"
                   onClick={deleteCustomer}
-                  disabled={saving}
+                  disabled={saving || !deleteReason.trim() || !deleteConfirmed}
                   className="rounded-xl bg-red-800 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-950/20 transition hover:bg-red-900 disabled:opacity-50"
                 >
                   {saving ? "Deleting..." : "Delete customer"}

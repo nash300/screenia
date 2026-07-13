@@ -29,6 +29,13 @@ type DeviceDetails = {
 };
 
 type DeviceSection = "overview" | "details" | "preview" | "media" | "display";
+type DeviceOperation = "status" | "delete";
+
+type DeviceOperationDraft = {
+  operation: DeviceOperation;
+  reason: string;
+  confirmed: boolean;
+};
 
 const deviceSectionIds: DeviceSection[] = [
   "overview",
@@ -54,6 +61,14 @@ export default function AdminDevicePage({
 
   const [playlist, setPlaylist] = useState<PlaylistItem[]>([]);
   const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoUploadReason, setVideoUploadReason] = useState("");
+  const [removingPlaylistId, setRemovingPlaylistId] = useState("");
+  const [removeVideoReason, setRemoveVideoReason] = useState("");
+  const [removeVideoConfirmed, setRemoveVideoConfirmed] = useState(false);
+  const [renameReason, setRenameReason] = useState("");
+  const [detailsReason, setDetailsReason] = useState("");
+  const [deviceOperationDraft, setDeviceOperationDraft] =
+    useState<DeviceOperationDraft | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -163,9 +178,11 @@ export default function AdminDevicePage({
       return;
     }
 
-    const reason = prompt("Reason for renaming this display device:")?.trim();
-
-    if (!reason) return;
+    const reason = renameReason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before renaming this device.");
+      return;
+    }
 
     setRenaming(true);
 
@@ -191,15 +208,18 @@ export default function AdminDevicePage({
 
     await loadDeviceAndPlaylist();
     showAdminNotification("success", "Device renamed.");
+    setRenameReason("");
     setRenaming(false);
   };
 
   const saveDeviceDetails = async () => {
     if (!deviceUuid) return;
 
-    const reason = prompt("Reason for updating this display device:")?.trim();
-
-    if (!reason) return;
+    const reason = detailsReason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before saving device details.");
+      return;
+    }
 
     setSaving(true);
 
@@ -235,21 +255,12 @@ export default function AdminDevicePage({
 
     await loadDeviceAndPlaylist();
     showAdminNotification("success", "Device details updated.");
+    setDetailsReason("");
     setSaving(false);
   };
 
-  const deleteDevice = async () => {
+  const deleteDevice = async (reason: string) => {
     if (!deviceUuid) return;
-
-    if (
-      !window.confirm("Delete this device? This will also remove its playlist.")
-    ) {
-      return;
-    }
-
-    const reason = prompt("Reason for deleting this display device:")?.trim();
-
-    if (!reason) return;
 
     const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
       method: "DELETE",
@@ -270,16 +281,10 @@ export default function AdminDevicePage({
     window.location.href = "/admin/devices";
   };
 
-  const toggleDeviceActive = async () => {
+  const toggleDeviceActive = async (reason: string) => {
     if (!deviceUuid) return;
 
     const nextValue = !isActive;
-    const reason = prompt(
-      `Reason for ${nextValue ? "activating" : "deactivating"} this display device:`,
-    )?.trim();
-
-    if (!reason) return;
-
     const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -300,10 +305,33 @@ export default function AdminDevicePage({
     }
 
     setIsActive(nextValue);
+    setDeviceOperationDraft(null);
     showAdminNotification(
       "success",
       nextValue ? "Device activated." : "Device deactivated.",
     );
+  };
+
+  const submitDeviceOperation = async () => {
+    if (!deviceOperationDraft) return;
+
+    const reason = deviceOperationDraft.reason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before saving this device operation.");
+      return;
+    }
+
+    if (!deviceOperationDraft.confirmed) {
+      showAdminNotification("warning", "Confirm the device operation before continuing.");
+      return;
+    }
+
+    if (deviceOperationDraft.operation === "delete") {
+      await deleteDevice(reason);
+      return;
+    }
+
+    await toggleDeviceActive(reason);
   };
 
   const uploadVideo = async () => {
@@ -314,9 +342,15 @@ export default function AdminDevicePage({
       return;
     }
 
-    const reason = prompt("Reason for adding this video to the display playlist:")?.trim();
+    const reason = videoUploadReason.trim();
 
-    if (!reason) return;
+    if (reason.length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before uploading.",
+      );
+      return;
+    }
 
     setSaving(true);
 
@@ -340,17 +374,43 @@ export default function AdminDevicePage({
     }
 
     setVideoFile(null);
+    setVideoUploadReason("");
     await loadDeviceAndPlaylist();
     showAdminNotification("success", "Video uploaded and added to playlist.");
     setSaving(false);
   };
 
-  const deleteVideo = async (playlistId: string) => {
-    if (!window.confirm("Delete this video?")) return;
+  const startRemoveVideo = (playlistId: string) => {
+    setRemovingPlaylistId(playlistId);
+    setRemoveVideoReason("");
+    setRemoveVideoConfirmed(false);
+  };
 
-    const reason = prompt("Reason for removing this video from the playlist:")?.trim();
+  const cancelRemoveVideo = () => {
+    if (saving) return;
+    setRemovingPlaylistId("");
+    setRemoveVideoReason("");
+    setRemoveVideoConfirmed(false);
+  };
 
-    if (!reason || !deviceUuid) return;
+  const deleteVideo = async () => {
+    const playlistId = removingPlaylistId;
+    const reason = removeVideoReason.trim();
+
+    if (!playlistId || !deviceUuid) return;
+
+    if (reason.length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before removing media.",
+      );
+      return;
+    }
+
+    if (!removeVideoConfirmed) {
+      showAdminNotification("warning", "Confirm the removal before continuing.");
+      return;
+    }
 
     const response = await fetch(`/api/admin/devices/${deviceUuid}/media`, {
       method: "DELETE",
@@ -368,6 +428,7 @@ export default function AdminDevicePage({
     }
 
     await loadDeviceAndPlaylist();
+    cancelRemoveVideo();
     showAdminNotification("success", "Video removed from playlist.");
   };
 
@@ -501,22 +562,167 @@ export default function AdminDevicePage({
             </p>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button
-              onClick={toggleDeviceActive}
-              className={`rounded-xl px-4 py-2 text-sm font-semibold text-white ${
-                isActive ? "bg-red-600" : "bg-green-600"
-              }`}
-            >
-              {isActive ? "Deactivate device" : "Activate device"}
-            </button>
+          <div className="admin-operation-panel mt-5">
+            <div className="admin-operation-header">
+              <div>
+                <p className="admin-operation-kicker">Device operation flow</p>
+                <h3>Activation and deletion</h3>
+                <p>
+                  Choose a sensitive device action, add the audit reason, then
+                  confirm before changing the live device state.
+                </p>
+              </div>
+              <div className="admin-operation-summary">
+                <span>Current state</span>
+                <strong>{isActive ? "Active" : "Inactive"}</strong>
+              </div>
+            </div>
 
-            <button
-              onClick={deleteDevice}
-              className="rounded-xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white"
-            >
-              Delete device
-            </button>
+            <div className="admin-pricing-operation-choice">
+              <button
+                type="button"
+                className={`admin-operation-card ${
+                  deviceOperationDraft?.operation === "status"
+                    ? "is-selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  setDeviceOperationDraft({
+                    operation: "status",
+                    reason: "",
+                    confirmed: false,
+                  })
+                }
+              >
+                <span>
+                  <strong>
+                    {isActive ? "Deactivate device" : "Activate device"}
+                  </strong>
+                  <small>
+                    Controls whether this display device is allowed to serve
+                    live screen content.
+                  </small>
+                </span>
+                <em>
+                  {deviceOperationDraft?.operation === "status"
+                    ? "Open"
+                    : "Choose"}
+                </em>
+              </button>
+              <button
+                type="button"
+                className={`admin-operation-card admin-operation-danger ${
+                  deviceOperationDraft?.operation === "delete"
+                    ? "is-selected"
+                    : ""
+                }`}
+                onClick={() =>
+                  setDeviceOperationDraft({
+                    operation: "delete",
+                    reason: "",
+                    confirmed: false,
+                  })
+                }
+              >
+                <span>
+                  <strong>Delete device</strong>
+                  <small>
+                    Removes this device and its playlist. Use only for wrong or
+                    duplicate records.
+                  </small>
+                </span>
+                <em>
+                  {deviceOperationDraft?.operation === "delete"
+                    ? "Open"
+                    : "Choose"}
+                </em>
+              </button>
+            </div>
+
+            {deviceOperationDraft && (
+              <div className="admin-operation-flow">
+                <div className="admin-operation-flow-header">
+                  <p className="admin-operation-kicker">Audit checkpoint</p>
+                  <h4>
+                    {deviceOperationDraft.operation === "delete"
+                      ? "Delete this device"
+                      : isActive
+                        ? "Deactivate this device"
+                        : "Activate this device"}
+                  </h4>
+                  <p>
+                    {deviceOperationDraft.operation === "delete"
+                      ? "This will remove the device record and its playlist."
+                      : "This changes whether the display can be used operationally."}
+                  </p>
+                </div>
+
+                <label className="admin-operation-reason">
+                  Reason for audit history
+                  <textarea
+                    value={deviceOperationDraft.reason}
+                    onChange={(event) =>
+                      setDeviceOperationDraft((current) =>
+                        current
+                          ? {
+                              ...current,
+                              reason: event.target.value,
+                              confirmed: false,
+                            }
+                          : current,
+                      )
+                    }
+                    placeholder="Example: Duplicate test device created during setup."
+                  />
+                </label>
+
+                <label className="admin-operation-confirm">
+                  <input
+                    type="checkbox"
+                    checked={deviceOperationDraft.confirmed}
+                    onChange={(event) =>
+                      setDeviceOperationDraft((current) =>
+                        current
+                          ? {
+                              ...current,
+                              confirmed: event.target.checked,
+                            }
+                          : current,
+                      )
+                    }
+                  />
+                  <span>
+                    I checked this device and want to save this audited
+                    operation.
+                  </span>
+                </label>
+
+                <div className="admin-operation-actions">
+                  <button
+                    type="button"
+                    className={
+                      deviceOperationDraft.operation === "delete"
+                        ? "admin-button-danger"
+                        : "admin-button-primary"
+                    }
+                    onClick={submitDeviceOperation}
+                  >
+                    {deviceOperationDraft.operation === "delete"
+                      ? "Delete device"
+                      : isActive
+                        ? "Deactivate device"
+                        : "Activate device"}
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-button-secondary"
+                    onClick={() => setDeviceOperationDraft(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -535,12 +741,21 @@ export default function AdminDevicePage({
 
           <button
             onClick={renameDevice}
-            disabled={renaming}
+            disabled={renaming || !renameReason.trim()}
             className="admin-button-primary disabled:opacity-50"
           >
             {renaming ? "Saving..." : "Save"}
           </button>
         </div>
+        <label className="admin-operation-reason">
+          Reason for audit history
+          <textarea
+            value={renameReason}
+            onChange={(event) => setRenameReason(event.target.value)}
+            rows={3}
+            placeholder="Example: Customer asked to rename this screen location."
+          />
+        </label>
       </div>
       )}
 
@@ -595,9 +810,19 @@ export default function AdminDevicePage({
           rows={3}
         />
 
+        <label className="admin-operation-reason">
+          Reason for audit history
+          <textarea
+            value={detailsReason}
+            onChange={(event) => setDetailsReason(event.target.value)}
+            rows={3}
+            placeholder="Example: Serial number corrected after checking the device label."
+          />
+        </label>
+
         <button
           onClick={saveDeviceDetails}
-          disabled={saving}
+          disabled={saving || !detailsReason.trim()}
           className="admin-button-primary mt-4 disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save device details"}
@@ -632,26 +857,69 @@ export default function AdminDevicePage({
 
       {/* Upload Video */}
       {activeSection === "media" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Upload video</h2>
-        <p className="admin-muted mt-1 text-sm">
-          Only MP4 files are supported.
-        </p>
+      <div className="admin-operation-panel">
+        <div className="admin-operation-header">
+          <div>
+            <p className="admin-operation-kicker">Playlist media flow</p>
+            <h3>Add display video</h3>
+            <p>
+              Choose an MP4, record the operational reason, then add it to the
+              playlist in one audited step.
+            </p>
+          </div>
+          <div className="admin-operation-summary">
+            <span>Playlist items</span>
+            <strong>{playlist.length}</strong>
+          </div>
+        </div>
 
-        <input
-          type="file"
-          accept="video/mp4"
-          onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-          className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-900"
-        />
+        <div className="admin-device-media-flow">
+          <label className="admin-device-file-picker">
+            MP4 video file
+            <input
+              type="file"
+              accept="video/mp4"
+              onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+            />
+            <span>
+              {videoFile
+                ? `${videoFile.name} (${Math.ceil(videoFile.size / 1024)} KB)`
+                : "No file selected"}
+            </span>
+          </label>
 
-        <button
-          onClick={uploadVideo}
-          disabled={saving || !videoFile}
-          className="admin-button-primary mt-4 disabled:opacity-50"
-        >
-          {saving ? "Uploading..." : "Upload video"}
-        </button>
+          <label className="admin-operation-reason">
+            Reason for audit history
+            <textarea
+              value={videoUploadReason}
+              onChange={(event) => setVideoUploadReason(event.target.value)}
+              rows={3}
+              placeholder="Example: initial menu playlist for installed device."
+            />
+          </label>
+
+          <div className="admin-operation-actions">
+            <button
+              type="button"
+              onClick={uploadVideo}
+              disabled={saving || !videoFile}
+              className="admin-button-primary disabled:opacity-50"
+            >
+              {saving ? "Uploading..." : "Upload and add to playlist"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setVideoFile(null);
+                setVideoUploadReason("");
+              }}
+              disabled={saving || (!videoFile && !videoUploadReason)}
+              className="admin-button-secondary disabled:opacity-50"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
       </div>
       )}
 
@@ -675,12 +943,58 @@ export default function AdminDevicePage({
 
                 <video src={item.src} controls className="w-full rounded-xl" />
 
-                <button
-                  onClick={() => deleteVideo(item.id)}
-                  className="mt-3 rounded-xl bg-red-600 px-3 py-2 text-sm font-semibold text-white"
-                >
-                  Delete
-                </button>
+                {removingPlaylistId === item.id ? (
+                  <div className="admin-device-remove-flow">
+                    <label className="admin-operation-reason">
+                      Reason for removing this media
+                      <textarea
+                        value={removeVideoReason}
+                        onChange={(event) =>
+                          setRemoveVideoReason(event.target.value)
+                        }
+                        rows={3}
+                        placeholder="Record why this video is being removed from the playlist."
+                      />
+                    </label>
+                    <label className="admin-operation-confirm">
+                      <input
+                        type="checkbox"
+                        checked={removeVideoConfirmed}
+                        onChange={(event) =>
+                          setRemoveVideoConfirmed(event.target.checked)
+                        }
+                      />
+                      I have reviewed that this removes the video from the
+                      display playlist.
+                    </label>
+                    <div className="admin-operation-actions">
+                      <button
+                        type="button"
+                        onClick={deleteVideo}
+                        disabled={saving}
+                        className="admin-button-danger"
+                      >
+                        {saving ? "Removing..." : "Remove from playlist"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelRemoveVideo}
+                        disabled={saving}
+                        className="admin-button-secondary"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => startRemoveVideo(item.id)}
+                    className="admin-button-danger mt-3"
+                  >
+                    Remove from playlist
+                  </button>
+                )}
               </div>
             ))}
           </div>

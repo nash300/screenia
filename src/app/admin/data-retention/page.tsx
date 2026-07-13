@@ -60,6 +60,9 @@ export default function AdminDataRetentionPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: string; action: string; reason: string }>
+  >({});
   const openCount = useMemo(
     () =>
       reviews.filter((review) => review.review_status !== "completed").length,
@@ -123,8 +126,11 @@ export default function AdminDataRetentionPage() {
     status: string,
     action: string,
   ) => {
-    const reason = prompt(`Reason for marking ${review.record_area} as ${status}:`)?.trim();
-    if (!reason) return;
+    const reason = actionDrafts[review.id]?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
 
     setUpdatingId(review.id);
     const response = await fetch(`/api/admin/data-retention/${review.id}`, {
@@ -143,6 +149,11 @@ export default function AdminDataRetentionPage() {
         result.error || "Could not update retention review.",
       );
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[review.id];
+        return next;
+      });
       await loadReviews();
       showAdminNotification("success", "Retention review updated.");
     }
@@ -334,7 +345,16 @@ export default function AdminDataRetentionPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === review.id}
-                        onClick={() => updateReview(review, "retain", "retain")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [review.id]: {
+                              status: "retain",
+                              action: "retain",
+                              reason: current[review.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Retain
                       </button>
@@ -343,7 +363,14 @@ export default function AdminDataRetentionPage() {
                         className="admin-button-secondary"
                         disabled={updatingId === review.id}
                         onClick={() =>
-                          updateReview(review, "anonymize", "anonymize")
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [review.id]: {
+                              status: "anonymize",
+                              action: "anonymize",
+                              reason: current[review.id]?.reason || "",
+                            },
+                          }))
                         }
                       >
                         Anonymize
@@ -352,11 +379,70 @@ export default function AdminDataRetentionPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === review.id}
-                        onClick={() => updateReview(review, "completed", "review")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [review.id]: {
+                              status: "completed",
+                              action: "review",
+                              reason: current[review.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Complete
                       </button>
                     </div>
+                    {actionDrafts[review.id] && (
+                      <div className="admin-inline-flow">
+                        <label>
+                          <span>Reason for {actionDrafts[review.id].status}</span>
+                          <textarea
+                            value={actionDrafts[review.id].reason}
+                            onChange={(event) =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [review.id]: {
+                                  ...current[review.id],
+                                  reason: event.target.value,
+                                },
+                              }))
+                            }
+                            rows={2}
+                          />
+                        </label>
+                        <div className="admin-inline-flow-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={updatingId === review.id}
+                            onClick={() =>
+                              updateReview(
+                                review,
+                                actionDrafts[review.id].status,
+                                actionDrafts[review.id].action,
+                              )
+                            }
+                          >
+                            {updatingId === review.id ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={updatingId === review.id}
+                            onClick={() =>
+                              setActionDrafts((current) => {
+                                const next = { ...current };
+                                delete next[review.id];
+                                return next;
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

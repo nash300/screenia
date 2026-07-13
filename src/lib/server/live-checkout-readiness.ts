@@ -1139,7 +1139,7 @@ async function dataSubjectRequestReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -1413,7 +1413,7 @@ async function taxPaymentRegisterReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const sourceIssues = [
@@ -1530,7 +1530,7 @@ async function privacyIncidentReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -1587,7 +1587,9 @@ async function privacyIncidentReady(
     !incidentUpdateRouteSource.includes("Privacy incident update rollback error")
       ? "privacy incident updates do not roll back when audit or notification evidence fails"
       : null,
-    !incidentRouteSource.includes("priority: data.severity === \"critical\"")
+    !incidentRouteSource.includes("data.severity === \"critical\"") ||
+    !incidentRouteSource.includes("data.severity === \"high\"") ||
+    !incidentRouteSource.includes("? \"urgent\"")
       ? "high/critical privacy incidents are not escalated as urgent notifications"
       : null,
     !incidentPageSource.includes("Incident register") ||
@@ -1645,7 +1647,7 @@ async function adminAccessReviewReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -1696,7 +1698,7 @@ async function adminAccessReviewReady(
       ? "admin access review updates do not roll back when audit evidence fails"
       : null,
     !accessRouteSource.includes("A reason of at least 5 characters") ||
-    !accessUpdateRouteSource.includes("A reason of at least 5 characters")
+    !accessUpdateRouteSource.includes("validateAccessReviewPayload")
       ? "admin access review actions do not require an admin reason"
       : null,
     !accessPageSource.includes("Access review register") ||
@@ -1756,7 +1758,7 @@ async function backupRestoreDrillReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -1809,7 +1811,7 @@ async function backupRestoreDrillReady(
       ? "backup restore drill updates do not roll back when audit evidence fails"
       : null,
     !drillRouteSource.includes("A reason of at least 5 characters") ||
-    !drillUpdateRouteSource.includes("A reason of at least 5 characters")
+    !drillUpdateRouteSource.includes("validateBackupDrillPayload")
       ? "backup restore drill actions do not require an admin reason"
       : null,
     !drillPageSource.includes("Backup restore register") ||
@@ -1869,7 +1871,7 @@ async function dataRetentionReviewReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -1919,7 +1921,7 @@ async function dataRetentionReviewReady(
       ? "data retention review updates do not roll back when audit evidence fails"
       : null,
     !retentionRouteSource.includes("A reason of at least 5 characters") ||
-    !retentionUpdateRouteSource.includes("A reason of at least 5 characters")
+    !retentionUpdateRouteSource.includes("validateDataRetentionPayload")
       ? "data retention review actions do not require an admin reason"
       : null,
     !retentionPageSource.includes("Data retention register") ||
@@ -2121,7 +2123,7 @@ async function inventoryOperationsReady(
       : null,
     !inventoryUpdateRouteSource.includes("Inventory device link was not saved because the audit event could not be stored") ||
     !inventoryUpdateRouteSource.includes("Inventory device link audit error") ||
-    !inventoryUpdateRouteSource.includes("inventory_status: device.inventory_status") ||
+    !inventoryUpdateRouteSource.includes("inventory_status: existingDevice.inventory_status") ||
     !inventoryUpdateRouteSource.includes("assigned_at: existing.assigned_at") ||
     !inventoryUpdateRouteSource.includes("admin_inventory_device_link_rollback_failed") ||
     !inventoryUpdateRouteSource.includes(
@@ -3230,8 +3232,9 @@ async function subscriptionMigrationReady(
       ? "paid invoices are not synced and audited"
       : null,
     !stripeWebhookSource.includes("Invoice paid customer access restore error") ||
-    !stripeWebhookSource.includes("entitlement.serviceAccessStatus === \"active\"") ||
+    !stripeWebhookSource.includes("syncedEntitlement.serviceAccessStatus === \"active\"") ||
     !stripeWebhookSource.includes("customer.inactive_reason === \"payment_failed\"") ||
+    !stripeWebhookSource.includes("service_access_status: syncedEntitlement.serviceAccessStatus") ||
     !stripeWebhookSource.includes("status: \"active\"")
       ? "paid invoices do not restore customers suspended by failed payments"
       : null,
@@ -3398,7 +3401,7 @@ async function legalChangeNoticeReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -3456,7 +3459,7 @@ async function legalChangeNoticeReady(
       ? "legal change notice updates do not roll back when audit or notification evidence fails"
       : null,
     !noticeRouteSource.includes("A reason of at least 5 characters") ||
-    !noticeUpdateRouteSource.includes("A reason of at least 5 characters")
+    !noticeUpdateRouteSource.includes("validateLegalChangeNoticePayload")
       ? "legal notice actions do not require an admin reason"
       : null,
     !noticePageSource.includes("Legal change register") ||
@@ -3517,7 +3520,7 @@ async function processorComplianceReady(
     "utf8",
   );
   const navSource = readFileSync(
-    projectFilePath("src/components/AdminSidebarNav.tsx"),
+    projectFilePath("src/lib/admin/navigation.ts"),
     "utf8",
   );
   const migrationSource = readFileSync(
@@ -3566,7 +3569,7 @@ async function processorComplianceReady(
       ? "processor review updates do not roll back when audit evidence fails"
       : null,
     !processorRouteSource.includes("A reason of at least 5 characters") ||
-    !processorUpdateRouteSource.includes("A reason of at least 5 characters")
+    !processorUpdateRouteSource.includes("validateProcessorReviewPayload")
       ? "processor review actions do not require an admin reason"
       : null,
     !processorPageSource.includes("Processor review register") ||
@@ -3725,11 +3728,7 @@ async function sensitiveStorageReady(
     "customer-display-assets",
     "customer-message-files",
   ];
-  const { data, error } = await supabaseAdmin
-    .schema("storage")
-    .from("buckets")
-    .select("id, public")
-    .in("id", requiredBuckets);
+  const { data, error } = await supabaseAdmin.storage.listBuckets();
 
   if (error) return { ok: false, details: error.message };
 

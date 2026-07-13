@@ -43,6 +43,8 @@ export default function AdminHomePage() {
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingNotification, setSavingNotification] = useState(false);
+  const [showMarkAllReadFlow, setShowMarkAllReadFlow] = useState(false);
+  const [markAllReadReason, setMarkAllReadReason] = useState("");
 
   const needsDeviceCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
@@ -175,9 +177,7 @@ export default function AdminHomePage() {
     notificationId?: string,
   ) => {
     const reason =
-      action === "mark_all_read"
-        ? prompt("Reason for marking all admin notifications as read:")?.trim()
-        : "";
+      action === "mark_all_read" ? markAllReadReason.trim() : "";
 
     if (action === "mark_all_read" && (!reason || reason.length < 5)) {
       showAdminNotification(
@@ -206,6 +206,10 @@ export default function AdminHomePage() {
     }
 
     await loadStats();
+    if (action === "mark_all_read") {
+      setMarkAllReadReason("");
+      setShowMarkAllReadFlow(false);
+    }
     showAdminNotification("success", "Notification updated.");
     setSavingNotification(false);
   };
@@ -363,13 +367,46 @@ export default function AdminHomePage() {
             <h2 className="admin-card-title text-xl">Notifications</h2>
             <button
               type="button"
-              onClick={() => updateNotification("mark_all_read")}
+              onClick={() => setShowMarkAllReadFlow((current) => !current)}
               disabled={savingNotification || unreadNotificationCount === 0}
               className="admin-button-secondary disabled:opacity-50"
             >
               Mark all read
             </button>
           </div>
+          {showMarkAllReadFlow && (
+            <div className="admin-inline-flow">
+              <label>
+                <span>Reason for marking all notifications read</span>
+                <textarea
+                  value={markAllReadReason}
+                  onChange={(event) => setMarkAllReadReason(event.target.value)}
+                  rows={2}
+                />
+              </label>
+              <div className="admin-inline-flow-actions">
+                <button
+                  type="button"
+                  className="admin-button-primary"
+                  disabled={savingNotification || !markAllReadReason.trim()}
+                  onClick={() => updateNotification("mark_all_read")}
+                >
+                  {savingNotification ? "Saving..." : "Confirm all read"}
+                </button>
+                <button
+                  type="button"
+                  className="admin-button-secondary"
+                  disabled={savingNotification}
+                  onClick={() => {
+                    setShowMarkAllReadFlow(false);
+                    setMarkAllReadReason("");
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
           <div className="admin-status-list">
             <StatusRow label="Unread" value={unreadNotificationCount} tone="warning" />
           </div>

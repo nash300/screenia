@@ -86,6 +86,21 @@ type InventoryForm = {
   defect_description: string;
   return_notes: string;
   notes: string;
+  reason: string;
+};
+
+type InventoryOperationId =
+  | "shipped"
+  | "returned"
+  | "defective"
+  | "in_repair"
+  | "in_stock"
+  | "retired";
+
+type InventoryOperationDraft = {
+  operation: InventoryOperationId;
+  reason: string;
+  confirmed: boolean;
 };
 
 const itemTypes = [
@@ -133,8 +148,66 @@ function createEmptyForm(): InventoryForm {
     defect_description: "",
     return_notes: "",
     notes: "",
+    reason: "",
   };
 }
+
+const inventoryOperations: Array<{
+  id: InventoryOperationId;
+  label: string;
+  description: string;
+  status: string;
+  condition: string;
+  tone?: "warning" | "danger" | "success";
+}> = [
+  {
+    id: "shipped",
+    label: "Mark shipped",
+    description: "Use when the box leaves Screenia for the customer.",
+    status: "shipped",
+    condition: "tested",
+    tone: "success",
+  },
+  {
+    id: "returned",
+    label: "Mark returned",
+    description: "Clear the customer assignment and record a customer return.",
+    status: "returned",
+    condition: "returned",
+    tone: "warning",
+  },
+  {
+    id: "defective",
+    label: "Mark defective",
+    description: "Flag the box as needing diagnosis before it can be reused.",
+    status: "defective",
+    condition: "defective",
+    tone: "danger",
+  },
+  {
+    id: "in_repair",
+    label: "Send to repair",
+    description: "Move the box into a repair workflow.",
+    status: "in_repair",
+    condition: "defective",
+  },
+  {
+    id: "in_stock",
+    label: "Back to stock",
+    description: "Return the repaired box to available stock.",
+    status: "in_stock",
+    condition: "repaired",
+    tone: "success",
+  },
+  {
+    id: "retired",
+    label: "Retire",
+    description: "Remove the box from active operational stock.",
+    status: "retired",
+    condition: "used",
+    tone: "warning",
+  },
+];
 
 export default function AdminInventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -153,7 +226,11 @@ export default function AdminInventoryPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [allocationCustomerId, setAllocationCustomerId] = useState("");
   const [allocationLocation, setAllocationLocation] = useState("");
+  const [allocationReason, setAllocationReason] = useState("");
   const [existingDeviceId, setExistingDeviceId] = useState("");
+  const [existingDeviceReason, setExistingDeviceReason] = useState("");
+  const [operationDraft, setOperationDraft] =
+    useState<InventoryOperationDraft | null>(null);
   const [nowMs] = useState(() => Date.now());
 
   const selectedItem = items.find((item) => item.id === selectedId) || null;
@@ -383,6 +460,7 @@ export default function AdminInventoryPage() {
       defect_description: item.defect_description || "",
       return_notes: item.return_notes || "",
       notes: item.notes || "",
+      reason: "",
     });
   };
 
@@ -392,13 +470,11 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    const reason = prompt(
-      editingId
-        ? "Reason for updating this inventory item:"
-        : "Reason for adding this inventory item:",
-    )?.trim();
-
-    if (!reason) return;
+    const reason = form.reason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add an audit reason before saving.");
+      return;
+    }
 
     setSaving(true);
 
@@ -453,14 +529,9 @@ export default function AdminInventoryPage() {
     item: InventoryItem,
     status: string,
     condition: string,
+    reason: string,
     extra: Partial<InventoryItem> = {},
   ) => {
-    const reason = prompt(
-      `Reason for changing inventory status to "${status.replace(/_/g, " ")}":`,
-    )?.trim();
-
-    if (!reason) return;
-
     setSaving(true);
     const timestamp = new Date().toISOString();
     const payload: Record<string, string | number | boolean | null> = {
@@ -500,9 +571,51 @@ export default function AdminInventoryPage() {
     }
 
     showAdminNotification("success", "Inventory status updated.");
+    setOperationDraft(null);
     await loadInventory();
     await loadEvents(item.id);
     setSaving(false);
+  };
+
+  const submitInventoryOperation = async () => {
+    if (!selectedItem || !operationDraft) return;
+    const reason = operationDraft.reason.trim();
+
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before saving this inventory operation.");
+      return;
+    }
+
+    if (!operationDraft.confirmed) {
+      showAdminNotification("warning", "Confirm the inventory operation before saving.");
+      return;
+    }
+
+    const operation = inventoryOperations.find(
+      (item) => item.id === operationDraft.operation,
+    );
+    if (!operation) return;
+
+    const extra: Partial<InventoryItem> = {};
+    if (operation.id === "returned") {
+      extra.customer_id = null;
+      extra.return_notes =
+        selectedItem.return_notes || "Returned from customer.";
+    }
+    if (operation.id === "defective") {
+      extra.defect_description =
+        selectedItem.defect_description || "Needs diagnosis.";
+    }
+
+    await updateItemStatus(
+      selectedItem,
+      operation.status,
+      operation.id === "shipped" || operation.id === "retired"
+        ? selectedItem.condition
+        : operation.condition,
+      reason,
+      extra,
+    );
   };
 
   const allocateSelectedItem = async () => {
@@ -516,9 +629,11 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    const reason = prompt("Reason for allocating this stock item to a new device:")?.trim();
-
-    if (!reason) return;
+    const reason = allocationReason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before allocating this stock item.");
+      return;
+    }
 
     setSaving(true);
 
@@ -544,6 +659,7 @@ export default function AdminInventoryPage() {
     }
 
     showAdminNotification("success", `Allocated to device ${result.device?.device_code || "created device"}.`);
+    setAllocationReason("");
     await loadInventory();
     await loadEvents(selectedItem.id);
     setSaving(false);
@@ -562,9 +678,11 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    const reason = prompt("Reason for linking this stock item to an existing device:")?.trim();
-
-    if (!reason) return;
+    const reason = existingDeviceReason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before linking this stock item.");
+      return;
+    }
 
     setSaving(true);
 
@@ -586,6 +704,7 @@ export default function AdminInventoryPage() {
       );
     } else {
       showAdminNotification("success", `Linked to existing device ${device.device_code}.`);
+      setExistingDeviceReason("");
     }
 
     await loadInventory();
@@ -777,10 +896,20 @@ export default function AdminInventoryPage() {
                   onChange={setAllocationLocation}
                   placeholder="Reception, entrance, menu board..."
                 />
+                <TextAreaValue
+                  label="Allocation reason"
+                  value={allocationReason}
+                  onChange={setAllocationReason}
+                  placeholder="Example: Customer paid and this serial number is being prepared for installation."
+                />
                 <button
                   type="button"
                   className="admin-button-primary"
-                  disabled={saving || Boolean(selectedItem.device_id)}
+                  disabled={
+                    saving ||
+                    Boolean(selectedItem.device_id) ||
+                    !allocationReason.trim()
+                  }
                   onClick={allocateSelectedItem}
                 >
                   {selectedItem.device_id ? "Already allocated" : "Allocate and create device"}
@@ -806,10 +935,20 @@ export default function AdminInventoryPage() {
                         })),
                       ]}
                     />
+                    <TextAreaValue
+                      label="Link reason"
+                      value={existingDeviceReason}
+                      onChange={setExistingDeviceReason}
+                      placeholder="Example: Device was created during setup and this stock item is the matching hardware."
+                    />
                     <button
                       type="button"
                       className="admin-button-secondary"
-                      disabled={saving || !existingDeviceId}
+                      disabled={
+                        saving ||
+                        !existingDeviceId ||
+                        !existingDeviceReason.trim()
+                      }
                       onClick={linkExistingDevice}
                     >
                       Link existing device
@@ -819,75 +958,147 @@ export default function AdminInventoryPage() {
               </div>
 
               <div className="admin-inventory-actions">
-                <div className="admin-inventory-action-group">
-                  <h3>Shipping</h3>
-                  <button
-                    type="button"
-                    className="admin-button-primary"
-                    disabled={saving}
-                    onClick={() => updateItemStatus(selectedItem, "shipped", selectedItem.condition)}
-                  >
-                    Mark shipped
-                  </button>
-                </div>
-                <div className="admin-inventory-action-group">
-                  <h3>Returns</h3>
-                  <button
-                    type="button"
-                    className="admin-button-warning"
-                    disabled={saving}
-                    onClick={() =>
-                      updateItemStatus(selectedItem, "returned", "returned", {
-                        customer_id: null,
-                        return_notes: selectedItem.return_notes || "Returned from customer.",
-                      })
-                    }
-                  >
-                    Mark returned
-                  </button>
-                </div>
-                <div className="admin-inventory-action-group">
-                  <h3>Service</h3>
-                  <button
-                    type="button"
-                    className="admin-button-danger"
-                    disabled={saving}
-                    onClick={() =>
-                      updateItemStatus(selectedItem, "defective", "defective", {
-                        defect_description:
-                          selectedItem.defect_description || "Needs diagnosis.",
-                      })
-                    }
-                  >
-                    Mark defective
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-button-secondary"
-                    disabled={saving}
-                    onClick={() => updateItemStatus(selectedItem, "in_repair", "defective")}
-                  >
-                    Send to repair
-                  </button>
-                  <button
-                    type="button"
-                    className="admin-button-success"
-                    disabled={saving}
-                    onClick={() => updateItemStatus(selectedItem, "in_stock", "repaired")}
-                  >
-                    Back to stock
-                  </button>
-                </div>
-                <div className="admin-inventory-action-group">
-                  <h3>Lifecycle</h3>
-                  <button
-                    type="button"
-                    className="admin-button-secondary"
-                    disabled={saving}
-                    onClick={() => updateItemStatus(selectedItem, "retired", selectedItem.condition)}
-                  >
-                    Retire
-                  </button>
+                <div className="admin-operation-panel admin-inventory-operation-panel">
+                  <div className="admin-operation-header">
+                    <div>
+                      <p className="admin-operation-kicker">Inventory operation flow</p>
+                      <h3>Update stock lifecycle</h3>
+                      <p>
+                        Choose the next hardware state, add a reason, then
+                        confirm the audited inventory update.
+                      </p>
+                    </div>
+                    <div className="admin-operation-summary">
+                      <span>Current status</span>
+                      <strong>{statusLabel(selectedItem.status)}</strong>
+                    </div>
+                  </div>
+
+                  <div className="admin-operation-grid">
+                    <div className="admin-operation-list">
+                      {inventoryOperations.map((operation) => (
+                        <button
+                          key={operation.id}
+                          type="button"
+                          className={`admin-operation-card ${
+                            operation.tone
+                              ? `admin-operation-${operation.tone}`
+                              : ""
+                          } ${
+                            operationDraft?.operation === operation.id
+                              ? "is-selected"
+                              : ""
+                          }`}
+                          disabled={saving}
+                          onClick={() =>
+                            setOperationDraft({
+                              operation: operation.id,
+                              reason: "",
+                              confirmed: false,
+                            })
+                          }
+                        >
+                          <span>
+                            <strong>{operation.label}</strong>
+                            <small>{operation.description}</small>
+                          </span>
+                          <em>
+                            {operationDraft?.operation === operation.id
+                              ? "Open"
+                              : "Choose"}
+                          </em>
+                        </button>
+                      ))}
+                    </div>
+
+                    {operationDraft ? (
+                      <div className="admin-operation-flow">
+                        <div className="admin-operation-flow-header">
+                          <p className="admin-operation-kicker">Selected operation</p>
+                          <h4>
+                            {
+                              inventoryOperations.find(
+                                (operation) =>
+                                  operation.id === operationDraft.operation,
+                              )?.label
+                            }
+                          </h4>
+                          <p>
+                            This will update the selected stock item and write
+                            an inventory history event.
+                          </p>
+                        </div>
+
+                        <label className="admin-operation-reason">
+                          Reason for audit log
+                          <textarea
+                            value={operationDraft.reason}
+                            disabled={saving}
+                            onChange={(event) =>
+                              setOperationDraft((current) =>
+                                current
+                                  ? {
+                                      ...current,
+                                      reason: event.target.value,
+                                      confirmed: false,
+                                    }
+                                  : current,
+                              )
+                            }
+                            placeholder="Example: Box tested successfully and packed for delivery."
+                          />
+                        </label>
+
+                        <label className="admin-operation-confirm">
+                          <input
+                            type="checkbox"
+                            checked={operationDraft.confirmed}
+                            disabled={saving}
+                            onChange={(event) =>
+                              setOperationDraft((current) =>
+                                current
+                                  ? {
+                                      ...current,
+                                      confirmed: event.target.checked,
+                                    }
+                                  : current,
+                              )
+                            }
+                          />
+                          <span>
+                            I checked this stock item and want to save this
+                            audited inventory operation.
+                          </span>
+                        </label>
+
+                        <div className="admin-operation-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={saving}
+                            onClick={submitInventoryOperation}
+                          >
+                            {saving ? "Saving..." : "Save operation"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={saving}
+                            onClick={() => setOperationDraft(null)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="admin-operation-empty">
+                        <p>
+                          Select an operation to see the required reason and
+                          confirmation before changing this stock item.
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -1006,10 +1217,29 @@ function InventoryFormCard({
           <TextAreaValue label="Return notes" value={form.return_notes} onChange={(value) => onChange("return_notes", value)} />
           <TextAreaValue label="Internal notes" value={form.notes} onChange={(value) => onChange("notes", value)} />
         </fieldset>
+
+        <fieldset>
+          <legend>Audit reason</legend>
+          <TextAreaValue
+            label={editingId ? "Reason for updating" : "Reason for adding"}
+            value={form.reason}
+            onChange={(value) => onChange("reason", value)}
+            placeholder={
+              editingId
+                ? "Example: Warranty date corrected from purchase invoice."
+                : "Example: New Android box purchased for launch stock."
+            }
+          />
+        </fieldset>
       </div>
 
       <div className="admin-inventory-form-actions">
-        <button type="button" className="admin-button-primary" disabled={saving} onClick={onSave}>
+        <button
+          type="button"
+          className="admin-button-primary"
+          disabled={saving || !form.reason.trim()}
+          onClick={onSave}
+        >
           {saving ? "Saving..." : editingId ? "Save changes" : "Add to stock"}
         </button>
         <button type="button" className="admin-button-secondary" onClick={onCancel}>
@@ -1094,15 +1324,22 @@ function TextAreaValue({
   label,
   value,
   onChange,
+  placeholder,
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }) {
   return (
     <label className="admin-inventory-field admin-inventory-field-wide">
       <span>{label}</span>
-      <textarea value={value} rows={3} onChange={(event) => onChange(event.target.value)} />
+      <textarea
+        value={value}
+        rows={3}
+        placeholder={placeholder}
+        onChange={(event) => onChange(event.target.value)}
+      />
     </label>
   );
 }

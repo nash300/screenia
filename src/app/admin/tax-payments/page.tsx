@@ -54,6 +54,9 @@ export default function AdminTaxPaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: "submitted" | "paid"; reason: string; reference: string }>
+  >({});
   const totalVatOre = useMemo(
     () =>
       records
@@ -130,18 +133,14 @@ export default function AdminTaxPaymentsPage() {
     record: TaxPaymentRecord,
     status: "submitted" | "paid",
   ) => {
-    const reason = prompt(
-      `Reason for marking ${formatDate(record.period_start)} - ${formatDate(
-        record.period_end,
-      )} as ${status}:`,
-    )?.trim();
+    const draft = actionDrafts[record.id];
+    const reason = draft?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
 
-    if (!reason) return;
-
-    const reference =
-      status === "paid"
-        ? prompt("Payment reference or Skatteverket reference:", record.reference || "")?.trim()
-        : record.reference || "";
+    const reference = status === "paid" ? draft?.reference.trim() || "" : record.reference || "";
 
     if (status === "paid" && !reference) {
       showAdminNotification("error", "Payment reference is required.");
@@ -166,6 +165,11 @@ export default function AdminTaxPaymentsPage() {
         result.error || "Could not update tax payment record.",
       );
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[record.id];
+        return next;
+      });
       await loadRecords();
       showAdminNotification("success", "Tax payment record updated.");
     }
@@ -354,7 +358,19 @@ export default function AdminTaxPaymentsPage() {
                           type="button"
                           className="admin-button-secondary"
                           disabled={updatingId === record.id}
-                          onClick={() => updateRecordStatus(record, "submitted")}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [record.id]: {
+                                status: "submitted",
+                                reason: current[record.id]?.reason || "",
+                                reference:
+                                  current[record.id]?.reference ||
+                                  record.reference ||
+                                  "",
+                              },
+                            }))
+                          }
                         >
                           Mark submitted
                         </button>
@@ -364,12 +380,90 @@ export default function AdminTaxPaymentsPage() {
                           type="button"
                           className="admin-button-secondary"
                           disabled={updatingId === record.id}
-                          onClick={() => updateRecordStatus(record, "paid")}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [record.id]: {
+                                status: "paid",
+                                reason: current[record.id]?.reason || "",
+                                reference:
+                                  current[record.id]?.reference ||
+                                  record.reference ||
+                                  "",
+                              },
+                            }))
+                          }
                         >
                           Mark paid
                         </button>
                       )}
                     </div>
+                    {actionDrafts[record.id] && (
+                      <div className="admin-inline-flow">
+                        {actionDrafts[record.id].status === "paid" && (
+                          <label>
+                            <span>Payment reference</span>
+                            <input
+                              value={actionDrafts[record.id].reference}
+                              onChange={(event) =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [record.id]: {
+                                    ...current[record.id],
+                                    reference: event.target.value,
+                                  },
+                                }))
+                              }
+                            />
+                          </label>
+                        )}
+                        <label>
+                          <span>Reason for {actionDrafts[record.id].status}</span>
+                          <textarea
+                            value={actionDrafts[record.id].reason}
+                            onChange={(event) =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [record.id]: {
+                                  ...current[record.id],
+                                  reason: event.target.value,
+                                },
+                              }))
+                            }
+                            rows={2}
+                          />
+                        </label>
+                        <div className="admin-inline-flow-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={updatingId === record.id}
+                            onClick={() =>
+                              updateRecordStatus(
+                                record,
+                                actionDrafts[record.id].status,
+                              )
+                            }
+                          >
+                            {updatingId === record.id ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={updatingId === record.id}
+                            onClick={() =>
+                              setActionDrafts((current) => {
+                                const next = { ...current };
+                                delete next[record.id];
+                                return next;
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

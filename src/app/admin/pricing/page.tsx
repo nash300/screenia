@@ -38,6 +38,15 @@ type Notice = {
   message: string;
 };
 
+type PricingOperation = "save" | "sync";
+
+type PricingOperationDraft = {
+  planId: string;
+  operation: PricingOperation;
+  reason: string;
+  confirmed: boolean;
+};
+
 function formatSek(value: number | null | undefined) {
   return `${(value ?? 0).toLocaleString("sv-SE")} SEK`;
 }
@@ -92,6 +101,8 @@ export default function PricingPage() {
   const [savingPlanId, setSavingPlanId] = useState<string | null>(null);
   const [syncingPlanId, setSyncingPlanId] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
+  const [operationDraft, setOperationDraft] =
+    useState<PricingOperationDraft | null>(null);
 
   const loadPlans = useCallback(async () => {
     setLoading(true);
@@ -148,14 +159,29 @@ export default function PricingPage() {
     }));
   };
 
-  const savePlan = async (plan: PricingPlan) => {
+  const openPricingOperation = (
+    plan: PricingPlan,
+    operation: PricingOperation,
+  ) => {
+    setOperationDraft({
+      planId: plan.id,
+      operation,
+      reason: "",
+      confirmed: false,
+    });
+  };
+
+  const updateOperationDraft = (
+    updates: Partial<Omit<PricingOperationDraft, "planId">>,
+  ) => {
+    setOperationDraft((current) =>
+      current ? { ...current, ...updates } : current,
+    );
+  };
+
+  const savePlan = async (plan: PricingPlan, reason: string) => {
     const form = forms[plan.id];
     if (!form) return;
-
-    const reason = window.prompt(
-      `Reason for changing ${plan.name} ${plan.resolution} pricing:`,
-    )?.trim();
-    if (!reason) return;
 
     setSavingPlanId(plan.id);
     setNotice({ type: "info", message: "Saving pricing plan..." });
@@ -190,16 +216,12 @@ export default function PricingPage() {
       current.map((item) => (item.id === plan.id ? data.plan : item)),
     );
     setForms((current) => ({ ...current, [plan.id]: toForm(data.plan) }));
+    setOperationDraft(null);
     setNotice({ type: "success", message: `${plan.name} pricing saved.` });
     setSavingPlanId(null);
   };
 
-  const syncStripe = async (plan: PricingPlan) => {
-    const reason = window.prompt(
-      `Reason for syncing ${plan.name} ${plan.resolution} prices to Stripe:`,
-    )?.trim();
-    if (!reason) return;
-
+  const syncStripe = async (plan: PricingPlan, reason: string) => {
     setSyncingPlanId(plan.id);
     setNotice({ type: "info", message: "Syncing Stripe prices..." });
 
@@ -223,11 +245,40 @@ export default function PricingPage() {
       current.map((item) => (item.id === plan.id ? data.plan : item)),
     );
     setForms((current) => ({ ...current, [plan.id]: toForm(data.plan) }));
+    setOperationDraft(null);
     setNotice({
       type: "success",
       message: `${plan.name} Stripe prices synced.`,
     });
     setSyncingPlanId(null);
+  };
+
+  const submitPricingOperation = async (plan: PricingPlan) => {
+    if (!operationDraft || operationDraft.planId !== plan.id) return;
+    const reason = operationDraft.reason.trim();
+
+    if (!reason) {
+      setNotice({
+        type: "error",
+        message: "Add a reason before saving this pricing operation.",
+      });
+      return;
+    }
+
+    if (!operationDraft.confirmed) {
+      setNotice({
+        type: "error",
+        message: "Confirm the pricing operation before continuing.",
+      });
+      return;
+    }
+
+    if (operationDraft.operation === "save") {
+      await savePlan(plan, reason);
+      return;
+    }
+
+    await syncStripe(plan, reason);
   };
 
   return (
@@ -400,19 +451,184 @@ export default function PricingPage() {
                     type="button"
                     className="admin-button-primary"
                     disabled={saving || syncing}
-                    onClick={() => savePlan(plan)}
+                    onClick={() => openPricingOperation(plan, "save")}
                   >
-                    {saving ? "Saving..." : "Save prices"}
+                    Edit pricing flow
                   </button>
                   <button
                     type="button"
                     className="admin-button-secondary"
                     disabled={saving || syncing}
-                    onClick={() => syncStripe(plan)}
+                    onClick={() => openPricingOperation(plan, "sync")}
                   >
-                    {syncing ? "Syncing..." : "Sync Stripe"}
+                    Stripe sync flow
                   </button>
                 </div>
+
+                {operationDraft?.planId === plan.id && (
+                  <div className="admin-operation-panel admin-pricing-operation-panel">
+                    <div className="admin-operation-header">
+                      <div>
+                        <p className="admin-operation-kicker">
+                          Pricing operation flow
+                        </p>
+                        <h3>
+                          {operationDraft.operation === "save"
+                            ? "Save Screenia pricing"
+                            : "Sync prices to Stripe"}
+                        </h3>
+                        <p>
+                          Review the plan values, add an audit reason, then
+                          confirm before changing billing configuration.
+                        </p>
+                      </div>
+                      <div className="admin-operation-summary">
+                        <span>Plan</span>
+                        <strong>
+                          {plan.name} {plan.resolution}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="admin-pricing-operation-choice">
+                      <button
+                        type="button"
+                        className={`admin-operation-card ${
+                          operationDraft.operation === "save"
+                            ? "is-selected"
+                            : ""
+                        }`}
+                        disabled={saving || syncing}
+                        onClick={() =>
+                          updateOperationDraft({
+                            operation: "save",
+                            reason: "",
+                            confirmed: false,
+                          })
+                        }
+                      >
+                        <span>
+                          <strong>Save pricing</strong>
+                          <small>
+                            Updates Screenia plan values used for quotes and
+                            checkout preparation.
+                          </small>
+                        </span>
+                        <em>
+                          {operationDraft.operation === "save"
+                            ? "Open"
+                            : "Choose"}
+                        </em>
+                      </button>
+                      <button
+                        type="button"
+                        className={`admin-operation-card admin-operation-warning ${
+                          operationDraft.operation === "sync"
+                            ? "is-selected"
+                            : ""
+                        }`}
+                        disabled={saving || syncing}
+                        onClick={() =>
+                          updateOperationDraft({
+                            operation: "sync",
+                            reason: "",
+                            confirmed: false,
+                          })
+                        }
+                      >
+                        <span>
+                          <strong>Sync Stripe</strong>
+                          <small>
+                            Creates or updates Stripe price references for this
+                            plan after reviewing values.
+                          </small>
+                        </span>
+                        <em>
+                          {operationDraft.operation === "sync"
+                            ? "Open"
+                            : "Choose"}
+                        </em>
+                      </button>
+                    </div>
+
+                    <div className="admin-operation-flow">
+                      <div className="admin-operation-flow-header">
+                        <p className="admin-operation-kicker">
+                          Audit checkpoint
+                        </p>
+                        <h4>
+                          {operationDraft.operation === "save"
+                            ? "Save the edited values"
+                            : "Sync the current plan with Stripe"}
+                        </h4>
+                        <p>
+                          Current initial payment is{" "}
+                          {formatSek(firstPaymentByPlan[plan.id])}; monthly is{" "}
+                          {formatSek(parseInteger(form.monthlyFeeSek))}.
+                        </p>
+                      </div>
+
+                      <label className="admin-operation-reason">
+                        Reason for audit log
+                        <textarea
+                          value={operationDraft.reason}
+                          disabled={saving || syncing}
+                          onChange={(event) =>
+                            updateOperationDraft({
+                              reason: event.target.value,
+                              confirmed: false,
+                            })
+                          }
+                          placeholder={
+                            operationDraft.operation === "save"
+                              ? "Example: Launch pricing approved for Screenia pilot customers."
+                              : "Example: Stripe prices need to match the approved Screenia pricing values."
+                          }
+                        />
+                      </label>
+
+                      <label className="admin-operation-confirm">
+                        <input
+                          type="checkbox"
+                          checked={operationDraft.confirmed}
+                          disabled={saving || syncing}
+                          onChange={(event) =>
+                            updateOperationDraft({
+                              confirmed: event.target.checked,
+                            })
+                          }
+                        />
+                        <span>
+                          I checked the plan values and want to save this
+                          audited pricing operation.
+                        </span>
+                      </label>
+
+                      <div className="admin-operation-actions">
+                        <button
+                          type="button"
+                          className="admin-button-primary"
+                          disabled={saving || syncing}
+                          onClick={() => submitPricingOperation(plan)}
+                        >
+                          {saving || syncing
+                            ? "Working..."
+                            : operationDraft.operation === "save"
+                              ? "Save pricing"
+                              : "Sync Stripe"}
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={saving || syncing}
+                          onClick={() => setOperationDraft(null)}
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </section>
             );
           })}

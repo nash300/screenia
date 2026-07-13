@@ -45,6 +45,7 @@ function NewDevicePageContent() {
   const [warrantyPeriod, setWarrantyPeriod] = useState("");
   const [supplier, setSupplier] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
+  const [reason, setReason] = useState("");
 
   const [saving, setSaving] = useState(false);
 
@@ -74,9 +75,11 @@ function NewDevicePageContent() {
       return;
     }
 
-    const reason = prompt("Reason for creating this display device:")?.trim();
-
-    if (!reason) return;
+    const trimmedReason = reason.trim();
+    if (!trimmedReason) {
+      showAdminNotification("warning", "Add a reason before creating this display device.");
+      return;
+    }
 
     setSaving(true);
 
@@ -95,7 +98,7 @@ function NewDevicePageContent() {
         warranty_period_months: warrantyPeriod,
         supplier,
         internal_notes: internalNotes,
-        reason,
+        reason: trimmedReason,
       }),
     });
     const result = await response.json().catch(() => ({}));
@@ -235,9 +238,24 @@ function NewDevicePageContent() {
           />
         </div>
 
+        <div className="mt-4">
+          <label htmlFor="device-create-reason" className="text-sm font-semibold text-slate-700">
+            Creation reason *
+          </label>
+          <textarea
+            id="device-create-reason"
+            name="createReason"
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Example: Paid customer needs a registered display device for installation."
+            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+            rows={3}
+          />
+        </div>
+
         <button
           onClick={createDevice}
-          disabled={saving}
+          disabled={saving || !reason.trim()}
           className="admin-button-primary mt-6 disabled:opacity-50"
         >
           {saving ? "Creating..." : "Create device"}

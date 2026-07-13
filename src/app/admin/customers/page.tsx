@@ -90,6 +90,7 @@ function CustomersContent() {
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [createReason, setCreateReason] = useState("");
   const [saving, setSaving] = useState(false);
 
   const loadCustomers = async () => {
@@ -252,9 +253,11 @@ function CustomersContent() {
       return;
     }
 
-    const reason = prompt("Reason for manually creating this customer draft:")?.trim();
-
-    if (!reason) return;
+    const reason = createReason.trim();
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before creating this customer draft.");
+      return;
+    }
 
     setSaving(true);
     const response = await fetch("/api/admin/customers", {
@@ -279,6 +282,7 @@ function CustomersContent() {
 
     setName("");
     setEmail("");
+    setCreateReason("");
     showAdminNotification("success", "Customer draft created successfully.");
     await loadCustomers();
     setSaving(false);
@@ -395,9 +399,19 @@ function CustomersContent() {
               />
             </label>
           </div>
+          <label className="mt-4 block text-sm font-semibold text-slate-700">
+            Creation reason *
+            <textarea
+              value={createReason}
+              onChange={(event) => setCreateReason(event.target.value)}
+              placeholder="Example: Customer called and asked for a manual quote draft."
+              rows={3}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+            />
+          </label>
           <button
             onClick={createCustomer}
-            disabled={saving}
+            disabled={saving || !createReason.trim()}
             className="admin-button-primary mt-4 disabled:opacity-50"
           >
             {saving ? "Creating..." : "Create customer draft"}

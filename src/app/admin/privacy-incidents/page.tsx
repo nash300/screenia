@@ -59,6 +59,9 @@ export default function AdminPrivacyIncidentsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: string; reason: string; containmentNotes: string }>
+  >({});
   const openCount = useMemo(
     () => incidents.filter((incident) => incident.status !== "resolved").length,
     [incidents],
@@ -111,14 +114,18 @@ export default function AdminPrivacyIncidentsPage() {
   };
 
   const updateIncidentStatus = async (incident: PrivacyIncident, status: string) => {
-    const reason = prompt(`Reason for moving incident to ${status}:`)?.trim();
-    if (!reason) return;
+    const draft = actionDrafts[incident.id];
+    const reason = draft?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
 
     const payload = {
       ...incidentToForm(incident, status),
       containment_notes:
         status === "contained" && !incident.containment_notes
-          ? prompt("Containment notes:")?.trim() || ""
+          ? draft?.containmentNotes.trim() || ""
           : incident.containment_notes || "",
       reason,
     };
@@ -134,6 +141,11 @@ export default function AdminPrivacyIncidentsPage() {
     if (!response.ok) {
       showAdminNotification("error", result.error || "Could not update incident.");
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[incident.id];
+        return next;
+      });
       await loadIncidents();
       showAdminNotification("success", "Incident updated.");
     }
@@ -290,7 +302,15 @@ export default function AdminPrivacyIncidentsPage() {
                           className="admin-button-secondary"
                           disabled={updatingId === incident.id}
                           onClick={() =>
-                            updateIncidentStatus(incident, "investigating")
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [incident.id]: {
+                                status: "investigating",
+                                reason: current[incident.id]?.reason || "",
+                                containmentNotes:
+                                  current[incident.id]?.containmentNotes || "",
+                              },
+                            }))
                           }
                         >
                           Investigating
@@ -303,7 +323,17 @@ export default function AdminPrivacyIncidentsPage() {
                             className="admin-button-secondary"
                             disabled={updatingId === incident.id}
                             onClick={() =>
-                              updateIncidentStatus(incident, "contained")
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [incident.id]: {
+                                  status: "contained",
+                                  reason: current[incident.id]?.reason || "",
+                                  containmentNotes:
+                                    current[incident.id]?.containmentNotes ||
+                                    incident.containment_notes ||
+                                    "",
+                                },
+                              }))
                             }
                           >
                             Contained
@@ -315,13 +345,89 @@ export default function AdminPrivacyIncidentsPage() {
                           className="admin-button-secondary"
                           disabled={updatingId === incident.id}
                           onClick={() =>
-                            updateIncidentStatus(incident, "resolved")
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [incident.id]: {
+                                status: "resolved",
+                                reason: current[incident.id]?.reason || "",
+                                containmentNotes:
+                                  current[incident.id]?.containmentNotes || "",
+                              },
+                            }))
                           }
                         >
                           Resolved
                         </button>
                       )}
                     </div>
+                    {actionDrafts[incident.id] && (
+                      <div className="admin-inline-flow">
+                        {actionDrafts[incident.id].status === "contained" &&
+                          !incident.containment_notes && (
+                            <label>
+                              <span>Containment notes</span>
+                              <textarea
+                                value={actionDrafts[incident.id].containmentNotes}
+                                onChange={(event) =>
+                                  setActionDrafts((current) => ({
+                                    ...current,
+                                    [incident.id]: {
+                                      ...current[incident.id],
+                                      containmentNotes: event.target.value,
+                                    },
+                                  }))
+                                }
+                                rows={2}
+                              />
+                            </label>
+                          )}
+                        <label>
+                          <span>Reason for {actionDrafts[incident.id].status}</span>
+                          <textarea
+                            value={actionDrafts[incident.id].reason}
+                            onChange={(event) =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [incident.id]: {
+                                  ...current[incident.id],
+                                  reason: event.target.value,
+                                },
+                              }))
+                            }
+                            rows={2}
+                          />
+                        </label>
+                        <div className="admin-inline-flow-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={updatingId === incident.id}
+                            onClick={() =>
+                              updateIncidentStatus(
+                                incident,
+                                actionDrafts[incident.id].status,
+                              )
+                            }
+                          >
+                            {updatingId === incident.id ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={updatingId === incident.id}
+                            onClick={() =>
+                              setActionDrafts((current) => {
+                                const next = { ...current };
+                                delete next[incident.id];
+                                return next;
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

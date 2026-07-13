@@ -38,6 +38,9 @@ export default function AdminDataSubjectRequestsPage() {
   const [requests, setRequests] = useState<DataSubjectRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: string; reason: string; adminNotes: string }>
+  >({});
   const openCount = useMemo(
     () => requests.filter((item) => !["completed", "rejected"].includes(item.status)).length,
     [requests],
@@ -68,9 +71,13 @@ export default function AdminDataSubjectRequestsPage() {
   }, []);
 
   const updateRequest = async (request: DataSubjectRequest, status: string) => {
-    const reason = prompt(`Reason for moving request to ${status}:`)?.trim();
-    if (!reason) return;
-    const adminNotes = prompt("Internal notes:", request.admin_notes || "")?.trim() || "";
+    const draft = actionDrafts[request.id];
+    const reason = draft?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
+    const adminNotes = draft?.adminNotes.trim() || "";
     if (
       ["completed", "rejected"].includes(status) &&
       adminNotes.length < 10
@@ -93,6 +100,11 @@ export default function AdminDataSubjectRequestsPage() {
     if (!response.ok) {
       showAdminNotification("error", result.error || "Could not update request.");
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[request.id];
+        return next;
+      });
       await loadRequests();
       showAdminNotification("success", "Request updated.");
     }
@@ -176,7 +188,19 @@ export default function AdminDataSubjectRequestsPage() {
                             type="button"
                             className="admin-button-secondary"
                             disabled={updatingId === request.id}
-                            onClick={() => updateRequest(request, "in_progress")}
+                            onClick={() =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [request.id]: {
+                                  status: "in_progress",
+                                  reason: current[request.id]?.reason || "",
+                                  adminNotes:
+                                    current[request.id]?.adminNotes ||
+                                    request.admin_notes ||
+                                    "",
+                                },
+                              }))
+                            }
                           >
                             Start
                           </button>
@@ -187,7 +211,19 @@ export default function AdminDataSubjectRequestsPage() {
                               type="button"
                               className="admin-button-secondary"
                               disabled={updatingId === request.id}
-                              onClick={() => updateRequest(request, "waiting_for_customer")}
+                              onClick={() =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [request.id]: {
+                                    status: "waiting_for_customer",
+                                    reason: current[request.id]?.reason || "",
+                                    adminNotes:
+                                      current[request.id]?.adminNotes ||
+                                      request.admin_notes ||
+                                      "",
+                                  },
+                                }))
+                              }
                             >
                               Waiting
                             </button>
@@ -195,7 +231,19 @@ export default function AdminDataSubjectRequestsPage() {
                               type="button"
                               className="admin-button-secondary"
                               disabled={updatingId === request.id}
-                              onClick={() => updateRequest(request, "completed")}
+                              onClick={() =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [request.id]: {
+                                    status: "completed",
+                                    reason: current[request.id]?.reason || "",
+                                    adminNotes:
+                                      current[request.id]?.adminNotes ||
+                                      request.admin_notes ||
+                                      "",
+                                  },
+                                }))
+                              }
                             >
                               Complete
                             </button>
@@ -203,13 +251,90 @@ export default function AdminDataSubjectRequestsPage() {
                               type="button"
                               className="admin-button-secondary"
                               disabled={updatingId === request.id}
-                              onClick={() => updateRequest(request, "rejected")}
+                              onClick={() =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [request.id]: {
+                                    status: "rejected",
+                                    reason: current[request.id]?.reason || "",
+                                    adminNotes:
+                                      current[request.id]?.adminNotes ||
+                                      request.admin_notes ||
+                                      "",
+                                  },
+                                }))
+                              }
                             >
                               Reject
                             </button>
                           </>
                         )}
                       </div>
+                      {actionDrafts[request.id] && (
+                        <div className="admin-inline-flow">
+                          <label>
+                            <span>Internal notes</span>
+                            <textarea
+                              value={actionDrafts[request.id].adminNotes}
+                              onChange={(event) =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [request.id]: {
+                                    ...current[request.id],
+                                    adminNotes: event.target.value,
+                                  },
+                                }))
+                              }
+                              rows={2}
+                            />
+                          </label>
+                          <label>
+                            <span>Reason for {actionDrafts[request.id].status}</span>
+                            <textarea
+                              value={actionDrafts[request.id].reason}
+                              onChange={(event) =>
+                                setActionDrafts((current) => ({
+                                  ...current,
+                                  [request.id]: {
+                                    ...current[request.id],
+                                    reason: event.target.value,
+                                  },
+                                }))
+                              }
+                              rows={2}
+                            />
+                          </label>
+                          <div className="admin-inline-flow-actions">
+                            <button
+                              type="button"
+                              className="admin-button-primary"
+                              disabled={updatingId === request.id}
+                              onClick={() =>
+                                updateRequest(
+                                  request,
+                                  actionDrafts[request.id].status,
+                                )
+                              }
+                            >
+                              {updatingId === request.id ? "Saving..." : "Save"}
+                            </button>
+                            <button
+                              type="button"
+                              className="admin-button-secondary"
+                              disabled={updatingId === request.id}
+                              onClick={() =>
+                                setActionDrafts((current) => {
+                                  const next = { ...current };
+                                  delete next[request.id];
+                                  return next;
+                                })
+                              }
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 );

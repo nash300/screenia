@@ -1481,6 +1481,8 @@ export async function POST(request: Request) {
           .update({
             status: "active",
             payment_status: "paid",
+            service_access_status: syncedEntitlement.serviceAccessStatus,
+            service_access_until: syncedEntitlement.serviceAccessUntil,
             inactive_reason: null,
             cancellation_source: null,
           })

@@ -49,6 +49,9 @@ export default function AdminBackupDrillsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [actionDrafts, setActionDrafts] = useState<
+    Record<string, { status: string; reason: string }>
+  >({});
   const attentionCount = useMemo(
     () =>
       drills.filter(
@@ -111,8 +114,11 @@ export default function AdminBackupDrillsPage() {
   };
 
   const updateDrill = async (drill: BackupDrill, status: string) => {
-    const reason = prompt(`Reason for marking ${drill.provider} as ${status}:`)?.trim();
-    if (!reason) return;
+    const reason = actionDrafts[drill.id]?.reason.trim() || "";
+    if (reason.length < 5) {
+      showAdminNotification("error", "Add a reason of at least 5 characters.");
+      return;
+    }
 
     const now = new Date().toISOString();
     const payload = {
@@ -142,6 +148,11 @@ export default function AdminBackupDrillsPage() {
         result.error || "Could not update backup drill.",
       );
     } else {
+      setActionDrafts((current) => {
+        const next = { ...current };
+        delete next[drill.id];
+        return next;
+      });
       await loadDrills();
       showAdminNotification("success", "Backup drill updated.");
     }
@@ -305,7 +316,15 @@ export default function AdminBackupDrillsPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === drill.id}
-                        onClick={() => updateDrill(drill, "backup_verified")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [drill.id]: {
+                              status: "backup_verified",
+                              reason: current[drill.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Backup verified
                       </button>
@@ -313,7 +332,15 @@ export default function AdminBackupDrillsPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === drill.id}
-                        onClick={() => updateDrill(drill, "restore_tested")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [drill.id]: {
+                              status: "restore_tested",
+                              reason: current[drill.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Restore tested
                       </button>
@@ -321,11 +348,65 @@ export default function AdminBackupDrillsPage() {
                         type="button"
                         className="admin-button-secondary"
                         disabled={updatingId === drill.id}
-                        onClick={() => updateDrill(drill, "needs_attention")}
+                        onClick={() =>
+                          setActionDrafts((current) => ({
+                            ...current,
+                            [drill.id]: {
+                              status: "needs_attention",
+                              reason: current[drill.id]?.reason || "",
+                            },
+                          }))
+                        }
                       >
                         Needs attention
                       </button>
                     </div>
+                    {actionDrafts[drill.id] && (
+                      <div className="admin-inline-flow">
+                        <label>
+                          <span>Reason for {actionDrafts[drill.id].status}</span>
+                          <textarea
+                            value={actionDrafts[drill.id].reason}
+                            onChange={(event) =>
+                              setActionDrafts((current) => ({
+                                ...current,
+                                [drill.id]: {
+                                  ...current[drill.id],
+                                  reason: event.target.value,
+                                },
+                              }))
+                            }
+                            rows={2}
+                          />
+                        </label>
+                        <div className="admin-inline-flow-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={updatingId === drill.id}
+                            onClick={() =>
+                              updateDrill(drill, actionDrafts[drill.id].status)
+                            }
+                          >
+                            {updatingId === drill.id ? "Saving..." : "Save"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={updatingId === drill.id}
+                            onClick={() =>
+                              setActionDrafts((current) => {
+                                const next = { ...current };
+                                delete next[drill.id];
+                                return next;
+                              })
+                            }
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

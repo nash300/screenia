@@ -6,9 +6,22 @@ import { useEffect } from "react";
 const titles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/customers": "Customers",
+  "/admin/compliance": "Compliance",
   "/admin/inventory": "Inventory",
   "/admin/devices": "Devices",
   "/admin/devices/new": "Add Device",
+  "/admin/orders": "Orders",
+  "/admin/pricing": "Pricing",
+  "/admin/email-events": "Email Events",
+  "/admin/launch-readiness": "Readiness",
+  "/admin/tax-payments": "Tax Payments",
+  "/admin/legal-change-notices": "Legal Notices",
+  "/admin/access-reviews": "Admin Access",
+  "/admin/backup-drills": "Backup Drills",
+  "/admin/data-retention": "Data Retention",
+  "/admin/processor-reviews": "Processors",
+  "/admin/data-subject-requests": "Privacy Requests",
+  "/admin/privacy-incidents": "Incident Register",
 };
 
 const sectionTitles: Record<string, string> = {

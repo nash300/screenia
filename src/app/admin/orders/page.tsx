@@ -124,6 +124,23 @@ const inventoryStatuses = [
 ];
 
 type OrderSection = "all" | "pipeline" | "payment" | "shipping" | "cancelled";
+type OrderOperationId =
+  | "status"
+  | "fulfillment_status"
+  | "inventory_status"
+  | "tracking";
+
+type OrderOperationDraft = {
+  orderId: string;
+  operation: OrderOperationId;
+  status: string;
+  fulfillment_status: string;
+  inventory_status: string;
+  tracking_number: string;
+  tracking_url: string;
+  reason: string;
+  confirmed: boolean;
+};
 
 const orderSections: Array<{ id: OrderSection; label: string; description: string }> = [
   { id: "all", label: "All orders", description: "Everything in one list" },
@@ -131,6 +148,36 @@ const orderSections: Array<{ id: OrderSection; label: string; description: strin
   { id: "payment", label: "Payment", description: "Checkout and failed payments" },
   { id: "shipping", label: "Shipping", description: "Ready to ship, shipped, and tracking" },
   { id: "cancelled", label: "Cancelled", description: "Cancelled orders" },
+];
+
+const orderOperations: Array<{
+  id: OrderOperationId;
+  label: string;
+  description: string;
+  tone?: "warning" | "danger" | "success";
+}> = [
+  {
+    id: "status",
+    label: "Order status",
+    description: "Move the commercial order state after payment or customer events.",
+  },
+  {
+    id: "fulfillment_status",
+    label: "Fulfillment",
+    description: "Track production, shipping readiness, completion, or cancellation.",
+    tone: "success",
+  },
+  {
+    id: "inventory_status",
+    label: "Inventory",
+    description: "Reserve, assign, ship, or return the physical screen hardware.",
+    tone: "warning",
+  },
+  {
+    id: "tracking",
+    label: "Shipment tracking",
+    description: "Save carrier tracking details and mark the order shipped when appropriate.",
+  },
 ];
 
 export default function AdminOrdersPage() {
@@ -156,6 +203,8 @@ function AdminOrdersContent() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [savingId, setSavingId] = useState("");
   const [activeSection, setActiveSection] = useState<OrderSection>("all");
+  const [operationDraft, setOperationDraft] =
+    useState<OrderOperationDraft | null>(null);
   const [trackingDrafts, setTrackingDrafts] = useState<
     Record<string, { tracking_number: string; tracking_url: string }>
   >({});
@@ -310,27 +359,94 @@ function AdminOrdersContent() {
     router.push(`/admin/orders${nextParams.toString() ? `?${nextParams.toString()}` : ""}`);
   };
 
-  const updateOrder = async (
-    orderId: string,
-    field:
-      | "status"
-      | "fulfillment_status"
-      | "inventory_status"
-      | "tracking_number"
-      | "tracking_url",
-    value: string,
+  const openOrderOperation = (
+    order: OrderRow,
+    operation: OrderOperationId,
   ) => {
-    const reason = prompt(
-      `Reason for updating ${field.replace(/_/g, " ")} to "${value.replace(/_/g, " ")}":`,
-    )?.trim();
+    const trackingDraft = trackingDrafts[order.id] || {
+      tracking_number: order.tracking_number || "",
+      tracking_url: order.tracking_url || "",
+    };
 
-    if (!reason) return;
+    setOperationDraft({
+      orderId: order.id,
+      operation,
+      status: order.status,
+      fulfillment_status: order.fulfillment_status || "pending",
+      inventory_status: order.inventory_status || "not_reserved",
+      tracking_number: trackingDraft.tracking_number,
+      tracking_url: trackingDraft.tracking_url,
+      reason: "",
+      confirmed: false,
+    });
+  };
 
-    setSavingId(orderId);
-    const response = await fetch(`/api/admin/orders/${orderId}`, {
+  const updateOperationDraft = (
+    updates: Partial<Omit<OrderOperationDraft, "orderId">>,
+  ) => {
+    setOperationDraft((current) =>
+      current ? { ...current, ...updates } : current,
+    );
+  };
+
+  const submitOrderOperation = async () => {
+    if (!operationDraft) return;
+
+    const order = orders.find((item) => item.id === operationDraft.orderId);
+    if (!order) return;
+
+    const reason = operationDraft.reason.trim();
+    if (!reason) {
+      showAdminNotification("error", "Add a reason before saving the order update.");
+      return;
+    }
+
+    if (!operationDraft.confirmed) {
+      showAdminNotification("error", "Confirm the order operation before saving.");
+      return;
+    }
+
+    const payload: {
+      status?: string;
+      fulfillment_status?: string;
+      inventory_status?: string;
+      tracking_number?: string | null;
+      tracking_url?: string | null;
+      reason: string;
+    } = { reason };
+
+    if (operationDraft.operation === "status") {
+      payload.status = operationDraft.status;
+    }
+
+    if (operationDraft.operation === "fulfillment_status") {
+      payload.fulfillment_status = operationDraft.fulfillment_status;
+    }
+
+    if (operationDraft.operation === "inventory_status") {
+      payload.inventory_status = operationDraft.inventory_status;
+    }
+
+    if (operationDraft.operation === "tracking") {
+      const trackingNumber = operationDraft.tracking_number.trim();
+      const trackingUrl = operationDraft.tracking_url.trim();
+      const hasTracking = Boolean(trackingNumber || trackingUrl);
+      payload.tracking_number = trackingNumber || null;
+      payload.tracking_url = trackingUrl || null;
+
+      if (
+        hasTracking &&
+        !["completed", "cancelled"].includes(order.fulfillment_status || "")
+      ) {
+        payload.fulfillment_status = "shipped";
+      }
+    }
+
+    setSavingId(order.id);
+    const response = await fetch(`/api/admin/orders/${order.id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [field]: value, reason }),
+      body: JSON.stringify(payload),
     });
     const result = await response.json().catch(() => ({}));
 
@@ -342,69 +458,37 @@ function AdminOrdersContent() {
     } else {
       setOrders((current) =>
         current.map((order) =>
-          order.id === orderId ? { ...order, [field]: value } : order,
-        ),
-      );
-      showAdminNotification("success", "Order updated.");
-    }
-
-    setSavingId("");
-  };
-
-  const saveTracking = async (orderId: string) => {
-    const order = orders.find((item) => item.id === orderId);
-    const draft = trackingDrafts[orderId] || {
-      tracking_number: "",
-      tracking_url: "",
-    };
-    const reason = prompt("Reason for saving or changing shipment tracking:")?.trim();
-
-    if (!reason) return;
-
-    const hasTracking = Boolean(
-      draft.tracking_number.trim() || draft.tracking_url.trim(),
-    );
-    const shouldMarkShipped =
-      hasTracking &&
-      !["completed", "cancelled"].includes(order?.fulfillment_status || "");
-    const updatePayload: {
-      tracking_number: string | null;
-      tracking_url: string | null;
-      fulfillment_status?: string;
-    } = {
-      tracking_number: draft.tracking_number.trim() || null,
-      tracking_url: draft.tracking_url.trim() || null,
-    };
-    if (shouldMarkShipped) updatePayload.fulfillment_status = "shipped";
-
-    setSavingId(orderId);
-    const response = await fetch(`/api/admin/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...updatePayload, reason }),
-    });
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      showAdminNotification(
-        "error",
-        result.error || "Could not save tracking.",
-      );
-    } else {
-      setOrders((current) =>
-        current.map((order) =>
-          order.id === orderId
+          order.id === operationDraft.orderId
             ? {
                 ...order,
-                tracking_number: draft.tracking_number.trim() || null,
-                tracking_url: draft.tracking_url.trim() || null,
+                status: payload.status ?? order.status,
                 fulfillment_status:
-                  shouldMarkShipped ? "shipped" : order.fulfillment_status,
+                  payload.fulfillment_status ?? order.fulfillment_status,
+                inventory_status:
+                  payload.inventory_status ?? order.inventory_status,
+                tracking_number:
+                  "tracking_number" in payload
+                    ? payload.tracking_number ?? null
+                    : order.tracking_number,
+                tracking_url:
+                  "tracking_url" in payload
+                    ? payload.tracking_url ?? null
+                    : order.tracking_url,
               }
             : order,
         ),
       );
-      showAdminNotification("success", "Tracking saved.");
+      if (operationDraft.operation === "tracking") {
+        setTrackingDrafts((current) => ({
+          ...current,
+          [operationDraft.orderId]: {
+            tracking_number: operationDraft.tracking_number.trim(),
+            tracking_url: operationDraft.tracking_url.trim(),
+          },
+        }));
+      }
+      setOperationDraft(null);
+      showAdminNotification("success", "Order operation saved.");
     }
 
     setSavingId("");
@@ -509,81 +593,260 @@ function AdminOrdersContent() {
                   )}
                 </div>
 
-                <div className="admin-order-grid">
-                  <OrderSelect
-                    label="Order status"
-                    value={order.status}
-                    options={orderStatuses}
-                    disabled={savingId === order.id}
-                    onChange={(value) => updateOrder(order.id, "status", value)}
-                  />
-                  <OrderSelect
-                    label="Fulfillment"
-                    value={order.fulfillment_status || "pending"}
-                    options={fulfillmentStatuses}
-                    disabled={savingId === order.id}
-                    onChange={(value) =>
-                      updateOrder(order.id, "fulfillment_status", value)
-                    }
-                  />
-                  <OrderSelect
-                    label="Inventory"
-                    value={order.inventory_status || "not_reserved"}
-                    options={inventoryStatuses}
-                    disabled={savingId === order.id}
-                    onChange={(value) =>
-                      updateOrder(order.id, "inventory_status", value)
-                    }
-                  />
-                </div>
-
-                <div className="admin-order-grid">
-                  <label>
-                    <span>Tracking number</span>
-                    <input
-                      value={trackingDrafts[order.id]?.tracking_number || ""}
-                      disabled={savingId === order.id}
-                      onChange={(event) =>
-                        setTrackingDrafts((current) => ({
-                          ...current,
-                          [order.id]: {
-                            tracking_number: event.target.value,
-                            tracking_url: current[order.id]?.tracking_url || "",
-                          },
-                        }))
-                      }
-                      placeholder="Carrier tracking number"
-                    />
-                  </label>
-                  <label>
-                    <span>Tracking URL</span>
-                    <input
-                      value={trackingDrafts[order.id]?.tracking_url || ""}
-                      disabled={savingId === order.id}
-                      onChange={(event) =>
-                        setTrackingDrafts((current) => ({
-                          ...current,
-                          [order.id]: {
-                            tracking_number:
-                              current[order.id]?.tracking_number || "",
-                            tracking_url: event.target.value,
-                          },
-                        }))
-                      }
-                      placeholder="https://..."
-                    />
-                  </label>
-                  <div className="admin-order-tracking-action">
-                    <button
-                      type="button"
-                      disabled={savingId === order.id}
-                      onClick={() => saveTracking(order.id)}
-                      className="admin-button-primary"
-                    >
-                      {savingId === order.id ? "Saving..." : "Save tracking"}
-                    </button>
+                <div className="admin-order-state-grid">
+                  <div>
+                    <span>Order status</span>
+                    <strong>{formatStatusLabel(order.status)}</strong>
+                  </div>
+                  <div>
+                    <span>Fulfillment</span>
+                    <strong>
+                      {formatStatusLabel(order.fulfillment_status || "pending")}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Inventory</span>
+                    <strong>
+                      {formatStatusLabel(order.inventory_status || "not_reserved")}
+                    </strong>
+                  </div>
+                  <div>
+                    <span>Tracking</span>
+                    <strong>
+                      {order.tracking_number || order.tracking_url || "Not saved"}
+                    </strong>
                   </div>
                 </div>
+
+                <div className="admin-order-action-row">
+                  {orderOperations.map((operation) => (
+                    <button
+                      key={operation.id}
+                      type="button"
+                      disabled={savingId === order.id}
+                      onClick={() => openOrderOperation(order, operation.id)}
+                      className={`admin-button-secondary ${
+                        operationDraft?.orderId === order.id &&
+                        operationDraft.operation === operation.id
+                          ? "is-active"
+                          : ""
+                      }`}
+                    >
+                      {operation.label}
+                    </button>
+                  ))}
+                </div>
+
+                {operationDraft?.orderId === order.id && (
+                  <div className="admin-operation-panel admin-order-operation-panel">
+                    <div className="admin-operation-grid">
+                      <div className="admin-operation-list">
+                        {orderOperations.map((operation) => (
+                          <button
+                            key={operation.id}
+                            type="button"
+                            className={`admin-operation-card ${
+                              operation.tone
+                                ? `admin-operation-${operation.tone}`
+                                : ""
+                            } ${
+                              operationDraft.operation === operation.id
+                                ? "is-selected"
+                                : ""
+                            }`}
+                            onClick={() => openOrderOperation(order, operation.id)}
+                          >
+                            <span>
+                              <strong>{operation.label}</strong>
+                              <small>{operation.description}</small>
+                            </span>
+                            <em>
+                              {operationDraft.operation === operation.id
+                                ? "Open"
+                                : "Choose"}
+                            </em>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="admin-operation-flow">
+                        <div className="admin-operation-flow-header">
+                          <p className="admin-operation-kicker">
+                            Order operation flow
+                          </p>
+                          <h4>
+                            {
+                              orderOperations.find(
+                                (operation) =>
+                                  operation.id === operationDraft.operation,
+                              )?.label
+                            }
+                          </h4>
+                          <p>
+                            Review the current order, choose the new value, add
+                            the audit reason, then confirm the change.
+                          </p>
+                        </div>
+
+                        {operationDraft.operation === "status" && (
+                          <div className="admin-operation-fields admin-order-single-field">
+                            <label>
+                              Order status
+                              <select
+                                value={operationDraft.status}
+                                disabled={savingId === order.id}
+                                onChange={(event) =>
+                                  updateOperationDraft({
+                                    status: event.target.value,
+                                    confirmed: false,
+                                  })
+                                }
+                              >
+                                {orderStatuses.map((option) => (
+                                  <option key={option} value={option}>
+                                    {formatStatusLabel(option)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                        )}
+
+                        {operationDraft.operation === "fulfillment_status" && (
+                          <div className="admin-operation-fields admin-order-single-field">
+                            <label>
+                              Fulfillment status
+                              <select
+                                value={operationDraft.fulfillment_status}
+                                disabled={savingId === order.id}
+                                onChange={(event) =>
+                                  updateOperationDraft({
+                                    fulfillment_status: event.target.value,
+                                    confirmed: false,
+                                  })
+                                }
+                              >
+                                {fulfillmentStatuses.map((option) => (
+                                  <option key={option} value={option}>
+                                    {formatStatusLabel(option)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                        )}
+
+                        {operationDraft.operation === "inventory_status" && (
+                          <div className="admin-operation-fields admin-order-single-field">
+                            <label>
+                              Inventory status
+                              <select
+                                value={operationDraft.inventory_status}
+                                disabled={savingId === order.id}
+                                onChange={(event) =>
+                                  updateOperationDraft({
+                                    inventory_status: event.target.value,
+                                    confirmed: false,
+                                  })
+                                }
+                              >
+                                {inventoryStatuses.map((option) => (
+                                  <option key={option} value={option}>
+                                    {formatStatusLabel(option)}
+                                  </option>
+                                ))}
+                              </select>
+                            </label>
+                          </div>
+                        )}
+
+                        {operationDraft.operation === "tracking" && (
+                          <div className="admin-operation-fields">
+                            <label>
+                              Tracking number
+                              <input
+                                value={operationDraft.tracking_number}
+                                disabled={savingId === order.id}
+                                onChange={(event) =>
+                                  updateOperationDraft({
+                                    tracking_number: event.target.value,
+                                    confirmed: false,
+                                  })
+                                }
+                                placeholder="Carrier tracking number"
+                              />
+                            </label>
+                            <label>
+                              Tracking URL
+                              <input
+                                value={operationDraft.tracking_url}
+                                disabled={savingId === order.id}
+                                onChange={(event) =>
+                                  updateOperationDraft({
+                                    tracking_url: event.target.value,
+                                    confirmed: false,
+                                  })
+                                }
+                                placeholder="https://..."
+                              />
+                            </label>
+                          </div>
+                        )}
+
+                        <label className="admin-operation-reason">
+                          Reason for audit log
+                          <textarea
+                            value={operationDraft.reason}
+                            disabled={savingId === order.id}
+                            onChange={(event) =>
+                              updateOperationDraft({
+                                reason: event.target.value,
+                                confirmed: false,
+                              })
+                            }
+                            placeholder="Example: Customer confirmed delivery address and screen is ready to ship."
+                          />
+                        </label>
+
+                        <label className="admin-operation-confirm">
+                          <input
+                            type="checkbox"
+                            checked={operationDraft.confirmed}
+                            disabled={savingId === order.id}
+                            onChange={(event) =>
+                              updateOperationDraft({
+                                confirmed: event.target.checked,
+                              })
+                            }
+                          />
+                          <span>
+                            I checked this order and want to save this audited
+                            operation.
+                          </span>
+                        </label>
+
+                        <div className="admin-operation-actions">
+                          <button
+                            type="button"
+                            className="admin-button-primary"
+                            disabled={savingId === order.id}
+                            onClick={submitOrderOperation}
+                          >
+                            {savingId === order.id ? "Saving..." : "Save operation"}
+                          </button>
+                          <button
+                            type="button"
+                            className="admin-button-secondary"
+                            disabled={savingId === order.id}
+                            onClick={() => setOperationDraft(null)}
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="admin-order-money">
                   <span>Setup {formatSek(order.setup_fee_sek)}</span>
@@ -602,37 +865,6 @@ function AdminOrdersContent() {
         )}
       </section>
     </div>
-  );
-}
-
-function OrderSelect({
-  label,
-  value,
-  options,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  disabled: boolean;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label>
-      <span>{label}</span>
-      <select
-        value={value}
-        disabled={disabled}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option.replace(/_/g, " ")}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }
 
@@ -689,4 +921,8 @@ function formatStripeSek(amount: number | null) {
     minimumFractionDigits: hasOre ? 2 : 0,
     maximumFractionDigits: 2,
   })} kr`;
+}
+
+function formatStatusLabel(value: string) {
+  return value.replace(/_/g, " ");
 }
