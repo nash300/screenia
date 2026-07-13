@@ -194,7 +194,12 @@ Current deployment status:
    - A Stripe test-mode webhook endpoint now exists for the deployed production-domain app.
    - Vercel Production `STRIPE_WEBHOOK_SECRET` was updated to the endpoint-specific signing secret and redeployed.
    - A signed synthetic webhook check to `https://screenia.se/api/stripe/webhook` returned HTTP 200 with `{"received":true}` after redeploy.
-   - Confirm Stripe Tax/VAT mode.
+   - Stripe Tax/VAT app integration is present, but business/VAT readiness is not complete:
+     - Checkout sends `automatic_tax.enabled` from `STRIPE_AUTOMATIC_TAX_ENABLED`.
+     - Checkout requires billing address and tax ID collection when automatic tax is enabled.
+     - Checkout line items use configured `tax_behavior`, defaulting to inclusive.
+     - Local setup has `STRIPE_AUTOMATIC_TAX_ENABLED=true`.
+     - Dashboard/legal confirmation is still required before live payments.
 
    Stripe setup runbook after `screenia.se` resolves to Vercel:
 
@@ -203,6 +208,7 @@ Current deployment status:
    - Completed: endpoint listens to `checkout.session.completed`, `invoice.payment_failed`, `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted`, `charge.dispute.created`, `charge.dispute.updated`, `charge.dispute.closed`, `charge.refunded`, `refund.created`, and `refund.updated`.
    - Completed: Vercel Production `STRIPE_WEBHOOK_SECRET` was updated with the endpoint-specific value, then production was redeployed.
    - Completed smoke check: a harmless signed synthetic webhook event reached the deployed route and returned `{"received":true}`.
+   - Completed code/config check: Screenia's checkout route supports Stripe Automatic Tax through `STRIPE_AUTOMATIC_TAX_ENABLED`, with billing address and tax ID collection enabled when that flag is true.
    - Re-test checkout, subscription update, invoice paid, invoice failed, cancellation, pause/resume, refund, and dispute webhooks against the deployed URL.
    - Only create live-mode webhooks and enable live payments after business registration, VAT decision, legal review, company identity, and live checkout gates are complete.
 
@@ -214,7 +220,7 @@ Current deployment status:
 - Legal review
 - Live webhook verified
 - Supabase Auth email verified
-- Stripe Tax / VAT mode
+- Stripe Tax / VAT legal/dashboard confirmation
 - Transactional email
 - Company identity
 - Legal documents
@@ -246,6 +252,18 @@ Current deployment status:
   - Visiting `https://screenia.se/admin/launch-readiness` redirects to `/admin-login` when not authenticated.
   - Direct unauthenticated request to `https://screenia.se/api/admin/launch-readiness` returns HTTP 401 with `{"error":"Unauthorized"}`.
 - This is expected and confirms the readiness surface is not publicly exposed.
+
+2026-07-13 22:13 Europe/Stockholm:
+
+- Resend public DNS recheck passed again:
+  - DKIM TXT `resend._domainkey.screenia.se` is present.
+  - MX `send.screenia.se` points to `feedback-smtp.eu-west-1.amazonses.com`.
+  - SPF TXT `send.screenia.se` is `v=spf1 include:amazonses.com ~all` from both Cloudflare and Google DNS.
+  - Apex nameservers still resolve to Vercel nameservers.
+- Stripe Tax/VAT app integration check:
+  - Checkout code reads `STRIPE_AUTOMATIC_TAX_ENABLED`.
+  - Automatic tax, billing address collection, and tax ID collection are wired into Stripe Checkout when enabled.
+  - Local setup has automatic tax enabled; live legal/VAT/business confirmation remains open.
 
 ## Admin Panel Consistency Work
 
