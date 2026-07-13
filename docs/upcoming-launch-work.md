@@ -26,8 +26,10 @@ Current deployment status:
 - GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
 - `screenia.se` was added to the Vercel project.
 - Loopia nameserver panel showed Vercel nameservers after update attempt: `ns1.vercel-dns.com` and `ns2.vercel-dns.com` (order does not matter).
-- Public DNS still showed Loopia nameservers on 2026-07-13 after the Vercel domain setup; re-check after propagation.
+- Public DNS still showed Loopia nameservers on 2026-07-13 at 20:37 Europe/Stockholm after the Vercel domain setup; re-check after propagation.
+- Loopia Kundzon direct verification currently requires logging in again before nameserver settings can be rechecked in the browser.
 - Vercel domain setup now has `screenia.se` attached to production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
+- Temporary Vercel deployment health check still passes at `https://screenia-ten.vercel.app`: home, login, and robots all returned HTTP 200.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is pending DNS verification.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
@@ -58,6 +60,7 @@ Current deployment status:
    - Buy/use Vercel Pro before real commercial production because the app is commercial.
    - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
    - Confirm `https://screenia.se` loads the production app and `https://www.screenia.se` redirects after DNS propagation.
+   - If public DNS still shows Loopia nameservers after Loopia's 24-48 hour propagation window, log back in to Loopia Kundzon and re-save nameservers or contact Loopia support.
 
 3. Resend transactional email
    - Start with Resend Free while volume is low.
