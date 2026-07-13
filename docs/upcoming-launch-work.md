@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 68%.
+Current service setup progress: about 78%.
 
 ### Service Purchase And Setup Runbook
 
@@ -39,12 +39,13 @@ Current deployment status:
   - `screenia.se` resolved to Vercel IPs.
 - Vercel domain setup now has `screenia.se` valid for production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
 - Production was redeployed after updating `NEXT_PUBLIC_APP_URL`; latest Vercel deployment id prefix shown in Vercel was `7wHaL5ZE7`.
+- Production was redeployed again after updating the Stripe deployed webhook secret; the redeploy of `7wHaL5ZE7` reached Ready.
 - Real-domain smoke checks passed after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending, but DNS records are now publicly present.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 21:48 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
@@ -138,29 +139,37 @@ Current deployment status:
 4. Supabase production readiness
    - Keep Free during setup/testing if usage stays low.
    - Upgrade to Supabase Pro before real paid customers if production backups, no project pausing, and support are required.
-   - Set production Auth URLs and email templates after the domain is live.
-   - Confirm storage buckets remain private.
+   - Production Auth URL configuration was updated on 2026-07-13 after the domain went live.
+   - Auth email templates/sender still need setup after Resend or the human mailbox provider is verified.
+   - Storage privacy was spot-checked on 2026-07-13:
+     - `customer-display-assets` is not marked public and has a storage policy count.
+     - `email-assets` is intentionally public-looking for email image assets and is limited to image MIME types.
    - Re-run launch readiness after deployment.
 
    Supabase setup runbook after `screenia.se` resolves to Vercel:
 
-   - Set Site URL to `https://screenia.se`.
-   - Add redirect URLs for `https://screenia.se/auth/callback`, `https://screenia.se/account/activate`, and password reset/account routes used by the app.
+   - Completed: Site URL is `https://screenia.se`.
+   - Completed: Redirect URLs include `https://screenia.se/auth/callback`, `https://screenia.se/account/activate`, and `https://screenia.se/account/reset-password`.
    - Configure Auth email sender/templates to use a verified professional sender only after Resend or the mailbox provider is verified.
    - Test password setup and password reset with a real test recipient before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
-   - Confirm private storage buckets remain private after production deployment.
+   - Completed spot check: `customer-display-assets` remains non-public after production deployment.
+   - Keep `email-assets` public only if it is used for non-sensitive email images.
 
 5. Stripe production readiness
    - Keep test mode until business, tax, and legal gates are complete.
    - Activate live payments only after business identity, VAT decision, legal documents, and live webhooks are verified.
-   - Add production webhook endpoint after Vercel deployment.
+   - A Stripe test-mode webhook endpoint now exists for the deployed production-domain app.
+   - Vercel Production `STRIPE_WEBHOOK_SECRET` was updated to the endpoint-specific signing secret and redeployed.
+   - A signed synthetic webhook check to `https://screenia.se/api/stripe/webhook` returned HTTP 200 with `{"received":true}` after redeploy.
    - Confirm Stripe Tax/VAT mode.
 
    Stripe setup runbook after `screenia.se` resolves to Vercel:
 
    - Keep Stripe in test mode for current real-world scenario tests unless the business/tax/legal gates are explicitly complete.
-   - Add a test-mode webhook endpoint for the deployed app URL: `https://screenia.se/api/stripe/webhook`.
-   - Update Vercel `STRIPE_WEBHOOK_SECRET` with the endpoint-specific `whsec_...` value, then redeploy.
+   - Completed: test-mode webhook endpoint `we_1TspvBGhi0eDHRQZh7hbAA3v` points to `https://screenia.se/api/stripe/webhook`.
+   - Completed: endpoint listens to `checkout.session.completed`, `invoice.payment_failed`, `invoice.paid`, `customer.subscription.updated`, `customer.subscription.deleted`, `charge.dispute.created`, `charge.dispute.updated`, `charge.dispute.closed`, `charge.refunded`, `refund.created`, and `refund.updated`.
+   - Completed: Vercel Production `STRIPE_WEBHOOK_SECRET` was updated with the endpoint-specific value, then production was redeployed.
+   - Completed smoke check: a harmless signed synthetic webhook event reached the deployed route and returned `{"received":true}`.
    - Re-test checkout, subscription update, invoice paid, invoice failed, cancellation, pause/resume, refund, and dispute webhooks against the deployed URL.
    - Only create live-mode webhooks and enable live payments after business registration, VAT decision, legal review, company identity, and live checkout gates are complete.
 
