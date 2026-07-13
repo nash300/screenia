@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 87%.
+Current service setup progress: about 89%.
 
 ### Service Purchase And Setup Runbook
 
@@ -58,6 +58,11 @@ Current deployment status:
   - Domain verification and sending records are verified.
   - DKIM, `send` MX, and `send` SPF are verified.
   - The only pending Resend item is inbound receiving at root/apex `@`, which should remain pending because Zoho owns the human mailbox MX records for `screenia.se`.
+- Resend controlled send test on 2026-07-13:
+  - A setup test email was accepted by Resend from the verified `screenia.se` sender to `hello@screenia.se`.
+  - Supabase recorded the Resend webhook event as `email.sent` for `hello@screenia.se`.
+  - Local `.env.local` was aligned to the verified `screenia.se` sender; this file is ignored by git and was not committed.
+  - Next mailbox proof still requires confirming the message in Zoho and sending `hello@screenia.se` back to Gmail.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -198,8 +203,8 @@ Current deployment status:
    - Keep DMARC at `p=none` during launch testing, then tighten after successful mail flow monitoring.
    - Production `RESEND_FROM_EMAIL` was corrected to use a `screenia.se` sender after Resend sending verification.
    - Keep the application Resend API key send-restricted for least privilege. It can send mail but cannot query domain-management status; use the Resend dashboard or a temporary full-access admin key only when domain-management verification is needed.
-   - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test with a real Resend event during the email delivery test.
-   - Confirm delivery, bounce, complaint, failed, and unsubscribe events are stored.
+   - Webhook already created for `https://screenia.se/api/resend/webhook`; a real Resend `email.sent` event was stored in Supabase after the setup test.
+   - Confirm delivered, bounce, complaint, failed, and unsubscribe events during deeper email testing.
 
 4. Supabase production readiness
    - Keep Free during setup/testing if usage stays low.
@@ -364,6 +369,20 @@ Current deployment status:
   - The live page contains `hello@screenia.se`.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - Direct unauthenticated request to `/api/admin/launch-readiness` returned HTTP 401.
+
+2026-07-13 controlled Resend email test:
+
+- Local sender configuration was aligned to the verified `screenia.se` sender.
+- Resend accepted a controlled setup test email to `hello@screenia.se`.
+- Supabase recorded the corresponding Resend webhook event:
+  - `event_type`: `email.sent`
+  - `event_status`: `received`
+  - `recipient_email`: `hello@screenia.se`
+- This proves the transactional sender can send from the verified domain and the deployed Resend webhook can store at least the sent event.
+- Still unverified:
+  - The message must be visibly received in Zoho.
+  - `hello@screenia.se` must send successfully back to Gmail.
+  - Delivered/bounce/complaint webhook behavior should be checked during the detailed email test pass.
 
 ## Admin Panel Consistency Work
 
