@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 55%.
+Current service setup progress: about 58%.
 
 ### Service Purchase And Setup Runbook
 
@@ -26,7 +26,8 @@ Current deployment status:
 - GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
 - `screenia.se` was added to the Vercel project.
 - Loopia nameserver panel showed Vercel nameservers after update attempt: `ns1.vercel-dns.com` and `ns2.vercel-dns.com` (order does not matter).
-- Public DNS still showed Loopia nameservers immediately after the change attempt; re-check after propagation.
+- Public DNS still showed Loopia nameservers on 2026-07-13 after the Vercel domain setup; re-check after propagation.
+- Vercel domain setup now has `screenia.se` attached to production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is pending DNS verification.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
@@ -51,11 +52,12 @@ Current deployment status:
 
 2. Vercel hosting
    - Vercel project and first production deploy are complete.
-   - Add `www.screenia.se` to the Vercel project after `screenia.se` verifies.
+   - `screenia.se` is attached to production in Vercel.
+   - `www.screenia.se` is attached in Vercel and configured as a permanent `308` redirect to `screenia.se`.
    - Update `NEXT_PUBLIC_APP_URL` to `https://screenia.se` after domain verification.
    - Buy/use Vercel Pro before real commercial production because the app is commercial.
    - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
-   - Confirm `https://screenia.se` loads the production app after DNS propagation.
+   - Confirm `https://screenia.se` loads the production app and `https://www.screenia.se` redirects after DNS propagation.
 
 3. Resend transactional email
    - Start with Resend Free while volume is low.
