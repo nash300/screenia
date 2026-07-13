@@ -45,7 +45,7 @@ Current deployment status:
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:06 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:09 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
@@ -208,6 +208,14 @@ Current deployment status:
   - `npm.cmd run lint`
   - `npm.cmd run text:check`
   - `npm.cmd run build`
+
+2026-07-13 22:09 Europe/Stockholm:
+
+- Resend dashboard still shows `Pending` for the domain and records, despite public DNS remaining correct.
+- Production admin readiness access check:
+  - Visiting `https://screenia.se/admin/launch-readiness` redirects to `/admin-login` when not authenticated.
+  - Direct unauthenticated request to `https://screenia.se/api/admin/launch-readiness` returns HTTP 401 with `{"error":"Unauthorized"}`.
+- This is expected and confirms the readiness surface is not publicly exposed.
 
 ## Admin Panel Consistency Work
 
