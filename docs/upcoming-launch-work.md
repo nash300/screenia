@@ -11,9 +11,22 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 30%.
+Current service setup progress: about 55%.
 
 ### Service Purchase And Setup Runbook
+
+Current deployment status:
+
+- Vercel project `screenia` was created on the Hobby plan for setup/testing.
+- Production deployment is live at `https://screenia-ten.vercel.app`.
+- Vercel environment variables were added for production, preview, and development.
+- `NEXT_PUBLIC_APP_URL` currently points to `https://screenia-ten.vercel.app`; update it to `https://screenia.se` after domain verification.
+- Temporary Vercel CLI token `screenia-local-deploy` was created for setup and then revoked after deployment.
+- GitHub App access was limited to `nash300/screenia`.
+- GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
+- `screenia.se` was added to the Vercel project.
+- Loopia nameserver panel showed Vercel nameservers after update attempt: `ns1.vercel-dns.com` and `ns2.vercel-dns.com` (order does not matter).
+- Public DNS still showed Loopia nameservers immediately after the change attempt; re-check after propagation.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -35,12 +48,12 @@ Current service setup progress: about 30%.
    - Then point `screenia.se` and `www.screenia.se` to Vercel once Vercel provides the exact DNS records.
 
 2. Vercel hosting
-   - Buy/use Vercel Pro before production because the app is commercial.
-   - Connect the Screenia GitHub repository and deploy the Next.js app.
-   - Add `screenia.se` and `www.screenia.se` to the Vercel project.
-   - Copy the DNS records Vercel gives into Loopia DNS.
-   - Add production environment variables only after reviewing local/test values.
-   - Confirm `https://screenia.se` loads the production app.
+   - Vercel project and first production deploy are complete.
+   - Add `www.screenia.se` to the Vercel project after `screenia.se` verifies.
+   - Update `NEXT_PUBLIC_APP_URL` to `https://screenia.se` after domain verification.
+   - Buy/use Vercel Pro before real commercial production because the app is commercial.
+   - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
+   - Confirm `https://screenia.se` loads the production app after DNS propagation.
 
 3. Resend transactional email
    - Start with Resend Free while volume is low.
