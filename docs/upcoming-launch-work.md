@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 93%.
+Current service setup progress: about 94%.
 
 ### Service Purchase And Setup Runbook
 
@@ -101,6 +101,7 @@ Current deployment status:
        - TXT `zmail._domainkey` -> Zoho DKIM record.
      - Zoho's own dashboard may still take time to refresh MX status; external DNS is correct.
      - Supabase Auth invite delivery was confirmed in the Zoho Inbox on 2026-07-13. The visible invite references `https://screenia.se`, and the accept button points to the Supabase Auth verify endpoint with `redirect_to`, `token`, and `type` parameters.
+     - Clicking the invite completed the redirect check and landed on `https://screenia.se/account/activate` with the Screenia password setup form. No password was submitted.
      - Next required test: send Gmail -> `hello@screenia.se`, then send `hello@screenia.se` -> Gmail and check spam placement.
 
    Human mailbox setup runbook:
@@ -233,8 +234,8 @@ Current deployment status:
        - `email.sent`
        - `email.delivered`
      - The temporary auth user for `hello@screenia.se` exists with setup-test metadata and is still unconfirmed.
-     - Zoho Inbox visibility was confirmed on 2026-07-13, and the invite link structure points through Supabase Auth with a redirect back to `screenia.se`.
-     - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until the activation/reset path is clicked and checked end-to-end.
+     - Zoho Inbox visibility was confirmed on 2026-07-13, and clicking the invite redirected through Supabase Auth to `https://screenia.se/account/activate`.
+     - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until a password is submitted successfully or the reset path is checked end-to-end.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
      - `email-assets` is intentionally public-looking for email image assets and is limited to image MIME types.
@@ -453,11 +454,12 @@ Current deployment status:
   - `email.delivered`
 - The invite was visible in the Zoho Inbox for `admin@screenia.se` via the `hello@screenia.se` alias.
 - The visible invite references `https://screenia.se`; the accept action points to the Supabase Auth verify endpoint and includes `redirect_to`, `token`, and `type` parameters.
-- The `hello@screenia.se` setup-test auth user remains unconfirmed because the accept link was not clicked yet.
+- Clicking the invite redirected through Supabase Auth and landed on `https://screenia.se/account/activate` with the Screenia password setup form.
+- No password was submitted during this setup check.
 - Remaining verification:
-  - Click the invite link and confirm the activation redirect/password setup behavior.
+  - Submit a controlled test password or run a password reset flow to confirm account activation fully completes.
   - Decide whether to delete or repurpose the temporary `hello@screenia.se` auth user.
-  - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after the activation/reset path is verified end-to-end.
+  - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after password setup or reset is verified end-to-end.
 
 ## Admin Panel Consistency Work
 
