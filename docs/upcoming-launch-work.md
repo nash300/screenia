@@ -45,7 +45,7 @@ Current deployment status:
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 21:48 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:03 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
@@ -69,8 +69,11 @@ Current deployment status:
 
    Human mailbox setup runbook:
 
-   - First choice: Zoho Mail Free, if the free plan is available for the selected data center/account. Use it only for human inboxes, not bulk newsletters.
+   - Current choice: try Zoho Mail Forever Free first, if the free plan is available for the selected data center/account. Use it only for human inboxes, not bulk newsletters.
+     - Current official pricing check on 2026-07-13: Forever Free is listed as email hosting for one domain, up to 5 users, 5 GB storage per user, with IMAP/POP/Active Sync not included and availability limited to select data centers.
+     - Current official paid fallback inside Zoho: Mail Lite is listed at `EUR 0.90/user/month` billed annually.
    - Fallback: Migadu Micro or the lowest suitable Migadu plan if Zoho Free is unavailable or if IMAP/standard mail-client access becomes important.
+     - Current official pricing check on 2026-07-13: Migadu Micro is listed at `$19/year`, not available monthly, with unlimited addresses/domains subject to account usage limits.
    - Create one real mailbox first: `hello@screenia.se`.
    - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first mailbox can send and receive.
    - Keep transactional/product email separate in Resend. Use Resend for app emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
