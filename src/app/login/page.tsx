@@ -29,44 +29,26 @@ export default function LoginPage() {
     setLoading(true);
     setMessage("");
 
-    if (!isSupabaseBrowserConfigured) {
-      setMessage(missingSupabaseMessage);
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, mode: "customer" }),
     });
+    const result = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      next?: string;
+    };
 
-    if (error) {
-      setMessage(error.message);
+    if (!response.ok) {
+      setMessage(result.error || "E-post eller lösenord är fel.");
       setLoading(false);
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user?.app_metadata?.role === "admin") {
-      router.push("/admin");
-      router.refresh();
-      return;
-    }
-
-    const accountResponse = await fetch("/api/account");
-
-    if (accountResponse.ok) {
-      router.push("/account");
-      router.refresh();
-      return;
-    }
-
-    await supabase.auth.signOut();
-    setMessage("Den här inloggningen är inte kopplad till ett Screenia-konto.");
-    setLoading(false);
+    router.push(result.next || "/account");
+    router.refresh();
   };
 
   const signInWithGoogle = async () => {
@@ -107,21 +89,25 @@ export default function LoginPage() {
     setResetLoading(true);
     setMessage("");
 
-    if (!isSupabaseBrowserConfigured) {
-      setMessage(missingSupabaseMessage);
-      setResetLoading(false);
-      return;
-    }
-
-    const redirectTo = `${window.location.origin}/auth/callback?next=/account/reset-password`;
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo,
+    const response = await fetch("/api/auth/password-reset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
     });
+    const result = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      message?: string;
+    };
 
-    if (error) {
-      setMessage(error.message);
+    if (!response.ok) {
+      setMessage(result.error || "Det gick inte att skicka återställningslänken.");
     } else {
-      setMessage("Vi har skickat en återställningslänk om e-postadressen finns hos Screenia.");
+      setMessage(
+        result.message ||
+          "Om e-postadressen finns hos Screenia skickar vi en återställningslänk.",
+      );
     }
 
     setResetLoading(false);

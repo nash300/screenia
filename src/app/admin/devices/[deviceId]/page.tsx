@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
@@ -14,6 +14,7 @@ type PlaylistItem = {
 
 type DeviceDetails = {
   id: string;
+  customer_id: string;
   name: string | null;
   is_active: boolean | null;
   make: string | null;
@@ -70,7 +71,7 @@ export default function AdminDevicePage({
   const [editInternalNotes, setEditInternalNotes] = useState("");
   const [activeSection, setActiveSection] = useState<DeviceSection>("overview");
 
-  const loadDeviceAndPlaylist = async () => {
+  const loadDeviceAndPlaylist = useCallback(async () => {
     setLoading(true);
 
     const { data: device, error: deviceError } = await supabase
@@ -78,6 +79,7 @@ export default function AdminDevicePage({
       .select(
         `
         id,
+        customer_id,
         name,
         is_active,
         make,
@@ -119,7 +121,7 @@ export default function AdminDevicePage({
 
     const { data, error } = await supabase
       .from("playlists")
-      .select("id, src, order_index")
+      .select("id, src, order_index, videos(storage_bucket, storage_path)")
       .eq("device_id", device.id)
       .order("order_index");
 
@@ -127,11 +129,31 @@ export default function AdminDevicePage({
       console.error("Playlist error:", error);
       setPlaylist([]);
     } else {
-      setPlaylist(data || []);
+      const playlistWithPreviewUrls = await Promise.all(
+        (data || []).map(async (item) => {
+          const video = Array.isArray(item.videos)
+            ? item.videos[0]
+            : item.videos;
+
+          if (video?.storage_bucket && video.storage_path) {
+            const { data: signedUrlData } = await supabase.storage
+              .from(video.storage_bucket)
+              .createSignedUrl(video.storage_path, 60 * 15);
+
+            if (signedUrlData?.signedUrl) {
+              return { ...item, src: signedUrlData.signedUrl };
+            }
+          }
+
+          return { ...item, src: item.src || "" };
+        }),
+      );
+
+      setPlaylist(playlistWithPreviewUrls);
     }
 
     setLoading(false);
-  };
+  }, [deviceId]);
 
   const renameDevice = async () => {
     if (!deviceUuid) return;
@@ -141,16 +163,28 @@ export default function AdminDevicePage({
       return;
     }
 
+    const reason = prompt("Reason for renaming this display device:")?.trim();
+
+    if (!reason) return;
+
     setRenaming(true);
 
-    const { error } = await supabase
-      .from("devices")
-      .update({ name: newDeviceName.trim() })
-      .eq("id", deviceUuid);
+    const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "rename",
+        name: newDeviceName,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (error) {
-      console.error("Rename device error:", error);
-      showAdminNotification("error", "Could not rename device.");
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not rename device.",
+      );
       setRenaming(false);
       return;
     }
@@ -163,11 +197,17 @@ export default function AdminDevicePage({
   const saveDeviceDetails = async () => {
     if (!deviceUuid) return;
 
+    const reason = prompt("Reason for updating this display device:")?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
-    const { error } = await supabase
-      .from("devices")
-      .update({
+    const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update_details",
         make: editMake.trim() || null,
         model: editModel.trim() || null,
         serial_number: editSerialNumber.trim() || null,
@@ -179,12 +219,16 @@ export default function AdminDevicePage({
           : null,
         supplier: editSupplier.trim() || null,
         internal_notes: editInternalNotes.trim() || null,
-      })
-      .eq("id", deviceUuid);
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (error) {
-      console.error("Save device details error:", error);
-      showAdminNotification("error", error.message || "Could not save device details.");
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not save device details.",
+      );
       setSaving(false);
       return;
     }
@@ -203,16 +247,22 @@ export default function AdminDevicePage({
       return;
     }
 
-    await supabase.from("playlists").delete().eq("device_id", deviceUuid);
+    const reason = prompt("Reason for deleting this display device:")?.trim();
 
-    const { error } = await supabase
-      .from("devices")
-      .delete()
-      .eq("id", deviceUuid);
+    if (!reason) return;
 
-    if (error) {
-      console.error("Delete device error:", error);
-      showAdminNotification("error", "Could not delete device.");
+    const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not delete device.",
+      );
       return;
     }
 
@@ -224,15 +274,28 @@ export default function AdminDevicePage({
     if (!deviceUuid) return;
 
     const nextValue = !isActive;
+    const reason = prompt(
+      `Reason for ${nextValue ? "activating" : "deactivating"} this display device:`,
+    )?.trim();
 
-    const { error } = await supabase
-      .from("devices")
-      .update({ is_active: nextValue })
-      .eq("id", deviceUuid);
+    if (!reason) return;
 
-    if (error) {
-      console.error("Device status error:", error);
-      showAdminNotification("error", "Could not update device status.");
+    const response = await fetch(`/api/admin/devices/${deviceUuid}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "set_active",
+        is_active: nextValue,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not update device status.",
+      );
       return;
     }
 
@@ -251,43 +314,26 @@ export default function AdminDevicePage({
       return;
     }
 
+    const reason = prompt("Reason for adding this video to the display playlist:")?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
-    const safeFileName = videoFile.name
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9.-]/g, "");
+    const formData = new FormData();
+    formData.append("file", videoFile);
+    formData.append("reason", reason);
 
-    const fileName = `${deviceId}/${Date.now()}-${safeFileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("videos")
-      .upload(fileName, videoFile);
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      showAdminNotification("error", "Could not upload video.");
-      setSaving(false);
-      return;
-    }
-
-    const { data: publicUrlData } = supabase.storage
-      .from("videos")
-      .getPublicUrl(fileName);
-
-    const { error: playlistError } = await supabase.from("playlists").insert({
-      id: crypto.randomUUID(),
-      device_id: deviceUuid,
-      type: "video",
-      src: publicUrlData.publicUrl,
-      order_index: playlist.length + 1,
+    const response = await fetch(`/api/admin/devices/${deviceUuid}/media`, {
+      method: "POST",
+      body: formData,
     });
+    const result = await response.json().catch(() => ({}));
 
-    if (playlistError) {
-      console.error("Playlist error:", playlistError);
+    if (!response.ok) {
       showAdminNotification(
         "error",
-        "Video uploaded, but could not add it to playlist.",
+        result.error || "Could not upload and add video to playlist.",
       );
       setSaving(false);
       return;
@@ -302,14 +348,22 @@ export default function AdminDevicePage({
   const deleteVideo = async (playlistId: string) => {
     if (!window.confirm("Delete this video?")) return;
 
-    const { error } = await supabase
-      .from("playlists")
-      .delete()
-      .eq("id", playlistId);
+    const reason = prompt("Reason for removing this video from the playlist:")?.trim();
 
-    if (error) {
-      console.error("Delete video error:", error);
-      showAdminNotification("error", "Could not delete video.");
+    if (!reason || !deviceUuid) return;
+
+    const response = await fetch(`/api/admin/devices/${deviceUuid}/media`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ playlistId, reason }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not remove video from playlist.",
+      );
       return;
     }
 
@@ -319,7 +373,7 @@ export default function AdminDevicePage({
 
   useEffect(() => {
     loadDeviceAndPlaylist();
-  }, [deviceId]);
+  }, [loadDeviceAndPlaylist]);
 
   useEffect(() => {
     const section = searchParams.get("section");

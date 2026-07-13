@@ -2989,6 +2989,10 @@
   margin-top: 24px;
 }
 
+.landing-request-form .landing-honeypot {
+  display: none;
+}
+
 .landing-request-form label {
   display: grid;
   gap: 7px;
@@ -3067,6 +3071,24 @@
 .landing-request-privacy a {
   color: var(--landing-blue-700);
   font-weight: 800;
+}
+
+.landing-request-form .landing-request-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--landing-text);
+  font-size: 0.82rem;
+  font-weight: 760;
+  line-height: 1.45;
+}
+
+.landing-request-form .landing-request-checkbox input {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: var(--landing-blue-700);
 }
 
 .landing-request-submit {
@@ -4732,6 +4754,18 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.account-card-stack,
+.account-history-list {
+  display: grid;
+  gap: 14px;
+}
+
+.account-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .account-history-row > div {

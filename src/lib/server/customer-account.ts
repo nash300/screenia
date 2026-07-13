@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import { hasDisplayEntitlement } from "@/lib/server/subscription-entitlements";
 
 export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,9 +36,9 @@ export async function getCustomerForUser(
   if (!user?.email) return null;
 
   const baseCustomerSelect =
-    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes";
+    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes, marketing_consent, analytics_consent, remote_support_consent";
   const extendedCustomerSelect =
-    `${baseCustomerSelect}, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback, production_status, layout_started_at, setup_fee_locked_at`;
+    `${baseCustomerSelect}, service_access_status, service_access_until, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback, production_status, layout_started_at, setup_fee_locked_at`;
 
   const loadCustomer = async (
     field: "id" | "auth_user_id" | "email",
@@ -95,6 +96,27 @@ export async function getCustomerForUser(
   }
 
   return data;
+}
+
+export function hasCustomerServiceAccess(customer: {
+  status?: string | null;
+  payment_status?: string | null;
+  service_access_status?: string | null;
+  service_access_until?: string | null;
+}) {
+  return hasDisplayEntitlement({
+    customerStatus: customer.status,
+    paymentStatus: customer.payment_status,
+    serviceAccessStatus: customer.service_access_status,
+    serviceAccessUntil: customer.service_access_until,
+  });
+}
+
+export function customerAccessDeniedResponse() {
+  return {
+    error:
+      "Tjänsten är inte aktiv för det här kontot. Kontakta Screenia om du vill uppdatera material eller återaktivera tjänsten.",
+  };
 }
 
 export function sanitizeFileName(fileName: string) {

@@ -133,20 +133,34 @@ export async function sendTransactionalEmail(
     };
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: email.to,
-      subject: email.subject,
-      text: email.text,
-      html: email.html,
-    }),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from,
+        to: email.to,
+        subject: email.subject,
+        text: email.text,
+        html: email.html,
+      }),
+    });
+  } catch (error) {
+    return {
+      ok: false,
+      configured: true,
+      status: 0,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Resend request failed before a response was received.",
+    };
+  }
 
   if (!response.ok) {
     return {

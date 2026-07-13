@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
@@ -158,7 +158,7 @@ export default function AdminInventoryPage() {
 
   const selectedItem = items.find((item) => item.id === selectedId) || null;
 
-  const loadInventory = async () => {
+  const loadInventory = useCallback(async () => {
     setLoading(true);
 
     const [
@@ -246,9 +246,9 @@ export default function AdminInventoryPage() {
     }
 
     setLoading(false);
-  };
+  }, [selectedId]);
 
-  const loadEvents = async (itemId: string | null) => {
+  const loadEvents = useCallback(async (itemId: string | null) => {
     if (!itemId) {
       setEvents([]);
       return;
@@ -270,15 +270,15 @@ export default function AdminInventoryPage() {
     }
 
     setEvents((data || []) as InventoryEvent[]);
-  };
-
-  useEffect(() => {
-    loadInventory();
   }, []);
 
   useEffect(() => {
+    loadInventory();
+  }, [loadInventory]);
+
+  useEffect(() => {
     loadEvents(selectedId);
-  }, [selectedId]);
+  }, [loadEvents, selectedId]);
 
   useEffect(() => {
     if (selectedItem) {
@@ -286,7 +286,7 @@ export default function AdminInventoryPage() {
       setAllocationLocation("");
       setExistingDeviceId("");
     }
-  }, [selectedItem?.id]);
+  }, [selectedItem]);
 
   const counts = useMemo(() => {
     return statuses.reduce<Record<string, number>>(
@@ -392,6 +392,14 @@ export default function AdminInventoryPage() {
       return;
     }
 
+    const reason = prompt(
+      editingId
+        ? "Reason for updating this inventory item:"
+        : "Reason for adding this inventory item:",
+    )?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
     const payload = {
@@ -416,15 +424,21 @@ export default function AdminInventoryPage() {
       last_checked_at: form.status === "in_stock" ? new Date().toISOString() : undefined,
     };
 
-    const queryBuilder = editingId
-      ? supabase.from("inventory_items").update(payload).eq("id", editingId)
-      : supabase.from("inventory_items").insert(payload);
+    const response = await fetch(
+      editingId ? `/api/admin/inventory/${editingId}` : "/api/admin/inventory",
+      {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, reason }),
+      },
+    );
+    const result = await response.json().catch(() => ({}));
 
-    const { error } = await queryBuilder;
-
-    if (error) {
-      console.error("Save inventory error:", error);
-      showAdminNotification("error", error.message || "Could not save stock item.");
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not save stock item.",
+      );
       setSaving(false);
       return;
     }
@@ -441,11 +455,19 @@ export default function AdminInventoryPage() {
     condition: string,
     extra: Partial<InventoryItem> = {},
   ) => {
+    const reason = prompt(
+      `Reason for changing inventory status to "${status.replace(/_/g, " ")}":`,
+    )?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
     const timestamp = new Date().toISOString();
     const payload: Record<string, string | number | boolean | null> = {
+      action: "update_status",
       status,
       condition,
+      reason,
     };
 
     if (typeof extra.customer_id !== "undefined") {
@@ -461,14 +483,18 @@ export default function AdminInventoryPage() {
     if (status === "returned") payload.returned_at = timestamp;
     if (status === "shipped") payload.shipped_at = timestamp;
     if (status === "in_stock") payload.last_checked_at = timestamp;
-    const { error } = await supabase
-      .from("inventory_items")
-      .update(payload)
-      .eq("id", item.id);
+    const response = await fetch(`/api/admin/inventory/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (error) {
-      console.error("Update inventory status error:", error);
-      showAdminNotification("error", "Could not update inventory item.");
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not update inventory item.",
+      );
       setSaving(false);
       return;
     }
@@ -490,63 +516,34 @@ export default function AdminInventoryPage() {
       return;
     }
 
+    const reason = prompt("Reason for allocating this stock item to a new device:")?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
-    const selectedCustomer = customers.find((customer) => customer.id === allocationCustomerId);
-    const deviceName = `${itemTypeLabel(selectedItem.item_type)} - ${
-      selectedCustomer?.name || "Customer screen"
-    }`;
-
-    const { data: deviceData, error: deviceError } = await supabase
-      .from("devices")
-      .insert({
-        id: crypto.randomUUID(),
+    const response = await fetch(`/api/admin/inventory/${selectedItem.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "allocate_new_device",
         customer_id: allocationCustomerId,
-        name: deviceName,
-        make: selectedItem.make,
-        model: selectedItem.model,
-        serial_number: selectedItem.serial_number,
-        purchase_cost: selectedItem.purchase_cost,
-        purchase_date: selectedItem.purchase_date,
-        warranty_period_months: selectedItem.warranty_period_months,
-        supplier: selectedItem.seller,
-        location: allocationLocation.trim() || null,
-        inventory_status: "assigned",
-        inventory_notes: selectedItem.notes,
-        is_active: true,
-      })
-      .select("id, device_code")
-      .single();
+        location: allocationLocation,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (deviceError || !deviceData) {
-      console.error("Allocate device error:", deviceError);
-      showAdminNotification("error", deviceError?.message || "Could not create device.");
-      setSaving(false);
-      return;
-    }
-
-    const { error: inventoryError } = await supabase
-      .from("inventory_items")
-      .update({
-        status: "assigned",
-        condition: selectedItem.condition === "new" ? "tested" : selectedItem.condition,
-        customer_id: allocationCustomerId,
-        device_id: deviceData.id,
-        assigned_at: new Date().toISOString(),
-      })
-      .eq("id", selectedItem.id);
-
-    if (inventoryError) {
-      console.error("Update allocated inventory error:", inventoryError);
+    if (!response.ok) {
       showAdminNotification(
         "error",
-        "Device was created, but inventory could not be linked. Open the device manager and check this item.",
+        result.error || "Could not allocate this inventory item.",
       );
       setSaving(false);
       return;
     }
 
-    showAdminNotification("success", `Allocated to device ${deviceData.device_code}.`);
+    showAdminNotification("success", `Allocated to device ${result.device?.device_code || "created device"}.`);
     await loadInventory();
     await loadEvents(selectedItem.id);
     setSaving(false);
@@ -565,46 +562,27 @@ export default function AdminInventoryPage() {
       return;
     }
 
+    const reason = prompt("Reason for linking this stock item to an existing device:")?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
-    const { error: inventoryError } = await supabase
-      .from("inventory_items")
-      .update({
-        status: "assigned",
-        condition: selectedItem.condition === "new" ? "tested" : selectedItem.condition,
-        customer_id: device.customer_id,
+    const response = await fetch(`/api/admin/inventory/${selectedItem.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "link_existing_device",
         device_id: device.id,
-        assigned_at: new Date().toISOString(),
-      })
-      .eq("id", selectedItem.id);
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (inventoryError) {
-      console.error("Link existing device error:", inventoryError);
-      showAdminNotification("error", "Could not link existing device.");
-      setSaving(false);
-      return;
-    }
-
-    const { error: deviceError } = await supabase
-      .from("devices")
-      .update({
-        make: selectedItem.make,
-        model: selectedItem.model,
-        serial_number: selectedItem.serial_number || device.serial_number,
-        purchase_cost: selectedItem.purchase_cost,
-        purchase_date: selectedItem.purchase_date,
-        warranty_period_months: selectedItem.warranty_period_months,
-        supplier: selectedItem.seller,
-        inventory_status: "assigned",
-        inventory_notes: selectedItem.notes,
-      })
-      .eq("id", device.id);
-
-    if (deviceError) {
-      console.error("Update linked device error:", deviceError);
+    if (!response.ok) {
       showAdminNotification(
-        "warning",
-        "Inventory was linked, but some device details could not be copied.",
+        "error",
+        result.error || "Could not link existing device.",
       );
     } else {
       showAdminNotification("success", `Linked to existing device ${device.device_code}.`);

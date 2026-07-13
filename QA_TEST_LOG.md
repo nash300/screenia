@@ -29,8 +29,35 @@ Issues found:
 - Reusing an existing Gmail auth user prevented a fresh customer password creation email from being tested.
 
 Fixes completed:
-- Customer profile completion no longer waits on non-critical legal/audit writes before responding.
+- Customer profile completion waits until required terms/privacy consent and
+  legal-agreement evidence is stored before payment can proceed.
+- Customer profile completion rejects missing/expired onboarding tokens and
+  cannot rewrite customer details after paid/refunded/cancelled payment states.
+- Non-critical optional consent/audit writes still run without blocking the
+  customer response.
 - Legal document lookup now has a timeout and stores the agreement without `legal_document_id` if the lookup is slow.
+- Stripe Checkout now blocks both customer and admin checkout paths when the
+  current terms/privacy evidence is missing.
+- Stripe Checkout now requires either a valid admin session or the customer's
+  unexpired onboarding token before creating a payment session.
+- Customer account content setup and display-material upload APIs now require
+  active paid service entitlement; support messages remain available for
+  billing, refund, cancellation, and access issues.
+- Customer account display-material download URLs are only generated while
+  paid service entitlement is active.
+- Admin subscription cancellation now verifies the subscription belongs to the
+  selected customer locally and in Stripe before scheduling cancellation.
+- Refund before layout start now explicitly marks service access as refunded,
+  and refuses to run if entitlement columns are missing.
+- Layout work can only be started for paid customers whose service entitlement
+  is still active or active until period end.
+- Permanent customer deletion is blocked for customers with payment or Stripe
+  history; those records must be suspended, refunded, cancelled, or anonymized
+  instead so accounting and dispute evidence remains traceable.
+- Admin customer anonymization removes contact/profile content, support
+  messages, uploaded material, and technical identifiers while preserving
+  payment/order/Stripe references for retention obligations. It preflights the
+  required profile columns before removing files or operational records.
 - Stripe checkout now falls back to the already quoted/local plan data if the pricing lookup is temporarily unavailable.
 - Stripe CLI listener was started locally and the paid checkout event was replayed successfully.
 
@@ -81,6 +108,15 @@ Remaining issue:
 
 Manual launch action:
 - Configure and verify production email delivery for both Resend and Supabase Auth before launch.
+
+## Pending - Subscription Operations Compatibility
+
+Planned verification after implementation:
+- Cancel-at-period-end keeps Screenia access until the paid-through date.
+- Pause blocks display access immediately and resume restores it.
+- Temporary admin discount applies a Stripe coupon and stores an adjustment row.
+- Display pages require active paid entitlement, not just customer status.
+- Sensitive admin actions write audit events with reasons.
 
 ## 2026-07-07 - Customer Password Policy
 

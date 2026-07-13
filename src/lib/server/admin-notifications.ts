@@ -12,6 +12,7 @@ type AdminNotificationInput = {
 export async function createAdminNotification(
   supabaseAdmin: SupabaseClient,
   notification: AdminNotificationInput,
+  options?: { throwOnError?: boolean },
 ) {
   const { error } = await supabaseAdmin.from("admin_notifications").insert({
     customer_id: notification.customerId || null,
@@ -27,9 +28,15 @@ export async function createAdminNotification(
       console.warn(
         "Admin notification was not stored because the table is missing. Apply the latest Supabase migrations.",
       );
+      if (options?.throwOnError) {
+        throw error;
+      }
       return;
     }
 
     console.warn("Admin notification was not stored:", error.message);
+    if (options?.throwOnError) {
+      throw error;
+    }
   }
 }

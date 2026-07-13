@@ -34,6 +34,15 @@ const createAuthenticatedClient = async () => {
   );
 };
 
+function isMissingRefundColumns(error: { code?: string; message?: string }) {
+  return (
+    error.code === "42703" ||
+    error.code === "PGRST204" ||
+    error.message?.includes("service_access_status") ||
+    error.message?.includes("service_access_until")
+  );
+}
+
 export async function POST(
   request: Request,
   { params }: { params: Promise<{ customerId: string }> },
@@ -47,18 +56,37 @@ export async function POST(
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  const body = await request.json().catch(() => ({}));
+  const adminReason = String(body.reason || "").trim().slice(0, 1000);
+  if (adminReason.length < 5) {
+    return NextResponse.json(
+      { error: "A refund reason is required before refunding a customer." },
+      { status: 400 },
+    );
+  }
+
   const { customerId } = await params;
   const timestamp = new Date().toISOString();
 
   const { data: customer, error: customerError } = await supabaseAdmin
     .from("customers")
     .select(
-      "id, name, payment_status, setup_fee_locked_at, stripe_customer_id",
+      "id, name, payment_status, service_access_status, service_access_until, setup_fee_locked_at, stripe_customer_id",
     )
     .eq("id", customerId)
     .single();
 
   if (customerError || !customer) {
+    if (customerError && isMissingRefundColumns(customerError)) {
+      return NextResponse.json(
+        {
+          error:
+            "Refund safety columns are missing. Apply the latest Supabase migration before refunding customers.",
+        },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json({ error: "Customer was not found." }, { status: 404 });
   }
 
@@ -121,6 +149,7 @@ export async function POST(
         customer_subscription_id: subscription.id,
         order_number: subscription.order_number || "",
         reason: "admin_refund_before_layout_started",
+        admin_reason: adminReason,
       },
     });
     refundResult = {
@@ -161,6 +190,7 @@ export async function POST(
           customer_subscription_id: subscription.id,
           order_number: subscription.order_number || "",
           reason: "admin_refund_before_layout_started",
+          admin_reason: adminReason,
         },
       });
       refundResult = {
@@ -177,18 +207,24 @@ export async function POST(
   }
 
   let subscriptionCancellationStatus: string | null = null;
+  let subscriptionCancellationError: string | null = null;
   if (subscription.stripe_subscription_id) {
-    const stripeSubscription = await stripe.subscriptions.retrieve(
-      subscription.stripe_subscription_id,
-    );
-
-    if (stripeSubscription.status === "canceled") {
-      subscriptionCancellationStatus = stripeSubscription.status;
-    } else {
-      const cancelledSubscription = await stripe.subscriptions.cancel(
+    try {
+      const stripeSubscription = await stripe.subscriptions.retrieve(
         subscription.stripe_subscription_id,
       );
-      subscriptionCancellationStatus = cancelledSubscription.status;
+
+      if (stripeSubscription.status === "canceled") {
+        subscriptionCancellationStatus = stripeSubscription.status;
+      } else {
+        const cancelledSubscription = await stripe.subscriptions.cancel(
+          subscription.stripe_subscription_id,
+        );
+        subscriptionCancellationStatus = cancelledSubscription.status;
+      }
+    } catch (error) {
+      subscriptionCancellationError =
+        error instanceof Error ? error.message : "Unknown Stripe cancellation error.";
     }
   }
 
@@ -197,6 +233,8 @@ export async function POST(
     .update({
       status: "suspended",
       payment_status: "refunded",
+      service_access_status: "refunded",
+      service_access_until: null,
       inactive_reason: "subscription_cancelled",
       cancellation_reason: "refunded_before_production",
       cancellation_details:
@@ -225,6 +263,42 @@ export async function POST(
       customer: customerResult.error,
       subscription: subscriptionResult.error,
     });
+    await Promise.all([
+      recordAuditEvent(supabaseAdmin, {
+        customerId: customer.id,
+        actorType: "admin",
+        actorId: user.id,
+        eventType: "payment_refund_local_sync_failed",
+        eventDescription:
+          "Stripe refund was created, but Screenia could not fully sync the refunded local state.",
+        metadata: {
+          orderNumber: subscription.order_number,
+          refundId: refundResult.id,
+          refundStatus: refundResult.status,
+          amount: refundResult.amount,
+          adminReason,
+          customerError: customerResult.error?.message || null,
+          subscriptionError: subscriptionResult.error?.message || null,
+        },
+        ipAddress: getRequestIp(request),
+        userAgent: request.headers.get("user-agent"),
+      }),
+      createAdminNotification(supabaseAdmin, {
+        customerId: customer.id,
+        eventType: "payment_refund_local_sync_failed",
+        title: "Refund sync failed",
+        message: `Stripe refund ${refundResult.id} was created, but Screenia could not fully update local customer access.`,
+        priority: "urgent",
+        metadata: {
+          orderNumber: subscription.order_number,
+          refundId: refundResult.id,
+          refundStatus: refundResult.status,
+          amount: refundResult.amount,
+          customerError: customerResult.error?.message || null,
+          subscriptionError: subscriptionResult.error?.message || null,
+        },
+      }),
+    ]);
     return NextResponse.json(
       {
         error:
@@ -247,8 +321,10 @@ export async function POST(
       refundId: refundResult.id,
       refundStatus: refundResult.status,
       amount: refundResult.amount,
+      adminReason,
       stripeSubscriptionId: subscription.stripe_subscription_id,
       subscriptionCancellationStatus,
+      subscriptionCancellationError,
     },
     ipAddress: getRequestIp(request),
     userAgent: request.headers.get("user-agent"),
@@ -264,10 +340,29 @@ export async function POST(
       refundId: refundResult.id,
       refundStatus: refundResult.status,
       amount: refundResult.amount,
+      adminReason,
       stripeSubscriptionId: subscription.stripe_subscription_id,
       subscriptionCancellationStatus,
+      subscriptionCancellationError,
     },
   });
+
+  if (subscriptionCancellationError) {
+    await createAdminNotification(supabaseAdmin, {
+      customerId: customer.id,
+      eventType: "payment_refund_subscription_cancel_failed",
+      title: "Refunded subscription needs Stripe review",
+      message: `Order ${subscription.order_number || subscription.id} was refunded, but Stripe subscription cancellation needs manual review.`,
+      priority: "urgent",
+      metadata: {
+        refundId: refundResult.id,
+        refundStatus: refundResult.status,
+        amount: refundResult.amount,
+        stripeSubscriptionId: subscription.stripe_subscription_id,
+        subscriptionCancellationError,
+      },
+    });
+  }
 
   return NextResponse.json({
     success: true,

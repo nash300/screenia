@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
-import { recordAuditEvent } from "@/lib/server/audit";
+import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
 import {
   getAuthenticatedUser,
   getCustomerForUser,
   supabaseAdmin,
 } from "@/lib/server/customer-account";
+import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -20,6 +22,74 @@ const allowedCancellationReasons = new Set([
   "temporary_pause",
   "other",
 ]);
+
+async function recordCustomerCancellationSyncFailure(
+  customerId: string,
+  stripeSubscriptionId: string,
+  syncTarget: string,
+  syncError: string,
+  attemptedUpdate: Record<string, unknown>,
+  request: Request,
+) {
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId,
+        actorType: "customer",
+        eventType: "customer_cancellation_sync_failed",
+        eventDescription:
+          "Stripe accepted a customer cancellation, but Screenia could not fully sync the local cancellation state.",
+        metadata: {
+          stripeSubscriptionId,
+          syncTarget,
+          syncError,
+          attemptedUpdate,
+        },
+        ipAddress: getRequestIp(request),
+        userAgent: request.headers.get("user-agent"),
+      },
+      { throwOnError: true },
+    );
+    await createAdminNotification(
+      supabaseAdmin,
+      {
+        customerId,
+        eventType: "customer_cancellation_sync_failed",
+        title: "Customer cancellation sync failed",
+        message:
+          "Stripe accepted a customer cancellation, but Screenia could not fully update local cancellation/access state. Review the subscription and display entitlement.",
+        priority: "urgent",
+        metadata: {
+          stripeSubscriptionId,
+          syncTarget,
+          syncError,
+        },
+      },
+      { throwOnError: true },
+    );
+    return null;
+  } catch (evidenceError) {
+    console.error("Customer cancellation sync failure evidence error:", evidenceError);
+    return NextResponse.json(
+      {
+        error:
+          "Stripe accepted the cancellation, but Screenia could not sync your account or store urgent failure evidence. Contact support.",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+function cancellationSyncErrorResponse() {
+  return NextResponse.json(
+    {
+      error:
+        "Stripe accepted the cancellation, but Screenia could not fully update your account. Screenia has been notified to review it.",
+    },
+    { status: 500 },
+  );
+}
 
 export async function POST(request: Request) {
   const user = await getAuthenticatedUser();
@@ -43,12 +113,19 @@ export async function POST(request: Request) {
     ? reason
     : "other";
 
-  const cancelledAt = new Date().toISOString();
+  const subscription = await stripe.subscriptions.update(
+    customer.stripe_subscription_id,
+    { cancel_at_period_end: true },
+  );
+  const entitlement = getStripeSubscriptionEntitlement(subscription);
   const customerCancellationUpdate = {
-    status: "suspended",
-    payment_status: "cancelled",
-    inactive_reason: "customer_cancelled",
-    cancelled_at: cancelledAt,
+    status: "active",
+    payment_status: "paid",
+    service_access_status: "active_until_period_end",
+    service_access_until:
+      entitlement.cancellationEffectiveAt || entitlement.currentPeriodEnd,
+    inactive_reason: null,
+    cancelled_at: null,
     cancellation_source: "customer",
   };
   const customerCancellationResult = await supabaseAdmin
@@ -71,47 +148,134 @@ export async function POST(request: Request) {
 
     if (fallbackResult.error) {
       console.error("Customer cancellation fallback update error:", fallbackResult.error);
-      return NextResponse.json(
-        { error: "Could not update customer cancellation status." },
-        { status: 500 },
+      const evidenceFailureResponse = await recordCustomerCancellationSyncFailure(
+        customer.id,
+        customer.stripe_subscription_id,
+        "customers",
+        fallbackResult.error.message,
+        customerCancellationUpdate,
+        request,
       );
+      if (evidenceFailureResponse) return evidenceFailureResponse;
+      return cancellationSyncErrorResponse();
     }
   } else if (customerCancellationResult.error) {
     console.error("Customer cancellation update error:", customerCancellationResult.error);
+    const evidenceFailureResponse = await recordCustomerCancellationSyncFailure(
+      customer.id,
+      customer.stripe_subscription_id,
+      "customers",
+      customerCancellationResult.error.message,
+      {
+        ...customerCancellationUpdate,
+        cancellation_reason: normalizedReason,
+        cancellation_details: details || null,
+      },
+      request,
+    );
+    if (evidenceFailureResponse) return evidenceFailureResponse;
+    return cancellationSyncErrorResponse();
+  }
+
+  const subscriptionUpdate = {
+    status: "active",
+    stripe_payment_status: subscription.status,
+    fulfillment_status: "active",
+    cancel_at_period_end: true,
+    cancellation_effective_at:
+      entitlement.cancellationEffectiveAt || entitlement.currentPeriodEnd,
+    stripe_current_period_start: entitlement.currentPeriodStart,
+    stripe_current_period_end: entitlement.currentPeriodEnd,
+  };
+  const { error: subscriptionUpdateError } = await supabaseAdmin
+    .from("customer_subscriptions")
+    .update(subscriptionUpdate)
+    .eq("stripe_subscription_id", customer.stripe_subscription_id);
+
+  if (subscriptionUpdateError) {
+    console.error(
+      "Customer cancellation subscription sync error:",
+      subscriptionUpdateError,
+    );
+    const evidenceFailureResponse = await recordCustomerCancellationSyncFailure(
+      customer.id,
+      customer.stripe_subscription_id,
+      "customer_subscriptions",
+      subscriptionUpdateError.message,
+      subscriptionUpdate,
+      request,
+    );
+    if (evidenceFailureResponse) return evidenceFailureResponse;
+    return cancellationSyncErrorResponse();
+  }
+
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        actorType: "customer",
+        eventType: "subscription_cancel_scheduled",
+        eventDescription:
+          "Customer scheduled subscription cancellation for the end of the paid period.",
+        metadata: {
+          stripeSubscriptionId: customer.stripe_subscription_id,
+          cancellationReason: normalizedReason,
+          cancellationDetails: details || null,
+          cancellationEffectiveAt:
+            entitlement.cancellationEffectiveAt || entitlement.currentPeriodEnd,
+        },
+        ipAddress: getRequestIp(request),
+        userAgent: request.headers.get("user-agent"),
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    const message =
+      auditError instanceof Error ? auditError.message : "Unknown audit storage error";
+    try {
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          eventType: "customer_cancellation_audit_failed",
+          title: "Customer cancellation audit failed",
+          message:
+            "A customer cancellation was scheduled in Stripe and synced locally, but the audit event could not be stored.",
+          priority: "urgent",
+          metadata: {
+            stripeSubscriptionId: customer.stripe_subscription_id,
+            error: message,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (notificationError) {
+      console.error(
+        "Customer cancellation audit failure notification error:",
+        notificationError,
+      );
+      return NextResponse.json(
+        {
+          error:
+            "Your cancellation was scheduled, but Screenia could not store the audit record or urgent review notification. Contact support.",
+        },
+        { status: 500 },
+      );
+    }
+
     return NextResponse.json(
-      { error: "Could not update customer cancellation status." },
+      {
+        error:
+          "Your cancellation was scheduled, but Screenia could not store the audit record. Screenia has been notified to review it.",
+      },
       { status: 500 },
     );
   }
 
-  const subscription = await stripe.subscriptions.retrieve(
-    customer.stripe_subscription_id,
-  );
-
-  if (subscription.status !== "canceled") {
-    await stripe.subscriptions.cancel(customer.stripe_subscription_id);
-  }
-
-  await Promise.all([
-    supabaseAdmin
-      .from("customer_subscriptions")
-      .update({
-        status: "cancelled",
-        fulfillment_status: "cancelled",
-      })
-      .eq("stripe_subscription_id", customer.stripe_subscription_id),
-    recordAuditEvent(supabaseAdmin, {
-      customerId: customer.id,
-      actorType: "customer",
-      eventType: "subscription_cancelled",
-      eventDescription: "Customer cancelled subscription from account portal.",
-      metadata: {
-        stripeSubscriptionId: customer.stripe_subscription_id,
-        cancellationReason: normalizedReason,
-        cancellationDetails: details || null,
-      },
-    }),
-  ]);
-
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    cancellationEffectiveAt:
+      entitlement.cancellationEffectiveAt || entitlement.currentPeriodEnd,
+  });
 }

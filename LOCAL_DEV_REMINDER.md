@@ -119,6 +119,12 @@ Stripe:
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 STRIPE_AUTOMATIC_TAX_ENABLED=false
+SCREENIA_LIVE_PAYMENTS_ENABLED=false
+SCREENIA_BUSINESS_REGISTRATION_CONFIRMED=false
+SCREENIA_VAT_DECISION_CONFIRMED=false
+SCREENIA_LEGAL_REVIEW_CONFIRMED=false
+SCREENIA_LIVE_WEBHOOK_VERIFIED=false
+SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false
 ```
 
 Resend:
@@ -364,6 +370,12 @@ https://your-domain.example/account/reset-password
 
 5. Test that a paid customer receives the account creation/password email in a
    normal inbox, not only in Supabase logs.
+6. Test password reset delivery for the same production sender/domain.
+7. Only after both tests pass, set:
+
+```text
+SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true
+```
 
 ### Resend
 
@@ -448,6 +460,20 @@ subscription cancellation -> Stripe and Supabase statuses stay aligned
 9. Keep `STRIPE_AUTOMATIC_TAX_ENABLED=false` unless Stripe Tax is fully
    configured with Swedish registration, tax codes, and the correct included-tax
    behavior.
+10. Keep every live-payment launch flag set to `false` until the matching item
+   is verified:
+
+```text
+SCREENIA_LIVE_PAYMENTS_ENABLED=false
+SCREENIA_BUSINESS_REGISTRATION_CONFIRMED=false
+SCREENIA_VAT_DECISION_CONFIRMED=false
+SCREENIA_LEGAL_REVIEW_CONFIRMED=false
+SCREENIA_LIVE_WEBHOOK_VERIFIED=false
+SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false
+```
+
+If a live Stripe key is configured before every flag is `true`, checkout should
+return a safety error instead of creating a live payment session.
 
 ### Google OAuth
 
@@ -490,6 +516,12 @@ SUPABASE_SERVICE_ROLE_KEY
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 STRIPE_AUTOMATIC_TAX_ENABLED
+SCREENIA_LIVE_PAYMENTS_ENABLED
+SCREENIA_BUSINESS_REGISTRATION_CONFIRMED
+SCREENIA_VAT_DECISION_CONFIRMED
+SCREENIA_LEGAL_REVIEW_CONFIRMED
+SCREENIA_LIVE_WEBHOOK_VERIFIED
+SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED
 RESEND_API_KEY
 RESEND_FROM_EMAIL
 NEXT_PUBLIC_COMPANY_LEGAL_NAME

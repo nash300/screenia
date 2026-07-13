@@ -74,37 +74,43 @@ function NewDevicePageContent() {
       return;
     }
 
+    const reason = prompt("Reason for creating this display device:")?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
-    const { data, error } = await supabase
-      .from("devices")
-      .insert({
-        id: crypto.randomUUID(),
+    const response = await fetch("/api/admin/devices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         customer_id: customerId,
-        name: name.trim(),
-        location: location.trim() || null,
-        make: make.trim() || null,
-        model: model.trim() || null,
-        serial_number: serialNumber.trim() || null,
-        purchase_cost: purchaseCost ? Number(purchaseCost) : null,
-        purchase_date: purchaseDate || null,
-        warranty_period_months: warrantyPeriod ? Number(warrantyPeriod) : null,
-        supplier: supplier.trim() || null,
-        internal_notes: internalNotes.trim() || null,
-        is_active: true,
-      })
-      .select("device_code")
-      .single();
+        name,
+        location,
+        make,
+        model,
+        serial_number: serialNumber,
+        purchase_cost: purchaseCost,
+        purchase_date: purchaseDate,
+        warranty_period_months: warrantyPeriod,
+        supplier,
+        internal_notes: internalNotes,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (error) {
-      console.error("Create device error:", error);
-      showAdminNotification("error", error.message || "Could not create device.");
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not create device.",
+      );
       setSaving(false);
       return;
     }
 
     showAdminNotification("success", "Device created successfully.");
-    router.push(`/admin/devices/${data.device_code}`);
+    router.push(`/admin/devices/${result.device.device_code}`);
   };
 
   useEffect(() => {

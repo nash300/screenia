@@ -32,8 +32,15 @@ to `.env.local` and to your production environment:
 
 ```bash
 RESEND_API_KEY=your_resend_api_key
+RESEND_FROM_EMAIL=Screenia <hello@screenia.se>
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 STRIPE_AUTOMATIC_TAX_ENABLED=false
+SCREENIA_LIVE_PAYMENTS_ENABLED=false
+SCREENIA_BUSINESS_REGISTRATION_CONFIRMED=false
+SCREENIA_VAT_DECISION_CONFIRMED=false
+SCREENIA_LEGAL_REVIEW_CONFIRMED=false
+SCREENIA_LIVE_WEBHOOK_VERIFIED=false
+SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false
 NEXT_PUBLIC_COMPANY_LEGAL_NAME=Screenia
 NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
 NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
@@ -41,16 +48,11 @@ NEXT_PUBLIC_COMPANY_EMAIL=hello@screenia.se
 NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
-Without `RESEND_FROM_EMAIL`, local development uses Resend's starter sender:
-
-```bash
-RESEND_FROM_EMAIL=Screenia <onboarding@resend.dev>
-```
-
-Use a verified Resend domain for `RESEND_FROM_EMAIL` before sending to real
-customers outside Resend's test limits. Restart the Next.js development server
-after changing `.env.local`; environment variables are loaded when the server
-starts.
+Without `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, Screenia prepares onboarding
+links but does not send automatic emails. Use a verified Resend domain for
+`RESEND_FROM_EMAIL` before sending to real customers outside Resend's test
+limits. Restart the Next.js development server after changing `.env.local`;
+environment variables are loaded when the server starts.
 
 ## Supabase Migrations
 
@@ -77,7 +79,16 @@ Before accepting real customers, confirm these production items:
   the Stripe Dashboard with the correct registrations, product tax codes, and
   price tax behavior. Set it to `true` when Checkout should collect billing
   addresses, tax IDs, and calculate tax automatically.
+- Keep all `SCREENIA_*_CONFIRMED` launch flags and
+  `SCREENIA_LIVE_PAYMENTS_ENABLED=false` until the Swedish business
+  registration, F/FA-skatt decision, VAT/moms decision, final policy review,
+  live webhook checks, and Supabase Auth email delivery tests are complete. The
+  checkout route blocks live Stripe keys unless every live-payment confirmation
+  flag is explicitly set to `true`.
 - Use a verified Resend sender domain for `RESEND_FROM_EMAIL`.
+- Configure Supabase Auth SMTP/custom email delivery and test customer password
+  setup plus password reset before setting
+  `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 - Set the public company variables above so the landing page shows registered
   business details.
 - Create admin users in Supabase Auth and set each staff user's

@@ -152,6 +152,11 @@ export default function PricingPage() {
     const form = forms[plan.id];
     if (!form) return;
 
+    const reason = window.prompt(
+      `Reason for changing ${plan.name} ${plan.resolution} pricing:`,
+    )?.trim();
+    if (!reason) return;
+
     setSavingPlanId(plan.id);
     setNotice({ type: "info", message: "Saving pricing plan..." });
 
@@ -167,6 +172,7 @@ export default function PricingPage() {
         trialDays: parseInteger(form.trialDays),
         bindingMonths: parseInteger(form.bindingMonths),
         isActive: form.isActive,
+        reason,
       }),
     });
     const data = await response.json().catch(() => ({}));
@@ -189,13 +195,18 @@ export default function PricingPage() {
   };
 
   const syncStripe = async (plan: PricingPlan) => {
+    const reason = window.prompt(
+      `Reason for syncing ${plan.name} ${plan.resolution} prices to Stripe:`,
+    )?.trim();
+    if (!reason) return;
+
     setSyncingPlanId(plan.id);
     setNotice({ type: "info", message: "Syncing Stripe prices..." });
 
     const response = await fetch("/api/admin/pricing-plans", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ planId: plan.id }),
+      body: JSON.stringify({ planId: plan.id, reason }),
     });
     const data = await response.json().catch(() => ({}));
 

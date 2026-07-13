@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
-import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { getRequestIp, recordAuditEvent, recordConsent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { checkRateLimit, rateLimitHeaders } from "@/lib/server/rate-limit";
+import { CURRENT_PRIVACY_DOCUMENT } from "@/lib/legal/documents";
 import {
   escapeHtml,
   formatSek,
@@ -16,6 +18,8 @@ const supabaseAdmin = createClient(
 );
 
 const validPlanCodes = new Set<string>(PRICING_PLANS.map((plan) => plan.code));
+const requestRateLimitWindowMs = 60 * 60 * 1000;
+const requestRateLimitMax = 5;
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
@@ -114,8 +118,31 @@ export async function POST(request: Request) {
       Math.max(1, Number(body.screenQuantity) || 1),
     );
     const message = String(body.message || "").trim();
+    const privacyAccepted = Boolean(body.privacyAccepted);
     const ipAddress = getRequestIp(request);
     const userAgent = request.headers.get("user-agent");
+    const website = String(body.website || "").trim();
+
+    if (website) {
+      return NextResponse.json({ success: true, received: true });
+    }
+
+    const rateLimitKey = `landing-request:${ipAddress || email || "unknown"}`;
+    const rateLimit = checkRateLimit({
+      key: rateLimitKey,
+      limit: requestRateLimitMax,
+      windowMs: requestRateLimitWindowMs,
+    });
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "För många förfrågningar. Försök igen senare." },
+        {
+          status: 429,
+          headers: rateLimitHeaders(rateLimit),
+        },
+      );
+    }
 
     if (!validPlanCodes.has(planCode)) {
       return NextResponse.json(
@@ -134,6 +161,16 @@ export async function POST(request: Request) {
     if (!email || !isValidEmail(email)) {
       return NextResponse.json(
         { error: "Ange en giltig e-postadress." },
+        { status: 400 },
+      );
+    }
+
+    if (!privacyAccepted) {
+      return NextResponse.json(
+        {
+          error:
+            "Du måste bekräfta att du har läst integritetspolicyn innan förfrågan skickas.",
+        },
         { status: 400 },
       );
     }
@@ -190,34 +227,121 @@ export async function POST(request: Request) {
       );
     }
 
-    await recordAuditEvent(supabaseAdmin, {
-      customerId: data.id,
-      actorType: "customer",
-      eventType: "landing_purchase_request_created",
-      eventDescription: "Customer submitted a package request from the landing page.",
-      metadata: {
-        planCode,
-        planName: selectedPlan.name,
-        planResolution: selectedPlan.resolution,
-        screenQuantity,
-      },
-      ipAddress,
-      userAgent,
-    });
+    try {
+      await recordConsent(
+        supabaseAdmin,
+        {
+          customerId: data.id,
+          consentType: "privacy_request",
+          granted: true,
+          statement:
+            "I have read the privacy policy and understand that Screenia stores these details to handle my request.",
+          documentName: CURRENT_PRIVACY_DOCUMENT.title,
+          documentVersion: CURRENT_PRIVACY_DOCUMENT.version,
+          documentUrl: CURRENT_PRIVACY_DOCUMENT.url,
+          collectionPoint: "landing_request_form",
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+    } catch (consentError) {
+      console.error("Landing request privacy consent was not stored:", consentError);
+      await supabaseAdmin.from("customers").delete().eq("id", data.id);
+      return NextResponse.json(
+        {
+          error:
+            "Det gick inte att spara integritetsbekräftelsen. Försök igen innan förfrågan skickas.",
+        },
+        { status: 500 },
+      );
+    }
 
-    await createAdminNotification(supabaseAdmin, {
-      customerId: data.id,
-      eventType: "landing_purchase_request_created",
-      title: "New customer request",
-      message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan.name}.`,
-      priority: "high",
-      metadata: {
-        planCode,
-        planName: selectedPlan.name,
-        screenQuantity,
-        customerEmail: email,
-      },
-    });
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: data.id,
+          actorType: "customer",
+          eventType: "landing_purchase_request_created",
+          eventDescription:
+            "Customer submitted a package request from the landing page.",
+          metadata: {
+            planCode,
+            planName: selectedPlan.name,
+            planResolution: selectedPlan.resolution,
+            screenQuantity,
+            privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+    } catch (auditError) {
+      console.error("Landing request audit was not stored:", auditError);
+      await supabaseAdmin.from("customers").delete().eq("id", data.id);
+
+      return NextResponse.json(
+        {
+          error:
+            "Det gick inte att spara revisionshistoriken. Forsok igen innan forfragan skickas.",
+        },
+        { status: 500 },
+      );
+    }
+
+    try {
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: data.id,
+          eventType: "landing_purchase_request_created",
+          title: "New customer request",
+          message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan.name}.`,
+          priority: "high",
+          metadata: {
+            planCode,
+            planName: selectedPlan.name,
+            screenQuantity,
+            customerEmail: email,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (notificationError) {
+      const notificationErrorMessage =
+        notificationError instanceof Error
+          ? notificationError.message
+          : "Unknown admin notification storage error";
+      console.error("Landing request admin notification was not stored:", notificationError);
+      await recordAuditEvent(supabaseAdmin, {
+        customerId: data.id,
+        actorType: "system",
+        eventType: "landing_purchase_request_notification_failed",
+        eventDescription:
+          "Landing purchase request was saved, but admin notification storage failed.",
+        metadata: {
+          planCode,
+          planName: selectedPlan.name,
+          screenQuantity,
+          customerEmail: email,
+          error: notificationErrorMessage,
+        },
+        ipAddress,
+        userAgent,
+      });
+
+      return NextResponse.json(
+        {
+          id: data.id,
+          success: false,
+          error:
+            "Forfragan sparades, men Screenia kunde inte skapa adminaviseringen. Kontakta support om du inte far aterkoppling.",
+        },
+        { status: 500, headers: rateLimitHeaders(rateLimit) },
+      );
+    }
 
     const emailResult = await sendRequestConfirmationEmail({
       email,
@@ -230,53 +354,183 @@ export async function POST(request: Request) {
     });
 
     if (emailResult.ok) {
-      await recordAuditEvent(supabaseAdmin, {
-        customerId: data.id,
-        actorType: "system",
-        eventType: "request_confirmation_email_sent",
-        eventDescription: "System sent request confirmation email to customer.",
-        metadata: {
-          sentTo: email,
-          resendEmailId: emailResult.id || null,
-          planCode,
-          screenQuantity,
-        },
-        ipAddress,
-        userAgent,
-      });
+      try {
+        await recordAuditEvent(
+          supabaseAdmin,
+          {
+            customerId: data.id,
+            actorType: "system",
+            eventType: "request_confirmation_email_sent",
+            eventDescription: "System sent request confirmation email to customer.",
+            metadata: {
+              sentTo: email,
+              resendEmailId: emailResult.id || null,
+              planCode,
+              screenQuantity,
+            },
+            ipAddress,
+            userAgent,
+          },
+          { throwOnError: true },
+        );
+      } catch (emailAuditError) {
+        const emailAuditErrorMessage =
+          emailAuditError instanceof Error
+            ? emailAuditError.message
+            : "Unknown confirmation email audit error";
+        console.error(
+          "Request confirmation email audit was not stored:",
+          emailAuditError,
+        );
+        await createAdminNotification(
+          supabaseAdmin,
+          {
+            customerId: data.id,
+            eventType: "request_confirmation_email_audit_failed",
+            title: "Confirmation email audit missing",
+            message: `Confirmation email to ${email} was sent, but audit evidence was not stored.`,
+            priority: "urgent",
+            metadata: {
+              planCode,
+              screenQuantity,
+              customerEmail: email,
+              resendEmailId: emailResult.id || null,
+              error: emailAuditErrorMessage,
+            },
+          },
+          { throwOnError: true },
+        );
+
+        return NextResponse.json(
+          {
+            id: data.id,
+            success: false,
+            emailSent: true,
+            error:
+              "Forfragan sparades och bekraftelsemejl skickades, men Screenia kunde inte spara e-posthistoriken. Vi foljer upp manuellt.",
+          },
+          { status: 500, headers: rateLimitHeaders(rateLimit) },
+        );
+      }
     } else {
       const eventType = emailResult.configured
         ? "request_confirmation_email_failed"
         : "request_confirmation_email_not_configured";
 
-      await recordAuditEvent(supabaseAdmin, {
-        customerId: data.id,
-        actorType: "system",
-        eventType,
-        eventDescription: emailResult.configured
-          ? "System could not send request confirmation email."
-          : "Request confirmation email was not sent because email is not configured.",
-        metadata: {
-          sentTo: email,
-          error: emailResult.error,
-          planCode,
-          screenQuantity,
-        },
-        ipAddress,
-        userAgent,
-      });
+      try {
+        await recordAuditEvent(
+          supabaseAdmin,
+          {
+            customerId: data.id,
+            actorType: "system",
+            eventType,
+            eventDescription: emailResult.configured
+              ? "System could not send request confirmation email."
+              : "Request confirmation email was not sent because email is not configured.",
+            metadata: {
+              sentTo: email,
+              error: emailResult.error,
+              planCode,
+              screenQuantity,
+            },
+            ipAddress,
+            userAgent,
+          },
+          { throwOnError: true },
+        );
+      } catch (emailAuditError) {
+        const emailAuditErrorMessage =
+          emailAuditError instanceof Error
+            ? emailAuditError.message
+            : "Unknown confirmation email failure audit error";
+        console.error(
+          "Request confirmation email failure audit was not stored:",
+          emailAuditError,
+        );
+        await createAdminNotification(
+          supabaseAdmin,
+          {
+            customerId: data.id,
+            eventType: "request_confirmation_email_audit_failed",
+            title: "Confirmation email failure audit missing",
+            message: `Confirmation email to ${email} was not sent, and the failure audit was not stored.`,
+            priority: "urgent",
+            metadata: {
+              planCode,
+              screenQuantity,
+              customerEmail: email,
+              emailError: emailResult.error,
+              auditError: emailAuditErrorMessage,
+            },
+          },
+          { throwOnError: true },
+        );
 
-      await createAdminNotification(supabaseAdmin, {
-        customerId: data.id,
-        eventType,
-        title: "Customer email not sent",
-        message: `Confirmation email to ${email} was not sent: ${emailResult.error}`,
-        priority: "urgent",
-        metadata: {
-          planCode,
-          screenQuantity,
-        },
-      });
+        return NextResponse.json(
+          {
+            id: data.id,
+            success: false,
+            emailSent: false,
+            error:
+              "Forfragan sparades, men Screenia kunde inte skicka eller logga bekraftelsemejlet. Vi foljer upp manuellt.",
+          },
+          { status: 500, headers: rateLimitHeaders(rateLimit) },
+        );
+      }
+
+      try {
+        await createAdminNotification(
+          supabaseAdmin,
+          {
+            customerId: data.id,
+            eventType,
+            title: "Customer email not sent",
+            message: `Confirmation email to ${email} was not sent: ${emailResult.error}`,
+            priority: "urgent",
+            metadata: {
+              planCode,
+              screenQuantity,
+            },
+          },
+          { throwOnError: true },
+        );
+      } catch (notificationError) {
+        const notificationErrorMessage =
+          notificationError instanceof Error
+            ? notificationError.message
+            : "Unknown confirmation email notification error";
+        console.error(
+          "Request confirmation email failure notification was not stored:",
+          notificationError,
+        );
+        await recordAuditEvent(supabaseAdmin, {
+          customerId: data.id,
+          actorType: "system",
+          eventType: "request_confirmation_email_notification_failed",
+          eventDescription:
+            "Request confirmation email failed, but admin notification storage also failed.",
+          metadata: {
+            sentTo: email,
+            emailError: emailResult.error,
+            notificationError: notificationErrorMessage,
+            planCode,
+            screenQuantity,
+          },
+          ipAddress,
+          userAgent,
+        });
+
+        return NextResponse.json(
+          {
+            id: data.id,
+            success: false,
+            emailSent: false,
+            error:
+              "Forfragan sparades, men Screenia kunde inte skicka bekraftelsemejlet eller skapa adminaviseringen. Vi foljer upp manuellt.",
+          },
+          { status: 500, headers: rateLimitHeaders(rateLimit) },
+        );
+      }
     }
 
     return NextResponse.json({
@@ -284,11 +538,11 @@ export async function POST(request: Request) {
       success: true,
       emailSent: emailResult.ok,
       warning: emailResult.ok ? null : emailResult.error,
-    });
+    }, { headers: rateLimitHeaders(rateLimit) });
   } catch (error) {
     console.error("Onboarding request error:", error);
     return NextResponse.json(
-      { error: "Det gick inte att skapa förfrågan." },
+      { error: "Det gick inte att skapa forfragan." },
       { status: 500 },
     );
   }

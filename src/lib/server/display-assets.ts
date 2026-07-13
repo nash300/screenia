@@ -124,20 +124,27 @@ export async function saveDisplayAssets({
   uploadedBy?: string;
 }) {
   const storedFiles: string[] = [];
+  const storedAssetIds: string[] = [];
+  const storagePaths: string[] = [];
   const cleanDescription = description.trim() || null;
 
   if (!files.length && cleanDescription) {
-    const { error } = await supabase.from("customer_display_assets").insert({
-      customer_id: customerId,
-      asset_category: "text",
-      description: cleanDescription,
-      source,
-      status: "new",
-      uploaded_by: uploadedBy,
-    });
+    const { data, error } = await supabase
+      .from("customer_display_assets")
+      .insert({
+        customer_id: customerId,
+        asset_category: "text",
+        description: cleanDescription,
+        source,
+        status: "new",
+        uploaded_by: uploadedBy,
+      })
+      .select("id")
+      .single();
 
     if (error) throw error;
-    return { storedFiles, descriptionStored: true };
+    if (data?.id) storedAssetIds.push(data.id);
+    return { storedFiles, storedAssetIds, storagePaths, descriptionStored: true };
   }
 
   for (const file of files) {
@@ -160,7 +167,7 @@ export async function saveDisplayAssets({
 
     if (uploadError) throw uploadError;
 
-    const { error: assetError } = await supabase
+    const { data: assetRecord, error: assetError } = await supabase
       .from("customer_display_assets")
       .insert({
         customer_id: customerId,
@@ -174,11 +181,18 @@ export async function saveDisplayAssets({
         description: String(file.description || "").trim() || cleanDescription,
         source,
         status: "new",
-      });
+      })
+      .select("id")
+      .single();
 
-    if (assetError) throw assetError;
+    if (assetError) {
+      await supabase.storage.from(DISPLAY_ASSET_BUCKET).remove([storagePath]);
+      throw assetError;
+    }
     storedFiles.push(fileName);
+    storagePaths.push(storagePath);
+    if (assetRecord?.id) storedAssetIds.push(assetRecord.id);
   }
 
-  return { storedFiles, descriptionStored: Boolean(cleanDescription) };
+  return { storedFiles, storedAssetIds, storagePaths, descriptionStored: Boolean(cleanDescription) };
 }

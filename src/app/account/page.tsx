@@ -41,6 +41,8 @@ type AccountData = {
     payment_status: string | null;
     stripe_customer_id: string | null;
     stripe_subscription_id: string | null;
+    service_access_status: string | null;
+    service_access_until: string | null;
     activated_at: string | null;
     cancelled_at: string | null;
     created_at: string;
@@ -57,6 +59,9 @@ type AccountData = {
     production_status: string | null;
     layout_started_at: string | null;
     setup_fee_locked_at: string | null;
+    marketing_consent: boolean | null;
+    analytics_consent: boolean | null;
+    remote_support_consent: boolean | null;
   };
   subscriptions: Array<{
     id: string;
@@ -76,7 +81,15 @@ type AccountData = {
     tracking_number: string | null;
     tracking_url: string | null;
     stripe_subscription_id: string | null;
+    stripe_invoice_id: string | null;
     stripe_payment_status: string | null;
+    stripe_current_period_start: string | null;
+    stripe_current_period_end: string | null;
+    cancel_at_period_end: boolean | null;
+    cancellation_effective_at: string | null;
+    pause_started_at: string | null;
+    pause_resumes_at: string | null;
+    pause_reason: string | null;
     created_at: string;
     pricing_plans?: {
       name: string;
@@ -122,6 +135,13 @@ type AccountData = {
     status: string;
     created_at: string;
     downloadUrl: string | null;
+  }>;
+  previewDecisions: Array<{
+    id: string;
+    decision: string;
+    feedback: string | null;
+    preview_url: string | null;
+    decided_at: string;
   }>;
   agreements: Array<{
     id: string;
@@ -174,6 +194,7 @@ const requestTypes = [
   { value: "material_update", label: "Ändra skärminnehåll" },
   { value: "billing", label: "Faktura eller betalning" },
   { value: "technical_support", label: "Teknisk support" },
+  { value: "privacy_request", label: "Integritet eller personuppgifter" },
 ];
 
 const priorities = [
@@ -197,6 +218,15 @@ const cancellationReasons = [
 function money(amount: number | null) {
   if (typeof amount !== "number") return "-";
   return `${formatter.format(amount)} kr`;
+}
+
+function stripeMoney(amount: number | null) {
+  if (typeof amount !== "number") return "-";
+
+  return `${(amount / 100).toLocaleString("sv-SE", {
+    minimumFractionDigits: amount % 100 === 0 ? 0 : 2,
+    maximumFractionDigits: 2,
+  })} kr`;
 }
 
 function date(value: string | null) {
@@ -241,6 +271,11 @@ function statusLabel(value: string | null) {
   if (value === "inactive") return "Inaktiv";
   if (value === "suspended") return "Pausad";
   if (value === "cancelled") return "Avslutad";
+  if (value === "active_until_period_end") return "Aktiv till periodens slut";
+  if (value === "paused") return "Pausad";
+  if (value === "payment_failed") return "Betalning misslyckades";
+  if (value === "payment_disputed" || value === "disputed") return "Betalning bestridd";
+  if (value === "refunded") return "Återbetald";
   if (value === "new") return "Nytt";
   if (value === "customer_reply") return "Kundsvar";
   if (value === "in_progress") return "Pågår";
@@ -328,6 +363,8 @@ export default function AccountPage() {
   const [materialDescription, setMaterialDescription] = useState("");
   const [materialCategory, setMaterialCategory] = useState("image");
   const [materialFiles, setMaterialFiles] = useState<MaterialUploadItem[]>([]);
+  const [previewFeedback, setPreviewFeedback] = useState("");
+  const [savingPreviewDecision, setSavingPreviewDecision] = useState(false);
   const [setupBusinessName, setSetupBusinessName] = useState("");
   const [setupBusinessDescription, setSetupBusinessDescription] = useState("");
   const [setupOpeningHours, setSetupOpeningHours] = useState("");
@@ -344,6 +381,13 @@ export default function AccountPage() {
   const [cancellationReason, setCancellationReason] = useState("");
   const [cancellationDetails, setCancellationDetails] = useState("");
   const [cancelling, setCancelling] = useState(false);
+  const [exportingData, setExportingData] = useState(false);
+  const [savingConsents, setSavingConsents] = useState(false);
+  const [consentDrafts, setConsentDrafts] = useState({
+    marketingConsent: false,
+    analyticsConsent: false,
+    remoteSupportConsent: false,
+  });
   const router = useRouter();
 
   const activeSubscription = data?.subscriptions[0];
@@ -403,6 +447,11 @@ export default function AccountPage() {
     setSetupWebsiteUrl(data.customer.website_url || "");
     setSetupSocialMedia(data.customer.social_media || "");
     setSetupContentOption(data.customer.content_option || "template");
+    setConsentDrafts({
+      marketingConsent: Boolean(data.customer.marketing_consent),
+      analyticsConsent: Boolean(data.customer.analytics_consent),
+      remoteSupportConsent: Boolean(data.customer.remote_support_consent),
+    });
   }, [data?.customer]);
 
   const fileToPayload = (file: File, category = "other") => {
@@ -433,6 +482,65 @@ export default function AccountPage() {
       category: materialCategory,
     }));
     setMaterialFiles((current) => [...current, ...nextFiles].slice(0, 8));
+  };
+
+  const downloadDataExport = async () => {
+    setExportingData(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/export");
+
+    if (!response.ok) {
+      setNotice("Kunde inte skapa dataexporten. Kontakta Screenia om problemet kvarstår.");
+      setExportingData(false);
+      return;
+    }
+
+    const blob = await response.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const disposition = response.headers.get("Content-Disposition") || "";
+    const fileName =
+      disposition.match(/filename="([^"]+)"/u)?.[1] ||
+      `screenia-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+
+    link.href = downloadUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
+    setNotice("Dataexporten har laddats ner.");
+    setExportingData(false);
+  };
+
+  const saveConsentSettings = async () => {
+    setSavingConsents(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/consents", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(consentDrafts),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setNotice(
+        result.error ||
+          "Kunde inte uppdatera samtycken. Kontakta Screenia om problemet kvarstar.",
+      );
+      setSavingConsents(false);
+      return;
+    }
+
+    await loadAccount();
+    setNotice(
+      result.changedConsents?.length
+        ? "Samtycken har uppdaterats."
+        : "Inga samtycken andrades.",
+    );
+    setSavingConsents(false);
   };
 
   const addSetupFiles = (files: FileList | File[]) => {
@@ -488,6 +596,43 @@ export default function AccountPage() {
     setNotice("Innehållsunderlaget har skickats till Screenia.");
     setSavingSetup(false);
     loadAccount();
+  };
+
+  const submitPreviewDecision = async (
+    decision: "approved" | "changes_requested",
+  ) => {
+    if (decision === "changes_requested" && previewFeedback.trim().length < 5) {
+      setNotice("Beskriv vad du vill att Screenia ska ändra.");
+      return;
+    }
+
+    setSavingPreviewDecision(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/preview-decision", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        decision,
+        feedback: previewFeedback,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte spara svaret på förhandsvisningen.");
+      setSavingPreviewDecision(false);
+      return;
+    }
+
+    setPreviewFeedback("");
+    setNotice(
+      decision === "approved"
+        ? "Förhandsvisningen är godkänd."
+        : "Dina ändringar har skickats till Screenia.",
+    );
+    setSavingPreviewDecision(false);
+    await loadAccount();
   };
 
   const uploadDisplayMaterial = async () => {
@@ -586,7 +731,7 @@ export default function AccountPage() {
     }
 
     const confirmed = window.confirm(
-      "Vill du avsluta ditt Screenia-abonnemang? Skärmtjänsten kan sluta fungera efter avslut.",
+      "Vill du avsluta ditt Screenia-abonnemang? Tjänsten fortsätter till sista dagen i den period du redan har betalat för.",
     );
     if (!confirmed) return;
 
@@ -606,7 +751,11 @@ export default function AccountPage() {
       setCancelling(false);
       return;
     }
-    setNotice("Abonnemanget har avslutats. Tack för din feedback.");
+    setNotice(
+      result.cancellationEffectiveAt
+        ? `Abonnemanget avslutas ${date(result.cancellationEffectiveAt)}. Tjänsten fungerar fram till dess.`
+        : "Abonnemanget avslutas vid periodens slut. Tjänsten fungerar fram till dess.",
+    );
     setCancelling(false);
     loadAccount();
   };
@@ -946,17 +1095,62 @@ export default function AccountPage() {
 
               <AccountCard title="Förhandsvisning">
                 {data.customer.preview_url ? (
-                  <div className="account-list-item account-history-row">
-                    <div>
-                      <strong>Första skärmförslaget</strong>
-                      <span>{statusLabel(data.customer.preview_status)}</span>
-                      {data.customer.preview_feedback && (
-                        <p>{data.customer.preview_feedback}</p>
-                      )}
+                  <div className="account-card-stack">
+                    <div className="account-list-item account-history-row">
+                      <div>
+                        <strong>Första skärmförslaget</strong>
+                        <span>{statusLabel(data.customer.preview_status)}</span>
+                        {data.customer.preview_feedback && (
+                          <p>{data.customer.preview_feedback}</p>
+                        )}
+                      </div>
+                      <a href={data.customer.preview_url} target="_blank" rel="noreferrer">
+                        Öppna preview
+                      </a>
                     </div>
-                    <a href={data.customer.preview_url} target="_blank" rel="noreferrer">
-                      Öppna preview
-                    </a>
+
+                    <label>
+                      Feedback eller ändringar
+                      <textarea
+                        rows={4}
+                        value={previewFeedback}
+                        onChange={(event) => setPreviewFeedback(event.target.value)}
+                        placeholder="Skriv bara om något ska ändras innan godkännande."
+                      />
+                    </label>
+
+                    <div className="account-action-row">
+                      <button
+                        type="button"
+                        className="landing-button landing-button-primary"
+                        disabled={savingPreviewDecision}
+                        onClick={() => submitPreviewDecision("approved")}
+                      >
+                        {savingPreviewDecision ? "Sparar..." : "Godkänn preview"}
+                      </button>
+                      <button
+                        type="button"
+                        className="landing-button landing-button-secondary"
+                        disabled={savingPreviewDecision}
+                        onClick={() => submitPreviewDecision("changes_requested")}
+                      >
+                        Begär ändringar
+                      </button>
+                    </div>
+
+                    {data.previewDecisions.length > 0 && (
+                      <div className="account-history-list">
+                        {data.previewDecisions.map((item) => (
+                          <div key={item.id} className="account-history-row">
+                            <div>
+                              <strong>{statusLabel(item.decision)}</strong>
+                              {item.feedback && <p>{item.feedback}</p>}
+                            </div>
+                            <span>{date(item.decided_at)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p>Förhandsvisningen visas här när Screenia har skapat första förslaget.</p>
@@ -1128,6 +1322,7 @@ export default function AccountPage() {
                   value={messageSubject}
                   onChange={(event) => setMessageSubject(event.target.value)}
                   placeholder="Rubrik"
+                  maxLength={160}
                   className="account-input"
                 />
                 <input
@@ -1147,6 +1342,7 @@ export default function AccountPage() {
                   onChange={(event) => setMessageText(event.target.value)}
                   placeholder="Beskriv problemet, returen, frågan eller uppdateringen. Ange gärna ordernummer, skärmkod, returorsak och önskat nästa steg."
                   rows={5}
+                  maxLength={4000}
                   className="account-input"
                 />
                 <label className="account-compact-upload">
@@ -1230,8 +1426,48 @@ export default function AccountPage() {
                         value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
+                      <Fact
+                        label="Tjänsteåtkomst"
+                        value={statusLabel(data.customer.service_access_status)}
+                      />
+                      <Fact
+                        label="Åtkomst till"
+                        value={date(data.customer.service_access_until)}
+                      />
+                      <Fact
+                        label="Betald period"
+                        value={`${date(activeSubscription.stripe_current_period_start)} - ${date(activeSubscription.stripe_current_period_end)}`}
+                      />
+                      {activeSubscription.cancel_at_period_end && (
+                        <Fact
+                          label="Avslutas"
+                          value={date(activeSubscription.cancellation_effective_at)}
+                        />
+                      )}
+                      {activeSubscription.pause_started_at && (
+                        <Fact
+                          label="Pausad sedan"
+                          value={date(activeSubscription.pause_started_at)}
+                        />
+                      )}
                       <Fact label="Första betalning" value={money(initialPaymentSek)} />
                       <Fact label="Månadspris efter provperiod" value={money(monthlyPaymentSek)} />
+                      <Fact
+                        label="Senaste betalningsstatus"
+                        value={statusLabel(activeSubscription.stripe_payment_status)}
+                      />
+                      <Fact
+                        label="Senaste faktura"
+                        value={activeSubscription.stripe_invoice_id || "-"}
+                      />
+                      <Fact
+                        label="Senaste fakturabelopp"
+                        value={stripeMoney(activeSubscription.total_amount_sek)}
+                      />
+                      <Fact
+                        label="Senaste moms"
+                        value={stripeMoney(activeSubscription.tax_amount_sek)}
+                      />
                       <Fact label="Provperiod" value={`${activeSubscription.trial_days || 0} dagar`} />
                       <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
                       <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
@@ -1255,7 +1491,9 @@ export default function AccountPage() {
 
                 <AccountCard title="Avslut och feedback">
                   <p>
-                    Om du vill avsluta samlar vi in orsaken så att vi kan analysera churn och förbättra tjänsten.
+                    Om du avslutar fortsätter tjänsten till sista dagen i perioden
+                    som redan är betald. Vi samlar in orsaken så att vi kan
+                    förbättra tjänsten.
                   </p>
                   <select
                     value={cancellationReason}
@@ -1290,6 +1528,87 @@ export default function AccountPage() {
 
           {activeSection === "legal" && (
             <div className="account-panel-stack">
+              <AccountCard title="Samtycken">
+                <div className="account-list">
+                  <label className="account-list-item account-history-row">
+                    <div>
+                      <strong>Marknadsforing</strong>
+                      <span>Nyheter, erbjudanden och annan frivillig kommunikation.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={consentDrafts.marketingConsent}
+                      onChange={(event) =>
+                        setConsentDrafts((current) => ({
+                          ...current,
+                          marketingConsent: event.target.checked,
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="account-list-item account-history-row">
+                    <div>
+                      <strong>Statistik</strong>
+                      <span>Frivillig statistik for att forbattra Screenia.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={consentDrafts.analyticsConsent}
+                      onChange={(event) =>
+                        setConsentDrafts((current) => ({
+                          ...current,
+                          analyticsConsent: event.target.checked,
+                        }))
+                      }
+                    />
+                  </label>
+                  <label className="account-list-item account-history-row">
+                    <div>
+                      <strong>Fjarrsupport</strong>
+                      <span>Screenia far ge fjarrsupport nar du ber om hjalp.</span>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={consentDrafts.remoteSupportConsent}
+                      onChange={(event) =>
+                        setConsentDrafts((current) => ({
+                          ...current,
+                          remoteSupportConsent: event.target.checked,
+                        }))
+                      }
+                    />
+                  </label>
+                </div>
+                <button
+                  type="button"
+                  disabled={savingConsents}
+                  onClick={saveConsentSettings}
+                  className="landing-button landing-button-secondary"
+                >
+                  {savingConsents ? "Sparar..." : "Spara samtycken"}
+                </button>
+              </AccountCard>
+
+              <AccountCard title="Dataexport">
+                <div className="account-list-item account-history-row">
+                  <div>
+                    <strong>Ladda ner kontodata</strong>
+                    <span>JSON-export med konto, abonnemang, enheter, ärenden, materialmetadata, samtycken, avtal och kundrelaterad historik.</span>
+                    <p>
+                      Själva filerna laddas fortfarande ner från respektive historiklista med tidsbegränsade länkar.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={exportingData}
+                    onClick={downloadDataExport}
+                    className="landing-button landing-button-secondary"
+                  >
+                    {exportingData ? "Skapar..." : "Ladda ner data"}
+                  </button>
+                </div>
+              </AccountCard>
+
               <AccountCard title="Godkända avtal">
                 <HistoryList empty="Inga godkända villkor finns registrerade ännu.">
                   {data.agreements.map((agreement) => (

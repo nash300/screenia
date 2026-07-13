@@ -252,20 +252,27 @@ function CustomersContent() {
       return;
     }
 
-    setSaving(true);
-    const newCustomerId = crypto.randomUUID();
-    const { error } = await supabase.from("customers").insert({
-      id: newCustomerId,
-      name: name.trim(),
-      email: email.trim(),
-      country: "Sverige",
-      preferred_contact_channel: "email",
-      status: "draft",
-    });
+    const reason = prompt("Reason for manually creating this customer draft:")?.trim();
 
-    if (error) {
-      console.error("Create customer error:", error);
-      showAdminNotification("error", error.message || "Could not create customer.");
+    if (!reason) return;
+
+    setSaving(true);
+    const response = await fetch("/api/admin/customers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not create customer.",
+      );
       setSaving(false);
       return;
     }
@@ -275,7 +282,7 @@ function CustomersContent() {
     showAdminNotification("success", "Customer draft created successfully.");
     await loadCustomers();
     setSaving(false);
-    router.push(`/admin/customers/${newCustomerId}?section=onboarding`);
+    router.push(`/admin/customers/${result.customer.id}?section=onboarding`);
   };
 
   const getDeviceCount = (customer: Customer) => customer.devices?.length || 0;

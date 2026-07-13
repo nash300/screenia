@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import Image from "next/image";
 import { LandingNav } from "@/components/LandingNav";
 import "./landing.css";
 
@@ -96,6 +97,8 @@ const copy = {
     placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bör känna till."],
     requestPrivacy:
       "Vi använder uppgifterna för att hantera din förfrågan och skapa en personlig startguide. Skicka inte känsliga personuppgifter i meddelandet.",
+    requestPrivacyConsent:
+      "Jag har läst integritetspolicyn och förstår att Screenia sparar uppgifterna för att hantera min förfrågan.",
     sending: "Skickar förfrågan...",
     submit: "Skicka förfrågan",
     success:
@@ -186,6 +189,8 @@ const copy = {
     placeholders: ["Example: Salon Bella", "name@company.com", "Your name", "+46...", "Location, industry, or anything else we should know."],
     requestPrivacy:
       "We use these details to handle your request and create a personal setup guide. Do not include sensitive personal data in the message.",
+    requestPrivacyConsent:
+      "I have read the privacy policy and understand that Screenia stores these details to handle my request.",
     sending: "Sending request...",
     submit: "Send request",
     success: "Thanks. Your request has been received and Screenia will send your personal setup guide.",
@@ -357,6 +362,7 @@ export default function Home() {
   const [phone, setPhone] = useState("");
   const [screenQuantity, setScreenQuantity] = useState(1);
   const [message, setMessage] = useState("");
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [requestStatus, setRequestStatus] = useState<
     "idle" | "saving" | "success" | "error"
   >("idle");
@@ -573,6 +579,7 @@ export default function Home() {
         phone,
         screenQuantity,
         message,
+        privacyAccepted,
       }),
     });
     const data = await response.json();
@@ -589,6 +596,7 @@ export default function Home() {
     setPhone("");
     setScreenQuantity(1);
     setMessage("");
+    setPrivacyAccepted(false);
     setRequestStatus("success");
     setRequestMessage(t.success);
   };
@@ -664,7 +672,12 @@ export default function Home() {
                   >
                     {serviceLogos.map((logo) => (
                       <span key={`${logo.label}-${group}`} className="landing-logo-tile">
-                        <img src={logo.src} alt={group === 0 ? `${logo.label} logo` : ""} />
+                        <Image
+                          src={logo.src}
+                          alt={group === 0 ? `${logo.label} logo` : ""}
+                          width={138}
+                          height={30}
+                        />
                       </span>
                     ))}
                   </div>
@@ -721,10 +734,12 @@ export default function Home() {
         </LandingSection>
 
         <section id="workflow" className="landing-section landing-workflow">
-          <img
+          <Image
             className="landing-workflow-banner"
             src="/brand/how-it-works-sv-banner.png"
             alt="Screenia process: välj paket, slutför uppsättning, få hårdvara, anslut och begär uppdateringar"
+            width={1983}
+            height={793}
           />
         </section>
 
@@ -745,9 +760,11 @@ export default function Home() {
                     <span>{plan.resolution}</span>
                   </div>
                   <div className="landing-plan-device" aria-hidden="true">
-                    <img
+                    <Image
                       src={plan.deviceImage}
                       alt=""
+                      width={560}
+                      height={528}
                       className="landing-plan-device-image"
                     />
                     <span>{plan.deviceLabel}</span>
@@ -791,7 +808,12 @@ export default function Home() {
             {t.galleryItems.map(([title, text], index) => (
               <article key={title} className="landing-gallery-card">
                 <div className="landing-gallery-image">
-                  <img src={galleryImages[index]} alt={title} />
+                  <Image
+                    src={galleryImages[index]}
+                    alt={title}
+                    width={1400}
+                    height={1050}
+                  />
                 </div>
                 <div className="landing-gallery-content">
                   <h3>{title}</h3>
@@ -896,6 +918,14 @@ export default function Home() {
             </h2>
             <p>{t.modalText}</p>
             <form onSubmit={submitPlanRequest} className="landing-request-form">
+              <input
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                className="landing-honeypot"
+                aria-hidden="true"
+              />
               <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
               <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
               <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} />
@@ -924,6 +954,16 @@ export default function Home() {
               <p className="landing-request-privacy landing-request-form-wide">
                 {t.requestPrivacy} <a href="/privacy" target="_blank">Integritetspolicy</a>
               </p>
+
+              <label className="landing-request-checkbox landing-request-form-wide">
+                <input
+                  type="checkbox"
+                  checked={privacyAccepted}
+                  onChange={(event) => setPrivacyAccepted(event.target.checked)}
+                  required
+                />
+                <span>{t.requestPrivacyConsent}</span>
+              </label>
 
               {requestMessage && (
                 <p className={`landing-request-message landing-request-${requestStatus}`}>

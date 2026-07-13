@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { isSupabaseBrowserConfigured, supabase } from "@/lib/supabase/client";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
-
-const missingSupabaseMessage =
-  "Supabase saknas i lokal miljö. Lägg till NEXT_PUBLIC_SUPABASE_URL och NEXT_PUBLIC_SUPABASE_ANON_KEY i .env.local och starta om servern.";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -20,35 +16,25 @@ export default function AdminLoginPage() {
     setLoading(true);
     setMessage("");
 
-    if (!isSupabaseBrowserConfigured) {
-      setMessage(missingSupabaseMessage);
-      setLoading(false);
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password, mode: "admin" }),
     });
+    const result = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      next?: string;
+    };
 
-    if (error) {
-      setMessage(error.message);
+    if (!response.ok) {
+      setMessage(result.error || "E-post eller lösenord är fel.");
       setLoading(false);
       return;
     }
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (user?.app_metadata?.role !== "admin") {
-      await supabase.auth.signOut();
-      setMessage("Kontot har inte administratörsbehörighet.");
-      setLoading(false);
-      return;
-    }
-
-    router.push("/admin");
+    router.push(result.next || "/admin");
     router.refresh();
   };
 

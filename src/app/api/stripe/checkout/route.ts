@@ -1,9 +1,21 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
+import {
+  CURRENT_PRIVACY_VERSION,
+  CURRENT_TERMS_VERSION,
+} from "@/lib/legal/documents";
+import { getLiveCheckoutBlockers } from "@/lib/server/live-checkout-readiness";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
+import {
+  isValidSwedishRegistrationNumber,
+  normalizeSwedishRegistrationNumber,
+} from "@/lib/business/sweden";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -17,8 +29,33 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!,
 );
 
+async function getAuthenticatedAdmin() {
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll: () => cookieStore.getAll(),
+        setAll: () => {},
+      },
+    },
+  );
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return user?.app_metadata?.role === "admin" ? user : null;
+}
+
 function toOre(amountSek: number) {
   return Math.round(amountSek * 100);
+}
+
+function isLiveStripeKey() {
+  return process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true;
 }
 
 function checkoutImageUrl(appUrl: string, path: string) {
@@ -27,6 +64,14 @@ function checkoutImageUrl(appUrl: string, path: string) {
     : appUrl;
 
   return new URL(path, imageBaseUrl).toString();
+}
+
+function normalizeEmail(value: unknown) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value);
 }
 
 async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T | null> {
@@ -52,12 +97,155 @@ type QuoteItem = {
   monthlyFeeSek?: number;
 };
 
+type CheckoutFailureContext = {
+  customerId?: string;
+  orderId?: string;
+  orderNumber?: string;
+  pricingPlanCode?: string;
+  stripeCustomerId?: string;
+  stripeCheckoutSessionId?: string;
+};
+
+async function recordCheckoutLocalSyncFailure({
+  customerId,
+  orderId,
+  orderNumber,
+  pricingPlanCode,
+  stripeCustomerId,
+  stripeCheckoutSessionId,
+  phase,
+  error,
+  ipAddress,
+  userAgent,
+}: CheckoutFailureContext & {
+  phase: string;
+  error: unknown;
+  ipAddress: string | null;
+  userAgent: string | null;
+}) {
+  const errorMessage =
+    error instanceof Error ? error.message : "Unknown local sync error";
+  const metadata = {
+    customerId,
+    orderId,
+    orderNumber,
+    pricingPlanCode,
+    stripeCustomerId,
+    stripeCheckoutSessionId,
+    phase,
+    error: errorMessage,
+  };
+
+  await recordAuditEvent(
+    supabaseAdmin,
+    {
+      customerId,
+      actorType: "system",
+      eventType: "stripe_checkout_local_sync_failed",
+      eventDescription:
+        "Stripe checkout state was created but Screenia could not store the local billing reference.",
+      metadata,
+      ipAddress,
+      userAgent,
+    },
+    { throwOnError: true },
+  );
+
+  await createAdminNotification(
+    supabaseAdmin,
+    {
+      customerId,
+      eventType: "stripe_checkout_local_sync_failed",
+      title: "Stripe checkout local sync failed",
+      message: `Stripe checkout state exists for order ${
+        orderNumber || "unknown"
+      }, but Screenia could not store the local ${phase} reference: ${errorMessage}`,
+      priority: "urgent",
+      metadata,
+    },
+    { throwOnError: true },
+  );
+}
+
+async function hasRequiredLegalEvidence(customerId: string) {
+  const [consentResult, agreementResult] = await Promise.all([
+    supabaseAdmin
+      .from("consent_records")
+      .select("consent_type, document_version")
+      .eq("customer_id", customerId)
+      .eq("granted", true)
+      .in("consent_type", ["terms", "privacy"])
+      .in("document_version", [CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION]),
+    supabaseAdmin
+      .from("customer_legal_agreements")
+      .select("document_type, document_version")
+      .eq("customer_id", customerId)
+      .in("document_type", ["terms", "privacy"])
+      .in("document_version", [CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION]),
+  ]);
+
+  if (consentResult.error || agreementResult.error) {
+    console.error("Checkout legal evidence lookup failed:", {
+      consentError: consentResult.error,
+      agreementError: agreementResult.error,
+    });
+
+    return {
+      ok: false,
+      error:
+        "Det gick inte att kontrollera villkor och integritetssamtycke. Försök igen innan betalning.",
+    };
+  }
+
+  const consentRows = consentResult.data || [];
+  const agreementRows = agreementResult.data || [];
+  const hasTermsConsent = consentRows.some(
+    (row) =>
+      row.consent_type === "terms" &&
+      row.document_version === CURRENT_TERMS_VERSION,
+  );
+  const hasPrivacyConsent = consentRows.some(
+    (row) =>
+      row.consent_type === "privacy" &&
+      row.document_version === CURRENT_PRIVACY_VERSION,
+  );
+  const hasTermsAgreement = agreementRows.some(
+    (row) =>
+      row.document_type === "terms" &&
+      row.document_version === CURRENT_TERMS_VERSION,
+  );
+  const hasPrivacyAgreement = agreementRows.some(
+    (row) =>
+      row.document_type === "privacy" &&
+      row.document_version === CURRENT_PRIVACY_VERSION,
+  );
+
+  if (
+    !hasTermsConsent ||
+    !hasPrivacyConsent ||
+    !hasTermsAgreement ||
+    !hasPrivacyAgreement
+  ) {
+    return {
+      ok: false,
+      error:
+        "Kunden måste först godkänna aktuella villkor och integritetspolicy i onboarding innan betalning kan startas.",
+    };
+  }
+
+  return { ok: true, error: null };
+}
+
 export async function POST(request: Request) {
+  const ipAddress = getRequestIp(request);
+  const userAgent = request.headers.get("user-agent");
+  const failureContext: CheckoutFailureContext = {};
+
   try {
     const body = await request.json();
     const { customerId, email, pricingPlanCode, legalAccepted } = body;
-    const ipAddress = getRequestIp(request);
-    const userAgent = request.headers.get("user-agent");
+    const onboardingToken = String(body.onboardingToken || "").trim();
+    failureContext.customerId = String(customerId || "").trim() || undefined;
 
     if (!customerId || !email) {
       return NextResponse.json(
@@ -73,6 +261,22 @@ export async function POST(request: Request) {
       );
     }
 
+    if (isLiveStripeKey()) {
+      const liveCheckoutBlockers =
+        await getLiveCheckoutBlockers(supabaseAdmin);
+
+      if (liveCheckoutBlockers.length > 0) {
+        return NextResponse.json(
+          {
+            error: `Livebetalningar är spärrade tills alla lanseringskontroller är klara: ${liveCheckoutBlockers.join(
+              ", ",
+            )}.`,
+          },
+          { status: 403 },
+        );
+      }
+    }
+
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!appUrl) {
@@ -85,13 +289,103 @@ export async function POST(request: Request) {
     const { data: customer, error: customerError } = await supabaseAdmin
       .from("customers")
       .select(
-        "id, name, email, phone, country, postal_code, address, city, stripe_customer_id",
+        "id, name, email, billing_email, organisation_number, phone, country, postal_code, address, city, stripe_customer_id, onboarding_token, onboarding_token_expires_at",
       )
       .eq("id", customerId)
       .single();
 
     if (customerError || !customer) {
       return NextResponse.json({ error: "Kunden hittades inte." }, { status: 404 });
+    }
+
+    const authenticatedAdmin = await getAuthenticatedAdmin();
+
+    if (!authenticatedAdmin) {
+      const tokenExpiresAt = customer.onboarding_token_expires_at
+        ? new Date(customer.onboarding_token_expires_at)
+        : null;
+      const tokenExpired = tokenExpiresAt ? tokenExpiresAt < new Date() : true;
+
+      if (
+        !onboardingToken ||
+        onboardingToken !== customer.onboarding_token ||
+        tokenExpired
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Startlänken saknas eller har gått ut. Be Screenia skicka en ny betalningslänk.",
+          },
+          { status: 401 },
+        );
+      }
+    }
+
+    const storedCustomerEmail = normalizeEmail(customer.email);
+    const submittedEmail = normalizeEmail(email);
+    const billingEmail = normalizeEmail(customer.billing_email);
+    const stripeBillingEmail = billingEmail || storedCustomerEmail;
+
+    if (!isValidEmail(storedCustomerEmail)) {
+      return NextResponse.json(
+        {
+          error:
+            "Kundens kontoe-postadress saknas eller är ogiltig. Kontakta Screenia innan betalning.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (billingEmail && !isValidEmail(billingEmail)) {
+      return NextResponse.json(
+        {
+          error:
+            "Faktura-e-postadressen är ogiltig. Uppdatera kunduppgifterna innan betalning.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (!isValidEmail(submittedEmail)) {
+      return NextResponse.json(
+        { error: "Ange en giltig betalnings-e-postadress." },
+        { status: 400 },
+      );
+    }
+
+    if (submittedEmail !== storedCustomerEmail) {
+      return NextResponse.json(
+        {
+          error:
+            "Betalnings-e-posten matchar inte kundens registrerade e-postadress.",
+        },
+        { status: 403 },
+      );
+    }
+
+    if (
+      !customer.organisation_number ||
+      !isValidSwedishRegistrationNumber(customer.organisation_number)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Kundens organisationsnummer saknas eller är ogiltigt. Uppdatera kunduppgifterna innan betalning.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const normalizedOrganisationNumber =
+      normalizeSwedishRegistrationNumber(customer.organisation_number);
+
+    const legalEvidence = await hasRequiredLegalEvidence(customerId);
+
+    if (!legalEvidence.ok) {
+      return NextResponse.json(
+        { error: legalEvidence.error },
+        { status: 409 },
+      );
     }
 
     if (
@@ -189,6 +483,7 @@ export async function POST(request: Request) {
         { status: 404 },
       );
     }
+    failureContext.pricingPlanCode = plan.code;
 
     const configuredPlan = PRICING_PLANS.find((item) => item.code === plan.code);
     const hardwareFeeSek =
@@ -373,6 +668,8 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+    failureContext.orderId = order.id;
+    failureContext.orderNumber = order.order_number;
 
     const coupon =
       deviceDiscountPercent > 0 && deviceDiscountMonths > 0
@@ -398,15 +695,18 @@ export async function POST(request: Request) {
     };
     const stripeCustomerPayload = {
       address: stripeAddress,
-      email,
+      email: stripeBillingEmail,
       metadata: {
+        account_email: storedCustomerEmail,
+        billing_email: stripeBillingEmail,
         customer_id: customerId,
+        organisation_number: normalizedOrganisationNumber,
       },
       name: customer.name || undefined,
       phone: customer.phone || undefined,
       shipping: {
         address: stripeAddress,
-        name: customer.name || email,
+        name: customer.name || storedCustomerEmail,
         phone: customer.phone || undefined,
       },
     };
@@ -418,11 +718,51 @@ export async function POST(request: Request) {
       : await stripe.customers.create(stripeCustomerPayload);
 
     if (!customer.stripe_customer_id) {
-      await supabaseAdmin
+      const { error: stripeCustomerSyncError } = await supabaseAdmin
         .from("customers")
         .update({ stripe_customer_id: stripeCustomer.id })
         .eq("id", customerId);
+
+      if (stripeCustomerSyncError) {
+        console.error("Stripe customer local sync error:", stripeCustomerSyncError);
+        try {
+          await recordCheckoutLocalSyncFailure({
+            ...failureContext,
+            customerId,
+            orderId: order.id,
+            orderNumber: order.order_number,
+            pricingPlanCode: plan.code,
+            stripeCustomerId: stripeCustomer.id,
+            phase: "customer",
+            error: stripeCustomerSyncError,
+            ipAddress,
+            userAgent,
+          });
+        } catch (evidenceError) {
+          console.error(
+            "Stripe customer local sync failure evidence was not stored:",
+            evidenceError,
+          );
+
+          return NextResponse.json(
+            {
+              error:
+                "Stripe-kunden skapades, men Screenia kunde inte spara betalningsreferensen eller intern felhistorik. Kontakta support innan betalning startas igen.",
+            },
+            { status: 500 },
+          );
+        }
+
+        return NextResponse.json(
+          {
+            error:
+              "Stripe-kunden skapades, men Screenia kunde inte spara betalningsreferensen. Kontakta support innan betalning startas igen.",
+          },
+          { status: 500 },
+        );
+      }
     }
+    failureContext.stripeCustomerId = stripeCustomer.id;
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
@@ -555,8 +895,11 @@ export async function POST(request: Request) {
       subscription_data: {
         trial_period_days: plan.trial_days,
         metadata: {
+          account_email: storedCustomerEmail,
+          billing_email: stripeBillingEmail,
           customer_id: customerId,
           customer_subscription_id: order.id,
+          organisation_number: normalizedOrganisationNumber,
           order_number: order.order_number,
           pricing_plan_id: plan.id,
           pricing_plan_code: plan.code,
@@ -569,8 +912,11 @@ export async function POST(request: Request) {
       success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}`,
       cancel_url: `${appUrl}/onboarding/payment-cancelled`,
       metadata: {
+        account_email: storedCustomerEmail,
+        billing_email: stripeBillingEmail,
         customer_id: customerId,
         customer_subscription_id: order.id,
+        organisation_number: normalizedOrganisationNumber,
         order_number: order.order_number,
         pricing_plan_id: plan.id,
         pricing_plan_code: plan.code,
@@ -581,7 +927,9 @@ export async function POST(request: Request) {
       },
     });
 
-    await supabaseAdmin
+    failureContext.stripeCheckoutSessionId = session.id;
+
+    const { error: checkoutSyncError } = await supabaseAdmin
       .from("customer_subscriptions")
       .update({
         stripe_checkout_session_id: session.id,
@@ -597,26 +945,156 @@ export async function POST(request: Request) {
       })
       .eq("id", order.id);
 
-    await recordAuditEvent(supabaseAdmin, {
-      customerId,
-      actorType: "customer",
-      eventType: "stripe_checkout_started",
-      eventDescription: "Customer started Stripe checkout from onboarding.",
-      metadata: {
-        pricingPlanCode: plan.code,
-        pricingPlanId: plan.id,
-        customerSubscriptionId: order.id,
-        orderNumber: order.order_number,
-        stripeCheckoutSessionId: session.id,
-        stripeAutomaticTaxEnabled,
-      },
-      ipAddress,
-      userAgent,
-    });
+    if (checkoutSyncError) {
+      console.error("Stripe checkout local sync error:", checkoutSyncError);
+      try {
+        await recordCheckoutLocalSyncFailure({
+          ...failureContext,
+          customerId,
+          orderId: order.id,
+          orderNumber: order.order_number,
+          pricingPlanCode: plan.code,
+          stripeCustomerId: stripeCustomer.id,
+          stripeCheckoutSessionId: session.id,
+          phase: "checkout_session",
+          error: checkoutSyncError,
+          ipAddress,
+          userAgent,
+        });
+      } catch (evidenceError) {
+        console.error(
+          "Stripe checkout local sync failure evidence was not stored:",
+          evidenceError,
+        );
+
+        return NextResponse.json(
+          {
+            error:
+              "Stripe-betalningen skapades, men Screenia kunde inte spara checkout-referensen eller intern felhistorik. Kontakta support innan betalning startas igen.",
+          },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            "Stripe-betalningen skapades, men Screenia kunde inte spara checkout-referensen. Kontakta support innan betalning startas igen.",
+        },
+        { status: 500 },
+      );
+    }
+
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId,
+          actorType: "customer",
+          eventType: "stripe_checkout_started",
+          eventDescription: "Customer started Stripe checkout from onboarding.",
+          metadata: {
+            pricingPlanCode: plan.code,
+            pricingPlanId: plan.id,
+            customerSubscriptionId: order.id,
+            orderNumber: order.order_number,
+            stripeCheckoutSessionId: session.id,
+            stripeAutomaticTaxEnabled,
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+    } catch (auditError) {
+      console.error("Stripe checkout started audit was not stored:", auditError);
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId,
+          eventType: "stripe_checkout_started_audit_failed",
+          title: "Stripe checkout audit missing",
+          message: `Stripe checkout session ${session.id} was created for order ${order.order_number}, but checkout-start audit evidence was not stored.`,
+          priority: "urgent",
+          metadata: {
+            pricingPlanCode: plan.code,
+            pricingPlanId: plan.id,
+            customerSubscriptionId: order.id,
+            orderNumber: order.order_number,
+            stripeCheckoutSessionId: session.id,
+            stripeCustomerId: stripeCustomer.id,
+            error: auditError instanceof Error ? auditError.message : String(auditError),
+          },
+        },
+        { throwOnError: true },
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Stripe checkout was created, but Screenia could not store checkout audit evidence. Contact support before trying again.",
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({ url: session.url, orderNumber: order.order_number });
   } catch (error) {
     console.error("Stripe checkout error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown checkout error";
+
+    if (failureContext.customerId) {
+      try {
+        await recordAuditEvent(
+          supabaseAdmin,
+          {
+            customerId: failureContext.customerId,
+            actorType: "system",
+            eventType: "stripe_checkout_failed",
+            eventDescription:
+              "System could not create a Stripe checkout session.",
+            metadata: {
+              ...failureContext,
+              error: errorMessage,
+            },
+            ipAddress,
+            userAgent,
+          },
+          { throwOnError: true },
+        );
+
+        await createAdminNotification(
+          supabaseAdmin,
+          {
+            customerId: failureContext.customerId,
+            eventType: "stripe_checkout_failed",
+            title: "Stripe checkout failed",
+            message: `Stripe checkout could not be created for order ${
+              failureContext.orderNumber || "unknown"
+            }: ${errorMessage}`,
+            priority: "urgent",
+            metadata: {
+              ...failureContext,
+              error: errorMessage,
+            },
+          },
+          { throwOnError: true },
+        );
+      } catch (evidenceError) {
+        console.error(
+          "Stripe checkout failure evidence was not stored:",
+          evidenceError,
+        );
+        return NextResponse.json(
+          {
+            error:
+              "Det gick inte att starta betalningen och Screenia kunde inte spara intern felbevisning. Kontakta support innan du försöker igen.",
+          },
+          { status: 500 },
+        );
+      }
+    }
 
     return NextResponse.json(
       { error: "Det gick inte att starta betalningen." },

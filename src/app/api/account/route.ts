@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   getAuthenticatedUser,
   getCustomerForUser,
+  hasCustomerServiceAccess,
   supabaseAdmin,
 } from "@/lib/server/customer-account";
 
@@ -43,6 +44,7 @@ export async function GET() {
     { data: devices },
     messageResult,
     { data: displayAssets },
+    { data: previewDecisions },
     { data: agreements },
     { data: legalDocuments },
   ] =
@@ -50,7 +52,7 @@ export async function GET() {
       supabaseAdmin
         .from("customer_subscriptions")
         .select(
-          "id, order_number, status, setup_fee_paid, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, tracking_number, tracking_url, stripe_subscription_id, stripe_payment_status, created_at, updated_at, pricing_plans(name, resolution, code)",
+          "id, order_number, status, setup_fee_paid, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, tracking_number, tracking_url, stripe_subscription_id, stripe_invoice_id, stripe_payment_status, stripe_current_period_start, stripe_current_period_end, cancel_at_period_end, cancellation_effective_at, pause_started_at, pause_resumes_at, pause_reason, created_at, updated_at, pricing_plans(name, resolution, code)",
         )
         .eq("customer_id", customer.id)
         .order("created_at", { ascending: false }),
@@ -73,6 +75,12 @@ export async function GET() {
         .eq("customer_id", customer.id)
         .order("created_at", { ascending: false })
         .limit(12),
+      supabaseAdmin
+        .from("customer_preview_decisions")
+        .select("id, decision, feedback, preview_url, decided_at")
+        .eq("customer_id", customer.id)
+        .order("decided_at", { ascending: false })
+        .limit(5),
       supabaseAdmin
         .from("customer_legal_agreements")
         .select(
@@ -98,6 +106,8 @@ export async function GET() {
       .limit(10);
     messages = (fallbackMessages.data || []) as CustomerMessageRow[];
   }
+
+  const canAccessDisplayAssets = hasCustomerServiceAccess(customer);
 
   const messagesWithFiles = await Promise.all(
     (messages || []).map(async (message) => {
@@ -139,7 +149,7 @@ export async function GET() {
     (displayAssets || []).map(async (asset) => {
       let downloadUrl: string | null = null;
 
-      if (asset.storage_bucket && asset.storage_path) {
+      if (canAccessDisplayAssets && asset.storage_bucket && asset.storage_path) {
         const { data } = await supabaseAdmin.storage
           .from(asset.storage_bucket)
           .createSignedUrl(asset.storage_path, 60 * 15);
@@ -167,6 +177,7 @@ export async function GET() {
     devices: devices || [],
     messages: messagesWithFiles,
     displayAssets: displayAssetsWithUrls,
+    previewDecisions: previewDecisions || [],
     agreements: agreements || [],
     legalDocuments: legalDocuments || [],
   });

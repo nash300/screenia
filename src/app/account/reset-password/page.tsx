@@ -105,7 +105,7 @@ export default function ResetPasswordPage() {
                 </span>
                 <input
                   type="password"
-                  placeholder="Minst 6 tecken, bokstäver och siffror"
+                  placeholder="Minst 10 tecken, bokstäver och siffror"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"

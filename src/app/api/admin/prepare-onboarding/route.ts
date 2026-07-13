@@ -6,7 +6,7 @@ import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
-import { renderBrandedEmail } from "@/lib/server/email";
+import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -56,29 +56,9 @@ type QuoteItemInput = {
   quantity?: number;
 };
 
-const getResendErrorMessage = async (response: Response) => {
-  const text = await response.text();
-
-  if (!text.trim()) return `Resend returned ${response.status}.`;
-
-  try {
-    const data: unknown = JSON.parse(text);
-    if (data && typeof data === "object") {
-      const message =
-        "message" in data && typeof data.message === "string"
-          ? data.message
-          : null;
-      const error =
-        "error" in data && typeof data.error === "string" ? data.error : null;
-
-      return message || error || `Resend returned ${response.status}.`;
-    }
-  } catch {
-    return text.trim();
-  }
-
-  return `Resend returned ${response.status}.`;
-};
+function cleanReason(value: unknown) {
+  return String(value || "").trim().slice(0, 1200);
+}
 
 export async function POST(request: Request) {
   const supabase = await createAuthenticatedClient();
@@ -94,6 +74,7 @@ export async function POST(request: Request) {
   const customerId = String(body.customerId || "");
   const pricingPlanCode = String(body.pricingPlanCode || "");
   const quoteNotes = String(body.quoteNotes || "").trim();
+  const reason = cleanReason(body.reason);
   const rawQuoteItems: QuoteItemInput[] = Array.isArray(body.quoteItems)
     ? body.quoteItems
     : [];
@@ -128,6 +109,13 @@ export async function POST(request: Request) {
   if (!customerId || !primaryPlanCode) {
     return NextResponse.json(
       { error: "Customer and pricing plan are required." },
+      { status: 400 },
+    );
+  }
+
+  if (reason.length < 5) {
+    return NextResponse.json(
+      { error: "A reason of at least 5 characters is required." },
       { status: 400 },
     );
   }
@@ -356,43 +344,75 @@ export async function POST(request: Request) {
       orderNumber: order.order_number,
       pricingPlanCode: plan.code,
       expiresAt: expiresAt.toISOString(),
+      reason,
     },
     ipAddress,
     userAgent,
   });
 
   const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
-  const resendFromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim() || "Screenia <onboarding@resend.dev>";
+  const resendFromEmail = process.env.RESEND_FROM_EMAIL?.trim() || "";
+  const canSendEmail = Boolean(resendApiKey && resendFromEmail);
 
-  if (!resendApiKey) {
-    await recordAuditEvent(supabaseAdmin, {
-      customerId: customer.id,
-      actorType: "system",
-      eventType: "quote_onboarding_email_not_configured",
-      eventDescription:
-        "Quote and onboarding email was not sent because email is not configured.",
-      metadata: {
-        sentTo: customer.email,
-        orderNumber: order.order_number,
-        pricingPlanCode: plan.code,
-      },
-      ipAddress,
-      userAgent,
-    });
+  if (!canSendEmail) {
+    const missingConfig = [
+      !resendApiKey ? "RESEND_API_KEY" : null,
+      !resendFromEmail ? "RESEND_FROM_EMAIL" : null,
+    ].filter(Boolean);
 
-    await createAdminNotification(supabaseAdmin, {
-      customerId: customer.id,
-      eventType: "quote_onboarding_email_not_configured",
-      title: "Onboarding email not sent",
-      message:
-        "Quote and onboarding link were prepared, but RESEND_API_KEY is not configured.",
-      priority: "urgent",
-      metadata: {
-        orderNumber: order.order_number,
-        pricingPlanCode: plan.code,
-      },
-    });
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          actorType: "system",
+          eventType: "quote_onboarding_email_not_configured",
+          eventDescription:
+            "Quote and onboarding email was not sent because email is not fully configured.",
+          metadata: {
+            sentTo: customer.email,
+            orderNumber: order.order_number,
+            pricingPlanCode: plan.code,
+            missingConfig,
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          eventType: "quote_onboarding_email_not_configured",
+          title: "Onboarding email not sent",
+          message: `Quote and onboarding link were prepared, but email config is missing: ${missingConfig.join(", ")}.`,
+          priority: "urgent",
+          metadata: {
+            orderNumber: order.order_number,
+            pricingPlanCode: plan.code,
+            missingConfig,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (evidenceError) {
+      console.error(
+        "Quote onboarding not-configured evidence was not stored:",
+        evidenceError,
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Quote and onboarding link were prepared, but Screenia could not store email configuration failure evidence.",
+          onboardingUrl,
+          orderNumber: order.order_number,
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -400,21 +420,14 @@ export async function POST(request: Request) {
       onboardingUrl,
       orderNumber: order.order_number,
       warning:
-        "Quote and onboarding link prepared. Email sending is not configured, so copy the link manually.",
+        "Quote and onboarding link prepared. Email sending is not fully configured, so copy the link manually.",
     });
   }
 
   const safeCustomerName = escapeHtml(customer.name);
   const safeQuoteNotes = quoteNotes ? escapeHtml(quoteNotes) : "";
 
-  const emailResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: resendFromEmail,
+  const emailResult = await sendTransactionalEmail({
       to: customer.email,
       subject: `Din Screenia-offert ${order.order_number}`,
       text: `Hej ${customer.name},
@@ -480,39 +493,60 @@ Screenia`,
         </div>
       `,
       }),
-    }),
   });
 
-  if (!emailResponse.ok) {
-    const errorMessage = await getResendErrorMessage(emailResponse);
+  if (!emailResult.ok) {
+    const errorMessage = emailResult.error;
     console.error("Resend quote email error:", errorMessage);
 
-    await recordAuditEvent(supabaseAdmin, {
-      customerId: customer.id,
-      actorType: "system",
-      eventType: "quote_onboarding_email_failed",
-      eventDescription: "System could not send quote and onboarding email.",
-      metadata: {
-        sentTo: customer.email,
-        orderNumber: order.order_number,
-        pricingPlanCode: plan.code,
-        error: errorMessage,
-      },
-      ipAddress,
-      userAgent,
-    });
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          actorType: "system",
+          eventType: "quote_onboarding_email_failed",
+          eventDescription: "System could not send quote and onboarding email.",
+          metadata: {
+            sentTo: customer.email,
+            orderNumber: order.order_number,
+            pricingPlanCode: plan.code,
+            error: errorMessage,
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
 
-    await createAdminNotification(supabaseAdmin, {
-      customerId: customer.id,
-      eventType: "quote_onboarding_email_failed",
-      title: "Onboarding email failed",
-      message: `Quote ${order.order_number} could not be sent to ${customer.email}: ${errorMessage}`,
-      priority: "urgent",
-      metadata: {
-        orderNumber: order.order_number,
-        pricingPlanCode: plan.code,
-      },
-    });
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          eventType: "quote_onboarding_email_failed",
+          title: "Onboarding email failed",
+          message: `Quote ${order.order_number} could not be sent to ${customer.email}: ${errorMessage}`,
+          priority: "urgent",
+          metadata: {
+            orderNumber: order.order_number,
+            pricingPlanCode: plan.code,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (evidenceError) {
+      console.error("Quote onboarding email failure evidence was not stored:", evidenceError);
+
+      return NextResponse.json(
+        {
+          error:
+            "Quote email failed, and Screenia could not store failure evidence.",
+          onboardingUrl,
+          orderNumber: order.order_number,
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json(
       {
@@ -524,25 +558,93 @@ Screenia`,
     );
   }
 
-  await supabaseAdmin
+  const { error: quoteSentUpdateError } = await supabaseAdmin
     .from("customer_subscriptions")
     .update({ status: "quote_sent" })
     .eq("id", order.id);
 
-  await recordAuditEvent(supabaseAdmin, {
-    customerId: customer.id,
-    actorType: "system",
-    eventType: "quote_onboarding_email_sent",
-    eventDescription: "System sent quote and onboarding email to customer.",
-    metadata: {
-      sentTo: customer.email,
-      orderNumber: order.order_number,
-      pricingPlanCode: plan.code,
-      expiresAt: expiresAt.toISOString(),
-    },
-    ipAddress,
-    userAgent,
-  });
+  if (quoteSentUpdateError) {
+    console.error("Quote sent status update failed:", quoteSentUpdateError);
+    await createAdminNotification(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        eventType: "quote_onboarding_status_sync_failed",
+        title: "Quote email sent but order status not synced",
+        message: `Quote ${order.order_number} was sent to ${customer.email}, but Screenia could not mark the order as quote_sent.`,
+        priority: "urgent",
+        metadata: {
+          orderNumber: order.order_number,
+          pricingPlanCode: plan.code,
+          sentTo: customer.email,
+          error: quoteSentUpdateError.message,
+        },
+      },
+      { throwOnError: true },
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Quote email was sent, but Screenia could not update the order status. Review the order before continuing.",
+        onboardingUrl,
+        orderNumber: order.order_number,
+      },
+      { status: 500 },
+    );
+  }
+
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        actorType: "system",
+        eventType: "quote_onboarding_email_sent",
+        eventDescription: "System sent quote and onboarding email to customer.",
+        metadata: {
+          sentTo: customer.email,
+          orderNumber: order.order_number,
+          pricingPlanCode: plan.code,
+          expiresAt: expiresAt.toISOString(),
+          resendEmailId: emailResult.id || null,
+        },
+        ipAddress,
+        userAgent,
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    console.error("Quote onboarding email sent audit was not stored:", auditError);
+    await createAdminNotification(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        eventType: "quote_onboarding_email_audit_failed",
+        title: "Quote email audit missing",
+        message: `Quote ${order.order_number} was sent to ${customer.email}, but delivery audit evidence was not stored.`,
+        priority: "urgent",
+        metadata: {
+          orderNumber: order.order_number,
+          pricingPlanCode: plan.code,
+          sentTo: customer.email,
+          resendEmailId: emailResult.id || null,
+          error: auditError instanceof Error ? auditError.message : String(auditError),
+        },
+      },
+      { throwOnError: true },
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          "Quote email was sent, but Screenia could not store delivery audit evidence.",
+        onboardingUrl,
+        orderNumber: order.order_number,
+      },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({
     success: true,

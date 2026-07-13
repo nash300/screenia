@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
-import { renderBrandedEmail } from "@/lib/server/email";
+import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,32 +17,6 @@ const escapeHtml = (value: string) => {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-};
-
-const getResendErrorMessage = async (response: Response) => {
-  const text = await response.text();
-
-  if (!text.trim()) {
-    return `Resend returned ${response.status}.`;
-  }
-
-  try {
-    const data: unknown = JSON.parse(text);
-    if (data && typeof data === "object") {
-      const message =
-        "message" in data && typeof data.message === "string"
-          ? data.message
-          : null;
-      const error =
-        "error" in data && typeof data.error === "string" ? data.error : null;
-
-      return message || error || `Resend returned ${response.status}.`;
-    }
-  } catch {
-    return text.trim();
-  }
-
-  return `Resend returned ${response.status}.`;
 };
 
 const emailCopy = {
@@ -88,6 +63,37 @@ const createAuthenticatedClient = async () => {
   );
 };
 
+function cleanReason(value: unknown) {
+  return String(value || "").trim().slice(0, 1200);
+}
+
+async function recordOnboardingEmailControlFailure({
+  customerId,
+  eventType,
+  title,
+  message,
+  metadata,
+}: {
+  customerId: string;
+  eventType: string;
+  title: string;
+  message: string;
+  metadata: Record<string, unknown>;
+}) {
+  await createAdminNotification(
+    supabaseAdmin,
+    {
+      customerId,
+      eventType,
+      title,
+      message,
+      priority: "urgent",
+      metadata,
+    },
+    { throwOnError: true },
+  );
+}
+
 export async function POST(request: Request) {
   const supabase = await createAuthenticatedClient();
   const {
@@ -98,7 +104,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
-  const { customerId } = await request.json();
+  const { customerId, reason: rawReason } = await request
+    .json()
+    .catch(() => ({}));
+  const reason = cleanReason(rawReason);
   const ipAddress = getRequestIp(request);
   const userAgent = request.headers.get("user-agent");
 
@@ -109,11 +118,12 @@ export async function POST(request: Request) {
     );
   }
 
-  const resendApiKey = process.env.RESEND_API_KEY?.trim() || "";
-  const resendFromEmail =
-    process.env.RESEND_FROM_EMAIL?.trim() || "Screenia <onboarding@resend.dev>";
-
-  const canSendEmail = Boolean(resendApiKey);
+  if (reason.length < 5) {
+    return NextResponse.json(
+      { error: "A reason of at least 5 characters is required." },
+      { status: 400 },
+    );
+  }
 
   const { data: customer, error: customerError } = await supabaseAdmin
     .from("customers")
@@ -128,7 +138,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (canSendEmail && !customer.email) {
+  if (!customer.email) {
     return NextResponse.json(
       { error: "Customer does not have an email address." },
       { status: 400 },
@@ -162,40 +172,51 @@ export async function POST(request: Request) {
     );
   }
 
-  await recordAuditEvent(supabaseAdmin, {
-    customerId: customer.id,
-    actorType: "admin",
-    actorId: user.id,
-    eventType: "onboarding_link_prepared",
-    eventDescription: "Admin prepared an onboarding link.",
-    metadata: {
-      expiresAt: expiresAt.toISOString(),
-    },
-    ipAddress,
-    userAgent,
-  });
-
-  if (!canSendEmail) {
-    return NextResponse.json({
-      success: true,
-      emailSent: false,
-      onboardingUrl,
-      warning:
-        "Onboarding link created. Email sending is not configured. Add RESEND_API_KEY to send emails.",
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        actorType: "admin",
+        actorId: user.id,
+        eventType: "onboarding_link_prepared",
+        eventDescription: "Admin prepared an onboarding link.",
+        metadata: {
+          expiresAt: expiresAt.toISOString(),
+          reason,
+        },
+        ipAddress,
+        userAgent,
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    console.error("Onboarding link preparation audit was not stored:", auditError);
+    await recordOnboardingEmailControlFailure({
+      customerId: customer.id,
+      eventType: "onboarding_link_audit_failed",
+      title: "Onboarding link audit missing",
+      message:
+        "An onboarding link was prepared, but the admin action audit was not stored.",
+      metadata: {
+        expiresAt: expiresAt.toISOString(),
+        reason,
+        error:
+          auditError instanceof Error
+            ? auditError.message
+            : "Unknown onboarding link audit error",
+      },
     });
-  }
 
-  const emailResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${resendApiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: resendFromEmail,
-      to: customer.email,
-      subject: copy.subject,
-      text: `${copy.greeting} ${customer.name},
+    return NextResponse.json(
+      { error: "Onboarding link was prepared, but audit evidence was not stored." },
+      { status: 500 },
+    );
+  }
+  const emailResult = await sendTransactionalEmail({
+    to: customer.email,
+    subject: copy.subject,
+    text: `${copy.greeting} ${customer.name},
 
 ${copy.intro}
 ${onboardingUrl}
@@ -204,10 +225,10 @@ ${copy.expires}
 
 ${copy.regards},
 Screenia`,
-      html: renderBrandedEmail({
-        eyebrow: "Startguide",
-        title: copy.heading,
-        children: `
+    html: renderBrandedEmail({
+      eyebrow: "Startguide",
+      title: copy.heading,
+      children: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
           <p>${copy.greeting} ${customerName},</p>
           <p>${copy.body}</p>
@@ -220,13 +241,117 @@ Screenia`,
           <p>${copy.regards},<br />Screenia</p>
         </div>
       `,
-      }),
     }),
   });
 
-  if (!emailResponse.ok) {
-    const errorMessage = await getResendErrorMessage(emailResponse);
+  if (!emailResult.ok && !emailResult.configured) {
+    const missingConfig = ["RESEND_API_KEY", "RESEND_FROM_EMAIL"];
+
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          actorType: "system",
+          eventType: "onboarding_email_not_configured",
+          eventDescription:
+            "Onboarding email was not sent because email is not fully configured.",
+          metadata: {
+            sentTo: customer.email,
+            missingConfig,
+            error: emailResult.error,
+            expiresAt: expiresAt.toISOString(),
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          eventType: "onboarding_email_not_configured",
+          title: "Onboarding email not sent",
+          message: `Onboarding link was prepared, but email config is missing: ${missingConfig.join(", ")}.`,
+          priority: "urgent",
+          metadata: {
+            missingConfig,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (evidenceError) {
+      console.error(
+        "Onboarding email not-configured evidence was not stored:",
+        evidenceError,
+      );
+      return NextResponse.json(
+        {
+          error:
+            "Onboarding link was prepared, but Screenia could not store email failure evidence.",
+          onboardingUrl,
+        },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      emailSent: false,
+      onboardingUrl,
+      warning:
+        "Onboarding link created. Email sending is not fully configured. Add RESEND_API_KEY and RESEND_FROM_EMAIL to send emails.",
+    });
+  }
+
+  if (!emailResult.ok) {
+    const errorMessage = emailResult.error;
     console.error("Resend email error:", errorMessage);
+
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          actorType: "system",
+          eventType: "onboarding_email_failed",
+          eventDescription: "System could not send onboarding email.",
+          metadata: {
+            sentTo: customer.email,
+            error: errorMessage,
+            expiresAt: expiresAt.toISOString(),
+          },
+          ipAddress,
+          userAgent,
+        },
+        { throwOnError: true },
+      );
+      await createAdminNotification(
+        supabaseAdmin,
+        {
+          customerId: customer.id,
+          eventType: "onboarding_email_failed",
+          title: "Onboarding email failed",
+          message: `Onboarding email could not be sent to ${customer.email}: ${errorMessage}`,
+          priority: "urgent",
+          metadata: {
+            error: errorMessage,
+          },
+        },
+        { throwOnError: true },
+      );
+    } catch (evidenceError) {
+      console.error("Onboarding email failure evidence was not stored:", evidenceError);
+      return NextResponse.json(
+        {
+          error:
+            "Onboarding email failed, and Screenia could not store failure evidence.",
+          onboardingUrl,
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json(
       { error: `Could not send onboarding email: ${errorMessage}` },
@@ -234,7 +359,7 @@ Screenia`,
     );
   }
 
-  const existingNotes = customer.notes.trim();
+  const existingNotes = String(customer.notes || "").trim();
   const sentNote = `Start guide email sent: ${new Date().toISOString()}`;
 
   const { error: updateError } = await supabaseAdmin
@@ -253,18 +378,52 @@ Screenia`,
     );
   }
 
-  await recordAuditEvent(supabaseAdmin, {
-    customerId: customer.id,
-    actorType: "system",
-    eventType: "onboarding_email_sent",
-    eventDescription: "System sent onboarding email to customer.",
-    metadata: {
-      sentTo: customer.email,
-      expiresAt: expiresAt.toISOString(),
-    },
-    ipAddress,
-    userAgent,
-  });
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId: customer.id,
+        actorType: "system",
+        eventType: "onboarding_email_sent",
+        eventDescription: "System sent onboarding email to customer.",
+        metadata: {
+          sentTo: customer.email,
+          expiresAt: expiresAt.toISOString(),
+          resendEmailId: emailResult.id || null,
+        },
+        ipAddress,
+        userAgent,
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    console.error("Onboarding email sent audit was not stored:", auditError);
+    await recordOnboardingEmailControlFailure({
+      customerId: customer.id,
+      eventType: "onboarding_email_audit_failed",
+      title: "Onboarding email audit missing",
+      message:
+        "An onboarding email was sent, but the delivery audit was not stored.",
+      metadata: {
+        sentTo: customer.email,
+        expiresAt: expiresAt.toISOString(),
+        resendEmailId: emailResult.id || null,
+        error:
+          auditError instanceof Error
+            ? auditError.message
+            : "Unknown onboarding email audit error",
+      },
+    });
+
+    return NextResponse.json(
+      {
+        error:
+          "Email was sent, but Screenia could not store delivery audit evidence.",
+        onboardingUrl,
+      },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({
     success: true,

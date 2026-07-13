@@ -1,7 +1,9 @@
 "use client";
 
 import { use, useEffect, useState, type ReactNode } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
+import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
 import "../../landing.css";
 
 type Customer = {
@@ -79,6 +81,9 @@ export default function OnboardingPage({
   const validateDetails = () => {
     if (!contactPerson.trim()) return "Kontaktperson måste anges.";
     if (!organisationNumber.trim()) return "Organisationsnummer måste anges.";
+    if (!isValidSwedishRegistrationNumber(organisationNumber)) {
+      return "Ange ett giltigt svenskt organisationsnummer.";
+    }
     if (!address.trim()) return "Leveransadress måste anges.";
     if (!/^\d{3}\s?\d{2}$/.test(postalCode.trim())) {
       return "Ange ett svenskt postnummer med 5 siffror.";
@@ -151,6 +156,7 @@ export default function OnboardingPage({
       body: JSON.stringify({
         customerId: customer.id,
         email: customer.email,
+        onboardingToken: token,
         legalAccepted: true,
       }),
     });
@@ -203,7 +209,13 @@ export default function OnboardingPage({
             Material, logotyp och kampanjer samlar vi in först efter betalning.
           </p>
         </div>
-        <img src="/brand/screenia-helper.png" alt="Screenia" className="flow-helper" />
+        <Image
+          src="/brand/screenia-helper.png"
+          alt="Screenia"
+          width={900}
+          height={900}
+          className="flow-helper"
+        />
       </div>
 
       <WizardSteps active={step} />

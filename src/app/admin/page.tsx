@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import { showAdminNotification } from "@/lib/admin/notifications";
 
 type AdminCustomer = {
   id: string;
@@ -41,6 +42,7 @@ export default function AdminHomePage() {
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savingNotification, setSavingNotification] = useState(false);
 
   const needsDeviceCount = customers.filter((customer) => {
     const deviceCount = customer.devices?.length || 0;
@@ -167,6 +169,46 @@ export default function AdminHomePage() {
   useEffect(() => {
     loadStats();
   }, []);
+
+  const updateNotification = async (
+    action: "mark_read" | "mark_unread" | "mark_all_read",
+    notificationId?: string,
+  ) => {
+    const reason =
+      action === "mark_all_read"
+        ? prompt("Reason for marking all admin notifications as read:")?.trim()
+        : "";
+
+    if (action === "mark_all_read" && (!reason || reason.length < 5)) {
+      showAdminNotification(
+        "error",
+        "A reason of at least 5 characters is required.",
+      );
+      return;
+    }
+
+    setSavingNotification(true);
+
+    const response = await fetch("/api/admin/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, notificationId, reason }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not update notification.",
+      );
+      setSavingNotification(false);
+      return;
+    }
+
+    await loadStats();
+    showAdminNotification("success", "Notification updated.");
+    setSavingNotification(false);
+  };
 
   return (
     <div className="admin-dashboard-page">
@@ -317,7 +359,17 @@ export default function AdminHomePage() {
         </section>
 
         <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Notifications</h2>
+          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+            <h2 className="admin-card-title text-xl">Notifications</h2>
+            <button
+              type="button"
+              onClick={() => updateNotification("mark_all_read")}
+              disabled={savingNotification || unreadNotificationCount === 0}
+              className="admin-button-secondary disabled:opacity-50"
+            >
+              Mark all read
+            </button>
+          </div>
           <div className="admin-status-list">
             <StatusRow label="Unread" value={unreadNotificationCount} tone="warning" />
           </div>
@@ -325,25 +377,52 @@ export default function AdminHomePage() {
           <div className="mt-4 space-y-3">
             {notifications.length ? (
               notifications.map((notification) => (
-                <Link
+                <div
                   key={notification.id}
-                  href={
-                    notification.customer_id
-                      ? `/admin/customers/${notification.customer_id}`
-                      : "/admin/customers"
-                  }
-                  className="block rounded-2xl border border-slate-200 bg-white/70 p-3 text-sm no-underline"
+                  className={`rounded-2xl border p-3 text-sm ${
+                    notification.read_at
+                      ? "border-slate-200 bg-white/60"
+                      : "border-amber-200 bg-amber-50/70"
+                  }`}
                 >
-                  <strong className="block text-slate-950">
-                    {notification.title}
-                  </strong>
-                  <span className="mt-1 block text-slate-600">
-                    {notificationCustomerName(notification)
-                      ? `${notificationCustomerName(notification)} - `
-                      : ""}
-                    {notification.message}
-                  </span>
-                </Link>
+                  <Link
+                    href={
+                      notification.customer_id
+                        ? `/admin/customers/${notification.customer_id}`
+                        : "/admin/customers"
+                    }
+                    className="block text-sm no-underline"
+                  >
+                    <strong className="block text-slate-950">
+                      {notification.title}
+                    </strong>
+                    <span className="mt-1 block text-slate-600">
+                      {notificationCustomerName(notification)
+                        ? `${notificationCustomerName(notification)} - `
+                        : ""}
+                      {notification.message}
+                    </span>
+                    <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                      {notification.priority} |{" "}
+                      {notification.read_at
+                        ? `Read ${new Date(notification.read_at).toLocaleString("sv-SE")}`
+                        : "Unread"}
+                    </span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateNotification(
+                        notification.read_at ? "mark_unread" : "mark_read",
+                        notification.id,
+                      )
+                    }
+                    disabled={savingNotification}
+                    className="admin-button-secondary mt-3 disabled:opacity-50"
+                  >
+                    {notification.read_at ? "Mark unread" : "Mark read"}
+                  </button>
+                </div>
               ))
             ) : (
               <p className="admin-muted mt-3 text-sm">No notifications yet.</p>

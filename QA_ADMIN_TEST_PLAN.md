@@ -378,6 +378,27 @@ Result:
 Evidence:
 - Admin `start_layout` route was tested with an authenticated admin session against dress rehearsal customer `a2be5fb4-d4c3-4bff-92f6-5a54ed958d6c`.
 - The route returned HTTP `200` and changed the customer to `production_status: layout_started`.
+
+## Scenario 11: Subscription Operations And Display Entitlement
+
+Expected:
+- Customer cancellation schedules `cancel_at_period_end` in Stripe.
+- Customer keeps service/display access until the paid-through period end.
+- Admin can pause, resume, cancel immediately, and apply temporary discounts.
+- Display access is blocked for paused, failed, cancelled, refunded, expired, or inactive customers.
+- Each sensitive admin action records a reasoned audit event.
+
+Result:
+- Pending implementation verification.
+
+Checklist:
+- Apply migration `202607120000_subscription_operations.sql`.
+- Test customer cancellation from `/account` and verify Stripe `cancel_at_period_end`.
+- Simulate final Stripe subscription deletion and verify display is blocked.
+- Test admin pause/resume from customer detail page and verify `/display/[deviceId]`.
+- Test admin temporary discount and verify Stripe subscription discount plus `subscription_adjustments`.
+- Test failed-payment webhook and verify `service_access_status: payment_failed`.
+- Confirm `npm.cmd run lint` and `npm.cmd run build` pass.
 - `layout_started_at` and `setup_fee_locked_at` were set to `2026-06-28T20:30:10.271+00:00`.
 - Audit event `layout_work_started` was stored with previous production status `not_started`.
 - Subscription/order `1000000009` moved to `fulfillment_status: layout_started`.

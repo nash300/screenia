@@ -89,7 +89,10 @@ function NewSubscriptionPageContent() {
     }
 
     if (!legalAccepted) {
-      showAdminNotification("warning", "Accept the legal terms before checkout.");
+      showAdminNotification(
+        "warning",
+        "Confirm the customer has completed legal onboarding before checkout.",
+      );
       return;
     }
 
@@ -167,9 +170,9 @@ function NewSubscriptionPageContent() {
             onChange={(event) => setLegalAccepted(event.target.checked)}
           />
           <span>
-            I accept that setup starts immediately. The setup fee becomes
-            non-refundable once setup work starts. Hardware follows the 14-day
-            return right.
+            I confirm the customer has completed the current terms and privacy
+            consent step. Checkout will be blocked if that legal evidence is
+            missing.
           </span>
         </label>
 

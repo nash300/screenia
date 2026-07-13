@@ -1,8 +1,10 @@
+export const PASSWORD_POLICY_MIN_LENGTH = 10;
+
 export const passwordPolicyDescription =
-  "Lösenordet måste vara minst 6 tecken och innehålla både bokstäver och siffror.";
+  `Lösenordet måste vara minst ${PASSWORD_POLICY_MIN_LENGTH} tecken och innehålla både bokstäver och siffror.`;
 
 export function validatePasswordPolicy(password: string) {
-  const hasMinimumLength = password.length >= 6;
+  const hasMinimumLength = password.length >= PASSWORD_POLICY_MIN_LENGTH;
   const hasLetter = /\p{L}/u.test(password);
   const hasNumber = /\p{N}/u.test(password);
 

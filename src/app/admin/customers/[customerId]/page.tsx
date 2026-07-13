@@ -1,12 +1,13 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
+import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
 
 type Customer = {
   id: string;
@@ -40,6 +41,8 @@ type Customer = {
   payment_status: string | null;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  service_access_status: string | null;
+  service_access_until: string | null;
   production_status: string | null;
   layout_started_at: string | null;
   setup_fee_locked_at: string | null;
@@ -72,6 +75,14 @@ type CustomerSubscription = {
   inventory_status: string | null;
   stripe_checkout_session_id: string | null;
   stripe_subscription_id: string | null;
+  stripe_invoice_id: string | null;
+  stripe_current_period_start: string | null;
+  stripe_current_period_end: string | null;
+  cancel_at_period_end: boolean | null;
+  cancellation_effective_at: string | null;
+  pause_started_at: string | null;
+  pause_resumes_at: string | null;
+  pause_reason: string | null;
   screen_quantity: number | null;
   device_discount_percent: number | null;
   device_discount_months: number | null;
@@ -137,6 +148,9 @@ type CustomerAsset = {
   description: string | null;
   source: string;
   status: string;
+  adminNote: string | null;
+  adminNoteUpdatedAt: string | null;
+  reviewedAt: string | null;
   createdAt: string;
   downloadUrl: string | null;
 };
@@ -210,6 +224,8 @@ const normalizeCustomer = (row: Partial<Customer>): Customer => ({
   payment_status: row.payment_status ?? null,
   stripe_customer_id: row.stripe_customer_id ?? null,
   stripe_subscription_id: row.stripe_subscription_id ?? null,
+  service_access_status: row.service_access_status ?? null,
+  service_access_until: row.service_access_until ?? null,
   production_status: row.production_status ?? null,
   layout_started_at: row.layout_started_at ?? null,
   setup_fee_locked_at: row.setup_fee_locked_at ?? null,
@@ -238,6 +254,14 @@ const normalizeSubscription = (
   inventory_status: row.inventory_status ?? null,
   stripe_checkout_session_id: row.stripe_checkout_session_id ?? null,
   stripe_subscription_id: row.stripe_subscription_id ?? null,
+  stripe_invoice_id: row.stripe_invoice_id ?? null,
+  stripe_current_period_start: row.stripe_current_period_start ?? null,
+  stripe_current_period_end: row.stripe_current_period_end ?? null,
+  cancel_at_period_end: row.cancel_at_period_end ?? false,
+  cancellation_effective_at: row.cancellation_effective_at ?? null,
+  pause_started_at: row.pause_started_at ?? null,
+  pause_resumes_at: row.pause_resumes_at ?? null,
+  pause_reason: row.pause_reason ?? null,
   screen_quantity: row.screen_quantity ?? 1,
   device_discount_percent: row.device_discount_percent ?? 0,
   device_discount_months: row.device_discount_months ?? 0,
@@ -263,7 +287,13 @@ export default function CustomerDetailPage({
   const [messageDrafts, setMessageDrafts] = useState<
     Record<string, { status: string; adminNote: string }>
   >({});
+  const [messageReplyDrafts, setMessageReplyDrafts] = useState<
+    Record<string, string>
+  >({});
   const [assets, setAssets] = useState<CustomerAsset[]>([]);
+  const [assetDrafts, setAssetDrafts] = useState<
+    Record<string, { status: string; adminNote: string }>
+  >({});
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -282,6 +312,7 @@ export default function CustomerDetailPage({
   const [editPreferredContactChannel, setEditPreferredContactChannel] =
     useState("email");
   const [editNotes, setEditNotes] = useState("");
+  const [editReason, setEditReason] = useState("");
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
   const [activeSection, setActiveSection] =
     useState<CustomerDetailSection>("overview");
@@ -306,6 +337,7 @@ export default function CustomerDetailPage({
     }
     if (reason === "manual_suspend") return "Manually suspended";
     if (reason === "payment_failed") return "Payment failed";
+    if (reason === "payment_disputed") return "Payment disputed";
     if (reason === "subscription_cancelled") return "Subscription cancelled / refunded";
     if (reason === "customer_cancelled") return "Cancelled by customer";
     return "None";
@@ -341,7 +373,7 @@ export default function CustomerDetailPage({
     return "bg-slate-100 text-slate-700";
   };
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     setSchemaNotice("");
 
@@ -377,6 +409,8 @@ export default function CustomerDetailPage({
         payment_status,
         stripe_customer_id,
         stripe_subscription_id,
+        service_access_status,
+        service_access_until,
         production_status,
         layout_started_at,
         setup_fee_locked_at,
@@ -418,6 +452,8 @@ export default function CustomerDetailPage({
         payment_status,
         stripe_customer_id,
         stripe_subscription_id,
+        service_access_status,
+        service_access_until,
         activated_at,
         inactive_reason,
         cancellation_reason,
@@ -515,6 +551,7 @@ export default function CustomerDetailPage({
       loadedCustomer.preferred_contact_channel || "email",
     );
     setEditNotes(loadedCustomer.notes || "");
+    setEditReason("");
     if (
       Array.isArray(loadedCustomer.requested_quote_items) &&
       loadedCustomer.requested_quote_items.length > 0
@@ -560,6 +597,14 @@ export default function CustomerDetailPage({
           inventory_status,
           stripe_checkout_session_id,
           stripe_subscription_id,
+          stripe_invoice_id,
+          stripe_current_period_start,
+          stripe_current_period_end,
+          cancel_at_period_end,
+          cancellation_effective_at,
+          pause_started_at,
+          pause_resumes_at,
+          pause_reason,
           screen_quantity,
           device_discount_percent,
           device_discount_months,
@@ -575,6 +620,13 @@ export default function CustomerDetailPage({
           monthly_fee_sek,
           stripe_checkout_session_id,
           stripe_subscription_id,
+          stripe_current_period_start,
+          stripe_current_period_end,
+          cancel_at_period_end,
+          cancellation_effective_at,
+          pause_started_at,
+          pause_resumes_at,
+          pause_reason,
           created_at
         `,
       `
@@ -637,6 +689,14 @@ export default function CustomerDetailPage({
           inventory_status: null,
           stripe_checkout_session_id: subscription.stripe_checkout_session_id,
           stripe_subscription_id: subscription.stripe_subscription_id,
+          stripe_invoice_id: null,
+          stripe_current_period_start: null,
+          stripe_current_period_end: null,
+          cancel_at_period_end: false,
+          cancellation_effective_at: null,
+          pause_started_at: null,
+          pause_resumes_at: null,
+          pause_reason: null,
           screen_quantity: 1,
           device_discount_percent: 0,
           device_discount_months: 0,
@@ -721,10 +781,19 @@ export default function CustomerDetailPage({
           ]),
         ),
       );
+      setMessageReplyDrafts((current) =>
+        Object.fromEntries(
+          nextMessages.map((message: CustomerMessage) => [
+            message.id,
+            current[message.id] || "",
+          ]),
+        ),
+      );
     } catch (error) {
       console.error("Customer messages error:", error);
       setMessages([]);
       setMessageDrafts({});
+      setMessageReplyDrafts({});
     }
 
     try {
@@ -732,10 +801,23 @@ export default function CustomerDetailPage({
         `/api/admin/customer-assets?customerId=${customerId}`,
       );
       const data = await response.json();
-      setAssets(response.ok ? data.assets || [] : []);
+      const nextAssets = response.ok ? data.assets || [] : [];
+      setAssets(nextAssets);
+      setAssetDrafts(
+        Object.fromEntries(
+          nextAssets.map((asset: CustomerAsset) => [
+            asset.id,
+            {
+              status: asset.status || "new",
+              adminNote: asset.adminNote || "",
+            },
+          ]),
+        ),
+      );
     } catch (error) {
       console.error("Customer assets error:", error);
       setAssets([]);
+      setAssetDrafts({});
     }
 
     const { data: auditData, error: auditError } = await supabase
@@ -753,13 +835,32 @@ export default function CustomerDetailPage({
     }
 
     setLoading(false);
-  };
+  }, [customerId]);
 
   const saveCustomerDetails = async () => {
     if (!customer) return;
 
     if (!editName.trim()) {
       showAdminNotification("warning", "Company name is required.");
+      return;
+    }
+
+    if (
+      editOrganisationNumber.trim() &&
+      !isValidSwedishRegistrationNumber(editOrganisationNumber)
+    ) {
+      showAdminNotification(
+        "warning",
+        "Enter a valid Swedish organisation number.",
+      );
+      return;
+    }
+
+    if (editReason.trim().length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before saving customer details.",
+      );
       return;
     }
 
@@ -779,29 +880,21 @@ export default function CustomerDetailPage({
       website_url: editWebsiteUrl.trim() || null,
       preferred_contact_channel: editPreferredContactChannel,
       notes: editNotes.trim() || null,
+      reason: editReason.trim(),
     };
-    const corePayload = {
-      name: editName.trim(),
-      contact_person: editContactPerson.trim() || null,
-      phone: editPhone.trim() || null,
-      organisation_number: editOrganisationNumber.trim() || null,
-      address: editAddress.trim() || null,
-      city: editCity.trim() || null,
-      country: editCountry.trim() || "Sverige",
-      notes: editNotes.trim() || null,
-    };
+    const response = await fetch(`/api/admin/customers/${customer.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(fullPayload),
+    });
+    const result = await response.json();
 
-    const result = await supabase
-      .from("customers")
-      .update(fullPayload)
-      .eq("id", customer.id);
-    const { error } = isSchemaMismatch(result.error)
-      ? await supabase.from("customers").update(corePayload).eq("id", customer.id)
-      : result;
-
-    if (error) {
-      console.error("Save customer details error:", error);
-      showAdminNotification("error", "Could not save customer details.");
+    if (!response.ok) {
+      console.error("Save customer details error:", result);
+      showAdminNotification(
+        "error",
+        result.error || "Could not save customer details.",
+      );
       setSaving(false);
       return;
     }
@@ -809,97 +902,91 @@ export default function CustomerDetailPage({
     await loadData();
     showAdminNotification("success", "Customer details updated.");
     setIsEditingCustomer(false);
+    setEditReason("");
     setSaving(false);
+  };
+
+  const runSubscriptionAction = async ({
+    action,
+    payload = {},
+    successMessage,
+  }: {
+    action: string;
+    payload?: Record<string, unknown>;
+    successMessage: string;
+  }) => {
+    if (!customer) return;
+
+    setSaving(true);
+    const response = await fetch(
+      `/api/admin/customers/${customer.id}/subscription`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...payload }),
+      },
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not update subscription operation.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification("success", successMessage);
+    setSaving(false);
+  };
+
+  const requireReason = (message: string) => {
+    const reason = window.prompt(message);
+    const cleanedReason = reason?.trim() || "";
+
+    if (cleanedReason && cleanedReason.length < 5) {
+      showAdminNotification(
+        "error",
+        "A reason of at least 5 characters is required.",
+      );
+      return "";
+    }
+
+    return cleanedReason;
   };
 
   const suspendCustomer = async () => {
     if (!customer) return;
-    if (!confirm("Suspend this customer")) return;
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("customers")
-      .update({
-        status: "suspended",
-        inactive_reason: "manual_suspend",
-        cancellation_source: "admin",
-      })
-      .eq("id", customer.id);
-
-    if (error) {
-      console.error("Suspend customer error:", error);
-      showAdminNotification("error", "Could not suspend customer.");
-      setSaving(false);
-      return;
-    }
-
-    await loadData();
-    showAdminNotification("warning", "Customer suspended.");
-    setSaving(false);
+    const reason = requireReason("Reason for suspending this customer:");
+    if (!reason) return;
+    await runSubscriptionAction({
+      action: "suspend_customer",
+      payload: { reason },
+      successMessage: "Customer suspended and audit history recorded.",
+    });
   };
 
   const activateCustomer = async () => {
     if (!customer) return;
+    const reason = requireReason("Reason for activating this customer:");
+    if (!reason) return;
     if (!confirm("Mark this customer active and allow assigned displays to run")) return;
-
-    setSaving(true);
-
-    const activatedAt = new Date().toISOString();
-    const { error: customerError } = await supabase
-      .from("customers")
-      .update({
-        status: "active",
-        activated_at: activatedAt,
-        inactive_reason: null,
-        cancelled_at: null,
-        cancellation_source: null,
-      })
-      .eq("id", customer.id);
-
-    if (customerError) {
-      console.error("Activate customer error:", customerError);
-      showAdminNotification("error", "Could not activate customer.");
-      setSaving(false);
-      return;
-    }
-
-    const subscriptionResult = await supabase
-      .from("customer_subscriptions")
-      .update({
-        status: "active",
-        fulfillment_status: "completed",
-        inventory_status: "assigned",
-        activated_at: activatedAt,
-      })
-      .eq("customer_id", customer.id)
-      .in("status", ["paid", "active", "checkout_started"]);
-
-    if (isSchemaMismatch(subscriptionResult.error)) {
-      await supabase
-        .from("customer_subscriptions")
-        .update({
-          status: "active",
-          fulfillment_status: "completed",
-          inventory_status: "assigned",
-        })
-        .eq("customer_id", customer.id)
-        .in("status", ["paid", "active", "checkout_started"]);
-    } else if (subscriptionResult.error) {
-      console.error("Activate subscription error:", subscriptionResult.error);
-      showAdminNotification(
-        "warning",
-        "Customer activated, but the order status could not be updated.",
-      );
-    }
-
-    await loadData();
-    showAdminNotification("success", "Customer activated.");
-    setSaving(false);
+    await runSubscriptionAction({
+      action: "activate_customer",
+      payload: { reason },
+      successMessage: "Customer activated and audit history recorded.",
+    });
   };
 
   const startLayoutWork = async () => {
     if (!customer) return;
+    const reason = requireReason(
+      "Reason for starting layout work and locking the setup fee:",
+    );
+    if (!reason) return;
+
     if (
       !confirm(
         "Mark layout work as started? This locks the setup/layout fee as non-refundable.",
@@ -913,7 +1000,7 @@ export default function CustomerDetailPage({
     const response = await fetch(`/api/admin/customers/${customer.id}/production`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "start_layout" }),
+      body: JSON.stringify({ action: "start_layout", reason }),
     });
     const result = await response.json();
 
@@ -941,6 +1028,10 @@ export default function CustomerDetailPage({
       status: message.status,
       adminNote: message.adminNote || "",
     };
+    const reason = requireReason(
+      "Reason for updating this support message review:",
+    );
+    if (!reason) return;
 
     setSaving(true);
     const response = await fetch("/api/admin/customer-messages", {
@@ -951,6 +1042,7 @@ export default function CustomerDetailPage({
         messageId: message.id,
         status: draft.status,
         adminNote: draft.adminNote,
+        reason,
       }),
     });
     const result = await response.json();
@@ -967,6 +1059,95 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const sendCustomerMessageReply = async (message: CustomerMessage) => {
+    const reply = (messageReplyDrafts[message.id] || "").trim();
+
+    if (reply.length < 5) {
+      showAdminNotification(
+        "error",
+        "Write a customer-visible reply of at least 5 characters.",
+      );
+      return;
+    }
+
+    const draft = messageDrafts[message.id] || {
+      status: "waiting_for_customer",
+      adminNote: message.adminNote || "",
+    };
+
+    setSaving(true);
+    const response = await fetch("/api/admin/customer-messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerId: customer?.id,
+        messageId: message.id,
+        reply,
+        status: draft.status || "waiting_for_customer",
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Send support reply error:", result);
+      showAdminNotification(
+        "error",
+        result.error || "Could not send support reply.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    setMessageReplyDrafts((current) => ({ ...current, [message.id]: "" }));
+    await loadData();
+    showAdminNotification(
+      result.warning ? "warning" : "success",
+      result.warning
+        ? `Reply saved, but email was not sent: ${result.warning}`
+        : "Reply saved and email notification sent.",
+    );
+    setSaving(false);
+  };
+
+  const updateCustomerAsset = async (asset: CustomerAsset) => {
+    const draft = assetDrafts[asset.id] || {
+      status: asset.status || "new",
+      adminNote: asset.adminNote || "",
+    };
+    const reason = requireReason(
+      "Reason for updating this display material review:",
+    );
+    if (!reason) return;
+
+    setSaving(true);
+    const response = await fetch("/api/admin/customer-assets", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerId: customer?.id,
+        assetId: asset.id,
+        status: draft.status,
+        adminNote: draft.adminNote,
+        reason,
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("Update material error:", result);
+      showAdminNotification(
+        "error",
+        result.error || "Could not update display material.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification("success", "Display material updated.");
+    setSaving(false);
+  };
+
   const cancelSubscription = async () => {
     if (!customer) return;
 
@@ -975,46 +1156,91 @@ export default function CustomerDetailPage({
       return;
     }
 
-    if (
-      !confirm(
-        "Cancel this customer's Stripe subscription and suspend the customer",
-      )
-    ) {
-      return;
-    }
+    const reason = requireReason(
+      "Reason for scheduling cancellation at the end of the paid period:",
+    );
+    if (!reason) return;
 
-    setSaving(true);
-
-    const response = await fetch("/api/stripe/cancel-subscription", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        customerId: customer.id,
-        subscriptionId: customer.stripe_subscription_id,
-      }),
+    await runSubscriptionAction({
+      action: "cancel_period_end",
+      payload: { reason },
+      successMessage:
+        "Cancellation scheduled. Customer keeps access until the paid period ends.",
     });
+  };
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error("Cancel subscription error:", data);
-      showAdminNotification(
-        "error",
-        data.error || "Could not cancel subscription.",
-      );
-      setSaving(false);
+  const cancelSubscriptionImmediately = async () => {
+    if (!customer) return;
+    const reason = requireReason(
+      "Reason for immediate cancellation. This blocks display access now:",
+    );
+    if (!reason) return;
+    if (!confirm("Immediately cancel Stripe subscription and block displays now?")) {
       return;
     }
+    await runSubscriptionAction({
+      action: "cancel_immediately",
+      payload: { reason },
+      successMessage: "Subscription cancelled immediately and access blocked.",
+    });
+  };
 
-    await loadData();
-    showAdminNotification("success", "Subscription cancelled and customer suspended.");
-    setSaving(false);
+  const pauseSubscription = async () => {
+    if (!customer) return;
+    const reason = requireReason("Reason for pausing billing and display access:");
+    if (!reason) return;
+    await runSubscriptionAction({
+      action: "pause_subscription",
+      payload: { reason },
+      successMessage: "Subscription paused. Display access is blocked.",
+    });
+  };
+
+  const resumeSubscription = async () => {
+    if (!customer) return;
+    const reason = requireReason("Reason for resuming billing and display access:");
+    if (!reason) return;
+    if (!confirm("Resume billing collection and display access?")) return;
+    await runSubscriptionAction({
+      action: "resume_subscription",
+      payload: { reason },
+      successMessage: "Subscription resumed.",
+    });
+  };
+
+  const applyTemporaryDiscount = async () => {
+    if (!customer) return;
+    const percentOff = Number(window.prompt("Discount percent, 1-100:"));
+    if (!Number.isFinite(percentOff) || percentOff <= 0 || percentOff > 100) {
+      showAdminNotification("warning", "Enter a discount between 1 and 100%.");
+      return;
+    }
+    const durationMonths = Number(window.prompt("Discount duration in months, 1-36:"));
+    if (
+      !Number.isFinite(durationMonths) ||
+      durationMonths < 1 ||
+      durationMonths > 36
+    ) {
+      showAdminNotification("warning", "Enter a duration between 1 and 36 months.");
+      return;
+    }
+    const reason = requireReason("Reason for this temporary discount:");
+    if (!reason) return;
+    await runSubscriptionAction({
+      action: "apply_temporary_discount",
+      payload: {
+        percentOff,
+        durationMonths,
+        reason,
+      },
+      successMessage: "Temporary Stripe discount applied and recorded.",
+    });
   };
 
   const refundFirstPayment = async () => {
     if (!customer) return;
+    const reason = requireReason("Reason for refunding the first payment:");
+    if (!reason) return;
 
     if (
       !confirm(
@@ -1028,6 +1254,8 @@ export default function CustomerDetailPage({
 
     const response = await fetch(`/api/admin/customers/${customer.id}/refund`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
     });
     const data = await response.json();
 
@@ -1048,31 +1276,14 @@ export default function CustomerDetailPage({
 
   const reactivateCustomer = async () => {
     if (!customer) return;
+    const reason = requireReason("Reason for reactivating this customer:");
+    if (!reason) return;
     if (!confirm("Reactivate this customer")) return;
-
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("customers")
-      .update({
-        status: "active",
-        activated_at: customer.activated_at || new Date().toISOString(),
-        inactive_reason: null,
-        cancelled_at: null,
-        cancellation_source: null,
-      })
-      .eq("id", customer.id);
-
-    if (error) {
-      console.error("Reactivate customer error:", error);
-      showAdminNotification("error", "Could not reactivate customer.");
-      setSaving(false);
-      return;
-    }
-
-    await loadData();
-    showAdminNotification("success", "Customer reactivated.");
-    setSaving(false);
+    await runSubscriptionAction({
+      action: "reactivate_customer",
+      payload: { reason },
+      successMessage: "Customer reactivated and audit history recorded.",
+    });
   };
 
   const prepareQuoteAndOnboarding = async () => {
@@ -1089,6 +1300,9 @@ export default function CustomerDetailPage({
       showAdminNotification("warning", "Add at least one screen package.");
       return;
     }
+
+    const reason = requireReason("Reason for preparing this quote and onboarding link:");
+    if (!reason) return;
 
     setSaving(true);
     setQuoteResultUrl("");
@@ -1109,6 +1323,7 @@ export default function CustomerDetailPage({
         ),
         deviceDiscountPercent: quoteDiscountPercent,
         deviceDiscountMonths: quoteDiscountMonths,
+        reason,
       }),
     });
 
@@ -1143,10 +1358,18 @@ export default function CustomerDetailPage({
   const deleteCustomer = async () => {
     if (!customer) return;
 
+    const reason = window.prompt(
+      "Reason for permanently deleting this draft customer:",
+    )?.trim();
+
+    if (!reason) return;
+
     setSaving(true);
 
     const response = await fetch(`/api/admin/customers/${customer.id}`, {
       method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
     });
     const data = await response.json();
 
@@ -1165,9 +1388,47 @@ export default function CustomerDetailPage({
     router.push("/admin/customers");
   };
 
+  const anonymizeCustomer = async () => {
+    if (!customer) return;
+
+    const confirmed = window.confirm(
+      "Anonymize this customer? Contact details, uploaded material, and support messages will be removed, while payment/order/audit references are retained.",
+    );
+
+    if (!confirmed) return;
+
+    const reason = window.prompt(
+      "Reason for anonymizing this customer and removing personal data:",
+    )?.trim();
+
+    if (!reason) return;
+
+    setSaving(true);
+    const response = await fetch(`/api/admin/customers/${customer.id}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "anonymize_customer", reason }),
+    });
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Anonymize customer error:", data);
+      showAdminNotification(
+        "error",
+        data.error || "Could not anonymize customer.",
+      );
+      setSaving(false);
+      return;
+    }
+
+    await loadData();
+    showAdminNotification("success", "Customer anonymized.");
+    setSaving(false);
+  };
+
   useEffect(() => {
     loadData();
-  }, [customerId]);
+  }, [loadData]);
 
   useEffect(() => {
     const section = searchParams.get("section");
@@ -1446,6 +1707,16 @@ export default function CustomerDetailPage({
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
               />
             </label>
+            <label className="mt-4 block text-sm font-semibold text-slate-700">
+              Reason for this customer detail change *
+              <textarea
+                value={editReason}
+                onChange={(event) => setEditReason(event.target.value)}
+                rows={2}
+                placeholder="Example: corrected billing email after customer confirmation."
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+              />
+            </label>
             <button
               onClick={saveCustomerDetails}
               disabled={saving}
@@ -1460,16 +1731,27 @@ export default function CustomerDetailPage({
           <h3 className="font-semibold text-red-900">Danger zone</h3>
           <p className="mt-1 text-sm text-red-700">
             Permanently delete this customer and related database records. Use
-            this only for wrong drafts, duplicates, or test customers.
+            this only for wrong drafts or duplicates without payment history.
+            Use anonymization for retained customer history.
           </p>
-          <button
-            type="button"
-            onClick={() => setDeleteConfirmationOpen(true)}
-            disabled={saving}
-            className="mt-3 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-          >
-            {saving ? "Deleting..." : "Delete customer"}
-          </button>
+          <div className="mt-3 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={anonymizeCustomer}
+              disabled={saving}
+              className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Anonymize customer"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmationOpen(true)}
+              disabled={saving}
+              className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            >
+              {saving ? "Deleting..." : "Delete customer"}
+            </button>
+          </div>
         </div>
       </div>
       )}
@@ -1799,6 +2081,11 @@ export default function CustomerDetailPage({
                 <td>{formatDateTime(customer.cancelled_at)}</td>
               </tr>
               <tr>
+                <td>Service access</td>
+                <td>{customer.service_access_status || "Not set"}</td>
+                <td>{formatDateTime(customer.service_access_until)}</td>
+              </tr>
+              <tr>
                 <td>Production</td>
                 <td>{formatProductionStatus(customer.production_status)}</td>
                 <td>{formatDateTime(customer.layout_started_at)}</td>
@@ -1894,13 +2181,36 @@ export default function CustomerDetailPage({
                 </button>
 
                 {customer.stripe_subscription_id && (
-                  <button
-                    onClick={cancelSubscription}
-                    disabled={saving}
-                    className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    {saving ? "Saving..." : "Cancel subscription"}
-                  </button>
+                  <>
+                    <button
+                      onClick={pauseSubscription}
+                      disabled={saving}
+                      className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Pause subscription"}
+                    </button>
+                    <button
+                      onClick={applyTemporaryDiscount}
+                      disabled={saving}
+                      className="rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Apply discount"}
+                    </button>
+                    <button
+                      onClick={cancelSubscription}
+                      disabled={saving}
+                      className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Cancel at period end"}
+                    </button>
+                    <button
+                      onClick={cancelSubscriptionImmediately}
+                      disabled={saving}
+                      className="rounded-xl bg-red-950 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Cancel now"}
+                    </button>
+                  </>
                 )}
               </div>
             </>
@@ -1911,13 +2221,24 @@ export default function CustomerDetailPage({
                 customer.
               </p>
 
-              <button
-                onClick={reactivateCustomer}
-                disabled={saving}
-                className="mt-4 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Reactivate customer"}
-              </button>
+              {customer.stripe_subscription_id &&
+              customer.service_access_status === "paused" ? (
+                  <button
+                    onClick={resumeSubscription}
+                    disabled={saving}
+                    className="mt-4 rounded-xl bg-green-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving ? "Saving..." : "Resume subscription"}
+                  </button>
+                ) : (
+                  <button
+                    onClick={reactivateCustomer}
+                    disabled={saving}
+                    className="mt-4 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {saving ? "Saving..." : "Reactivate customer"}
+                  </button>
+                )}
             </>
           ) : (
             <>
@@ -1937,14 +2258,32 @@ export default function CustomerDetailPage({
                     {saving ? "Saving..." : "Mark customer active"}
                   </button>
                   {customer.stripe_subscription_id && (
-                    <button
-                      type="button"
-                      onClick={cancelSubscription}
-                      disabled={saving}
-                      className="ml-3 mt-4 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Cancel subscription"}
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={pauseSubscription}
+                        disabled={saving}
+                        className="ml-3 mt-4 rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        {saving ? "Saving..." : "Pause subscription"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={applyTemporaryDiscount}
+                        disabled={saving}
+                        className="ml-3 mt-4 rounded-xl bg-purple-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        {saving ? "Saving..." : "Apply discount"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelSubscription}
+                        disabled={saving}
+                        className="ml-3 mt-4 rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        {saving ? "Saving..." : "Cancel at period end"}
+                      </button>
+                    </>
                   )}
                 </div>
               )}
@@ -2099,6 +2438,33 @@ export default function CustomerDetailPage({
                       </span>
                     )}
                   </div>
+                  <div className="mt-4 border-t border-slate-200 pt-4">
+                    <label className="text-sm font-semibold text-slate-700">
+                      Customer-visible reply
+                      <textarea
+                        id={`message-customer-reply-${item.id}`}
+                        name={`messageCustomerReply-${item.id}`}
+                        value={messageReplyDrafts[item.id] || ""}
+                        onChange={(event) =>
+                          setMessageReplyDrafts((current) => ({
+                            ...current,
+                            [item.id]: event.target.value,
+                          }))
+                        }
+                        rows={4}
+                        placeholder="Write the reply that the customer should see in the portal and receive by email."
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => sendCustomerMessageReply(item)}
+                      disabled={saving}
+                      className="admin-button-primary mt-3 disabled:opacity-50"
+                    >
+                      {saving ? "Sending..." : "Send customer reply"}
+                    </button>
+                  </div>
                 </div>
 
                 {item.files.length > 0 && (
@@ -2179,6 +2545,74 @@ export default function CustomerDetailPage({
                     {asset.description}
                   </p>
                 )}
+                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <div className="grid gap-3 md:grid-cols-[220px_1fr]">
+                    <label className="text-sm font-semibold text-slate-700">
+                      Review status
+                      <select
+                        id={`asset-status-${asset.id}`}
+                        name={`assetStatus-${asset.id}`}
+                        value={assetDrafts[asset.id]?.status || asset.status || "new"}
+                        onChange={(event) =>
+                          setAssetDrafts((current) => ({
+                            ...current,
+                            [asset.id]: {
+                              status: event.target.value,
+                              adminNote:
+                                current[asset.id]?.adminNote || asset.adminNote || "",
+                            },
+                          }))
+                        }
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      >
+                        <option value="new">New</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="archived">Archived</option>
+                      </select>
+                    </label>
+                    <label className="text-sm font-semibold text-slate-700">
+                      Internal review note
+                      <textarea
+                        id={`asset-admin-note-${asset.id}`}
+                        name={`assetAdminNote-${asset.id}`}
+                        value={assetDrafts[asset.id]?.adminNote || ""}
+                        onChange={(event) =>
+                          setAssetDrafts((current) => ({
+                            ...current,
+                            [asset.id]: {
+                              status: current[asset.id]?.status || asset.status || "new",
+                              adminNote: event.target.value,
+                            },
+                          }))
+                        }
+                        rows={3}
+                        maxLength={1000}
+                        placeholder="Record review outcome, content risks, or next action."
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      />
+                    </label>
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => updateCustomerAsset(asset)}
+                      disabled={saving}
+                      className="admin-button-primary disabled:opacity-50"
+                    >
+                      {saving ? "Saving..." : "Save material review"}
+                    </button>
+                    {asset.reviewedAt && (
+                      <span className="text-xs font-semibold text-slate-500">
+                        Reviewed {new Date(asset.reviewedAt).toLocaleString("sv-SE")}
+                      </span>
+                    )}
+                    {asset.adminNoteUpdatedAt && (
+                      <span className="text-xs font-semibold text-slate-500">
+                        Note updated {new Date(asset.adminNoteUpdatedAt).toLocaleString("sv-SE")}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
@@ -2216,6 +2650,32 @@ export default function CustomerDetailPage({
                       Stripe checkout:{" "}
                       {subscription.stripe_checkout_session_id || "Not started"}
                     </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Stripe subscription:{" "}
+                      {subscription.stripe_subscription_id || "Not created yet"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Latest Stripe invoice:{" "}
+                      {subscription.stripe_invoice_id || "Not recorded yet"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">
+                      Paid period: {formatDateTime(subscription.stripe_current_period_start)} -{" "}
+                      {formatDateTime(subscription.stripe_current_period_end)}
+                    </p>
+                    {subscription.cancel_at_period_end && (
+                      <p className="mt-1 text-sm font-semibold text-amber-700">
+                        Cancels at period end:{" "}
+                        {formatDateTime(subscription.cancellation_effective_at)}
+                      </p>
+                    )}
+                    {subscription.pause_started_at && (
+                      <p className="mt-1 text-sm font-semibold text-blue-700">
+                        Paused: {formatDateTime(subscription.pause_started_at)}
+                        {subscription.pause_reason
+                          ? ` - ${subscription.pause_reason}`
+                          : ""}
+                      </p>
+                    )}
                   </div>
 
                   <div className="text-sm text-slate-600 md:text-right">
@@ -2419,8 +2879,9 @@ export default function CustomerDetailPage({
 
               <p className="text-sm leading-6 text-slate-700">
                 This cannot be undone from the admin panel. Use it only for
-                wrong drafts, duplicates, or test customers. Production customer
-                history should normally be suspended instead of deleted.
+                wrong drafts or duplicates without Stripe/payment history.
+                Customer history with payments should be suspended, refunded,
+                cancelled, or anonymized instead of deleted.
               </p>
 
               <div className="flex flex-wrap justify-end gap-3 pt-2">

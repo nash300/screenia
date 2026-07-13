@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { LandingNav } from "@/components/LandingNav";
 import "../landing.css";
 
@@ -73,7 +74,12 @@ export default function HowItWorksPage() {
           <div className="how-reason-grid" aria-label="Screenia fördelar">
             {reasons.map(([number, title, text, image]) => (
               <article key={number} className="how-reason-card">
-                <img src={image} alt={`${title} med Screenia`} />
+                <Image
+                  src={image}
+                  alt={`${title} med Screenia`}
+                  width={900}
+                  height={720}
+                />
                 <div>
                   <span>{number}</span>
                   <h3>{title}</h3>

@@ -1,21 +1,18 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { use, useCallback, useEffect, useState } from "react";
 
 type PlaylistItem = {
+  id: string;
   src: string;
 };
 
-type Device = {
-  id: string;
-  is_active: boolean;
-  customers: {
-    status: string | null;
-  } | null;
+type DisplayPlaylistResponse = {
+  playlist?: PlaylistItem[];
+  error?: string;
 };
 
-const CACHE_NAME = "screenia-video-cache-v1";
+const DISPLAY_CACHE_NAMES = ["screenia-video-cache-v1", "screenia-cache-v1"];
 
 export default function DisplayPage({
   params,
@@ -38,100 +35,58 @@ export default function DisplayPage({
     });
   };
 
-  const cacheVideos = async (items: PlaylistItem[]) => {
-    if (!("caches" in window)) return;
-
-    const cache = await caches.open(CACHE_NAME);
-
-    for (const item of items) {
-      try {
-        const existing = await cache.match(item.src);
-
-        if (!existing) {
-          await cache.add(item.src);
-          console.log("Cached video:", item.src);
-        }
-      } catch (error) {
-        console.error("Could not cache video:", item.src, error);
-      }
-    }
-  };
-
-  const getCachedPlaylist = async () => {
-    if (!("localStorage" in window)) return [];
-
-    const saved = localStorage.getItem(`playlist-${deviceId}`);
-    if (!saved) return [];
-
-    try {
-      return JSON.parse(saved) as PlaylistItem[];
-    } catch {
-      return [];
-    }
-  };
-
-  const saveCachedPlaylist = (items: PlaylistItem[]) => {
+  const saveCachedPlaylist = useCallback((items: PlaylistItem[]) => {
     localStorage.setItem(`playlist-${deviceId}`, JSON.stringify(items));
-  };
+  }, [deviceId]);
+
+  const clearCachedPlaylist = useCallback(async () => {
+    localStorage.removeItem(`playlist-${deviceId}`);
+
+    if ("caches" in window) {
+      await Promise.all(DISPLAY_CACHE_NAMES.map((cacheName) => caches.delete(cacheName)));
+    }
+  }, [deviceId]);
 
   useEffect(() => {
     const fetchPlaylist = async () => {
       setError("");
 
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker
-          .register("/sw.js")
-          .then(() => console.log("Service Worker registered"))
-          .catch((err) => console.error("SW error:", err));
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
       }
 
-      const { data: device, error: deviceError } = await supabase
-        .from("devices")
-        .select(
-          `
-          id,
-          is_active,
-          customers(status)
-        `,
-        )
-        .eq("device_code", deviceId)
-        .maybeSingle<Device>();
-
-      if (deviceError || !device) {
-        console.error("Device not found:", deviceError);
-
-        const cached = await getCachedPlaylist();
-        setPlaylist(cached);
-        setLoading(false);
-        return;
-      }
-
-      if (!device.is_active || device.customers?.status !== "active") {
+      let response: Response;
+      try {
+        response = await fetch(`/api/display/${deviceId}/playlist`, {
+          cache: "no-store",
+        });
+      } catch (error) {
+        console.error("Display playlist request failed:", error);
+        await clearCachedPlaylist();
+        setPlaylist([]);
+        setIndex(0);
         setError("This display is not active.");
         setLoading(false);
         return;
       }
 
-      const { data, error } = await supabase
-        .from("playlists")
-        .select("src")
-        .eq("device_id", device.id)
-        .order("order_index");
+      const data = (await response.json()) as DisplayPlaylistResponse;
 
-      if (error) {
-        console.error("Playlist error:", error);
-
-        const cached = await getCachedPlaylist();
-        setPlaylist(cached);
+      if (!response.ok) {
+        console.error("Display playlist denied:", data.error);
+        await clearCachedPlaylist();
+        setPlaylist([]);
+        setIndex(0);
+        setError(data.error || "This display is not active.");
         setLoading(false);
         return;
       }
 
-      const freshPlaylist = data || [];
+      const freshPlaylist = data.playlist || [];
 
       setPlaylist(freshPlaylist);
       saveCachedPlaylist(freshPlaylist);
-      cacheVideos(freshPlaylist);
 
       setIndex((currentIndex) => {
         if (freshPlaylist.length === 0) return 0;
@@ -147,7 +102,7 @@ export default function DisplayPage({
     const interval = setInterval(fetchPlaylist, 3000);
 
     return () => clearInterval(interval);
-  }, [deviceId]);
+  }, [clearCachedPlaylist, deviceId, saveCachedPlaylist]);
 
   if (loading) {
     return (

@@ -93,6 +93,7 @@ const orderStatuses = [
   "paid",
   "active",
   "payment_failed",
+  "disputed",
   "cancelled",
 ];
 
@@ -102,11 +103,14 @@ const fulfillmentStatuses = [
   "content_pending",
   "content_received",
   "preview_approved",
+  "layout_started",
   "paid",
   "in_production",
   "ready_to_ship",
   "shipped",
   "completed",
+  "active",
+  "paused",
   "cancelled",
 ];
 
@@ -316,15 +320,25 @@ function AdminOrdersContent() {
       | "tracking_url",
     value: string,
   ) => {
-    setSavingId(orderId);
-    const { error } = await supabase
-      .from("customer_subscriptions")
-      .update({ [field]: value })
-      .eq("id", orderId);
+    const reason = prompt(
+      `Reason for updating ${field.replace(/_/g, " ")} to "${value.replace(/_/g, " ")}":`,
+    )?.trim();
 
-    if (error) {
-      console.error("Update order error:", error);
-      showAdminNotification("error", "Could not update order.");
+    if (!reason) return;
+
+    setSavingId(orderId);
+    const response = await fetch(`/api/admin/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [field]: value, reason }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not update order.",
+      );
     } else {
       setOrders((current) =>
         current.map((order) =>
@@ -343,6 +357,10 @@ function AdminOrdersContent() {
       tracking_number: "",
       tracking_url: "",
     };
+    const reason = prompt("Reason for saving or changing shipment tracking:")?.trim();
+
+    if (!reason) return;
+
     const hasTracking = Boolean(
       draft.tracking_number.trim() || draft.tracking_url.trim(),
     );
@@ -360,19 +378,18 @@ function AdminOrdersContent() {
     if (shouldMarkShipped) updatePayload.fulfillment_status = "shipped";
 
     setSavingId(orderId);
-    const { error } = await supabase
-      .from("customer_subscriptions")
-      .update(updatePayload)
-      .eq("id", orderId);
+    const response = await fetch(`/api/admin/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...updatePayload, reason }),
+    });
+    const result = await response.json().catch(() => ({}));
 
-    if (error?.code === "42703" || error?.code === "PGRST204") {
+    if (!response.ok) {
       showAdminNotification(
-        "warning",
-        "Tracking fields are not available. Apply the latest Supabase migration.",
+        "error",
+        result.error || "Could not save tracking.",
       );
-    } else if (error) {
-      console.error("Save tracking error:", error);
-      showAdminNotification("error", "Could not save tracking.");
     } else {
       setOrders((current) =>
         current.map((order) =>
@@ -408,6 +425,18 @@ function AdminOrdersContent() {
         <p className="admin-subtitle">
           Follow quote, payment, inventory, shipping, and order updates in one place.
         </p>
+        <a
+          href="/api/admin/accounting-export"
+          className="admin-button-secondary"
+        >
+          Export accounting CSV
+        </a>
+        <a
+          href="/api/admin/vat-summary?format=csv"
+          className="admin-button-secondary"
+        >
+          Export VAT summary
+        </a>
       </div>
 
       <section className="admin-card p-6">

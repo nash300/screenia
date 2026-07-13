@@ -1,86 +1,55 @@
 # Screenia Next Edit Bookmark
 
-Date: 2026-06-28
+Date: 2026-07-13
 Branch: `codex/local-service-setup`
-Current clean commit: this commit, `Fix cancellation source preservation`
-Server: `http://localhost:3000`
+Local app: `http://localhost:3000`
+Supabase project: `wcmhvldpelfhurlsuwwy`
 
-## Current Status Bookmark
+## Current Checkpoint
 
-- QA state is recorded in `QA_ADMIN_TEST_PLAN.md`.
-- The latest work verifies refund-boundary tracking and fixes cancellation source preservation.
-- TypeScript passed with `npx tsc --noEmit`.
-- ESLint passed with warnings only.
-- Current requested test batch status: 5 of 5 tests passed, 0 left.
-- Current QA status:
-  - Functional QA is complete for the tested business-critical flows.
-  - Native OS file-picker selection cannot be driven by the browser automation tool, but the MP4 upload UI, Supabase Storage upload, playlist insert, admin listing, and display playback are verified.
-  - Email template rendering is corrected; remaining email work is deliverability/domain verification after buying/verifying a real sending domain.
-  - Final route smoke passed for `/`, `/admin`, `/display/XACRVK`, and `/email-preview.html`.
-  - XACRVK playlist now has 3 videos, including final smoke upload `2633a2f4-3a55-44a1-b1b8-51789ec7bbe4`.
-- Current remaining product decisions:
-  - Product decision for Canva tracking.
-- Admin pricing sync is now implemented:
-  - `/admin/pricing` edits live Supabase pricing plans.
-  - Protected `/api/admin/pricing-plans` saves pricing changes and syncs Stripe prices.
-  - Both `standard_fhd` and `premium_4k` have setup, hardware, shipping, and monthly Stripe price IDs stored.
+- `/admin/launch-readiness` is intentionally kept as a permanent admin operations page.
+- Critical `20260712...` Supabase migrations were applied in the Supabase SQL Editor on the production project. Supabase reported: `Success. No rows returned`.
+- Launch readiness improved after migrations from 23 blocked checks to 13 blocked checks.
+- Latest critical validation passed:
+  - `npm.cmd run lint`
+  - `git diff --check` for touched readiness files
+  - `npm.cmd run build`
+- Current readiness summary after migration:
+  - Passed: 38
+  - Needs review: 11
+  - Blocked: 13
+  - Status: `Not ready`
 
-## Next Edit List
+## Remaining Critical Readiness Blockers
 
-### Stripe Payment / Refund Rules
+These are the next practical items. Do not go deeper than needed.
 
-Business rule to add:
-- The initial setup/layout price is refundable only until Screenia starts layout/design work.
-- Once layout/design work starts, the setup/layout fee should be marked non-refundable.
+- Configure `RESEND_WEBHOOK_SECRET` so bounce/complaint/failure webhooks can be verified.
+- Fix 1 post-onboarding/payment customer with missing or invalid Swedish organisation number.
+- Add required admin reasons to these compliance workflows:
+  - Legal change notices
+  - Processor compliance reviews
+  - Admin access reviews
+  - Backup restore drills
+  - Data retention reviews
+- Resolve 1 active/paid customer with no active display device.
+- Fix inventory existing-device link rollback visibility.
+- Ensure high/critical privacy incidents create urgent admin notifications.
+- Confirm paid invoices restore customers suspended by failed payments.
+- Resolve storage readiness checks:
+  - Private display videos bucket
+  - Private sensitive customer storage
 
-Current system state:
-- Added migration `202606280004_production_refund_boundary.sql`.
-- Live Supabase now has `customers.production_status`, `layout_started_at`, and `setup_fee_locked_at`.
-- Added admin-only route `/api/admin/customers/[customerId]/production` with action `start_layout`.
-- Customer portal now shows the setup/refund boundary card.
-- Payment success page no longer presents login as the primary next action.
-- Protected admin `start_layout` route was tested successfully and recorded `layout_work_started`.
-- Customer cancellation after layout start and before layout start were both tested successfully against Stripe test subscriptions.
-- Cancellation code now preserves app/customer/admin cancellation source when the Stripe deleted-subscription webhook arrives later.
-- Logged-in admin responsive pass is complete for Dashboard, Customers, Orders, Inventory, Devices, and Pricing at mobile/tablet/desktop sizes.
-- Admin media upload UI is verified for `video/mp4`; the remaining native picker check requires manual Windows file selection.
-- Gmail check found an old manual branded email with oversized helper image and mojibake test copy; fixed the shared email wrapper and Swedish email source strings.
-- Gmail check confirmed a real app quote email renders Swedish characters correctly.
-- Fresh app-generated branded email after the fix also renders Swedish correctly and applies the logo/helper image sizes, but Gmail places current dev/test sender emails in Spam/Bin and blocks remote image URLs there. Remaining email work is deliverability/domain trust, not template rendering.
-- Admin pricing page now edits live Supabase plans and can sync Stripe products/prices. Checkout already reads Supabase pricing dynamically, so saved price changes affect new checkout sessions immediately.
+## Recently Completed
 
-Recommended future implementation:
-- Add admin/customer cancellation logic:
-  - Before `layout_started_at`: allow cancellation and guide/admin-trigger Stripe refund for setup fee if already paid.
-  - After `layout_started_at`: allow subscription cancellation, but show setup/layout fee as non-refundable.
-- Add audit events for every status change with timestamps.
-- Optional polish: verify the `Start layout work` button itself visually in a logged-in admin browser session; the route/data behavior has passed.
+- Subscription operations, display entitlement gating, Stripe webhook ledger, data subject request register, privacy incident register, access review, backup drill, retention, processor, Resend event, legal notice, and preview decision database objects were added through the migration batch.
+- Tax payment readiness false positives were fixed so the checker recognizes the actual `Cache-Control: no-store` implementation and split `.delete().eq(...)` rollback chain.
+- Several admin/customer operations were hardened with required audit, rollback, and urgent admin notification paths.
 
-### Betalning Mottagen Window
+## Resume Plan
 
-Current page:
-- `src/app/onboarding/payment-success/page.tsx`
-- Shows `Betalning mottagen`, explains email/password setup, and has a `Till inloggning` button.
-
-Question:
-- The customer may not have an activated account/password at this moment, so the login button can be confusing.
-
-Implemented:
-- Primary action is now `Servicevillkor`.
-- Login is now secondary text: `Jag har redan skapat lösenord`.
-
-### Customer Profile Page Styling
-
-Current page:
-- `src/app/account/page.tsx`
-- Uses functional cards and portal sections, but needs stronger visual theme polish.
-
-Recommended future change:
-- Style the customer portal with the Screenia visual language:
-  - richer hero panel,
-  - helper image/graphic area,
-  - softer shadows,
-  - clearer section cards,
-  - better empty states,
-  - consistent Special Elite customer-facing headings,
-  - responsive polish for mobile/tablet.
+1. Open `/admin/launch-readiness` and refresh.
+2. Pick only one high-value blocked item.
+3. Fix it in the smallest safe way.
+4. Run only critical validation: `npm.cmd run lint`, `npm.cmd run build`, and one browser readiness refresh.
+5. Stop if the next item would require external setup or business/legal decisions.

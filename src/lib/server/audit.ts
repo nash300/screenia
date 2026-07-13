@@ -14,6 +14,7 @@ type AuditEventInput = {
 export async function recordAuditEvent(
   supabaseAdmin: SupabaseClient,
   event: AuditEventInput,
+  options?: { throwOnError?: boolean },
 ) {
   const { error } = await supabaseAdmin.from("audit_events").insert({
     customer_id: event.customerId || null,
@@ -28,6 +29,9 @@ export async function recordAuditEvent(
 
   if (error) {
     console.warn("Audit event was not stored:", error.message);
+    if (options?.throwOnError) {
+      throw error;
+    }
   }
 }
 
@@ -76,6 +80,7 @@ async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promi
 export async function recordConsent(
   supabaseAdmin: SupabaseClient,
   consent: ConsentRecordInput,
+  options?: { throwOnError?: boolean },
 ) {
   const { error } = await supabaseAdmin.from("consent_records").insert({
     customer_id: consent.customerId,
@@ -92,12 +97,16 @@ export async function recordConsent(
 
   if (error) {
     console.warn("Consent record was not stored:", error.message);
+    if (options?.throwOnError) {
+      throw error;
+    }
   }
 }
 
 export async function recordLegalAgreement(
   supabaseAdmin: SupabaseClient,
   agreement: LegalAgreementInput,
+  options?: { throwOnError?: boolean },
 ) {
   const documentResult = await withTimeout(
     supabaseAdmin
@@ -132,6 +141,9 @@ export async function recordLegalAgreement(
 
   if (error) {
     console.warn("Legal agreement was not stored:", error.message);
+    if (options?.throwOnError) {
+      throw error;
+    }
   }
 }
 

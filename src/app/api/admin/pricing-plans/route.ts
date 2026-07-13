@@ -88,6 +88,14 @@ function sanitizeDays(value: unknown, fallback = 0) {
   return Math.max(0, Math.min(365, Math.round(numberValue)));
 }
 
+function getAdminReason(value: unknown) {
+  return String(value || "").trim();
+}
+
+function requireAdminReason(reason: string) {
+  return reason.length >= 5 && reason.length <= 1000;
+}
+
 async function getPlan(planId: string) {
   return supabaseAdmin
     .from("pricing_plans")
@@ -225,8 +233,16 @@ export async function PATCH(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const planId = String(body.planId || "");
+  const reason = getAdminReason(body.reason);
   if (!planId) {
     return NextResponse.json({ error: "Missing pricing plan id." }, { status: 400 });
+  }
+
+  if (!requireAdminReason(reason)) {
+    return NextResponse.json(
+      { error: "A pricing change reason between 5 and 1000 characters is required." },
+      { status: 400 },
+    );
   }
 
   const { data: currentPlan, error: currentError } = await getPlan(planId);
@@ -281,6 +297,7 @@ export async function PATCH(request: Request) {
         trialDays: currentPlan.trial_days,
       },
       after: update,
+      reason,
     },
     ipAddress: getRequestIp(request),
     userAgent: request.headers.get("user-agent"),
@@ -297,8 +314,16 @@ export async function POST(request: Request) {
 
   const body = await request.json().catch(() => ({}));
   const planId = String(body.planId || "");
+  const reason = getAdminReason(body.reason);
   if (!planId) {
     return NextResponse.json({ error: "Missing pricing plan id." }, { status: 400 });
+  }
+
+  if (!requireAdminReason(reason)) {
+    return NextResponse.json(
+      { error: "A Stripe price sync reason between 5 and 1000 characters is required." },
+      { status: 400 },
+    );
   }
 
   const { data: plan, error: planError } = await getPlan(planId);
@@ -374,6 +399,7 @@ export async function POST(request: Request) {
       planId: plan.id,
       planCode: plan.code,
       stripePriceIds: stripeIds,
+      reason,
     },
     ipAddress: getRequestIp(request),
     userAgent: request.headers.get("user-agent"),
