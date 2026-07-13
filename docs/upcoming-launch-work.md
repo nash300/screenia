@@ -172,6 +172,7 @@ Current deployment status:
      - TXT `_dmarc.screenia.se` returns `v=DMARC1; p=none;`.
    - Keep DMARC at `p=none` during launch testing, then tighten after successful mail flow monitoring.
    - Use a verified sender such as `hello@screenia.se` or `no-reply@screenia.se` for transactional mail.
+   - Keep the application Resend API key send-restricted for least privilege. It can send mail but cannot query domain-management status; use the Resend dashboard or a temporary full-access admin key only when domain-management verification is needed.
    - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test after the domain points to Vercel.
    - Confirm delivery, bounce, complaint, failed, and unsubscribe events are stored.
 
@@ -282,6 +283,20 @@ Current deployment status:
   - Local core keys are present for Supabase, Stripe, Resend, app URL, company identity placeholders, and Stripe automatic tax.
   - Required live-payment gate flags are intentionally not set locally: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
   - Optional public keys not present locally: `NEXT_PUBLIC_EMAIL_ASSET_BASE_URL` and `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED`.
+
+2026-07-13 22:19 Europe/Stockholm:
+
+- Focused production refresh stayed clean:
+  - `https://screenia.se` returned HTTP 200 with the Screenia title.
+  - `https://www.screenia.se` returned HTTP 308.
+  - `robots.txt` and `sitemap.xml` use `https://screenia.se`; sitemap has no `vercel.app` URLs.
+  - Direct unauthenticated request to `/api/admin/launch-readiness` returned HTTP 401, as expected.
+  - Public DNS still points to Vercel nameservers.
+  - Apex/root MX for `screenia.se` is still empty, which is intentional until the human mailbox provider is selected.
+  - Resend sending records on `send.screenia.se` and DKIM/DMARC records are still visible publicly.
+- Resend API status check:
+  - The local Resend API key is restricted to sending emails and returned `restricted_api_key` for domain-management lookup.
+  - Keep this least-privilege key for the app; check domain verification in the dashboard or with a temporary full-access admin key only if needed.
 
 ## Admin Panel Consistency Work
 
