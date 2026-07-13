@@ -27,6 +27,8 @@ Current deployment status:
 - `screenia.se` was added to the Vercel project.
 - Loopia nameserver panel showed Vercel nameservers after update attempt: `ns1.vercel-dns.com` and `ns2.vercel-dns.com` (order does not matter).
 - Public DNS still showed Loopia nameservers immediately after the change attempt; re-check after propagation.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is pending DNS verification.
+- Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -57,9 +59,14 @@ Current deployment status:
 
 3. Resend transactional email
    - Start with Resend Free while volume is low.
-   - Add and verify `screenia.se` in Resend.
-   - Add Resend SPF/DKIM records in Loopia DNS.
-   - Configure DMARC for the domain before sending real customer email.
+   - `screenia.se` was added to Resend; domain id `645099e3-8522-4949-95aa-f9ee63c2001b`.
+   - Resend verification is pending until public DNS points to Vercel nameservers.
+   - Resend sending DNS records are staged in Vercel DNS:
+     - TXT `resend._domainkey` = `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCt8Z7H7RzjQQ+s0/HTMefefAl1atfepdP/4aZ9oojVCDKoYu3UD4YYYSspOJS0YGPt/IoOdbiqonZvKR5Ne/StRX57JR4DGTQccSWKM/AzNWXZZaVuWlNVKPRbAc6WUNp2ewSwOvZPspdTWq7XI0nTn6uNiEz3zMeyPIeQWskdgQIDAQAB`
+     - MX `send` = `feedback-smtp.eu-west-1.amazonses.com`, priority `10`
+     - TXT `send` = `v=spf1 include:amazonses.com ~all`
+     - TXT `_dmarc` = `v=DMARC1; p=none;`
+   - Keep DMARC at `p=none` during launch testing, then tighten after successful mail flow monitoring.
    - Use a verified sender such as `hello@screenia.se` or `no-reply@screenia.se` for transactional mail.
    - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test after the domain points to Vercel.
    - Confirm delivery, bounce, complaint, failed, and unsubscribe events are stored.
