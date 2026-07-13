@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 78%.
+Current service setup progress: about 84%.
 
 ### Service Purchase And Setup Runbook
 
@@ -76,8 +76,18 @@ Current deployment status:
      - Domain verification TXT was added in Vercel DNS at root/`@`: `zoho-verification=zb79122508.zmverify.zoho.eu`.
      - Public DNS confirms the Zoho verification TXT is visible.
      - Zoho accepted the TXT record and verified domain ownership.
-     - Setup is paused at Super Administrator mailbox creation; recommended first mailbox is `admin@screenia.se`, then create `hello@screenia.se` as the public inbox or alias.
-     - Root/apex MX for `screenia.se` is still intentionally empty until Zoho shows the mailbox MX records after the first mailbox is created.
+   - Zoho Mail setup progress as of 2026-07-13 22:52 Europe/Stockholm:
+     - Super Administrator mailbox exists as `admin@screenia.se` on Zoho Mail Free.
+     - `hello@screenia.se` was added as an alias on the admin mailbox, so it should not consume another user license.
+     - Zoho setup completion reached the Admin Console.
+     - Root/apex MX, SPF, and DKIM records were added in Vercel DNS and verified publicly through Cloudflare DNS:
+       - MX `@` -> `mx.zoho.eu`, priority `10`.
+       - MX `@` -> `mx2.zoho.eu`, priority `20`.
+       - MX `@` -> `mx3.zoho.eu`, priority `50`.
+       - TXT `@` -> `v=spf1 include:zohomail.eu ~all`.
+       - TXT `zmail._domainkey` -> Zoho DKIM record.
+     - Zoho's own dashboard may still take time to refresh MX status; external DNS is correct.
+     - Next required test: send Gmail -> `hello@screenia.se`, then send `hello@screenia.se` -> Gmail and check spam placement.
 
    Human mailbox setup runbook:
 
@@ -86,8 +96,9 @@ Current deployment status:
      - Current official paid fallback inside Zoho: Mail Lite is listed at `EUR 0.90/user/month` billed annually.
    - Fallback: Migadu Micro or the lowest suitable Migadu plan if Zoho Free is unavailable or if IMAP/standard mail-client access becomes important.
      - Current official pricing check on 2026-07-13: Migadu Micro is listed at `$19/year`, not available monthly, with unlimited addresses/domains subject to account usage limits.
-   - Create one real mailbox first: `hello@screenia.se`.
-   - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first mailbox can send and receive.
+   - Current real mailbox: `admin@screenia.se`.
+   - Current public alias: `hello@screenia.se` on the admin mailbox.
+   - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first send/receive test passes.
    - Keep transactional/product email separate in Resend. Use Resend for app emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
    - Keep human mailbox MX records at the apex/root domain, for example Zoho or Migadu records for `screenia.se`.
    - Keep Resend return-path records on the `send` subdomain. The existing Resend MX for `send.screenia.se` does not replace the human inbox MX for `screenia.se`.
@@ -112,7 +123,8 @@ Current deployment status:
      - OTP/CAPTCHA/phone verification.
    - Suggested organization/display name: `Screenia`.
    - First domain to add: `screenia.se`.
-   - First mailbox to create: `hello@screenia.se`.
+   - Completed: first mailbox created as `admin@screenia.se`.
+   - Completed: first public alias created as `hello@screenia.se`.
    - Next aliases or mailboxes after first send/receive test passes: `support@screenia.se`, `billing@screenia.se`.
    - Do not enable bulk/newsletter sending from Zoho during setup; keep product/transactional email in Resend.
    - Do not remove the existing Resend `send.screenia.se` MX/SPF records; they are only for Resend's return-path subdomain.
@@ -314,6 +326,20 @@ Current deployment status:
   - Zoho verified domain ownership and advanced to Account Creation.
   - Account Creation is paused before creating the Super Administrator mailbox; recommended choice is `admin@screenia.se`.
   - Root/apex MX is still empty and should stay empty until Zoho provides the MX records in the DNS Mapping step.
+
+2026-07-13 22:52 Europe/Stockholm:
+
+- Zoho mailbox setup advanced from setup wizard to Admin Console:
+  - `admin@screenia.se` exists as the Super Administrator mailbox on Zoho Mail Free.
+  - `hello@screenia.se` exists as an alias on the admin mailbox.
+  - Zoho root MX records are publicly visible: `mx.zoho.eu`, `mx2.zoho.eu`, and `mx3.zoho.eu`.
+  - Zoho root SPF is publicly visible: `v=spf1 include:zohomail.eu ~all`.
+  - Zoho DKIM selector `zmail._domainkey.screenia.se` is publicly visible.
+  - Zoho's dashboard can lag on MX status even after external DNS is correct.
+- Remaining mailbox validation:
+  - Send Gmail -> `hello@screenia.se`.
+  - Send `hello@screenia.se` -> Gmail.
+  - Check spam placement and sender authentication details.
 
 ## Admin Panel Consistency Work
 
