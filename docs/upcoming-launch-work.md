@@ -71,6 +71,13 @@ Current deployment status:
    - After purchase, configure human inboxes through Zoho Mail Free first if available for the selected data center; use Migadu Micro as the low-cost paid fallback.
    - Desired human addresses: `hello@screenia.se`, `support@screenia.se`, and `billing@screenia.se`.
    - Then point `screenia.se` and `www.screenia.se` to Vercel once Vercel provides the exact DNS records.
+   - Zoho Mail setup progress as of 2026-07-13 22:28 Europe/Stockholm:
+     - Zoho EU organization signup was completed far enough to add `screenia.se`.
+     - Domain verification TXT was added in Vercel DNS at root/`@`: `zoho-verification=zb79122508.zmverify.zoho.eu`.
+     - Public DNS confirms the Zoho verification TXT is visible.
+     - Zoho accepted the TXT record and verified domain ownership.
+     - Setup is paused at Super Administrator mailbox creation; recommended first mailbox is `admin@screenia.se`, then create `hello@screenia.se` as the public inbox or alias.
+     - Root/apex MX for `screenia.se` is still intentionally empty until Zoho shows the mailbox MX records after the first mailbox is created.
 
    Human mailbox setup runbook:
 
@@ -297,6 +304,16 @@ Current deployment status:
 - Resend API status check:
   - The local Resend API key is restricted to sending emails and returned `restricted_api_key` for domain-management lookup.
   - Keep this least-privilege key for the app; check domain verification in the dashboard or with a temporary full-access admin key only if needed.
+
+2026-07-13 22:28 Europe/Stockholm:
+
+- Zoho mailbox setup progress:
+  - `screenia.se` was added to Zoho Mail EU on the free-plan setup path.
+  - Vercel DNS record created for Zoho domain verification: root TXT `zoho-verification=zb79122508.zmverify.zoho.eu`.
+  - Cloudflare DNS lookup returned the Zoho TXT value.
+  - Zoho verified domain ownership and advanced to Account Creation.
+  - Account Creation is paused before creating the Super Administrator mailbox; recommended choice is `admin@screenia.se`.
+  - Root/apex MX is still empty and should stay empty until Zoho provides the MX records in the DNS Mapping step.
 
 ## Admin Panel Consistency Work
 
