@@ -52,6 +52,24 @@ Current deployment status:
    - Desired human addresses: `hello@screenia.se`, `support@screenia.se`, and `billing@screenia.se`.
    - Then point `screenia.se` and `www.screenia.se` to Vercel once Vercel provides the exact DNS records.
 
+   Human mailbox setup runbook:
+
+   - First choice: Zoho Mail Free, if the free plan is available for the selected data center/account. Use it only for human inboxes, not bulk newsletters.
+   - Fallback: Migadu Micro or the lowest suitable Migadu plan if Zoho Free is unavailable or if IMAP/standard mail-client access becomes important.
+   - Create one real mailbox first: `hello@screenia.se`.
+   - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first mailbox can send and receive.
+   - Keep transactional/product email separate in Resend. Use Resend for app emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
+   - Keep human mailbox MX records at the apex/root domain, for example Zoho or Migadu records for `screenia.se`.
+   - Keep Resend return-path records on the `send` subdomain. The existing Resend MX for `send.screenia.se` does not replace the human inbox MX for `screenia.se`.
+   - Do not add two different providers' apex MX records at the same time. Pick exactly one human-mail provider before entering MX records.
+   - After mailbox DNS is added in Vercel DNS, verify:
+     - MX lookup for `screenia.se` points to the selected mailbox provider.
+     - SPF includes the selected mailbox provider and does not break the existing Resend `send` subdomain SPF.
+     - DKIM is verified for the selected mailbox provider.
+     - DMARC stays at monitoring mode (`p=none`) until real send/receive tests are stable.
+     - `hello@screenia.se` can receive from Gmail and can send to Gmail without spam warnings.
+   - Save provider plan, billing receipt, DPA/data-processing terms, account owner, and DNS evidence for bookkeeping/GDPR launch records.
+
 2. Vercel hosting
    - Vercel project and first production deploy are complete.
    - `screenia.se` is attached to production in Vercel.
@@ -83,11 +101,27 @@ Current deployment status:
    - Confirm storage buckets remain private.
    - Re-run launch readiness after deployment.
 
+   Supabase setup runbook after `screenia.se` resolves to Vercel:
+
+   - Set Site URL to `https://screenia.se`.
+   - Add redirect URLs for `https://screenia.se/auth/callback`, `https://screenia.se/account/activate`, and password reset/account routes used by the app.
+   - Configure Auth email sender/templates to use a verified professional sender only after Resend or the mailbox provider is verified.
+   - Test password setup and password reset with a real test recipient before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+   - Confirm private storage buckets remain private after production deployment.
+
 5. Stripe production readiness
    - Keep test mode until business, tax, and legal gates are complete.
    - Activate live payments only after business identity, VAT decision, legal documents, and live webhooks are verified.
    - Add production webhook endpoint after Vercel deployment.
    - Confirm Stripe Tax/VAT mode.
+
+   Stripe setup runbook after `screenia.se` resolves to Vercel:
+
+   - Keep Stripe in test mode for current real-world scenario tests unless the business/tax/legal gates are explicitly complete.
+   - Add a test-mode webhook endpoint for the deployed app URL: `https://screenia.se/api/stripe/webhook`.
+   - Update Vercel `STRIPE_WEBHOOK_SECRET` with the endpoint-specific `whsec_...` value, then redeploy.
+   - Re-test checkout, subscription update, invoice paid, invoice failed, cancellation, pause/resume, refund, and dispute webhooks against the deployed URL.
+   - Only create live-mode webhooks and enable live payments after business registration, VAT decision, legal review, company identity, and live checkout gates are complete.
 
 ## Review Items Still Open
 
