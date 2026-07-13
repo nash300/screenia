@@ -47,6 +47,11 @@ Current deployment status:
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:09 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
+- Resend region check on 2026-07-13 22:17 Europe/Stockholm:
+  - `Ireland (eu-west-1)` is the correct EU-region choice for Sweden-facing launch testing.
+  - The public `send.screenia.se` MX record also points to `feedback-smtp.eu-west-1.amazonses.com`, so there is no Resend region mismatch.
+  - Sending is not a separate toggle to enable; custom-domain sending depends on the domain verifying and `RESEND_FROM_EMAIL` using that verified domain.
+  - Do not add Resend's pending apex/root `@` inbound MX record before the human mailbox provider is chosen. The root MX should be reserved for the real mailbox provider such as Zoho or Migadu.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -154,6 +159,7 @@ Current deployment status:
    - Start with Resend Free while volume is low.
    - `screenia.se` was added to Resend; domain id `645099e3-8522-4949-95aa-f9ee63c2001b`.
    - Resend dashboard still shows `Pending`, but it has recorded `DNS verified` and public DNS records are present.
+   - Resend is also showing a pending apex/root `@` MX record for inbound receiving. Keep that pending for now because it conflicts with the planned human mailbox MX records for `hello@screenia.se`.
    - Resend sending DNS records are staged in Vercel DNS:
      - TXT `resend._domainkey` = `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCt8Z7H7RzjQQ+s0/HTMefefAl1atfepdP/4aZ9oojVCDKoYu3UD4YYYSspOJS0YGPt/IoOdbiqonZvKR5Ne/StRX57JR4DGTQccSWKM/AzNWXZZaVuWlNVKPRbAc6WUNp2ewSwOvZPspdTWq7XI0nTn6uNiEz3zMeyPIeQWskdgQIDAQAB`
      - MX `send` = `feedback-smtp.eu-west-1.amazonses.com`, priority `10`
@@ -264,6 +270,18 @@ Current deployment status:
   - Checkout code reads `STRIPE_AUTOMATIC_TAX_ENABLED`.
   - Automatic tax, billing address collection, and tax ID collection are wired into Stripe Checkout when enabled.
   - Local setup has automatic tax enabled; live legal/VAT/business confirmation remains open.
+
+2026-07-13 22:17 Europe/Stockholm:
+
+- Resend status clarification:
+  - Resend's Ireland region is acceptable and preferred for the Sweden/EU launch path.
+  - Public sending records match the configured Ireland region.
+  - Resend custom-domain sending still depends on dashboard verification; do not switch production `RESEND_FROM_EMAIL` to an `@screenia.se` sender until Resend verifies the domain.
+  - Do not add Resend's root/apex inbound MX record until the human mailbox provider is selected, because the root MX will be needed for `hello@screenia.se`.
+- Environment key inventory was checked by key name only; no secret values were printed.
+  - Local core keys are present for Supabase, Stripe, Resend, app URL, company identity placeholders, and Stripe automatic tax.
+  - Required live-payment gate flags are intentionally not set locally: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
+  - Optional public keys not present locally: `NEXT_PUBLIC_EMAIL_ASSET_BASE_URL` and `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED`.
 
 ## Admin Panel Consistency Work
 
