@@ -28,6 +28,12 @@ Current deployment status:
 - Loopia nameserver panel showed Vercel nameservers after update attempt: `ns1.vercel-dns.com` and `ns2.vercel-dns.com` (order does not matter).
 - Public DNS still showed Loopia nameservers on 2026-07-13 at 20:37 Europe/Stockholm after the Vercel domain setup; re-check after propagation.
 - Loopia Kundzon direct verification currently requires logging in again before nameserver settings can be rechecked in the browser.
+- Loopia Kundzon was rechecked on 2026-07-13 at 20:49 Europe/Stockholm after login:
+  - `screenia.se` still appeared as `Parkerad`.
+  - The nameserver fields showed Vercel values: `ns2.vercel-dns.com` and `ns1.vercel-dns.com` (order is not important).
+  - `Tvinga ändring?` was checked.
+  - Clicking `Byt namnservrar` twice returned Loopia's backend error: `Hoppsan, nu gick något fel i bakgrunden. Försök gärna igen!`
+  - Public DNS still showed `ns1.loopia.se` and `ns2.loopia.se` from Cloudflare and Google after the failed re-save attempts.
 - Vercel domain setup now has `screenia.se` attached to production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
 - Temporary Vercel deployment health check still passes at `https://screenia-ten.vercel.app`: home, login, and robots all returned HTTP 200.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is pending DNS verification.
@@ -79,6 +85,29 @@ Current deployment status:
    - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
    - Confirm `https://screenia.se` loads the production app and `https://www.screenia.se` redirects after DNS propagation.
    - If public DNS still shows Loopia nameservers after Loopia's 24-48 hour propagation window, log back in to Loopia Kundzon and re-save nameservers or contact Loopia support.
+
+   Loopia support message if the backend error repeats:
+
+   ```text
+   Hej Loopia Support,
+
+   Jag försöker byta namnservrar för domänen screenia.se från Loopias namnservrar till Vercels namnservrar.
+
+   Önskade namnservrar:
+   ns1.vercel-dns.com
+   ns2.vercel-dns.com
+
+   I Kundzonen visas fälten med Vercels namnservrar och "Tvinga ändring?" är ikryssad, men när jag klickar på "Byt namnservrar" får jag felet:
+   "Hoppsan, nu gick något fel i bakgrunden. Försök gärna igen!"
+
+   Offentliga DNS-kontroller visar fortfarande:
+   ns1.loopia.se
+   ns2.loopia.se
+
+   Kan ni hjälpa mig att genomföra namnserverbytet för screenia.se?
+
+   Tack!
+   ```
 
 3. Resend transactional email
    - Start with Resend Free while volume is low.
