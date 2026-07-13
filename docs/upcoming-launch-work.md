@@ -62,6 +62,7 @@ Current deployment status:
   - A setup test email was accepted by Resend from the verified `screenia.se` sender to `hello@screenia.se`.
   - Supabase recorded the Resend webhook event as `email.sent` for `hello@screenia.se`.
   - Local `.env.local` was aligned to the verified `screenia.se` sender; this file is ignored by git and was not committed.
+  - Vercel Preview and Development `NEXT_PUBLIC_COMPANY_EMAIL` and `RESEND_FROM_EMAIL` were also aligned to `hello@screenia.se` / the verified `screenia.se` sender for future test deployments.
   - Next mailbox proof still requires confirming the message in Zoho and sending `hello@screenia.se` back to Gmail.
 
 1. Loopia domain and professional email
@@ -363,6 +364,9 @@ Current deployment status:
   - `NEXT_PUBLIC_COMPANY_EMAIL` was set to `hello@screenia.se`.
   - `RESEND_FROM_EMAIL` was set to a `screenia.se` sender.
   - Vercel hides pulled sensitive env values after re-adding them, so use live-site behavior and Vercel dashboard as the verification surface for these values.
+- Vercel Preview and Development environment values were later aligned for:
+  - `NEXT_PUBLIC_COMPANY_EMAIL`
+  - `RESEND_FROM_EMAIL`
 - Production redeploy `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
 - Focused live checks after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
@@ -379,6 +383,7 @@ Current deployment status:
   - `event_status`: `received`
   - `recipient_email`: `hello@screenia.se`
 - This proves the transactional sender can send from the verified domain and the deployed Resend webhook can store at least the sent event.
+- Vercel Preview and Development sender/contact values were aligned to the same verified `screenia.se` sender/contact setup after the production test passed.
 - Still unverified:
   - The message must be visibly received in Zoho.
   - `hello@screenia.se` must send successfully back to Gmail.
