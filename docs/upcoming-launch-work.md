@@ -45,7 +45,7 @@ Current deployment status:
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:03 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:06 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
@@ -178,7 +178,6 @@ Current deployment status:
 
 ## Review Items Still Open
 
-- Application URL
 - Live payments enabled
 - Business registration
 - VAT decision
@@ -189,6 +188,26 @@ Current deployment status:
 - Transactional email
 - Company identity
 - Legal documents
+
+## Focused Verification Checkpoints
+
+2026-07-13 22:06 Europe/Stockholm:
+
+- Live domain smoke check passed:
+  - `https://screenia.se` returned HTTP 200 with title `Screenia | Digital skyltning för företag i Sverige`.
+  - `https://screenia.se/robots.txt` still uses `Host: https://screenia.se`.
+  - `https://screenia.se/sitemap.xml` contains `https://screenia.se` and does not contain `vercel.app`.
+- Public DNS still points `screenia.se` to Vercel nameservers.
+- Resend DNS records are publicly present from Cloudflare and Google:
+  - DKIM TXT `resend._domainkey.screenia.se`.
+  - MX `send.screenia.se` to `feedback-smtp.eu-west-1.amazonses.com`.
+  - SPF TXT `send.screenia.se` with `v=spf1 include:amazonses.com ~all`.
+  - DMARC TXT `_dmarc.screenia.se` with `v=DMARC1; p=none;`.
+- Resend dashboard still shows the domain and individual records as `Pending`; do not switch `RESEND_FROM_EMAIL` to `@screenia.se` until Resend verifies the domain.
+- Short repo checks passed:
+  - `npm.cmd run lint`
+  - `npm.cmd run text:check`
+  - `npm.cmd run build`
 
 ## Admin Panel Consistency Work
 
