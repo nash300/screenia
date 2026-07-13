@@ -235,6 +235,7 @@ Current deployment status:
        - `email.delivered`
      - The temporary auth user for `hello@screenia.se` exists with setup-test metadata and is still unconfirmed.
      - Zoho Inbox visibility was confirmed on 2026-07-13, and clicking the invite redirected through Supabase Auth to `https://screenia.se/account/activate`.
+     - The temporary setup-test auth user for `hello@screenia.se` was deleted after the redirect proof so the company mailbox is not left as a customer account.
      - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until a password is submitted successfully or the reset path is checked end-to-end.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
@@ -456,9 +457,9 @@ Current deployment status:
 - The visible invite references `https://screenia.se`; the accept action points to the Supabase Auth verify endpoint and includes `redirect_to`, `token`, and `type` parameters.
 - Clicking the invite redirected through Supabase Auth and landed on `https://screenia.se/account/activate` with the Screenia password setup form.
 - No password was submitted during this setup check.
+- Cleanup completed: the temporary setup-test auth user for `hello@screenia.se` was deleted after the redirect proof.
 - Remaining verification:
-  - Submit a controlled test password or run a password reset flow to confirm account activation fully completes.
-  - Decide whether to delete or repurpose the temporary `hello@screenia.se` auth user.
+  - Submit a controlled test password with a future real test customer or run a password reset flow to confirm account activation fully completes.
   - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after password setup or reset is verified end-to-end.
 
 ## Admin Panel Consistency Work
