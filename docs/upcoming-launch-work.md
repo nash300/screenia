@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 91%.
+Current service setup progress: about 92%.
 
 ### Service Purchase And Setup Runbook
 
@@ -225,6 +225,13 @@ Current deployment status:
      - Username is `resend`.
      - Supabase saved the settings and no longer shows the built-in email service warning on the SMTP page.
      - Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until a real account activation/password reset email is received successfully.
+   - Supabase Auth SMTP delivery test:
+     - A controlled Supabase Auth invite was sent to `hello@screenia.se`.
+     - Resend/Supabase delivery events were recorded for the invite:
+       - `email.sent`
+       - `email.delivered`
+     - The temporary auth user for `hello@screenia.se` exists with setup-test metadata and is still unconfirmed.
+     - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until the message is visibly confirmed in Zoho and the activation/reset path is checked.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
      - `email-assets` is intentionally public-looking for email image assets and is limited to image MIME types.
@@ -433,6 +440,20 @@ Current deployment status:
   - Confirm the email arrives through Resend/Supabase.
   - Check Resend logs/webhook event and mailbox placement.
   - Only then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
+2026-07-13 Supabase Auth SMTP delivery test:
+
+- Sent one controlled Supabase Auth invite to `hello@screenia.se` using the custom Resend SMTP settings.
+- Supabase accepted the invite and created a setup-test auth user for `hello@screenia.se`.
+- Supabase/Resend delivery event records were stored:
+  - `email.sent`
+  - `email.delivered`
+- The `hello@screenia.se` setup-test auth user remains unconfirmed so the delivered email can still be checked from Zoho.
+- Remaining verification:
+  - Open Zoho and confirm the invite is visible in the mailbox.
+  - Check whether the email lands normally or in spam.
+  - Decide whether to delete or repurpose the temporary `hello@screenia.se` auth user.
+  - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after mailbox visibility and link behavior are verified.
 
 ## Admin Panel Consistency Work
 
