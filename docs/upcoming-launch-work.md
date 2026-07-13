@@ -11,16 +11,16 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 58%.
+Current service setup progress: about 68%.
 
 ### Service Purchase And Setup Runbook
 
 Current deployment status:
 
 - Vercel project `screenia` was created on the Hobby plan for setup/testing.
-- Production deployment is live at `https://screenia-ten.vercel.app`.
+- Production deployment is live at `https://screenia.se`.
 - Vercel environment variables were added for production, preview, and development.
-- `NEXT_PUBLIC_APP_URL` currently points to `https://screenia-ten.vercel.app`; update it to `https://screenia.se` after domain verification.
+- Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Temporary Vercel CLI token `screenia-local-deploy` was created for setup and then revoked after deployment.
 - GitHub App access was limited to `nash300/screenia`.
 - GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
@@ -34,9 +34,17 @@ Current deployment status:
   - `Tvinga ändring?` was checked.
   - Clicking `Byt namnservrar` twice returned Loopia's backend error: `Hoppsan, nu gick något fel i bakgrunden. Försök gärna igen!`
   - Public DNS still showed `ns1.loopia.se` and `ns2.loopia.se` from Cloudflare and Google after the failed re-save attempts.
-- Vercel domain setup now has `screenia.se` attached to production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
-- Temporary Vercel deployment health check still passes at `https://screenia-ten.vercel.app`: home, login, and robots all returned HTTP 200.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is pending DNS verification.
+- Public DNS moved to Vercel nameservers on 2026-07-13 at 21:42 Europe/Stockholm:
+  - Cloudflare and Google returned `ns1.vercel-dns.com` and `ns2.vercel-dns.com`.
+  - `screenia.se` resolved to Vercel IPs.
+- Vercel domain setup now has `screenia.se` valid for production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
+- Production was redeployed after updating `NEXT_PUBLIC_APP_URL`; latest Vercel deployment id prefix shown in Vercel was `7wHaL5ZE7`.
+- Real-domain smoke checks passed after redeploy:
+  - `https://screenia.se` returned HTTP 200 with the Screenia title.
+  - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
+  - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
+  - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending, but DNS records are now publicly present.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 
 1. Loopia domain and professional email
@@ -77,14 +85,13 @@ Current deployment status:
    - Save provider plan, billing receipt, DPA/data-processing terms, account owner, and DNS evidence for bookkeeping/GDPR launch records.
 
 2. Vercel hosting
-   - Vercel project and first production deploy are complete.
-   - `screenia.se` is attached to production in Vercel.
+   - Vercel project and real-domain production deploy are complete.
+   - `screenia.se` is attached to production in Vercel and has a valid configuration.
    - `www.screenia.se` is attached in Vercel and configured as a permanent `308` redirect to `screenia.se`.
-   - Update `NEXT_PUBLIC_APP_URL` to `https://screenia.se` after domain verification.
+   - Production `NEXT_PUBLIC_APP_URL` is set to `https://screenia.se` and the production deployment was refreshed.
    - Buy/use Vercel Pro before real commercial production because the app is commercial.
    - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
-   - Confirm `https://screenia.se` loads the production app and `https://www.screenia.se` redirects after DNS propagation.
-   - If public DNS still shows Loopia nameservers after Loopia's 24-48 hour propagation window, log back in to Loopia Kundzon and re-save nameservers or contact Loopia support.
+   - Preview and Development `NEXT_PUBLIC_APP_URL` still need review if preview deployments should use `https://screenia.se` or remain environment-specific.
 
    Loopia support message if the backend error repeats:
 
@@ -112,12 +119,17 @@ Current deployment status:
 3. Resend transactional email
    - Start with Resend Free while volume is low.
    - `screenia.se` was added to Resend; domain id `645099e3-8522-4949-95aa-f9ee63c2001b`.
-   - Resend verification is pending until public DNS points to Vercel nameservers.
+   - Resend dashboard still shows `Pending`, but it has recorded `DNS verified` and public DNS records are present.
    - Resend sending DNS records are staged in Vercel DNS:
      - TXT `resend._domainkey` = `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCt8Z7H7RzjQQ+s0/HTMefefAl1atfepdP/4aZ9oojVCDKoYu3UD4YYYSspOJS0YGPt/IoOdbiqonZvKR5Ne/StRX57JR4DGTQccSWKM/AzNWXZZaVuWlNVKPRbAc6WUNp2ewSwOvZPspdTWq7XI0nTn6uNiEz3zMeyPIeQWskdgQIDAQAB`
      - MX `send` = `feedback-smtp.eu-west-1.amazonses.com`, priority `10`
      - TXT `send` = `v=spf1 include:amazonses.com ~all`
      - TXT `_dmarc` = `v=DMARC1; p=none;`
+   - Public DNS verification at 21:42 showed:
+     - TXT `resend._domainkey.screenia.se` returns the Resend DKIM value.
+     - MX `send.screenia.se` returns `feedback-smtp.eu-west-1.amazonses.com` with priority `10`.
+     - TXT `send.screenia.se` returns `v=spf1 include:amazonses.com ~all`.
+     - TXT `_dmarc.screenia.se` returns `v=DMARC1; p=none;`.
    - Keep DMARC at `p=none` during launch testing, then tighten after successful mail flow monitoring.
    - Use a verified sender such as `hello@screenia.se` or `no-reply@screenia.se` for transactional mail.
    - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test after the domain points to Vercel.
