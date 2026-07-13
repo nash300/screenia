@@ -88,6 +88,36 @@ Current deployment status:
      - `hello@screenia.se` can receive from Gmail and can send to Gmail without spam warnings.
    - Save provider plan, billing receipt, DPA/data-processing terms, account owner, and DNS evidence for bookkeeping/GDPR launch records.
 
+   Human mailbox handoff checklist:
+
+   - Open Zoho EU free organization signup: `https://workplace.zoho.eu/signup?type=org&plan=free`.
+   - Choose organization/business email, not personal email.
+   - User-owned private fields to complete manually:
+     - Account owner first name and last name.
+     - Current contact email or phone for verification.
+     - Strong Zoho account password.
+     - Sweden as country/region if asked.
+     - OTP/CAPTCHA/phone verification.
+   - Suggested organization/display name: `Screenia`.
+   - First domain to add: `screenia.se`.
+   - First mailbox to create: `hello@screenia.se`.
+   - Next aliases or mailboxes after first send/receive test passes: `support@screenia.se`, `billing@screenia.se`.
+   - Do not enable bulk/newsletter sending from Zoho during setup; keep product/transactional email in Resend.
+   - Do not remove the existing Resend `send.screenia.se` MX/SPF records; they are only for Resend's return-path subdomain.
+   - After Zoho displays DNS records, Codex should add only the Zoho-provided apex/root mailbox records in Vercel DNS:
+     - Zoho MX records for `screenia.se`.
+     - Zoho SPF/TXT for `screenia.se`, merged carefully with any existing apex SPF if present.
+     - Zoho DKIM TXT selector for `screenia.se`.
+     - Keep `_dmarc.screenia.se` as `v=DMARC1; p=none;` during testing unless Zoho requires a compatible monitoring value.
+   - After DNS is saved, verify externally:
+     - `nslookup -type=MX screenia.se 1.1.1.1`
+     - `nslookup -type=TXT screenia.se 1.1.1.1`
+     - `nslookup -type=TXT <zoho-selector>._domainkey.screenia.se 1.1.1.1`
+     - Send Gmail -> `hello@screenia.se`, then `hello@screenia.se` -> Gmail.
+   - Only after mailbox send/receive works:
+     - Use `hello@screenia.se` as the public company contact address if not already configured.
+     - Continue Resend verification separately for app/transactional email.
+
 2. Vercel hosting
    - Vercel project and real-domain production deploy are complete.
    - `screenia.se` is attached to production in Vercel and has a valid configuration.
