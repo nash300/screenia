@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 84%.
+Current service setup progress: about 87%.
 
 ### Service Purchase And Setup Runbook
 
@@ -40,18 +40,24 @@ Current deployment status:
 - Vercel domain setup now has `screenia.se` valid for production and `www.screenia.se` redirecting permanently (`308`) to `screenia.se`.
 - Production was redeployed after updating `NEXT_PUBLIC_APP_URL`; latest Vercel deployment id prefix shown in Vercel was `7wHaL5ZE7`.
 - Production was redeployed again after updating the Stripe deployed webhook secret; the redeploy of `7wHaL5ZE7` reached Ready.
+- Production was redeployed again after correcting production `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_COMPANY_EMAIL`, and `RESEND_FROM_EMAIL`; deployment `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
 - Real-domain smoke checks passed after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
-- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)` and is still dashboard-pending as of 2026-07-13 22:09 Europe/Stockholm, but DNS records are publicly present through Cloudflare and Google DNS.
+- Resend domain `screenia.se` was added in region `Ireland (eu-west-1)`.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 - Resend region check on 2026-07-13 22:17 Europe/Stockholm:
   - `Ireland (eu-west-1)` is the correct EU-region choice for Sweden-facing launch testing.
   - The public `send.screenia.se` MX record also points to `feedback-smtp.eu-west-1.amazonses.com`, so there is no Resend region mismatch.
   - Sending is not a separate toggle to enable; custom-domain sending depends on the domain verifying and `RESEND_FROM_EMAIL` using that verified domain.
   - Do not add Resend's pending apex/root `@` inbound MX record before the human mailbox provider is chosen. The root MX should be reserved for the real mailbox provider such as Zoho or Migadu.
+- Resend status check on 2026-07-13 after Zoho setup:
+  - Resend dashboard shows `Partially Verified`.
+  - Domain verification and sending records are verified.
+  - DKIM, `send` MX, and `send` SPF are verified.
+  - The only pending Resend item is inbound receiving at root/apex `@`, which should remain pending because Zoho owns the human mailbox MX records for `screenia.se`.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -177,8 +183,8 @@ Current deployment status:
 3. Resend transactional email
    - Start with Resend Free while volume is low.
    - `screenia.se` was added to Resend; domain id `645099e3-8522-4949-95aa-f9ee63c2001b`.
-   - Resend dashboard still shows `Pending`, but it has recorded `DNS verified` and public DNS records are present.
-   - Resend is also showing a pending apex/root `@` MX record for inbound receiving. Keep that pending for now because it conflicts with the planned human mailbox MX records for `hello@screenia.se`.
+   - Resend dashboard shows `Partially Verified`, with domain verification and sending records verified.
+   - Resend still shows a pending apex/root `@` MX record for inbound receiving. Keep that pending because it conflicts with Zoho's human mailbox MX records for `hello@screenia.se`.
    - Resend sending DNS records are staged in Vercel DNS:
      - TXT `resend._domainkey` = `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCt8Z7H7RzjQQ+s0/HTMefefAl1atfepdP/4aZ9oojVCDKoYu3UD4YYYSspOJS0YGPt/IoOdbiqonZvKR5Ne/StRX57JR4DGTQccSWKM/AzNWXZZaVuWlNVKPRbAc6WUNp2ewSwOvZPspdTWq7XI0nTn6uNiEz3zMeyPIeQWskdgQIDAQAB`
      - MX `send` = `feedback-smtp.eu-west-1.amazonses.com`, priority `10`
@@ -190,9 +196,9 @@ Current deployment status:
      - TXT `send.screenia.se` returns `v=spf1 include:amazonses.com ~all`.
      - TXT `_dmarc.screenia.se` returns `v=DMARC1; p=none;`.
    - Keep DMARC at `p=none` during launch testing, then tighten after successful mail flow monitoring.
-   - Use a verified sender such as `hello@screenia.se` or `no-reply@screenia.se` for transactional mail.
+   - Production `RESEND_FROM_EMAIL` was corrected to use a `screenia.se` sender after Resend sending verification.
    - Keep the application Resend API key send-restricted for least privilege. It can send mail but cannot query domain-management status; use the Resend dashboard or a temporary full-access admin key only when domain-management verification is needed.
-   - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test after the domain points to Vercel.
+   - Webhook already created for `https://screenia.se/api/resend/webhook`; re-test with a real Resend event during the email delivery test.
    - Confirm delivery, bounce, complaint, failed, and unsubscribe events are stored.
 
 4. Supabase production readiness
@@ -340,6 +346,24 @@ Current deployment status:
   - Send Gmail -> `hello@screenia.se`.
   - Send `hello@screenia.se` -> Gmail.
   - Check spam placement and sender authentication details.
+
+2026-07-13 post-Zoho production refresh:
+
+- Resend dashboard status is now `Partially Verified`, not fully pending:
+  - Domain verification is complete.
+  - Sending records are verified.
+  - The only pending record is Resend inbound receiving at root/apex `@`; this should stay pending while Zoho handles human mail.
+- Production Vercel environment was corrected for the live site:
+  - `NEXT_PUBLIC_APP_URL` was set to `https://screenia.se`.
+  - `NEXT_PUBLIC_COMPANY_EMAIL` was set to `hello@screenia.se`.
+  - `RESEND_FROM_EMAIL` was set to a `screenia.se` sender.
+  - Vercel hides pulled sensitive env values after re-adding them, so use live-site behavior and Vercel dashboard as the verification surface for these values.
+- Production redeploy `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
+- Focused live checks after redeploy:
+  - `https://screenia.se` returned HTTP 200 with the Screenia title.
+  - The live page contains `hello@screenia.se`.
+  - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
+  - Direct unauthenticated request to `/api/admin/launch-readiness` returned HTTP 401.
 
 ## Admin Panel Consistency Work
 
