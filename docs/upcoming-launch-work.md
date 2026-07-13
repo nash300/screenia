@@ -211,7 +211,18 @@ Current deployment status:
    - Keep Free during setup/testing if usage stays low.
    - Upgrade to Supabase Pro before real paid customers if production backups, no project pausing, and support are required.
    - Production Auth URL configuration was updated on 2026-07-13 after the domain went live.
-   - Auth email templates/sender still need setup after Resend or the human mailbox provider is verified.
+   - Auth email templates/sender still need setup through custom SMTP.
+   - Supabase Auth email check on 2026-07-13:
+     - The Auth Emails page says Screenia is still using Supabase's built-in email service.
+     - Supabase warns the built-in email service has rate limits and is not meant for production apps.
+     - The next setup step is enabling custom SMTP with Resend:
+       - Sender email: `hello@screenia.se`.
+       - Sender name: `Screenia`.
+       - Host: `smtp.resend.com`.
+       - Port: `465`.
+       - Username: `resend`.
+       - Password: the Resend API key.
+     - This requires explicit user confirmation because it sends the Resend API key into Supabase.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
      - `email-assets` is intentionally public-looking for email image assets and is limited to image MIME types.
@@ -388,6 +399,20 @@ Current deployment status:
   - The message must be visibly received in Zoho.
   - `hello@screenia.se` must send successfully back to Gmail.
   - Delivered/bounce/complaint webhook behavior should be checked during the detailed email test pass.
+
+2026-07-13 Supabase Auth email check:
+
+- Supabase Auth Emails still uses the built-in email service.
+- This is acceptable for temporary setup, but not production-ready for customer password setup/reset emails.
+- The SMTP Settings page shows custom SMTP is not enabled yet.
+- Recommended custom SMTP configuration is Resend SMTP:
+  - Sender email: `hello@screenia.se`.
+  - Sender name: `Screenia`.
+  - Host: `smtp.resend.com`.
+  - Port: `465`.
+  - Username: `resend`.
+  - Password: Resend API key.
+- Stop point: entering the Resend API key into Supabase requires explicit user approval in chat.
 
 ## Admin Panel Consistency Work
 
