@@ -83,6 +83,12 @@ export const LIVE_PAYMENT_CONFIRMATION_FLAGS = [
     detail: "Swedish business registration and F/FA-skatt path are confirmed.",
   },
   {
+    key: "SCREENIA_VERCEL_PRO_CONFIRMED",
+    label: "Vercel Pro / commercial hosting",
+    detail:
+      "Vercel Pro or another commercial-ready hosting plan is active for Screenia production.",
+  },
+  {
     key: "SCREENIA_VAT_DECISION_CONFIRMED",
     label: "VAT decision",
     detail: "VAT/moms registration or exemption decision is documented.",

@@ -4,8 +4,8 @@ Last updated: 2026-07-14
 
 ## Current Readiness Snapshot
 
-- Launch readiness: 52 passed, 10 needs review, 0 blocked.
-- Progress: about 84% strict readiness, 100% non-blocked readiness.
+- Launch readiness: 52 passed, 11 needs review, 0 blocked.
+- Progress: about 83% strict readiness, 100% non-blocked readiness.
 - Critical blockers are cleared for now.
 - Detailed end-to-end testing should resume after domain, hosting, and email services are purchased/configured.
 
@@ -15,7 +15,8 @@ Critical validation checkpoint on 2026-07-14:
 - `npm.cmd run text:check` passed.
 - `npm.cmd run build` passed with Next.js 16.2.6.
 - Admin operation readiness blockers were cleared locally: notification acknowledgement wording, audited customer draft creation wording, quote/onboarding reason wording, support/display review reason wording, deletion/anonymization reason wording, and reason-required subscription operation helpers.
-- Local `/admin/launch-readiness` showed 52 passed, 10 needs review, 0 blocked after the admin operation fixes.
+- Local `/admin/launch-readiness` showed 52 passed, 11 needs review, 0 blocked after adding the explicit Vercel Pro / commercial hosting gate.
+- The admin Launch Readiness page now shows a progress KPI, manual gates first, grouped readiness sections, and a clear sign-in/error state if the protected readiness API cannot be loaded.
 - UI polish checkpoint on 2026-07-14:
   - Commit `270981c` polished admin and auth layouts.
   - Commit `8c96be9` polished customer-flow states for account loading/errors, onboarding start-link loading/invalid/expired states, and display-device loading/inactive/empty states.
@@ -48,7 +49,7 @@ Current deployment status:
 - Vercel environment metadata audit on 2026-07-14:
   - Core Supabase, Stripe, Resend, app URL, company legal name, and company email variables exist in Vercel.
   - `NEXT_PUBLIC_COMPANY_ORG_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` are not set in Vercel yet. This is intentional until the Swedish business registration/legal identity is ready, and it explains the remaining company identity review gate.
-  - Live-payment confirmation flags are not set yet: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`. Keep them unset/false until each item is actually verified.
+  - Live-payment confirmation flags are not set yet: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VERCEL_PRO_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`. Keep them unset/false until each item is actually verified.
 - Temporary Vercel CLI token `screenia-local-deploy` was created for setup and then revoked after deployment.
 - GitHub App access was limited to `nash300/screenia`.
 - GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
@@ -225,7 +226,8 @@ Current deployment status:
    - `screenia.se` is attached to production in Vercel and has a valid configuration.
    - `www.screenia.se` is attached in Vercel and configured as a permanent `308` redirect to `screenia.se`.
    - Production `NEXT_PUBLIC_APP_URL` is set to `https://screenia.se` and the production deployment was refreshed.
-   - Buy/use Vercel Pro before real commercial production because the app is commercial.
+  - Buy/use Vercel Pro before real commercial production because the app is commercial.
+  - The admin Launch Readiness page and live checkout blocker now track this explicitly through `SCREENIA_VERCEL_PRO_CONFIRMED`; keep it false until the paid/commercial hosting plan is actually active.
    - Reconnect the Screenia GitHub repository through Vercel after GitHub OAuth allows the login connection.
    - Preview and Development `NEXT_PUBLIC_APP_URL` still need review if preview deployments should use `https://screenia.se` or remain environment-specific.
 
@@ -349,6 +351,7 @@ Current deployment status:
 
 - Live payments enabled
 - Business registration
+- Vercel Pro / commercial hosting
 - VAT decision
 - Legal review
 - Live webhook verified
@@ -407,7 +410,7 @@ Current deployment status:
   - Do not add Resend's root/apex inbound MX record until the human mailbox provider is selected, because the root MX will be needed for `hello@screenia.se`.
 - Environment key inventory was checked by key name only; no secret values were printed.
   - Local core keys are present for Supabase, Stripe, Resend, app URL, company identity placeholders, and Stripe automatic tax.
-  - Required live-payment gate flags are intentionally not set locally: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
+  - Required live-payment gate flags are intentionally not set locally: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VERCEL_PRO_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
   - Optional public keys not present locally: `NEXT_PUBLIC_EMAIL_ASSET_BASE_URL` and `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED`.
 
 2026-07-13 22:19 Europe/Stockholm:

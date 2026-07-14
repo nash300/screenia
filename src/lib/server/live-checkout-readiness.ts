@@ -42,6 +42,10 @@ const LIVE_PAYMENT_CONFIRMATION_FLAGS = [
     label: "Business registration",
   },
   {
+    key: "SCREENIA_VERCEL_PRO_CONFIRMED",
+    label: "Vercel Pro / commercial hosting",
+  },
+  {
     key: "SCREENIA_VAT_DECISION_CONFIRMED",
     label: "VAT decision",
   },

@@ -10,6 +10,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 - Do not enable live Stripe keys or `SCREENIA_LIVE_PAYMENTS_ENABLED=true` during this runbook.
 - Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until a real invite/password setup or password reset email is received and a password is submitted successfully.
 - Do not set business, VAT, legal, or live webhook confirmation flags until each item has human/legal/business proof.
+- Do not set `SCREENIA_VERCEL_PRO_CONFIRMED=true` until Vercel Pro or another commercial-ready hosting plan is active for Screenia production.
 - Stop and record evidence if any payment, email, auth, display entitlement, or audit step fails.
 
 ## Current Manual Gates
@@ -30,6 +31,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 
 3. Vercel plan and deployment proof
    - Upgrade/use Vercel Pro before real commercial production.
+   - Set `SCREENIA_VERCEL_PRO_CONFIRMED=true` only after the commercial hosting plan is active.
    - Reconnect GitHub-to-Vercel deployments when GitHub OAuth allows it.
    - Confirm production still aliases to `https://screenia.se`.
 
