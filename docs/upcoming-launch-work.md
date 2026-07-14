@@ -16,6 +16,11 @@ Critical validation checkpoint on 2026-07-14:
 - `npm.cmd run build` passed with Next.js 16.2.6.
 - Admin operation readiness blockers were cleared locally: notification acknowledgement wording, audited customer draft creation wording, quote/onboarding reason wording, support/display review reason wording, deletion/anonymization reason wording, and reason-required subscription operation helpers.
 - Local `/admin/launch-readiness` showed 52 passed, 10 needs review, 0 blocked after the admin operation fixes.
+- UI polish checkpoint on 2026-07-14:
+  - Commit `270981c` polished admin and auth layouts.
+  - Commit `8c96be9` polished customer-flow states for account loading/errors, onboarding start-link loading/invalid/expired states, and display-device loading/inactive/empty states.
+  - `npm.cmd run text:check`, `npm.cmd run lint`, and `npm.cmd run build` passed after the customer-flow polish.
+  - Focused browser checks found no horizontal overflow on `/account`, `/onboarding/test-token`, `/display/test-device`, `/onboarding/payment-success`, and `/onboarding/payment-cancelled`.
 - No broad real-world testing loop is needed right now. Continue only with the service/account gates below until the external setup is complete.
 
 Current critical next actions:
@@ -66,6 +71,12 @@ Current deployment status:
 - Production was redeployed again after correcting production `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_COMPANY_EMAIL`, and `RESEND_FROM_EMAIL`; deployment `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after the Screenia visual refresh; deployment `dpl_5SphRo8dkhtKR8ofZZG2xAiFDUvo` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after clearing admin readiness blockers; deployment `dpl_4gdtJgpwTbFPtrXog4sBB6sDMbJa` reached Ready and was aliased to `https://screenia.se`.
+- Production was redeployed again on 2026-07-14 after admin/auth/customer-flow polish; deployment `dpl_ckydJBryTgA39BfKKUY67a51wsSs` reached Ready and was aliased to `https://screenia.se`.
+- Latest production smoke checks after deployment `dpl_ckydJBryTgA39BfKKUY67a51wsSs`:
+  - `https://screenia.se/display/test-device` returned HTTP 200, included `Preparing display`, and visually showed the new full-screen display status card with no horizontal overflow.
+  - `https://screenia.se/onboarding/test-token` returned HTTP 200 and included the new start-link loading copy.
+  - `https://screenia.se/login` returned HTTP 200 and included the Screenia customer portal login copy.
+  - `https://screenia.se/account` returned HTTP 200 and included the customer portal loading copy.
 - Real-domain smoke checks passed after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
