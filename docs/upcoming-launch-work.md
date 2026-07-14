@@ -20,6 +20,7 @@ Critical validation checkpoint on 2026-07-14:
 
 Current critical next actions:
 
+- Use `docs/real-world-testing-runbook.md` for the next full scenario pass.
 - Verify human mailbox delivery both ways: Gmail to `hello@screenia.se`, then `hello@screenia.se` to Gmail with spam-placement check.
 - Verify the Supabase Auth account activation/password path end to end before marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 - Upgrade/use Vercel Pro before real commercial production, and reconnect GitHub-to-Vercel deploys when GitHub OAuth allows it.
