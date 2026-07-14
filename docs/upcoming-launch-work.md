@@ -1,6 +1,6 @@
 # Screenia Upcoming Launch Work
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
 
 ## Current Readiness Snapshot
 
@@ -11,7 +11,7 @@ Last updated: 2026-07-13
 
 ## Next Services To Finish
 
-Current service setup progress: about 94%.
+Current service setup progress: about 95%.
 
 ### Service Purchase And Setup Runbook
 
@@ -41,11 +41,14 @@ Current deployment status:
 - Production was redeployed after updating `NEXT_PUBLIC_APP_URL`; latest Vercel deployment id prefix shown in Vercel was `7wHaL5ZE7`.
 - Production was redeployed again after updating the Stripe deployed webhook secret; the redeploy of `7wHaL5ZE7` reached Ready.
 - Production was redeployed again after correcting production `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_COMPANY_EMAIL`, and `RESEND_FROM_EMAIL`; deployment `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
+- Production was redeployed again on 2026-07-14 after the Screenia visual refresh; deployment `dpl_5SphRo8dkhtKR8ofZZG2xAiFDUvo` reached Ready and was aliased to `https://screenia.se`.
 - Real-domain smoke checks passed after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - `https://screenia.se/robots.txt` returned `Host: https://screenia.se` and `Sitemap: https://screenia.se/sitemap.xml`.
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
+  - `https://screenia.se/login` returned HTTP 200 and included the refreshed Screenia auth styling.
+  - `https://screenia.se/api/admin/launch-readiness` returned HTTP 401 when unauthenticated, confirming the protected admin readiness API still blocks public access.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)`.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 - Resend region check on 2026-07-13 22:17 Europe/Stockholm:
