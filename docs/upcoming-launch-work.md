@@ -81,6 +81,15 @@ Current deployment status:
   - Resend return-path records stay isolated on `send.screenia.se`: MX `feedback-smtp.eu-west-1.amazonses.com` priority 10 and SPF `v=spf1 include:amazonses.com ~all`.
   - Resend DKIM selector `resend._domainkey.screenia.se` is publicly visible.
   - DMARC is `v=DMARC1; p=none;`, which is suitable for launch testing and monitoring before tightening policy.
+- Production security and webhook rejection audit on 2026-07-14:
+  - `https://screenia.se` returns the configured security header baseline: HSTS, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: origin-when-cross-origin`, `Permissions-Policy`, and `X-DNS-Prefetch-Control: on`.
+  - Content Security Policy is not currently part of Screenia's configured launch-readiness header baseline.
+  - `https://screenia.se/login` returns no-store cache headers.
+  - `https://screenia.se/api/account` returns HTTP 401 when unauthenticated.
+  - `https://screenia.se/api/admin/launch-readiness` returns HTTP 401 when unauthenticated.
+  - `https://screenia.se/api/admin/customers` does not expose a public GET surface and returns HTTP 405 to unauthenticated GET.
+  - Unsigned `POST https://screenia.se/api/stripe/webhook` returns HTTP 400 with missing-signature handling.
+  - Unsigned/invalid `POST https://screenia.se/api/resend/webhook` returns HTTP 400 with invalid-webhook handling.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)`.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 - Resend region check on 2026-07-13 22:17 Europe/Stockholm:
