@@ -978,6 +978,22 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const pauseSubscription = async (reason: string) => {
+    await runSubscriptionAction({
+      action: "pause_subscription",
+      payload: { reason },
+      successMessage: "Subscription paused. Display access is blocked.",
+    });
+  };
+
+  const resumeSubscription = async (reason: string) => {
+    await runSubscriptionAction({
+      action: "resume_subscription",
+      payload: { reason },
+      successMessage: "Subscription resumed.",
+    });
+  };
+
   const startLayoutWork = async (reason: string) => {
     if (!customer) return;
 
@@ -1202,7 +1218,7 @@ export default function CustomerDetailPage({
     if (cleanedReason.length < 5) {
       showAdminNotification(
         "warning",
-        "Add a reason of at least 5 characters before continuing.",
+        "A reason of at least 5 characters is required before continuing.",
       );
       return;
     }
@@ -1264,6 +1280,18 @@ export default function CustomerDetailPage({
         },
         successMessage: "Temporary Stripe discount applied and recorded.",
       });
+      finish();
+      return;
+    }
+
+    if (selectedOperationId === "pause_subscription") {
+      await pauseSubscription(cleanedReason);
+      finish();
+      return;
+    }
+
+    if (selectedOperationId === "resume_subscription") {
+      await resumeSubscription(cleanedReason);
       finish();
       return;
     }
@@ -1705,6 +1733,28 @@ export default function CustomerDetailPage({
   const selectedOperation = customerOperations.find(
     (operation) => operation.id === selectedOperationId,
   );
+  const selectedOperationReasonLabel =
+    selectedOperationId === "activate_customer"
+      ? "Reason for activating this customer"
+      : selectedOperationId === "resume_subscription"
+        ? "Reason for resuming billing and display access"
+        : selectedOperationId === "pause_subscription"
+          ? "Reason for pausing billing and display access"
+          : selectedOperationId === "suspend_customer"
+            ? "Reason for suspending this customer"
+            : selectedOperationId === "reactivate_customer"
+              ? "Reason for reactivating this customer"
+              : selectedOperationId === "cancel_period_end"
+                ? "Reason for scheduling cancellation at period end"
+                : selectedOperationId === "cancel_immediately"
+                  ? "Reason for immediate subscription cancellation"
+                  : selectedOperationId === "apply_temporary_discount"
+                    ? "Reason for applying this temporary discount"
+                    : selectedOperationId === "start_layout"
+                      ? "Reason for starting layout work"
+                      : selectedOperationId === "refund_first_payment"
+                        ? "Reason for refunding the first payment"
+                        : "Reason for audit history";
 
   return (
     <div>
@@ -1879,7 +1929,7 @@ export default function CustomerDetailPage({
             Use anonymization for retained customer history.
           </p>
           <label className="mt-4 block text-sm font-semibold text-red-900">
-            Anonymization reason
+            Reason for anonymizing this customer
             <textarea
               value={anonymizeReason}
               onChange={(event) => {
@@ -2109,7 +2159,7 @@ export default function CustomerDetailPage({
               </label>
 
               <label className="text-sm font-semibold text-slate-700">
-                Quote preparation reason *
+                Reason for preparing this quote and onboarding link *
                 <textarea
                   value={quoteReason}
                   onChange={(event) => setQuoteReason(event.target.value)}
@@ -2383,7 +2433,7 @@ export default function CustomerDetailPage({
                   )}
 
                   <label className="admin-operation-reason">
-                    Reason for audit history
+                    {selectedOperationReasonLabel}
                     <textarea
                       value={operationReason}
                       onChange={(event) => setOperationReason(event.target.value)}
@@ -2565,7 +2615,7 @@ export default function CustomerDetailPage({
                     </label>
                   </div>
                   <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Review reason *
+                    Reason for updating this support message review *
                     <textarea
                       value={messageDrafts[item.id]?.reason || ""}
                       onChange={(event) =>
@@ -2756,7 +2806,7 @@ export default function CustomerDetailPage({
                     </label>
                   </div>
                   <label className="mt-3 block text-sm font-semibold text-slate-700">
-                    Review reason *
+                    Reason for updating this display material review *
                     <textarea
                       value={assetDrafts[asset.id]?.reason || ""}
                       onChange={(event) =>
@@ -3069,7 +3119,7 @@ export default function CustomerDetailPage({
               </p>
 
               <label className="block text-sm font-semibold text-red-900">
-                Deletion reason *
+                Reason for permanently deleting this draft customer *
                 <textarea
                   value={deleteReason}
                   onChange={(event) => {

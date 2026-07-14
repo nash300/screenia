@@ -400,7 +400,7 @@ function CustomersContent() {
             </label>
           </div>
           <label className="mt-4 block text-sm font-semibold text-slate-700">
-            Creation reason *
+            Reason for manually creating this customer draft *
             <textarea
               value={createReason}
               onChange={(event) => setCreateReason(event.target.value)}

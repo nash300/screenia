@@ -377,7 +377,7 @@ export default function AdminHomePage() {
           {showMarkAllReadFlow && (
             <div className="admin-inline-flow">
               <label>
-                <span>Reason for marking all notifications read</span>
+                <span>Reason for marking all admin notifications as read</span>
                 <textarea
                   value={markAllReadReason}
                   onChange={(event) => setMarkAllReadReason(event.target.value)}

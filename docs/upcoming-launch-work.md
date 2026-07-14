@@ -4,10 +4,27 @@ Last updated: 2026-07-14
 
 ## Current Readiness Snapshot
 
-- Launch readiness: 51 passed, 11 needs review, 0 blocked.
-- Progress: about 82% strict readiness, 100% non-blocked readiness.
+- Launch readiness: 52 passed, 10 needs review, 0 blocked.
+- Progress: about 84% strict readiness, 100% non-blocked readiness.
 - Critical blockers are cleared for now.
 - Detailed end-to-end testing should resume after domain, hosting, and email services are purchased/configured.
+
+Critical validation checkpoint on 2026-07-14:
+
+- `npm.cmd run lint` passed.
+- `npm.cmd run text:check` passed.
+- `npm.cmd run build` passed with Next.js 16.2.6.
+- Admin operation readiness blockers were cleared locally: notification acknowledgement wording, audited customer draft creation wording, quote/onboarding reason wording, support/display review reason wording, deletion/anonymization reason wording, and reason-required subscription operation helpers.
+- Local `/admin/launch-readiness` showed 52 passed, 10 needs review, 0 blocked after the admin operation fixes.
+- No broad real-world testing loop is needed right now. Continue only with the service/account gates below until the external setup is complete.
+
+Current critical next actions:
+
+- Verify human mailbox delivery both ways: Gmail to `hello@screenia.se`, then `hello@screenia.se` to Gmail with spam-placement check.
+- Verify the Supabase Auth account activation/password path end to end before marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+- Upgrade/use Vercel Pro before real commercial production, and reconnect GitHub-to-Vercel deploys when GitHub OAuth allows it.
+- Keep Stripe in test mode until business registration, VAT/tax decision, legal review, and live webhook verification are done.
+- Keep the long checkout/subscription/display test pass for after the mailbox, auth, and live-service gates above are ready.
 
 ## Next Services To Finish
 

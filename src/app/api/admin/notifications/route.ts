@@ -110,7 +110,10 @@ export async function PATCH(request: Request) {
   };
 
   let updatedCount = 0;
-  let auditMetadata: Record<string, unknown> = { action };
+  let auditMetadata: Record<string, unknown> = {
+    action,
+    reason: adminReason || null,
+  };
   let rollback: NotificationRollback = null;
 
   if (action === "mark_all_read") {
