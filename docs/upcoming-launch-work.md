@@ -67,6 +67,16 @@ Current deployment status:
   - `https://screenia.se/sitemap.xml` used `https://screenia.se` URLs and no longer referenced `screenia-ten.vercel.app`.
   - `https://screenia.se/login` returned HTTP 200 and included the refreshed Screenia auth styling.
   - `https://screenia.se/api/admin/launch-readiness` returned HTTP 401 when unauthenticated, confirming the protected admin readiness API still blocks public access.
+- Public DNS and mail record audit on 2026-07-14:
+  - `screenia.se` nameservers resolve to `ns1.vercel-dns.com` and `ns2.vercel-dns.com`.
+  - `screenia.se` resolves to Vercel A records `216.198.79.65` and `64.29.17.65`.
+  - `www.screenia.se` resolves to Vercel A records and redirects with HTTP 308 to `https://screenia.se/`.
+  - Root mailbox MX records point to Zoho EU: `mx.zoho.eu` priority 10, `mx2.zoho.eu` priority 20, and `mx3.zoho.eu` priority 50.
+  - Root SPF is `v=spf1 include:zohomail.eu ~all`, keeping normal human mailbox sending on Zoho.
+  - Zoho verification TXT and `zmail._domainkey.screenia.se` DKIM are publicly visible.
+  - Resend return-path records stay isolated on `send.screenia.se`: MX `feedback-smtp.eu-west-1.amazonses.com` priority 10 and SPF `v=spf1 include:amazonses.com ~all`.
+  - Resend DKIM selector `resend._domainkey.screenia.se` is publicly visible.
+  - DMARC is `v=DMARC1; p=none;`, which is suitable for launch testing and monitoring before tightening policy.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)`.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 - Resend region check on 2026-07-13 22:17 Europe/Stockholm:
