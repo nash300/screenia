@@ -38,6 +38,10 @@ Current deployment status:
 - Production deployment is live at `https://screenia.se`.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
+- Vercel environment metadata audit on 2026-07-14:
+  - Core Supabase, Stripe, Resend, app URL, company legal name, and company email variables exist in Vercel.
+  - `NEXT_PUBLIC_COMPANY_ORG_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` are not set in Vercel yet. This is intentional until the Swedish business registration/legal identity is ready, and it explains the remaining company identity review gate.
+  - Live-payment confirmation flags are not set yet: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`. Keep them unset/false until each item is actually verified.
 - Temporary Vercel CLI token `screenia-local-deploy` was created for setup and then revoked after deployment.
 - GitHub App access was limited to `nash300/screenia`.
 - GitHub login connection in Vercel is still blocked by GitHub OAuth (`Authorize` disabled), so current deployment was done from local CLI. Reconnect GitHub later so future pushes deploy automatically.
