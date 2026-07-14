@@ -28,6 +28,17 @@ Current critical next actions:
 
 - Use `docs/real-world-testing-runbook.md` for the next full scenario pass.
 - Use `.env.example` as the safe variable template for local/Vercel setup checks; it contains placeholders only and keeps live-payment gates false by default.
+
+Production deployment checkpoint on 2026-07-14 17:04 Europe/Stockholm:
+
+- Production was redeployed from the local `C:\Users\nadee\Desktop\screenia` worktree after standardizing the email identities.
+- Vercel production deployment `dpl_Fg8z37KoGeBfy6zmGEtndkyamwRY` reached Ready.
+- `https://screenia.se` is aliased to `https://screenia-e479m5nqd-nadeesha7314-1449s-projects.vercel.app`.
+- Production env audit confirms:
+  - `RESEND_FROM_EMAIL=Screenia <service@screenia.se>`
+  - `RESEND_NEWSLETTER_FROM_EMAIL=Screenia <info@screenia.se>`
+  - `NEXT_PUBLIC_COMPANY_EMAIL=service@screenia.se`
+- Live HTML check confirms `service@screenia.se` is present and `hello@screenia.se` is absent.
 - Verify human mailbox delivery both ways: Gmail to `service@screenia.se`, then `service@screenia.se` to Gmail with spam-placement check.
 - Verify the Supabase Auth account activation/password path end to end before marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 - Upgrade/use Vercel Pro before real commercial production, and reconnect GitHub-to-Vercel deploys when GitHub OAuth allows it.
