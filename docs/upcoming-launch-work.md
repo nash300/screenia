@@ -74,6 +74,11 @@ Current deployment status:
 - Production was redeployed again on 2026-07-14 after clearing admin readiness blockers; deployment `dpl_4gdtJgpwTbFPtrXog4sBB6sDMbJa` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after admin/auth/customer-flow polish; deployment `dpl_ckydJBryTgA39BfKKUY67a51wsSs` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after Launch Readiness progress/manual-gate tracking; deployment `dpl_5HdcasubrUvds2m7z7Ybju3fgVDm` reached Ready and was aliased to `https://screenia.se`.
+- Production was redeployed again on 2026-07-14 after standardizing Screenia email identities; deployment `dpl_GL8BAj5o5SFYdQN7pxuRQpTWCJaj` reached Ready and was aliased to `https://screenia.se`.
+- Latest production smoke checks after deployment `dpl_GL8BAj5o5SFYdQN7pxuRQpTWCJaj`:
+  - `https://screenia.se` returned HTTP 200 and included `service@screenia.se`.
+  - `https://screenia.se/login` returned HTTP 200.
+  - `https://screenia.se/api/admin/launch-readiness` returned HTTP 401 when unauthenticated.
 - Latest production smoke checks after deployment `dpl_5HdcasubrUvds2m7z7Ybju3fgVDm`:
   - `https://screenia.se/login` returned HTTP 200.
   - `https://screenia.se/admin/launch-readiness` redirected unauthenticated visitors with HTTP 307.
