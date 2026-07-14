@@ -39,8 +39,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#061942] px-5 py-8 text-[#061942]">
-      <div className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+    <main className="screenia-auth-shell min-h-screen overflow-hidden bg-[#061942] px-5 py-8 text-[#061942]">
+      <div className="screenia-auth-bg absolute inset-0" />
+      <div className="relative mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-5xl items-center gap-8 lg:grid-cols-[0.9fr_1.1fr]">
         <section className="text-white">
           <Link href="/" className="inline-flex no-underline">
             <ScreeniaLogo className="screenia-logo-auth-card" />
@@ -57,7 +58,7 @@ export default function AdminLoginPage() {
           </p>
         </section>
 
-        <section className="rounded-[28px] border border-white/70 bg-white/[0.94] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
+        <section className="screenia-auth-card border border-white/70 bg-white/[0.94] p-6 backdrop-blur md:p-8">
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6]">
             Screenia admin
           </p>
@@ -72,7 +73,7 @@ export default function AdminLoginPage() {
                 placeholder="admin@screenia.se"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"
+                className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
               />
             </label>
 
@@ -90,13 +91,13 @@ export default function AdminLoginPage() {
                     submit();
                   }
                 }}
-                className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"
+                className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
               />
             </label>
           </div>
 
           {message && (
-            <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-[#7a4a03]">
+            <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-[#7a4a03]">
               {message}
             </p>
           )}
@@ -105,7 +106,7 @@ export default function AdminLoginPage() {
             type="button"
             onClick={submit}
             disabled={loading || !email || !password}
-            className="mt-8 inline-flex min-h-12 min-w-44 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-7 py-3 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
+            className="screenia-auth-button mt-8 inline-flex min-h-12 min-w-44 items-center justify-center px-7 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             {loading ? "Kontrollerar..." : "Logga in som admin"}
           </button>

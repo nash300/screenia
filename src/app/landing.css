@@ -3423,11 +3423,13 @@
   align-items: stretch;
   gap: clamp(22px, 4vw, 46px);
   overflow: hidden;
-  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 16px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 248, 255, 0.98)),
     #ffffff;
   padding: clamp(24px, 4vw, 42px);
+  box-shadow: 0 30px 90px rgba(3, 15, 38, 0.22);
 }
 
 .flow-result-shell-warning {
@@ -3445,9 +3447,10 @@
 
 .flow-result-copy h1 {
   color: var(--landing-blue-950);
-  font-family: var(--landing-font-display);
+  font-family: var(--landing-font-ui);
   font-size: clamp(2.2rem, 5vw, 4rem);
-  font-weight: 400;
+  font-weight: 900;
+  letter-spacing: 0;
   line-height: 1.03;
 }
 
@@ -3469,8 +3472,9 @@
   display: grid;
   min-height: 320px;
   place-items: end center;
-  border-radius: 22px;
+  border-radius: 12px;
   background:
+    radial-gradient(circle at 78% 18%, rgba(255, 255, 255, 0.16), transparent 28%),
     linear-gradient(145deg, rgba(6, 25, 66, 0.94), rgba(47, 125, 246, 0.8)),
     #061942;
   overflow: hidden;
@@ -3486,18 +3490,19 @@
 
 .flow-result-icon {
   display: inline-grid;
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   place-items: center;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--landing-cyan), #ffffff);
-  color: var(--landing-blue-950);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #2f7df6, #155ee8);
+  color: #ffffff;
   font-size: 1.8rem;
   font-weight: 950;
+  box-shadow: 0 16px 34px rgba(47, 125, 246, 0.24);
 }
 
 .flow-result-icon.warning {
-  background: linear-gradient(135deg, var(--landing-yellow), #ffffff);
+  background: linear-gradient(135deg, #f2b84b, #d68a06);
 }
 
 .account-page {
@@ -4839,5 +4844,183 @@
 
   .account-dropzone {
     min-height: 230px;
+  }
+}
+
+/* =========================================
+   SCREENIA PUBLIC UI POLISH
+========================================= */
+.landing-page {
+  --landing-radius: 12px;
+  --landing-radius-sm: 8px;
+  --landing-shadow-sm: 0 10px 26px rgba(6, 25, 66, 0.08);
+  --landing-shadow-md: 0 20px 50px rgba(6, 25, 66, 0.12);
+  --landing-shadow-lg: 0 30px 80px rgba(6, 25, 66, 0.16);
+}
+
+.landing-page :is(h2, h3, h4, h5, h6),
+.landing-section-heading h2,
+.landing-contact h2 {
+  font-family: var(--landing-font-ui) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+}
+
+.landing-hero-copy h1,
+.landing-hero-copy-main h1 {
+  text-wrap: balance;
+}
+
+.landing-nav {
+  border-bottom: 1px solid rgba(47, 125, 246, 0.14);
+  background: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: 0 10px 34px rgba(6, 25, 66, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.landing-button {
+  min-height: 44px;
+  border-radius: var(--landing-radius-sm) !important;
+  box-shadow: var(--landing-shadow-sm);
+}
+
+.landing-button-primary {
+  background: linear-gradient(135deg, #2f7df6, #155ee8) !important;
+  color: #ffffff !important;
+}
+
+.landing-button-secondary {
+  border: 1px solid rgba(47, 125, 246, 0.18) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--landing-text) !important;
+}
+
+.landing-button:hover {
+  box-shadow: var(--landing-shadow-md);
+  transform: translateY(-1px);
+}
+
+.landing-button::after {
+  display: none;
+}
+
+.landing-section,
+.landing-contact {
+  border-radius: 0;
+}
+
+.landing-section-heading {
+  max-width: 900px;
+}
+
+.landing-section-heading p {
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+}
+
+.landing-feature,
+.landing-price-card,
+.landing-gallery-card,
+.landing-faq-item,
+.landing-pricing-note,
+.landing-modal,
+.landing-footer-card,
+.landing-footer-company,
+.account-card,
+.account-panel,
+.account-history-row,
+.account-dropzone {
+  border-color: rgba(47, 125, 246, 0.14) !important;
+  border-radius: var(--landing-radius) !important;
+  box-shadow: var(--landing-shadow-sm) !important;
+}
+
+.landing-feature,
+.landing-price-card,
+.landing-faq-item,
+.landing-pricing-note {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92)),
+    #ffffff !important;
+}
+
+.landing-feature:hover,
+.landing-price-card:hover,
+.landing-gallery-card:hover,
+.landing-faq-item:hover {
+  border-color: rgba(47, 125, 246, 0.28) !important;
+  box-shadow: var(--landing-shadow-md) !important;
+  transform: translateY(-2px);
+}
+
+.landing-price-card {
+  overflow: hidden;
+}
+
+.landing-price-card.featured {
+  border-color: rgba(244, 122, 32, 0.34) !important;
+}
+
+.landing-plan-badge,
+.landing-price-row,
+.landing-hero-benefit,
+.landing-logo-tile {
+  border-radius: var(--landing-radius-sm) !important;
+}
+
+.landing-modal-backdrop {
+  backdrop-filter: blur(12px);
+}
+
+.landing-modal {
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+
+.landing-modal input,
+.landing-modal textarea,
+.landing-request-checkbox {
+  border-radius: var(--landing-radius-sm) !important;
+}
+
+.landing-contact {
+  background:
+    linear-gradient(135deg, rgba(6, 25, 66, 0.96), rgba(47, 125, 246, 0.9)),
+    #061942 !important;
+  box-shadow: var(--landing-shadow-lg);
+}
+
+.landing-footer {
+  background:
+    linear-gradient(180deg, #f8fbff, #edf5ff 64%, #ffffff);
+}
+
+@media (max-width: 768px) {
+  .landing-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .landing-actions {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0.9rem;
+  }
+
+  .landing-hero-benefits {
+    margin-top: 0.2rem;
+  }
+
+  .landing-hero-copy-main {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .landing-feature:hover,
+  .landing-price-card:hover,
+  .landing-gallery-card:hover,
+  .landing-faq-item:hover {
+    transform: none;
   }
 }

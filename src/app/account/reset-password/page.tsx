@@ -68,8 +68,8 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#061942] text-[#061942]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(47,125,246,0.34),transparent_30%),radial-gradient(circle_at_86%_12%,rgba(245,158,11,0.18),transparent_26%),linear-gradient(135deg,#061942_0%,#0b245f_52%,#f5f8ff_52%,#ffffff_100%)]" />
+    <main className="screenia-auth-shell min-h-screen overflow-hidden bg-[#061942] text-[#061942]">
+      <div className="screenia-auth-bg absolute inset-0" />
       <div className="relative mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[0.85fr_1.15fr]">
         <section className="hidden text-white lg:block">
           <Link href="/" className="inline-flex no-underline">
@@ -84,7 +84,7 @@ export default function ResetPasswordPage() {
         </section>
 
         <section className="mx-auto w-full max-w-md">
-          <div className="rounded-[28px] border border-white/70 bg-white/[0.92] p-6 shadow-[0_30px_80px_rgba(3,15,38,0.28)] backdrop-blur md:p-8">
+          <div className="screenia-auth-card border border-white/70 bg-white/[0.92] p-6 backdrop-blur md:p-8">
             <Link href="/" className="inline-flex no-underline lg:hidden">
               <ScreeniaLogo className="screenia-logo-auth-inline" />
             </Link>
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
                   placeholder="Minst 10 tecken, bokstäver och siffror"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
                 />
               </label>
               <label className="block">
@@ -123,13 +123,13 @@ export default function ResetPasswordPage() {
                   onKeyDown={(event) => {
                     if (event.key === "Enter" && !loading) savePassword();
                   }}
-                  className="mt-2 w-full rounded-2xl border border-blue-100 bg-[#f8fbff] px-4 py-3 text-[#061942] outline-none transition focus:border-[#2f7df6] focus:bg-white focus:ring-4 focus:ring-blue-100"
+                  className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
                 />
               </label>
             </div>
 
             {message && (
-              <p className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-[#7a4a03]">
+              <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-[#7a4a03]">
                 {message}
               </p>
             )}
@@ -138,7 +138,7 @@ export default function ResetPasswordPage() {
               type="button"
               onClick={savePassword}
               disabled={loading || !sessionReady || !password || !confirmPassword}
-              className="mt-7 inline-flex min-h-12 min-w-44 items-center justify-center rounded-full bg-[linear-gradient(135deg,#2f7df6,#155ee8)] px-7 py-3 text-sm font-black text-white shadow-[0_20px_42px_rgba(47,125,246,0.34)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_52px_rgba(47,125,246,0.42)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0"
+              className="screenia-auth-button mt-7 inline-flex min-h-12 min-w-44 items-center justify-center px-7 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
             >
               {loading ? "Sparar..." : "Spara lösenord"}
             </button>
