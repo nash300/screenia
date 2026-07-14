@@ -283,6 +283,13 @@ Current deployment status:
    - Completed: Redirect URLs include `https://screenia.se/auth/callback`, `https://screenia.se/account/activate`, and `https://screenia.se/account/reset-password`.
    - Configure Auth email sender/templates to use a verified professional sender only after Resend or the mailbox provider is verified.
    - Test password setup and password reset with a real test recipient before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+   - Static Auth flow audit on 2026-07-14:
+     - Production `https://screenia.se/account/activate` returns HTTP 200 and loads the Screenia app bundle.
+     - Production `https://screenia.se/account/reset-password` returns HTTP 200 and loads the Screenia app bundle.
+     - Production `/auth/callback?next=/account/reset-password` redirects with HTTP 307 to `/account/reset-password`.
+     - Activation and reset pages both call `syncEmailLinkSession`, enforce the shared password policy, update the Supabase Auth password, sync server cookies, and redirect to `/account`.
+     - `/api/auth/password-reset` uses the production app URL for Supabase reset links, returns a generic response, rate limits by IP and email, audits requests/failures, and creates urgent admin visibility for reset email failures.
+     - This proves route/code readiness only. `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED` must remain false until a real invite/password setup or password reset email is received and a password is submitted successfully.
    - Completed spot check: `customer-display-assets` remains non-public after production deployment.
    - Keep `email-assets` public only if it is used for non-sensitive email images.
 
