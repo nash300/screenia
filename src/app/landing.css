@@ -4208,6 +4208,41 @@
   font-size: clamp(1.25rem, 2.2vw, 1.65rem);
 }
 
+.flow-state-panel {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  border: 1px solid rgba(122, 145, 178, 0.2);
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(47, 125, 246, 0.12), rgba(246, 196, 83, 0.1)),
+    #ffffff;
+  padding: clamp(22px, 4vw, 34px);
+  box-shadow: 0 18px 46px rgba(7, 31, 84, 0.08);
+}
+
+.flow-state-panel h1 {
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+}
+
+.flow-state-panel p:not(.landing-eyebrow) {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.65;
+}
+
+.flow-state-mark {
+  display: block;
+  width: 58px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--landing-primary), #f6c453);
+}
+
 @media (max-width: 760px) {
   .flow-hero {
     align-items: flex-start;
@@ -4265,6 +4300,45 @@
 .account-shell {
   width: min(1320px, 100%);
   margin: 0 auto;
+}
+
+.account-state-panel {
+  display: grid;
+  justify-items: start;
+  gap: 14px;
+  width: min(760px, 100%);
+  border: 1px solid rgba(122, 145, 178, 0.2);
+  border-radius: 24px;
+  background:
+    linear-gradient(135deg, rgba(47, 125, 246, 0.12), rgba(246, 196, 83, 0.1)),
+    #ffffff;
+  padding: clamp(24px, 4vw, 38px);
+  box-shadow: 0 18px 46px rgba(7, 31, 84, 0.08);
+}
+
+.account-state-panel h1 {
+  margin: 0;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui) !important;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.06;
+}
+
+.account-state-panel p:not(.landing-eyebrow) {
+  max-width: 58ch;
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.65;
+}
+
+.account-state-mark {
+  display: block;
+  width: 58px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--landing-primary), #f6c453);
 }
 
 .account-dashboard {
@@ -5023,4 +5097,11 @@
   .landing-faq-item:hover {
     transform: none;
   }
+}
+
+.flow-state-panel h1,
+.account-state-panel h1 {
+  font-family: var(--landing-font-ui) !important;
+  font-weight: 950 !important;
+  letter-spacing: 0 !important;
 }

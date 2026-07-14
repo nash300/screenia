@@ -107,8 +107,9 @@ export default function DisplayPage({
   if (loading) {
     return (
       <DisplayMessage
-        title="Loading..."
-        subtitle="Preparing display content."
+        tone="loading"
+        title="Preparing display"
+        subtitle="Screenia is checking this device and loading approved content."
         deviceId={deviceId}
       />
     );
@@ -117,8 +118,9 @@ export default function DisplayPage({
   if (error) {
     return (
       <DisplayMessage
+        tone="blocked"
         title="Display inactive"
-        subtitle="Please contact Screenia."
+        subtitle="Content is hidden until this device and subscription are active."
         deviceId={deviceId}
       />
     );
@@ -127,8 +129,9 @@ export default function DisplayPage({
   if (!currentItem) {
     return (
       <DisplayMessage
+        tone="empty"
         title="No content assigned"
-        subtitle="This device has no playlist yet."
+        subtitle="This device is active, but no playlist has been published yet."
         deviceId={deviceId}
       />
     );
@@ -156,20 +159,37 @@ export default function DisplayPage({
 }
 
 function DisplayMessage({
+  tone = "loading",
   title,
   subtitle,
   deviceId,
 }: {
+  tone?: "loading" | "blocked" | "empty";
   title: string;
   subtitle: string;
   deviceId: string;
 }) {
   return (
-    <main className="fixed inset-0 flex items-center justify-center bg-black text-center text-white">
-      <div>
-        <p className="mb-2 text-xl">{title}</p>
-        <p className="text-sm opacity-70">{subtitle}</p>
-        <p className="mt-2 text-sm opacity-50">Device: {deviceId}</p>
+    <main className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-[#050b18] p-6 text-center text-white">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(47,125,246,0.28),transparent_32%),radial-gradient(circle_at_70%_80%,rgba(244,122,32,0.12),transparent_28%)]" />
+      <div className="relative grid w-full max-w-md gap-4 rounded-[24px] border border-white/10 bg-white/[0.08] p-8 shadow-[0_28px_80px_rgba(0,0,0,0.42)] backdrop-blur">
+        <span
+          className={`mx-auto h-3 w-16 rounded-full ${
+            tone === "blocked"
+              ? "bg-[#ef4444]"
+              : tone === "empty"
+                ? "bg-[#f59e0b]"
+                : "bg-[#2f7df6]"
+          }`}
+          aria-hidden="true"
+        />
+        <div>
+          <p className="mb-2 text-2xl font-black tracking-tight">{title}</p>
+          <p className="text-sm leading-6 text-white/72">{subtitle}</p>
+        </div>
+        <p className="mx-auto w-fit rounded-full border border-white/10 bg-black/20 px-3 py-1 text-xs font-bold text-white/56">
+          Device: {deviceId}
+        </p>
       </div>
     </main>
   );

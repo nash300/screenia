@@ -528,7 +528,7 @@ export default function AccountPage() {
     if (!response.ok) {
       setNotice(
         result.error ||
-          "Kunde inte uppdatera samtycken. Kontakta Screenia om problemet kvarstar.",
+          "Kunde inte uppdatera samtycken. Kontakta Screenia om problemet kvarstår.",
       );
       setSavingConsents(false);
       return;
@@ -538,7 +538,7 @@ export default function AccountPage() {
     setNotice(
       result.changedConsents?.length
         ? "Samtycken har uppdaterats."
-        : "Inga samtycken andrades.",
+        : "Inga samtycken ändrades.",
     );
     setSavingConsents(false);
   };
@@ -766,11 +766,27 @@ export default function AccountPage() {
   };
 
   if (loading) {
-    return <AccountShell onSignOut={signOut}>Laddar ditt konto...</AccountShell>;
+    return (
+      <AccountShell onSignOut={signOut}>
+        <AccountStatePanel
+          eyebrow="Kundportal"
+          title="Laddar ditt konto"
+          text="Vi hämtar abonnemang, skärmar, material och ärenden."
+        />
+      </AccountShell>
+    );
   }
 
   if (!data) {
-    return <AccountShell onSignOut={signOut}>Kunde inte ladda ditt konto.</AccountShell>;
+    return (
+      <AccountShell onSignOut={signOut}>
+        <AccountStatePanel
+          eyebrow="Kundportal"
+          title="Kunde inte ladda ditt konto"
+          text="Logga in igen eller kontakta Screenia om problemet kvarstår."
+        />
+      </AccountShell>
+    );
   }
 
   return (
@@ -806,7 +822,7 @@ export default function AccountPage() {
               <p className="landing-eyebrow">Kundportal</p>
               <h1>{sections.find((item) => item.id === activeSection)?.label}</h1>
               <p>
-                Hantera abonnemang, skärmmaterial, ärenden och konto historik på ett samlat ställe.
+                Hantera abonnemang, skärmmaterial, ärenden och kontohistorik på ett samlat ställe.
               </p>
             </div>
             <StatusPill label={statusLabel(data.customer.status)} />
@@ -1532,7 +1548,7 @@ export default function AccountPage() {
                 <div className="account-list">
                   <label className="account-list-item account-history-row">
                     <div>
-                      <strong>Marknadsforing</strong>
+                      <strong>Marknadsföring</strong>
                       <span>Nyheter, erbjudanden och annan frivillig kommunikation.</span>
                     </div>
                     <input
@@ -1549,7 +1565,7 @@ export default function AccountPage() {
                   <label className="account-list-item account-history-row">
                     <div>
                       <strong>Statistik</strong>
-                      <span>Frivillig statistik for att forbattra Screenia.</span>
+                      <span>Frivillig statistik för att förbättra Screenia.</span>
                     </div>
                     <input
                       type="checkbox"
@@ -1564,8 +1580,8 @@ export default function AccountPage() {
                   </label>
                   <label className="account-list-item account-history-row">
                     <div>
-                      <strong>Fjarrsupport</strong>
-                      <span>Screenia far ge fjarrsupport nar du ber om hjalp.</span>
+                      <strong>Fjärrsupport</strong>
+                      <span>Screenia får ge fjärrsupport när du ber om hjälp.</span>
                     </div>
                     <input
                       type="checkbox"
@@ -1679,6 +1695,25 @@ function AccountCard({
     <section className="account-card">
       <h2>{title}</h2>
       {children}
+    </section>
+  );
+}
+
+function AccountStatePanel({
+  eyebrow,
+  title,
+  text,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <section className="account-state-panel">
+      <span className="account-state-mark" aria-hidden="true" />
+      <p className="landing-eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>{text}</p>
     </section>
   );
 }

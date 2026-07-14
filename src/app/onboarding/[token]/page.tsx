@@ -171,14 +171,49 @@ export default function OnboardingPage({
     window.location.href = data.url;
   };
 
-  if (loading) return <FlowShell>Laddar din startlänk...</FlowShell>;
-  if (!customer) return <FlowShell>Ogiltig startlänk.</FlowShell>;
+  if (loading) {
+    return (
+      <FlowShell>
+        <FlowStatePanel
+          eyebrow="Startguide"
+          title="Laddar din startlänk"
+          text="Vi kontrollerar länken och hämtar rätt kunduppgifter."
+        />
+      </FlowShell>
+    );
+  }
+
+  if (!customer) {
+    return (
+      <FlowShell>
+        <FlowStatePanel
+          eyebrow="Startguide"
+          title="Ogiltig startlänk"
+          text="Länken kunde inte kopplas till en aktiv förfrågan. Kontakta Screenia så skickar vi en ny säker länk."
+          href="mailto:hello@screenia.se"
+          action="Kontakta Screenia"
+        />
+      </FlowShell>
+    );
+  }
 
   const isExpired =
     customer.onboarding_token_expires_at &&
     new Date(customer.onboarding_token_expires_at) < new Date();
 
-  if (isExpired) return <FlowShell>Den här startlänken har gått ut.</FlowShell>;
+  if (isExpired) {
+    return (
+      <FlowShell>
+        <FlowStatePanel
+          eyebrow="Startguide"
+          title="Startlänken har gått ut"
+          text="Av säkerhetsskäl behöver du en ny länk innan du kan fortsätta med uppgifter och betalning."
+          href="mailto:hello@screenia.se"
+          action="Be om ny länk"
+        />
+      </FlowShell>
+    );
+  }
 
   if (customer.payment_status === "paid") {
     return (
@@ -346,6 +381,34 @@ function FlowShell({
     <div className="landing-page flow-page">
       <main className={`flow-shell ${wide ? "flow-shell-wide" : ""}`}>{children}</main>
     </div>
+  );
+}
+
+function FlowStatePanel({
+  eyebrow,
+  title,
+  text,
+  href,
+  action,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+  href?: string;
+  action?: string;
+}) {
+  return (
+    <section className="flow-state-panel">
+      <span className="flow-state-mark" aria-hidden="true" />
+      <p className="landing-eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>{text}</p>
+      {href && action && (
+        <a href={href} className="landing-button landing-button-primary">
+          {action}
+        </a>
+      )}
+    </section>
   );
 }
 
