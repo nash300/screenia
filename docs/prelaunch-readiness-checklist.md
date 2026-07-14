@@ -85,7 +85,9 @@ customers.
 - Set every live-payment flag to `true` only after the business registration,
   tax/VAT decision, final policy review, and live webhook verification are done.
 - Verify Resend domain authentication for `screenia.se` and set
-  `RESEND_FROM_EMAIL` to a verified `screenia.se` sender before real customers.
+  `RESEND_FROM_EMAIL` to `Screenia <service@screenia.se>` and
+  `RESEND_NEWSLETTER_FROM_EMAIL` to `Screenia <info@screenia.se>` before real
+  customers/newsletters.
 - Confirm onboarding, quote, and request-confirmation emails use the shared
   transactional email sender, record audited delivery state, and create urgent
   admin notifications when delivery fails, email is not configured, or Resend

@@ -1,4 +1,4 @@
-# Screenia Real-World Testing Runbook
+﻿# Screenia Real-World Testing Runbook
 
 Last updated: 2026-07-14
 
@@ -16,10 +16,11 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 ## Current Manual Gates
 
 1. Mailbox proof
-   - Send Gmail to `hello@screenia.se`.
-   - Confirm delivery in Zoho Mail for `admin@screenia.se` through the `hello@screenia.se` alias.
-   - Send Zoho Mail from `hello@screenia.se` or the configured Screenia mailbox back to Gmail.
+   - Send Gmail to `service@screenia.se`.
+   - Confirm delivery in Zoho Mail for `admin@screenia.se` through the `service@screenia.se` alias.
+   - Send Zoho Mail from `service@screenia.se` or the configured Screenia mailbox back to Gmail.
    - Confirm Gmail receives it and record whether it lands in inbox, promotions, updates, or spam.
+   - Keep `info@screenia.se` reserved for newsletters/broadcasts; do not use it for one-to-one customer service tests.
 
 2. Supabase Auth proof
    - Trigger one real activation or password reset email to a test recipient.

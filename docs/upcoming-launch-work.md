@@ -1,4 +1,4 @@
-# Screenia Upcoming Launch Work
+﻿# Screenia Upcoming Launch Work
 
 Last updated: 2026-07-14
 
@@ -28,7 +28,7 @@ Current critical next actions:
 
 - Use `docs/real-world-testing-runbook.md` for the next full scenario pass.
 - Use `.env.example` as the safe variable template for local/Vercel setup checks; it contains placeholders only and keeps live-payment gates false by default.
-- Verify human mailbox delivery both ways: Gmail to `hello@screenia.se`, then `hello@screenia.se` to Gmail with spam-placement check.
+- Verify human mailbox delivery both ways: Gmail to `service@screenia.se`, then `service@screenia.se` to Gmail with spam-placement check.
 - Verify the Supabase Auth account activation/password path end to end before marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 - Upgrade/use Vercel Pro before real commercial production, and reconnect GitHub-to-Vercel deploys when GitHub OAuth allows it.
 - Keep Stripe in test mode until business registration, VAT/tax decision, legal review, and live webhook verification are done.
@@ -73,6 +73,11 @@ Current deployment status:
 - Production was redeployed again on 2026-07-14 after the Screenia visual refresh; deployment `dpl_5SphRo8dkhtKR8ofZZG2xAiFDUvo` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after clearing admin readiness blockers; deployment `dpl_4gdtJgpwTbFPtrXog4sBB6sDMbJa` reached Ready and was aliased to `https://screenia.se`.
 - Production was redeployed again on 2026-07-14 after admin/auth/customer-flow polish; deployment `dpl_ckydJBryTgA39BfKKUY67a51wsSs` reached Ready and was aliased to `https://screenia.se`.
+- Production was redeployed again on 2026-07-14 after Launch Readiness progress/manual-gate tracking; deployment `dpl_5HdcasubrUvds2m7z7Ybju3fgVDm` reached Ready and was aliased to `https://screenia.se`.
+- Latest production smoke checks after deployment `dpl_5HdcasubrUvds2m7z7Ybju3fgVDm`:
+  - `https://screenia.se/login` returned HTTP 200.
+  - `https://screenia.se/admin/launch-readiness` redirected unauthenticated visitors with HTTP 307.
+  - `https://screenia.se/api/admin/launch-readiness` returned HTTP 401 when unauthenticated, confirming the protected admin readiness API still blocks public access.
 - Latest production smoke checks after deployment `dpl_ckydJBryTgA39BfKKUY67a51wsSs`:
   - `https://screenia.se/display/test-device` returned HTTP 200, included `Preparing display`, and visually showed the new full-screen display status card with no horizontal overflow.
   - `https://screenia.se/onboarding/test-token` returned HTTP 200 and included the new start-link loading copy.
@@ -123,12 +128,12 @@ Current deployment status:
   - DKIM, `send` MX, and `send` SPF are verified.
   - The only pending Resend item is inbound receiving at root/apex `@`, which should remain pending because Zoho owns the human mailbox MX records for `screenia.se`.
 - Resend controlled send test on 2026-07-13:
-  - A setup test email was accepted by Resend from the verified `screenia.se` sender to `hello@screenia.se`.
-  - Supabase recorded the Resend webhook event as `email.sent` for `hello@screenia.se`.
+  - A setup test email was accepted by Resend from the verified `screenia.se` sender to `service@screenia.se`.
+  - Supabase recorded the Resend webhook event as `email.sent` for `service@screenia.se`.
   - Local `.env.local` was aligned to the verified `screenia.se` sender; this file is ignored by git and was not committed.
-  - Vercel Preview and Development `NEXT_PUBLIC_COMPANY_EMAIL` and `RESEND_FROM_EMAIL` were also aligned to `hello@screenia.se` / the verified `screenia.se` sender for future test deployments.
-  - Zoho mailbox proof confirmed the Supabase Auth invite reached the `admin@screenia.se` mailbox through the `hello@screenia.se` alias.
-  - Next mailbox proof still requires sending `hello@screenia.se` back to Gmail and checking placement.
+  - Vercel Preview and Development `NEXT_PUBLIC_COMPANY_EMAIL` and `RESEND_FROM_EMAIL` were also aligned to `service@screenia.se` / the verified `screenia.se` sender for future test deployments.
+  - Zoho mailbox proof confirmed the Supabase Auth invite reached the `admin@screenia.se` mailbox through the `service@screenia.se` alias.
+  - Next mailbox proof still requires sending `service@screenia.se` back to Gmail and checking placement.
 
 1. Loopia domain and professional email
    - Status: `screenia.se` domain payment completed on 2026-07-13.
@@ -146,7 +151,8 @@ Current deployment status:
    - Do not add Loopia `Webbhotell`, Microsoft 365, separate E-post, LoopiaDNS, SEO, Listings, Sitebuilder, or the free `.online` domain during the first purchase.
    - Reason: Screenia will be hosted on Vercel, so Loopia web hosting is unnecessary and renews too expensively for the startup phase.
    - After purchase, configure human inboxes through Zoho Mail Free first if available for the selected data center; use Migadu Micro as the low-cost paid fallback.
-   - Desired human addresses: `hello@screenia.se`, `support@screenia.se`, and `billing@screenia.se`.
+   - Desired human/client addresses: `service@screenia.se`, `support@screenia.se`, and `billing@screenia.se`.
+   - Newsletter sender identity: `info@screenia.se`; use it for newsletters/broadcasts only, not one-to-one customer support.
    - Then point `screenia.se` and `www.screenia.se` to Vercel once Vercel provides the exact DNS records.
    - Zoho Mail setup progress as of 2026-07-13 22:28 Europe/Stockholm:
      - Zoho EU organization signup was completed far enough to add `screenia.se`.
@@ -155,7 +161,7 @@ Current deployment status:
      - Zoho accepted the TXT record and verified domain ownership.
    - Zoho Mail setup progress as of 2026-07-13 22:52 Europe/Stockholm:
      - Super Administrator mailbox exists as `admin@screenia.se` on Zoho Mail Free.
-     - `hello@screenia.se` was added as an alias on the admin mailbox, so it should not consume another user license.
+     - `service@screenia.se` was added as an alias on the admin mailbox, so it should not consume another user license.
      - Zoho setup completion reached the Admin Console.
      - Root/apex MX, SPF, and DKIM records were added in Vercel DNS and verified publicly through Cloudflare DNS:
        - MX `@` -> `mx.zoho.eu`, priority `10`.
@@ -166,7 +172,7 @@ Current deployment status:
      - Zoho's own dashboard may still take time to refresh MX status; external DNS is correct.
      - Supabase Auth invite delivery was confirmed in the Zoho Inbox on 2026-07-13. The visible invite references `https://screenia.se`, and the accept button points to the Supabase Auth verify endpoint with `redirect_to`, `token`, and `type` parameters.
      - Clicking the invite completed the redirect check and landed on `https://screenia.se/account/activate` with the Screenia password setup form. No password was submitted.
-     - Next required test: send Gmail -> `hello@screenia.se`, then send `hello@screenia.se` -> Gmail and check spam placement.
+     - Next required test: send Gmail -> `service@screenia.se`, then send `service@screenia.se` -> Gmail and check spam placement.
 
    Human mailbox setup runbook:
 
@@ -176,9 +182,10 @@ Current deployment status:
    - Fallback: Migadu Micro or the lowest suitable Migadu plan if Zoho Free is unavailable or if IMAP/standard mail-client access becomes important.
      - Current official pricing check on 2026-07-13: Migadu Micro is listed at `$19/year`, not available monthly, with unlimited addresses/domains subject to account usage limits.
    - Current real mailbox: `admin@screenia.se`.
-   - Current public alias: `hello@screenia.se` on the admin mailbox.
+   - Current public alias: `service@screenia.se` on the admin mailbox.
    - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first send/receive test passes.
-   - Keep transactional/product email separate in Resend. Use Resend for app emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
+   - Keep transactional/product email separate in Resend. Use `service@screenia.se` for app/client emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
+   - Keep newsletter/broadcast identity separate as `info@screenia.se`.
    - Keep human mailbox MX records at the apex/root domain, for example Zoho or Migadu records for `screenia.se`.
    - Keep Resend return-path records on the `send` subdomain. The existing Resend MX for `send.screenia.se` does not replace the human inbox MX for `screenia.se`.
    - Do not add two different providers' apex MX records at the same time. Pick exactly one human-mail provider before entering MX records.
@@ -187,7 +194,7 @@ Current deployment status:
      - SPF includes the selected mailbox provider and does not break the existing Resend `send` subdomain SPF.
      - DKIM is verified for the selected mailbox provider.
      - DMARC stays at monitoring mode (`p=none`) until real send/receive tests are stable.
-     - `hello@screenia.se` can receive from Gmail and can send to Gmail without spam warnings.
+     - `service@screenia.se` can receive from Gmail and can send to Gmail without spam warnings.
    - Save provider plan, billing receipt, DPA/data-processing terms, account owner, and DNS evidence for bookkeeping/GDPR launch records.
 
    Human mailbox handoff checklist:
@@ -203,9 +210,9 @@ Current deployment status:
    - Suggested organization/display name: `Screenia`.
    - First domain to add: `screenia.se`.
    - Completed: first mailbox created as `admin@screenia.se`.
-   - Completed: first public alias created as `hello@screenia.se`.
+   - Completed: first public alias created as `service@screenia.se`.
    - Next aliases or mailboxes after first send/receive test passes: `support@screenia.se`, `billing@screenia.se`.
-   - Do not enable bulk/newsletter sending from Zoho during setup; keep product/transactional email in Resend.
+   - Do not enable bulk/newsletter sending from Zoho during setup; reserve `info@screenia.se` for newsletter/broadcast use and keep product/transactional email in Resend.
    - Do not remove the existing Resend `send.screenia.se` MX/SPF records; they are only for Resend's return-path subdomain.
    - After Zoho displays DNS records, Codex should add only the Zoho-provided apex/root mailbox records in Vercel DNS:
      - Zoho MX records for `screenia.se`.
@@ -216,9 +223,9 @@ Current deployment status:
      - `nslookup -type=MX screenia.se 1.1.1.1`
      - `nslookup -type=TXT screenia.se 1.1.1.1`
      - `nslookup -type=TXT <zoho-selector>._domainkey.screenia.se 1.1.1.1`
-     - Send Gmail -> `hello@screenia.se`, then `hello@screenia.se` -> Gmail.
+     - Send Gmail -> `service@screenia.se`, then `service@screenia.se` -> Gmail.
    - Only after mailbox send/receive works:
-     - Use `hello@screenia.se` as the public company contact address if not already configured.
+     - Use `service@screenia.se` as the public company contact address if not already configured.
      - Continue Resend verification separately for app/transactional email.
 
 2. Vercel hosting
@@ -258,7 +265,7 @@ Current deployment status:
    - Start with Resend Free while volume is low.
    - `screenia.se` was added to Resend; domain id `645099e3-8522-4949-95aa-f9ee63c2001b`.
    - Resend dashboard shows `Partially Verified`, with domain verification and sending records verified.
-   - Resend still shows a pending apex/root `@` MX record for inbound receiving. Keep that pending because it conflicts with Zoho's human mailbox MX records for `hello@screenia.se`.
+   - Resend still shows a pending apex/root `@` MX record for inbound receiving. Keep that pending because it conflicts with Zoho's human mailbox MX records for `service@screenia.se`.
    - Resend sending DNS records are staged in Vercel DNS:
      - TXT `resend._domainkey` = `p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCt8Z7H7RzjQQ+s0/HTMefefAl1atfepdP/4aZ9oojVCDKoYu3UD4YYYSspOJS0YGPt/IoOdbiqonZvKR5Ne/StRX57JR4DGTQccSWKM/AzNWXZZaVuWlNVKPRbAc6WUNp2ewSwOvZPspdTWq7XI0nTn6uNiEz3zMeyPIeQWskdgQIDAQAB`
      - MX `send` = `feedback-smtp.eu-west-1.amazonses.com`, priority `10`
@@ -286,7 +293,7 @@ Current deployment status:
      - The fix was to enable custom SMTP with Resend after explicit approval.
    - Supabase Auth SMTP setup completed after explicit approval:
      - Custom SMTP is enabled.
-     - Sender email is `hello@screenia.se`.
+     - Sender email is `service@screenia.se`.
      - Sender name is `Screenia`.
      - Host is `smtp.resend.com`.
      - Port is `465`.
@@ -294,13 +301,13 @@ Current deployment status:
      - Supabase saved the settings and no longer shows the built-in email service warning on the SMTP page.
      - Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until a real account activation/password reset email is received successfully.
    - Supabase Auth SMTP delivery test:
-     - A controlled Supabase Auth invite was sent to `hello@screenia.se`.
+     - A controlled Supabase Auth invite was sent to `service@screenia.se`.
      - Resend/Supabase delivery events were recorded for the invite:
        - `email.sent`
        - `email.delivered`
-     - The temporary auth user for `hello@screenia.se` exists with setup-test metadata and is still unconfirmed.
+     - The temporary auth user for `service@screenia.se` exists with setup-test metadata and is still unconfirmed.
      - Zoho Inbox visibility was confirmed on 2026-07-13, and clicking the invite redirected through Supabase Auth to `https://screenia.se/account/activate`.
-     - The temporary setup-test auth user for `hello@screenia.se` was deleted after the redirect proof so the company mailbox is not left as a customer account.
+     - The temporary setup-test auth user for `service@screenia.se` was deleted after the redirect proof so the company mailbox is not left as a customer account.
      - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until a password is submitted successfully or the reset path is checked end-to-end.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
@@ -407,7 +414,7 @@ Current deployment status:
   - Resend's Ireland region is acceptable and preferred for the Sweden/EU launch path.
   - Public sending records match the configured Ireland region.
   - Resend custom-domain sending still depends on dashboard verification; do not switch production `RESEND_FROM_EMAIL` to an `@screenia.se` sender until Resend verifies the domain.
-  - Do not add Resend's root/apex inbound MX record until the human mailbox provider is selected, because the root MX will be needed for `hello@screenia.se`.
+  - Do not add Resend's root/apex inbound MX record until the human mailbox provider is selected, because the root MX will be needed for `service@screenia.se`.
 - Environment key inventory was checked by key name only; no secret values were printed.
   - Local core keys are present for Supabase, Stripe, Resend, app URL, company identity placeholders, and Stripe automatic tax.
   - Required live-payment gate flags are intentionally not set locally: `SCREENIA_LIVE_PAYMENTS_ENABLED`, `SCREENIA_BUSINESS_REGISTRATION_CONFIRMED`, `SCREENIA_VERCEL_PRO_CONFIRMED`, `SCREENIA_VAT_DECISION_CONFIRMED`, `SCREENIA_LEGAL_REVIEW_CONFIRMED`, `SCREENIA_LIVE_WEBHOOK_VERIFIED`, and `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
@@ -441,14 +448,14 @@ Current deployment status:
 
 - Zoho mailbox setup advanced from setup wizard to Admin Console:
   - `admin@screenia.se` exists as the Super Administrator mailbox on Zoho Mail Free.
-  - `hello@screenia.se` exists as an alias on the admin mailbox.
+  - `service@screenia.se` exists as an alias on the admin mailbox.
   - Zoho root MX records are publicly visible: `mx.zoho.eu`, `mx2.zoho.eu`, and `mx3.zoho.eu`.
   - Zoho root SPF is publicly visible: `v=spf1 include:zohomail.eu ~all`.
   - Zoho DKIM selector `zmail._domainkey.screenia.se` is publicly visible.
   - Zoho's dashboard can lag on MX status even after external DNS is correct.
 - Remaining mailbox validation:
-  - Send Gmail -> `hello@screenia.se`.
-  - Send `hello@screenia.se` -> Gmail.
+  - Send Gmail -> `service@screenia.se`.
+  - Send `service@screenia.se` -> Gmail.
   - Check spam placement and sender authentication details.
 
 2026-07-13 post-Zoho production refresh:
@@ -459,7 +466,7 @@ Current deployment status:
   - The only pending record is Resend inbound receiving at root/apex `@`; this should stay pending while Zoho handles human mail.
 - Production Vercel environment was corrected for the live site:
   - `NEXT_PUBLIC_APP_URL` was set to `https://screenia.se`.
-  - `NEXT_PUBLIC_COMPANY_EMAIL` was set to `hello@screenia.se`.
+  - `NEXT_PUBLIC_COMPANY_EMAIL` was set to `service@screenia.se`.
   - `RESEND_FROM_EMAIL` was set to a `screenia.se` sender.
   - Vercel hides pulled sensitive env values after re-adding them, so use live-site behavior and Vercel dashboard as the verification surface for these values.
 - Vercel Preview and Development environment values were later aligned for:
@@ -468,23 +475,23 @@ Current deployment status:
 - Production redeploy `dpl_A6BwQHZjUPbeWnGn56aPRAzecD4f` reached Ready and was aliased to `https://screenia.se`.
 - Focused live checks after redeploy:
   - `https://screenia.se` returned HTTP 200 with the Screenia title.
-  - The live page contains `hello@screenia.se`.
+  - The live page contains `service@screenia.se`.
   - `https://www.screenia.se` returned HTTP 308 to `https://screenia.se/`.
   - Direct unauthenticated request to `/api/admin/launch-readiness` returned HTTP 401.
 
 2026-07-13 controlled Resend email test:
 
 - Local sender configuration was aligned to the verified `screenia.se` sender.
-- Resend accepted a controlled setup test email to `hello@screenia.se`.
+- Resend accepted a controlled setup test email to `service@screenia.se`.
 - Supabase recorded the corresponding Resend webhook event:
   - `event_type`: `email.sent`
   - `event_status`: `received`
-  - `recipient_email`: `hello@screenia.se`
+  - `recipient_email`: `service@screenia.se`
 - This proves the transactional sender can send from the verified domain and the deployed Resend webhook can store at least the sent event.
 - Vercel Preview and Development sender/contact values were aligned to the same verified `screenia.se` sender/contact setup after the production test passed.
 - Still unverified:
   - The message must be visibly received in Zoho.
-  - `hello@screenia.se` must send successfully back to Gmail.
+  - `service@screenia.se` must send successfully back to Gmail.
   - Delivered/bounce/complaint webhook behavior should be checked during the detailed email test pass.
 
 2026-07-13 Supabase Auth email check before SMTP setup:
@@ -493,7 +500,7 @@ Current deployment status:
 - This was acceptable for temporary setup, but not production-ready for customer password setup/reset emails.
 - The SMTP Settings page showed custom SMTP was not enabled yet.
 - Recommended custom SMTP configuration is Resend SMTP:
-  - Sender email: `hello@screenia.se`.
+  - Sender email: `service@screenia.se`.
   - Sender name: `Screenia`.
   - Host: `smtp.resend.com`.
   - Port: `465`.
@@ -505,7 +512,7 @@ Current deployment status:
 
 - After explicit approval, custom SMTP was enabled in Supabase Auth using Resend SMTP.
 - Saved settings:
-  - Sender email: `hello@screenia.se`.
+  - Sender email: `service@screenia.se`.
   - Sender name: `Screenia`.
   - Host: `smtp.resend.com`.
   - Port: `465`.
@@ -521,16 +528,16 @@ Current deployment status:
 
 2026-07-13 Supabase Auth SMTP delivery test:
 
-- Sent one controlled Supabase Auth invite to `hello@screenia.se` using the custom Resend SMTP settings.
-- Supabase accepted the invite and created a setup-test auth user for `hello@screenia.se`.
+- Sent one controlled Supabase Auth invite to `service@screenia.se` using the custom Resend SMTP settings.
+- Supabase accepted the invite and created a setup-test auth user for `service@screenia.se`.
 - Supabase/Resend delivery event records were stored:
   - `email.sent`
   - `email.delivered`
-- The invite was visible in the Zoho Inbox for `admin@screenia.se` via the `hello@screenia.se` alias.
+- The invite was visible in the Zoho Inbox for `admin@screenia.se` via the `service@screenia.se` alias.
 - The visible invite references `https://screenia.se`; the accept action points to the Supabase Auth verify endpoint and includes `redirect_to`, `token`, and `type` parameters.
 - Clicking the invite redirected through Supabase Auth and landed on `https://screenia.se/account/activate` with the Screenia password setup form.
 - No password was submitted during this setup check.
-- Cleanup completed: the temporary setup-test auth user for `hello@screenia.se` was deleted after the redirect proof.
+- Cleanup completed: the temporary setup-test auth user for `service@screenia.se` was deleted after the redirect proof.
 - Remaining verification:
   - Submit a controlled test password with a future real test customer or run a password reset flow to confirm account activation fully completes.
   - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after password setup or reset is verified end-to-end.

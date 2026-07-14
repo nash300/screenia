@@ -190,7 +190,7 @@ export default function OnboardingPage({
           eyebrow="Startguide"
           title="Ogiltig startlänk"
           text="Länken kunde inte kopplas till en aktiv förfrågan. Kontakta Screenia så skickar vi en ny säker länk."
-          href="mailto:hello@screenia.se"
+          href="mailto:service@screenia.se"
           action="Kontakta Screenia"
         />
       </FlowShell>
@@ -208,7 +208,7 @@ export default function OnboardingPage({
           eyebrow="Startguide"
           title="Startlänken har gått ut"
           text="Av säkerhetsskäl behöver du en ny länk innan du kan fortsätta med uppgifter och betalning."
-          href="mailto:hello@screenia.se"
+          href="mailto:service@screenia.se"
           action="Be om ny länk"
         />
       </FlowShell>

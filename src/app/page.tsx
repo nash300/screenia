@@ -379,7 +379,7 @@ export default function Home() {
       ? `Organisationsnummer: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
       : "",
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
-    process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@screenia.se",
+    process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
   ].filter(Boolean);
   const footerLinks = [
     { label: "Terms of Service", href: "/terms" },
@@ -398,7 +398,7 @@ export default function Home() {
       url: publicSiteUrl,
       image: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
       logo: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
-      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "hello@screenia.se",
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
       areaServed: {
         "@type": "Country",
         name: "Sweden",
@@ -870,7 +870,7 @@ export default function Home() {
             <h2>{t.contactTitle}</h2>
             <p>{t.contactText}</p>
           </div>
-          <a href="mailto:hello@screenia.se" className="landing-button landing-button-primary">
+          <a href="mailto:service@screenia.se" className="landing-button landing-button-primary">
             {t.contactButton}
           </a>
         </section>

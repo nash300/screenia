@@ -22,6 +22,23 @@ export function formatSek(amount: number | null | undefined) {
   return `${(amount ?? 0).toLocaleString("sv-SE")} kr`;
 }
 
+export const CLIENT_COMMUNICATION_FROM_EMAIL = "service@screenia.se";
+export const NEWSLETTER_FROM_EMAIL = "info@screenia.se";
+
+export function getConfiguredTransactionalSender() {
+  return (
+    process.env.RESEND_FROM_EMAIL?.trim() ||
+    `Screenia <${CLIENT_COMMUNICATION_FROM_EMAIL}>`
+  );
+}
+
+export function getConfiguredNewsletterSender() {
+  return (
+    process.env.RESEND_NEWSLETTER_FROM_EMAIL?.trim() ||
+    `Screenia <${NEWSLETTER_FROM_EMAIL}>`
+  );
+}
+
 export function renderBrandedEmail({
   eyebrow,
   title,
@@ -123,7 +140,7 @@ export async function sendTransactionalEmail(
   email: SendEmailInput,
 ): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim() || "";
-  const from = process.env.RESEND_FROM_EMAIL?.trim() || "";
+  const from = getConfiguredTransactionalSender();
 
   if (!apiKey || !from) {
     return {

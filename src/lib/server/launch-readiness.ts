@@ -33,6 +33,12 @@ import {
   CURRENT_TERMS_VERSION,
 } from "@/lib/legal/documents";
 import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
+import {
+  CLIENT_COMMUNICATION_FROM_EMAIL,
+  NEWSLETTER_FROM_EMAIL,
+  getConfiguredNewsletterSender,
+  getConfiguredTransactionalSender,
+} from "@/lib/server/email";
 
 const TRACKING_SOURCE_ROOTS = [
   "src/app",
@@ -202,18 +208,20 @@ function extractEmailAddress(value: string) {
 
 export function getTransactionalEmailReadiness() {
   const apiKey = process.env.RESEND_API_KEY?.trim() || "";
-  const from = process.env.RESEND_FROM_EMAIL?.trim() || "";
+  const from = getConfiguredTransactionalSender();
+  const newsletterFrom = getConfiguredNewsletterSender();
   const email = from ? extractEmailAddress(from) : "";
+  const newsletterEmail = newsletterFrom ? extractEmailAddress(newsletterFrom) : "";
   const domain = email.includes("@") ? email.split("@").pop() || "" : "";
   const usesScreeniaDomain =
     domain === "screenia.se" || domain.endsWith(".screenia.se");
 
-  if (!apiKey || !from) {
+  if (!apiKey) {
     return {
       configured: false,
       productionSafe: false,
       details:
-        "Resend is not fully configured; onboarding and notification emails may fail.",
+        "RESEND_API_KEY is missing; onboarding and notification emails may fail.",
     };
   }
 
@@ -234,10 +242,26 @@ export function getTransactionalEmailReadiness() {
     };
   }
 
+  if (email !== CLIENT_COMMUNICATION_FROM_EMAIL) {
+    return {
+      configured: true,
+      productionSafe: false,
+      details: `Client communication sender is ${email}. Use ${CLIENT_COMMUNICATION_FROM_EMAIL} for customer communication.`,
+    };
+  }
+
+  if (newsletterEmail !== NEWSLETTER_FROM_EMAIL) {
+    return {
+      configured: true,
+      productionSafe: false,
+      details: `Newsletter sender is ${newsletterEmail || "not configured"}. Use ${NEWSLETTER_FROM_EMAIL} for newsletters.`,
+    };
+  }
+
   return {
     configured: true,
     productionSafe: true,
-    details: `Resend sender is ${email}; verify DNS/domain status in Resend before launch.`,
+    details: `Resend client sender is ${email}; newsletter sender is ${newsletterEmail}. Verify DNS/domain status in Resend before launch.`,
   };
 }
 

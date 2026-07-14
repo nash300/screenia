@@ -32,7 +32,8 @@ to `.env.local` and to your production environment:
 
 ```bash
 RESEND_API_KEY=your_resend_api_key
-RESEND_FROM_EMAIL=Screenia <hello@screenia.se>
+RESEND_FROM_EMAIL=Screenia <service@screenia.se>
+RESEND_NEWSLETTER_FROM_EMAIL=Screenia <info@screenia.se>
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 STRIPE_AUTOMATIC_TAX_ENABLED=false
 SCREENIA_LIVE_PAYMENTS_ENABLED=false
@@ -44,15 +45,17 @@ SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false
 NEXT_PUBLIC_COMPANY_LEGAL_NAME=Screenia
 NEXT_PUBLIC_COMPANY_ORG_NUMBER=your_registered_org_number
 NEXT_PUBLIC_COMPANY_ADDRESS=your_registered_business_address
-NEXT_PUBLIC_COMPANY_EMAIL=hello@screenia.se
+NEXT_PUBLIC_COMPANY_EMAIL=service@screenia.se
 NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=false
 ```
 
 Without `RESEND_API_KEY` and `RESEND_FROM_EMAIL`, Screenia prepares onboarding
 links but does not send automatic emails. Use a verified Resend domain for
 `RESEND_FROM_EMAIL` before sending to real customers outside Resend's test
-limits. Restart the Next.js development server after changing `.env.local`;
-environment variables are loaded when the server starts.
+limits. Use `service@screenia.se` for transactional/customer communication
+and `info@screenia.se` for newsletters. Restart the Next.js development server
+after changing `.env.local`; environment variables are loaded when the server
+starts.
 
 ## Supabase Migrations
 
@@ -86,6 +89,8 @@ Before accepting real customers, confirm these production items:
   checkout route blocks live Stripe keys unless every live-payment confirmation
   flag is explicitly set to `true`.
 - Use a verified Resend sender domain for `RESEND_FROM_EMAIL`.
+- Set `RESEND_FROM_EMAIL` to `Screenia <service@screenia.se>` and
+  `RESEND_NEWSLETTER_FROM_EMAIL` to `Screenia <info@screenia.se>`.
 - Configure Supabase Auth SMTP/custom email delivery and test customer password
   setup plus password reset before setting
   `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
