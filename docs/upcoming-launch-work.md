@@ -90,6 +90,12 @@ Current deployment status:
   - `https://screenia.se/api/admin/customers` does not expose a public GET surface and returns HTTP 405 to unauthenticated GET.
   - Unsigned `POST https://screenia.se/api/stripe/webhook` returns HTTP 400 with missing-signature handling.
   - Unsigned/invalid `POST https://screenia.se/api/resend/webhook` returns HTTP 400 with invalid-webhook handling.
+- Customer-facing production page audit on 2026-07-14:
+  - `https://screenia.se/terms`, `/privacy`, `/cookie-policy`, `/subscription-billing-policy`, `/support-service-policy`, and `/sa-fungerar-det` all return HTTP 200, include Screenia content, and do not reference the old `screenia-ten.vercel.app` domain.
+  - `https://screenia.se` returns HTTP 200 and includes plan content.
+  - `https://screenia.se/api/landing-assets` returns HTTP 200 with landing media metadata.
+  - `GET https://screenia.se/api/onboarding-requests` returns HTTP 405, so the request endpoint does not expose a public read surface.
+  - Direct empty cross-origin `POST https://screenia.se/api/onboarding-requests` returns HTTP 403, confirming the proxy blocks unsafe cross-origin state-changing requests before a customer record can be created.
 - Resend domain `screenia.se` was added in region `Ireland (eu-west-1)`.
 - Resend DNS records were staged in Vercel DNS for `screenia.se`: DKIM TXT `resend._domainkey`, return-path MX `send`, SPF TXT `send`, and DMARC TXT `_dmarc`.
 - Resend region check on 2026-07-13 22:17 Europe/Stockholm:
