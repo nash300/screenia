@@ -216,6 +216,7 @@ export default function LoginPage() {
               >
                 <span
                   aria-hidden="true"
+                  role="presentation"
                   className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-black text-[#4285f4]"
                 >
                   G
