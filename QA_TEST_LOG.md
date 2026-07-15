@@ -401,3 +401,56 @@ Retest after deployment:
 Result:
 - Refund-before-layout business rule now works and preserves the admin/legal reason after Stripe webhook sync.
 - Launch note: Stripe test-mode branding still shows `New business sandbox`; Stripe account branding/name must be changed to Screenia before live launch.
+
+### Immediate Cancellation QA - 2026-07-15
+
+Scenario tested:
+- Disposable paid Standard FHD customer is cancelled immediately by admin using the `Cancel now` operation.
+
+Customer and payment:
+- Customer `10000047` / `df98ab11-01fd-4670-b357-62e88ecfa860`.
+- Stripe customer `cus_UtF09JMwW8o2oo`.
+- Stripe subscription `sub_1TtSWJGhi0eDHRQZl3dEQtHI`.
+- Stripe invoice `in_1TtSWJGhi0eDHRQZiOvRbNTy` remained paid: `2 397 kr`, not refunded.
+- Local order/payment evidence: `total_amount_sek=239700`, `tax_amount_sek=47940`, `setup_fee_paid=true`.
+
+Admin flow results:
+- Admin customer page showed `Cancel now` only while the subscription was active/trialing.
+- The selected action panel explained that Stripe cancellation happens immediately and display access is blocked.
+- The action required an operational reason and impact-review checkbox.
+- After running the action, Stripe subscription became `canceled`.
+- Customer state became:
+  - `status=suspended`
+  - `payment_status=cancelled`
+  - `service_access_status=cancelled`
+  - `inactive_reason=subscription_cancelled`
+  - `cancellation_reason=admin_immediate`
+  - `cancellation_source=admin`
+  - `production_status=not_started`
+- Local subscription state became:
+  - `status=cancelled`
+  - `stripe_payment_status=paid`
+  - `fulfillment_status=cancelled`
+  - `cancel_at_period_end=false`
+  - `cancellation_effective_at=2026-07-15T13:08:39.9+00:00`
+
+Issues found and fixed:
+- Admin overview incorrectly showed `Setup fee refund boundary: Not paid yet` for a cancelled-but-paid customer.
+- Fixed admin subscription data loading to include `setup_fee_paid` and `stripe_payment_status`.
+- Admin overview now shows `Setup fee refund boundary: Paid; not refunded`.
+- After immediate cancellation, the admin operation panel still showed invalid Stripe actions such as pause, discounts, and cancel again.
+- Fixed operation availability so terminal `cancelled` / `refunded` states hide further Stripe/customer actions.
+
+Retest after deployment:
+- Deployment: `dpl_DSi12xxsmi9XAhgL8nH9ovdGSmYo`, aliased to `https://screenia.se`.
+- Reloaded the cancelled customer page visually.
+- Verified `Paid; not refunded` appears.
+- Verified no terminal-state action buttons appear and the panel says `No customer operations are currently available for this state.`
+
+Cleanup:
+- Removed orphan Stripe test customers created during failed setup attempts: `cus_UtEzdc8KDZYuYE`, `cus_UtEyecHN3SHX8H`.
+- Archived temporary Stripe QA products created for the cancel-now setup.
+
+Result:
+- Immediate cancellation works and is auditable.
+- Admin UI no longer invites invalid post-cancellation Stripe operations.

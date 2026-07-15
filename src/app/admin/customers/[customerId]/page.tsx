@@ -65,6 +65,7 @@ type CustomerSubscription = {
   order_number: string | null;
   status: string;
   setup_fee_sek: number | null;
+  setup_fee_paid: boolean | null;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
   monthly_fee_sek: number | null;
@@ -76,6 +77,7 @@ type CustomerSubscription = {
   stripe_checkout_session_id: string | null;
   stripe_subscription_id: string | null;
   stripe_invoice_id: string | null;
+  stripe_payment_status: string | null;
   stripe_current_period_start: string | null;
   stripe_current_period_end: string | null;
   cancel_at_period_end: boolean | null;
@@ -268,6 +270,7 @@ const normalizeSubscription = (
   order_number: row.order_number ?? null,
   status: row.status || "pending",
   setup_fee_sek: row.setup_fee_sek ?? null,
+  setup_fee_paid: row.setup_fee_paid ?? null,
   hardware_fee_sek: row.hardware_fee_sek ?? null,
   shipping_fee_sek: row.shipping_fee_sek ?? null,
   monthly_fee_sek: row.monthly_fee_sek ?? null,
@@ -279,6 +282,7 @@ const normalizeSubscription = (
   stripe_checkout_session_id: row.stripe_checkout_session_id ?? null,
   stripe_subscription_id: row.stripe_subscription_id ?? null,
   stripe_invoice_id: row.stripe_invoice_id ?? null,
+  stripe_payment_status: row.stripe_payment_status ?? null,
   stripe_current_period_start: row.stripe_current_period_start ?? null,
   stripe_current_period_end: row.stripe_current_period_end ?? null,
   cancel_at_period_end: row.cancel_at_period_end ?? false,
@@ -623,6 +627,7 @@ export default function CustomerDetailPage({
           order_number,
           status,
           setup_fee_sek,
+          setup_fee_paid,
           hardware_fee_sek,
           shipping_fee_sek,
           monthly_fee_sek,
@@ -634,6 +639,7 @@ export default function CustomerDetailPage({
           stripe_checkout_session_id,
           stripe_subscription_id,
           stripe_invoice_id,
+          stripe_payment_status,
           stripe_current_period_start,
           stripe_current_period_end,
           cancel_at_period_end,
@@ -715,6 +721,7 @@ export default function CustomerDetailPage({
           order_number: null,
           status: subscription.status,
           setup_fee_sek: null,
+          setup_fee_paid: null,
           hardware_fee_sek: null,
           shipping_fee_sek: null,
           monthly_fee_sek: null,
@@ -726,6 +733,7 @@ export default function CustomerDetailPage({
           stripe_checkout_session_id: subscription.stripe_checkout_session_id,
           stripe_subscription_id: subscription.stripe_subscription_id,
           stripe_invoice_id: null,
+          stripe_payment_status: null,
           stripe_current_period_start: null,
           stripe_current_period_end: null,
           cancel_at_period_end: false,
@@ -1642,6 +1650,23 @@ export default function CustomerDetailPage({
     customer.layout_started_at !== null ||
     customer.setup_fee_locked_at !== null;
   const currentSubscription = subscriptions[0] || null;
+  const setupFeeWasPaid = Boolean(
+    currentSubscription?.setup_fee_paid ||
+      currentSubscription?.stripe_payment_status === "paid" ||
+      currentSubscription?.status === "paid" ||
+      currentSubscription?.status === "active" ||
+      (currentSubscription?.total_amount_sek || 0) > 0,
+  );
+  const terminalAccessStatuses = ["cancelled", "refunded"];
+  const terminalPaymentStatuses = ["cancelled", "refunded"];
+  const terminalSubscriptionStatuses = ["cancelled", "refunded"];
+  const stripeSubscriptionOperational = Boolean(
+    customer.stripe_subscription_id &&
+      currentSubscription &&
+      !terminalAccessStatuses.includes(customer.service_access_status || "") &&
+      !terminalPaymentStatuses.includes(customer.payment_status || "") &&
+      !terminalSubscriptionStatuses.includes(currentSubscription.status || ""),
+  );
   const hasScheduledCancellation = Boolean(
     currentSubscription?.cancel_at_period_end,
   );
@@ -1669,7 +1694,9 @@ export default function CustomerDetailPage({
         }
       : null,
     customer.status === "suspended" &&
-    customer.service_access_status !== "paused"
+    !["paused", ...terminalAccessStatuses].includes(
+      customer.service_access_status || "",
+    )
       ? {
           id: "reactivate_customer",
           title: "Reactivate customer",
@@ -1703,7 +1730,7 @@ export default function CustomerDetailPage({
           requiresConfirmation: true,
         }
       : null,
-    customer.stripe_subscription_id &&
+    stripeSubscriptionOperational &&
     customer.service_access_status !== "paused" &&
     !hasScheduledCancellation
       ? {
@@ -1716,7 +1743,7 @@ export default function CustomerDetailPage({
           requiresConfirmation: true,
         }
       : null,
-    customer.stripe_subscription_id &&
+    stripeSubscriptionOperational &&
     (customer.service_access_status === "paused" || hasScheduledCancellation)
       ? {
           id: "resume_subscription",
@@ -1732,7 +1759,7 @@ export default function CustomerDetailPage({
           requiresConfirmation: true,
         }
       : null,
-    customer.stripe_subscription_id
+    stripeSubscriptionOperational
       ? {
           id: "apply_temporary_discount",
           title: "Apply temporary discount",
@@ -1743,7 +1770,7 @@ export default function CustomerDetailPage({
           requiresDiscount: true,
         }
       : null,
-    customer.stripe_subscription_id && activeDiscountCount > 0
+    stripeSubscriptionOperational && activeDiscountCount > 0
       ? {
           id: "remove_temporary_discount",
           title: "Remove temporary discount",
@@ -1754,7 +1781,7 @@ export default function CustomerDetailPage({
           requiresConfirmation: true,
         }
       : null,
-    customer.stripe_subscription_id && !hasScheduledCancellation
+    stripeSubscriptionOperational && !hasScheduledCancellation
       ? {
           id: "cancel_period_end",
           title: "Cancel at period end",
@@ -1765,7 +1792,7 @@ export default function CustomerDetailPage({
           requiresConfirmation: true,
         }
       : null,
-    customer.stripe_subscription_id
+    stripeSubscriptionOperational
       ? {
           id: "cancel_immediately",
           title: "Cancel now",
@@ -2379,6 +2406,8 @@ export default function CustomerDetailPage({
                       ? "Already refunded before production"
                     : customer.payment_status === "paid"
                       ? "Refundable until layout work starts"
+                    : setupFeeWasPaid
+                      ? "Paid; not refunded"
                       : "Not paid yet"}
                 </td>
                 <td>{formatDateTime(customer.setup_fee_locked_at)}</td>
