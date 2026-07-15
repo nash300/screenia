@@ -1451,6 +1451,52 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
 
+### Stripe Failed Payment And Recovery With Real Test Events - 2026-07-15
+
+Scenario tested:
+- Disposable production-test customer goes through Stripe `invoice.payment_failed`, Screenia suspends service and display access, then Stripe `invoice.paid` restores customer access. The disposable customer is then cleaned up through audited admin operations.
+
+Test data:
+- Customer `10000056` / `b9f760ee-6353-4b75-b2b4-d3fcbcac0a7e`.
+- Company `Screenia Failed Payment QA 20260715183657 AB`.
+- Stripe customer `cus_UtKKbwOc8hly2U`.
+- Stripe subscription `sub_1TtXfyGhi0eDHRQZSVJ6pniN`.
+- Local subscription `5161c52e-a955-487f-89ad-fd92e447ad5d`.
+- Disposable display `PF0DFB` / `6e68bc14-9b05-458e-af51-7b373bfce55b`.
+
+Payment failure result:
+- Official Stripe CLI trigger `invoice.payment_failed` reached the production webhook and was processed as event `evt_1TtXn2Ghi0eDHRQZQlYwr61w`.
+- Customer became `status=suspended`, `payment_status=failed`, `service_access_status=payment_failed`, `inactive_reason=payment_failed`, `cancellation_source=stripe`.
+- Local subscription became `status=payment_failed`, `stripe_payment_status=failed`, `fulfillment_status=payment_failed`, `stripe_invoice_id=in_1TtXmzGhi0eDHRQZsxrxz9R5`, `total_amount_sek=49800`, and `tax_amount_sek=9960`.
+- Display playlist endpoint for `PF0DFB` changed from HTTP 200 to HTTP 403 `Display is not active.`
+- Audit event `payment_failed` was stored.
+- Admin dashboard visibly showed an urgent `Payment failed` notification for the customer and invoice.
+
+Payment recovery result:
+- Official Stripe CLI trigger `invoice.paid` reached the production webhook and was processed as event `evt_1TtXo0Ghi0eDHRQZ8uGEbpzD`.
+- Customer recovered to `status=active`, `payment_status=paid`, `service_access_status=active`.
+- Local subscription recovered to `status=active`, `stripe_payment_status=trialing`, `fulfillment_status=active`, with invoice `in_1TtXnxGhi0eDHRQZEUaBUzRi`.
+- Display playlist endpoint for `PF0DFB` returned HTTP 200 after recovery.
+- Browser verification on `/admin/customers/b9f760ee-6353-4b75-b2b4-d3fcbcac0a7e?section=history` showed `payment failed`, `subscription synced`, and `subscription invoice paid` in chronological history.
+- Browser verification on `/display/PF0DFB` showed the device active again with `No content assigned`, which is expected for a recovered display without a published playlist.
+
+Cleanup result:
+- Earlier bad Stripe CLI fixture attempts produced stale `Stripe webhook failed` notifications for `evt_1TtXl1Ghi0eDHRQZlLartUwQ` and `evt_1TtXlrGhi0eDHRQZP10k7wHu`; those exact stale notifications were removed.
+- Disposable device `PF0DFB` was deactivated through the audited admin device endpoint.
+- Disposable subscription was immediately cancelled through the audited admin subscription endpoint.
+- Final disposable state: customer `payment_status=cancelled`, `service_access_status=cancelled`, subscription `stripe_payment_status=canceled`, `fulfillment_status=cancelled`, and device `is_active=false`.
+
+Notes:
+- Manual synthetic webhook calls continued to fail signature validation, which is the desired secure behavior for unsigned or incorrectly signed requests. Production behavior was verified with official Stripe CLI events against the real webhook endpoint instead.
+- The recovery fixture invoice had zero total because it was a Stripe CLI recovery fixture, so it should not be used as invoice amount evidence. The test purpose was entitlement recovery after a paid event.
+
+Post-test smoke:
+- `/login` returned HTTP 200.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/api/display/PF0DFB/playlist` returned HTTP 403 after cleanup because the disposable device was intentionally deactivated.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:

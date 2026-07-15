@@ -767,6 +767,7 @@ Completed in this pass:
 - Subscription billing lifecycle was production-tested: admin pause/resume, admin period-end cancellation, customer period-end cancellation, immediate admin cancellation on disposable Stripe test subscriptions, and temporary discount apply/remove all sync Stripe, customer access, local subscription state, display entitlement, and audit evidence.
 - Accounting/VAT exports were production-tested: accounting CSV includes paid/cancelled/refunded order evidence, VAT summary includes only active paid taxable rows, export downloads are audited, and terminal orders now close inventory status as `cancelled`.
 - Customer account/email/support flow was production-tested: customer login, password reset delivery evidence, customer support ticket submission, admin communication reply, customer-visible reply email delivery, and customer account data export all work. Admin replies now move tickets to `waiting_for_customer` after fix `bfa88d9` / deployment `dpl_8n32qM7UYuVLtiKFS36Tru6UEWUV`.
+- Stripe failed-payment recovery was production-tested with official Stripe CLI test events on disposable customer `10000056`: `invoice.payment_failed` suspended service and display access, created audit/admin notification evidence, `invoice.paid` restored access, and audited cleanup then cancelled the disposable subscription and deactivated display `PF0DFB`. Launch readiness returned to `53 pass`, `10 warning`, `0 fail`.
 
 Next admin areas to clean up before broad real-world testing:
 
