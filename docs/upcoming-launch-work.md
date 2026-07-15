@@ -126,6 +126,13 @@ Current deployment status:
     - Urgent admin notification `1190bc82-e1b3-4642-892b-9dd2dc27ba8d` was created for the needs-attention drill.
     - Visible `https://screenia.se/admin/backup-drills` showed both records and the `1 need evidence` badge.
     - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
+  - Privacy incident register QA on 2026-07-15:
+    - Admin created high-severity incident `60789a3e-a41b-4a06-9766-66b5866413a6` with authority/customer notification required.
+    - Admin moved the incident through `detected`, `investigating`, `contained`, and `resolved`, adding containment notes and notification timestamps.
+    - Audit events `privacy_incident_created` and `privacy_incident_updated` were stored with before/after values and admin reasons.
+    - Urgent admin notifications were created while the high-severity incident still needed follow-up; no follow-up notification was created after final resolution.
+    - Visible `https://screenia.se/admin/privacy-incidents` showed the incident as `high`, `resolved`, `Authority: yes`, `Customer: yes`, and `0 open`.
+    - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

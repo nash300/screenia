@@ -1221,3 +1221,37 @@ Visual/admin verification:
 Post-test smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Privacy Incident Register QA - 2026-07-15
+
+Scenario tested:
+- Admin records a simulated privacy/security incident, escalates investigation status, contains it, resolves it with notification timestamps, and verifies audit/notification evidence.
+
+Lifecycle result:
+- Initial authenticated admin `GET /api/admin/privacy-incidents` returned an empty register for this fresh pass.
+- `POST /api/admin/privacy-incidents` returned HTTP 201 and created incident `60789a3e-a41b-4a06-9766-66b5866413a6`.
+- Title: `QA privacy incident 20260715165529`.
+- Severity: `high`.
+- Initial status: `detected`.
+- Authority notification required: `true`.
+- Customer notification required: `true`.
+- `PATCH /api/admin/privacy-incidents/60789a3e-a41b-4a06-9766-66b5866413a6` moved the incident to `investigating`.
+- A second `PATCH` moved the incident to `contained` with containment notes.
+- A final `PATCH` moved the incident to `resolved` with `authority_notified_at` and `customer_notified_at` set to `2026-07-15T16:55:32.664+00:00`.
+
+Audit and notification result:
+- Audit `privacy_incident_created` was stored at `2026-07-15T16:55:30.678233+00:00`.
+- Audit `privacy_incident_updated` was stored for the `investigating`, `contained`, and `resolved` transitions, each with changed fields, before/after values, and admin reason.
+- Urgent admin notification `872d0d8f-4408-40d3-9a50-0dfc0e83af23` was created for the high-severity incident.
+- Urgent follow-up notifications `6bef6c0b-dda7-4ec7-ad94-e9202ee0f3cc` and `bdc415e3-a479-44df-8ef9-d9f50ca4f2de` were created while notification-required fields were still unresolved.
+- No follow-up notification was created after final resolution with notification timestamps.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/privacy-incidents` showed the incident in the register.
+- The row showed severity `high`, status `resolved`, detected timestamp `2026-07-15 18:55:30`, and `Authority: yes` / `Customer: yes`.
+- Page badge showed `0 open`.
+- Browser console had no errors for the page.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
