@@ -148,6 +148,14 @@ Current deployment status:
     - Found and fixed an approved-row UI issue: fully approved processor reviews no longer show Approve/Needs review/Disabled controls, and instead show `Approved`.
     - Production deployment `dpl_CusYPT6dBbtvd2JqXxdu8LZcNGc9` was aliased to `https://screenia.se` after the fix.
     - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
+  - Admin access review QA on 2026-07-15:
+    - Admin created access review `45892266-6ed7-4dbe-b97a-00e26ff62476` for `admin@screenia.se` / auth user `d3078ba0-133c-4146-b0de-ab62a1c6f310`.
+    - Initial `needs_review` state with missing MFA evidence created high-priority notification `c2edd6ec-0c3a-48cd-8663-afaf55f52983`.
+    - Admin approved the review with MFA/access evidence and reviewed timestamp `2026-07-15T17:12:27.91+00:00`.
+    - Audit events `admin_access_review_recorded` and `admin_access_review_updated` were stored with reasons, reviewed-by id, and before/after metadata.
+    - Found and fixed an approved-row UI issue: fully approved access reviews no longer show Approve/Needs review/Removed controls, and instead show `Approved`.
+    - Production deployment `dpl_13HxtyitzkGBfRrZ1gkfbJEFvY41` was aliased to `https://screenia.se` after the fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

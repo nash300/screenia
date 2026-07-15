@@ -1333,3 +1333,42 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Admin Access Review QA - 2026-07-15
+
+Scenario tested:
+- Admin records admin-account access evidence, verifies missing MFA follow-up visibility, approves the admin account after MFA/access evidence, and confirms the approved row does not look unfinished.
+
+Lifecycle result:
+- Initial authenticated admin `GET /api/admin/access-reviews` returned an empty register for this fresh pass.
+- `POST /api/admin/access-reviews` returned HTTP 201 and created review `45892266-6ed7-4dbe-b97a-00e26ff62476`.
+- Admin email: `admin@screenia.se`.
+- Auth user id: `d3078ba0-133c-4146-b0de-ab62a1c6f310`.
+- Initial status: `needs_review`.
+- Initial MFA evidence: `false`.
+- Access confirmed: `true`.
+- `PATCH /api/admin/access-reviews/45892266-6ed7-4dbe-b97a-00e26ff62476` approved the review with MFA and access both `true`.
+- Reviewed at: `2026-07-15T17:12:27.91+00:00`.
+
+Audit and notification result:
+- Audit `admin_access_review_recorded` was stored at `2026-07-15T17:12:27.132302+00:00`.
+- Audit `admin_access_review_updated` was stored at `2026-07-15T17:12:28.828932+00:00` with changed fields, before/after values, reviewed-by id, and admin reason.
+- High-priority admin notification `c2edd6ec-0c3a-48cd-8663-afaf55f52983` was created because MFA evidence was initially missing.
+
+Issue found and fixed:
+- Approved admin access review rows still showed `Approve`, `Needs review`, and `Removed` controls, which made a verified admin account look unfinished.
+- Fixed `src/app/admin/access-reviews/page.tsx` so fully approved rows show a simple `Approved` label instead of action buttons.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_13HxtyitzkGBfRrZ1gkfbJEFvY41` was aliased to `https://screenia.se`.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/access-reviews` showed the admin access review as `approved`.
+- The row showed MFA `verified`, access `required`, reviewed timestamp `2026-07-15 19:12:27`, and a final `Approved` label.
+- The page badge showed `0 need review`.
+- Browser console had no errors for the page.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
