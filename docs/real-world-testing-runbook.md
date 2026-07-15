@@ -22,8 +22,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Keep `info@screenia.se` reserved for newsletters/broadcasts; do not use it for one-to-one customer service tests.
 
 2. Supabase Auth proof
-   - Trigger one real activation or password reset email to a test recipient.
-   - Confirm the email arrives through the production sender/domain.
+   - Completed 2026-07-15: a controlled password reset request to `service@screenia.se` was delivered through Supabase Auth SMTP/Resend from `"Screenia" <service@screenia.se>`.
+   - Completed 2026-07-15: the earlier Supabase Auth SMTP sender drift was corrected from `hello@screenia.se` to `service@screenia.se` in the Supabase dashboard.
    - Open the link and confirm it lands on `https://screenia.se/account/activate` or `https://screenia.se/account/reset-password`.
    - Submit a test password that satisfies the policy: at least 10 characters with letters and numbers.
    - Confirm the user lands in `/account`.

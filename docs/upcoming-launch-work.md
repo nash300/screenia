@@ -346,6 +346,13 @@ Current deployment status:
      - Zoho Inbox visibility was confirmed on 2026-07-13, and clicking the invite redirected through Supabase Auth to `https://screenia.se/account/activate`.
      - The temporary setup-test auth user for `service@screenia.se` was deleted after the redirect proof so the company mailbox is not left as a customer account.
      - Leave `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=false` until a password is submitted successfully or the reset path is checked end-to-end.
+   - Supabase Auth sender correction on 2026-07-15:
+     - During cancellation/payment QA, one Auth email showed `"Screenia" <hello@screenia.se>`.
+     - Root cause was Supabase Authentication -> Emails -> SMTP Settings: `Sender email` / `SMTP_ADMIN_EMAIL` had drifted to `hello@screenia.se`.
+     - Corrected the Supabase dashboard value to `service@screenia.se` and saved it with custom SMTP still enabled.
+     - Retest password reset request for `service@screenia.se` delivered through Resend with from `"Screenia" <service@screenia.se>`.
+     - Evidence: before-fix Resend email `cdac70d6-6e55-413c-b4e6-3dc7cc6f9b60`; after-fix Resend email `958cdc4d-f3ab-44c2-b84c-bb735890244d`; corresponding audit events include `password_reset_email_requested` and Resend `email.sent` / `email.delivered`.
+     - The local Resend key cannot retrieve stored email bodies, so do not expose or log Auth reset tokens from API calls. Complete the next password-reset link proof from the mailbox UI.
    - Storage privacy was spot-checked on 2026-07-13:
      - `customer-display-assets` is not marked public and has a storage policy count.
      - `email-assets` is intentionally public-looking for email image assets and is limited to image MIME types.

@@ -454,3 +454,29 @@ Cleanup:
 Result:
 - Immediate cancellation works and is auditable.
 - Admin UI no longer invites invalid post-cancellation Stripe operations.
+
+### Supabase Auth Sender QA - 2026-07-15
+
+Scenario tested:
+- Verify that customer account/password emails do not expose the removed `hello@screenia.se` address and use the public service sender instead.
+
+Issue found:
+- A controlled customer password reset email was delivered, but Resend evidence showed the sender as `"Screenia" <hello@screenia.se>`.
+- This was not caused by the app transactional email helper; `.env.example`, README, and `src/lib/server/email.ts` already point customer mail to `service@screenia.se`.
+- Root cause was Supabase Auth custom SMTP configuration: the Supabase dashboard SMTP sender email had drifted to `hello@screenia.se`.
+
+Fix completed:
+- Updated Supabase Authentication -> Emails -> SMTP Settings so the sender email is `service@screenia.se`.
+- Kept sender name as `Screenia`, SMTP host as `smtp.resend.com`, port `465`, and username `resend`.
+
+Retest:
+- Triggered a second controlled password reset request for `service@screenia.se` from the live `/login` page.
+- Resend/Supabase delivery evidence:
+  - Before fix: Resend email `cdac70d6-6e55-413c-b4e6-3dc7cc6f9b60`, from `"Screenia" <hello@screenia.se>`.
+  - After fix: Resend email `958cdc4d-f3ab-44c2-b84c-bb735890244d`, from `"Screenia" <service@screenia.se>`.
+  - After-fix delivery events included `email.sent` and `email.delivered`.
+  - Audit evidence includes `password_reset_email_requested` and `resend_delivery_event_received`.
+
+Result:
+- Supabase Auth password reset emails now use `service@screenia.se` as the sender.
+- Remaining gate: open a real password reset/activation link from the mailbox UI, submit a compliant password, and confirm `/account` login before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
