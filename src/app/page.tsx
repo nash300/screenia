@@ -836,15 +836,12 @@ export default function Home() {
           </div>
           <div className="landing-film-stage" role="img" aria-label="Animerad film om Screenias arbetsflöde">
             <div className="landing-film-screen">
-              <video
-                src="/brand/screenia-service-overview.mp4"
-                poster="/brand/screenia-pricing-devices.png"
-                autoPlay
-                muted
-                loop
-                playsInline
-                controls
-                preload="metadata"
+              <Image
+                src="/brand/screenia-pricing-devices.png"
+                alt="Screenia digital signage devices"
+                width={1400}
+                height={900}
+                priority={false}
               />
             </div>
             <div className="landing-film-progress" aria-hidden="true" />

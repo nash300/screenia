@@ -427,7 +427,7 @@ Checklist:
 - Fresh app-generated landing confirmation email was sent successfully through `/api/onboarding-requests` for customer `6d3bfeda-e15c-4026-818f-9f37c5d71d6a` / `TEST - Gmail Email Render 20260628211036`; response returned `emailSent: true`.
 - Gmail found the fresh app-generated email, but it was also placed in Spam/Bin. The rendered Spam view showed correct Swedish characters with no mojibake and showed the logo/helper placeholders sized correctly: logo `180px` wide and helper `220 x 331`.
 - Conclusion: current app-generated email content and sizing are corrected; full remote image loading in Gmail Inbox still depends on deliverability/domain trust because Gmail blocks remote images for messages it classifies as Spam/Bin.
-- Final MP4 upload-path smoke test uploaded `public/brand/screenia-service-overview.mp4` to Supabase Storage path `XACRVK/1782681267486-native-picker-final-smoke.mp4`.
+- Historical MP4 upload-path smoke test used a bundled service-overview MP4. That bundled MP4 was removed on 2026-07-15 after QA found stale pre-Screenia branding in the video content; future media QA should use a fresh Screenia-branded MP4 asset.
 - Supabase Storage returned a public video URL with HTTP `200`; playlist row `2633a2f4-3a55-44a1-b1b8-51789ec7bbe4` was inserted as order `3` with timestamp `2026-06-28T21:14:29.124777+00:00`.
 - Admin media page retest showed `Media (3)`, `Order: 3`, MP4-only input, disabled upload button before file selection, no page overflow, and no console errors.
 - `/display/XACRVK` retest played the newly uploaded Supabase MP4 with readyState `4`, dimensions `1920x1080`, no media error, no console errors, and no page overflow.
