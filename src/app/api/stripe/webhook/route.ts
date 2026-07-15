@@ -327,38 +327,38 @@ async function syncStripeSubscription(subscription: Stripe.Subscription) {
     });
   }
 
+  const subscriptionUpdate: Record<string, unknown> = {
+    status:
+      entitlement.serviceAccessStatus === "cancelled"
+        ? "cancelled"
+        : entitlement.serviceAccessStatus === "paused"
+          ? "paused"
+          : entitlement.serviceAccessStatus === "payment_failed"
+            ? "payment_failed"
+            : "active",
+    stripe_payment_status: subscription.status,
+    trial_starts_at: entitlement.trialStart,
+    trial_ends_at: entitlement.trialEnd,
+    stripe_current_period_start: entitlement.currentPeriodStart,
+    stripe_current_period_end: entitlement.currentPeriodEnd,
+    cancel_at_period_end: entitlement.cancelAtPeriodEnd,
+    cancellation_effective_at: entitlement.cancellationEffectiveAt,
+    pause_started_at:
+      entitlement.serviceAccessStatus === "paused"
+        ? entitlement.pauseStartedAt
+        : null,
+    pause_resumes_at: entitlement.pauseResumesAt,
+  };
+
+  if (entitlement.serviceAccessStatus === "cancelled") {
+    subscriptionUpdate.fulfillment_status = "cancelled";
+  } else if (entitlement.serviceAccessStatus === "payment_failed") {
+    subscriptionUpdate.fulfillment_status = "payment_failed";
+  }
+
   const { error: subscriptionError } = await supabaseAdmin
     .from("customer_subscriptions")
-    .update({
-      status:
-        entitlement.serviceAccessStatus === "cancelled"
-          ? "cancelled"
-          : entitlement.serviceAccessStatus === "paused"
-            ? "paused"
-            : entitlement.serviceAccessStatus === "payment_failed"
-              ? "payment_failed"
-              : "active",
-      stripe_payment_status: subscription.status,
-      trial_starts_at: entitlement.trialStart,
-      trial_ends_at: entitlement.trialEnd,
-      stripe_current_period_start: entitlement.currentPeriodStart,
-      stripe_current_period_end: entitlement.currentPeriodEnd,
-      cancel_at_period_end: entitlement.cancelAtPeriodEnd,
-      cancellation_effective_at: entitlement.cancellationEffectiveAt,
-      pause_started_at:
-        entitlement.serviceAccessStatus === "paused"
-          ? entitlement.pauseStartedAt
-          : null,
-      pause_resumes_at: entitlement.pauseResumesAt,
-      fulfillment_status:
-        entitlement.serviceAccessStatus === "cancelled"
-          ? "cancelled"
-          : entitlement.serviceAccessStatus === "paused"
-            ? "paused"
-            : entitlement.serviceAccessStatus === "payment_failed"
-              ? "payment_failed"
-              : "active",
-    })
+    .update(subscriptionUpdate)
     .eq("stripe_subscription_id", subscription.id);
 
   if (subscriptionError) {
