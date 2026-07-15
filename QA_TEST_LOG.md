@@ -824,4 +824,7 @@ Local verification:
 
 Result:
 - Accounting/VAT export lifecycle passed locally after fixes.
-- Production deployment still needs to receive the accounting/VAT export fixes before live endpoints are corrected.
+- Production deployment `dpl_HQpYeMKN9XU9cRGJo8qPn43pJNwu` was aliased to `https://screenia.se` after the accounting/VAT export fixes.
+- Production `GET /api/admin/accounting-export` returned HTTP 200 CSV with 5 rows, including active order `1000000036` and refunded order `1000000048`.
+- Production `GET /api/admin/vat-summary?from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200 with gross `279700` ore / VAT `55940` ore / net `223760` ore.
+- Production launch readiness remained 53 pass / 10 warning / 0 fail.
