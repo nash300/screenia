@@ -193,3 +193,42 @@ Google login:
 Admin final visual check:
 - Logged in with the QA admin account.
 - Admin customer onboarding page showed the paid customer, order `1000000035`, Stripe IDs, correct Premium 4K pricing, setup-fee refund boundary, and available admin actions.
+
+## 2026-07-15 - Online Production Dummy Scenario Start
+
+Status: started; customer request step passed. Admin-side continuation requires live admin login.
+
+Scope:
+- Production environment: `https://screenia.se`.
+- Live payments remain disabled/not confirmed; Stripe must stay in test mode for the continuation.
+- Dummy customer data was intentionally inserted for the first online scenario.
+
+Customer request:
+- Package selected visually on live site: Premium 4K.
+- Company: `Screenia Dummy Premium 4K 2026-07-15T01-16-13-277Z`.
+- Email: `service@screenia.se`.
+- Contact: `Screenia Test Customer`.
+- Phone: `+46700000000`.
+- Requested screens: `1`.
+- Message: `Controlled online dummy scenario test. Premium 4K full flow. Test id: 2026-07-15T01-16-13-277Z`.
+
+Database evidence:
+- Customer id: `45fbeab1-9cdf-4ba0-9cc7-6d37fa5c6ffc`.
+- Customer number: `10000043`.
+- Status: `new_request`.
+- Requested package metadata stored as `premium_4k`, `Premium`, `4K`, quantity `1`.
+
+Consent, audit, and notification evidence:
+- Privacy request consent was stored in `consent_records` with document version `2026-07-12-prelaunch`.
+- Audit events include `customers_insert`, `landing_purchase_request_created`, and `request_confirmation_email_sent`.
+- Admin notification `New customer request` was created with priority `high`.
+
+Email evidence:
+- Request confirmation email was sent to `service@screenia.se`.
+- Resend email id: `f09a83d1-3b1a-4126-83d1-9a5b1a7e4ee2`.
+- `resend_delivery_events` recorded both `email.sent` and `email.delivered` for subject `Screenia har tagit emot din förfrågan`.
+
+Next required step:
+- Log into live `/admin-login`.
+- Open customer `45fbeab1-9cdf-4ba0-9cc7-6d37fa5c6ffc`.
+- Continue with admin quote/onboarding link, customer onboarding, Stripe test checkout, account activation, and admin/customer verification.
