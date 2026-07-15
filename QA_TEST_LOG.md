@@ -232,3 +232,30 @@ Next required step:
 - Log into live `/admin-login`.
 - Open customer `45fbeab1-9cdf-4ba0-9cc7-6d37fa5c6ffc`.
 - Continue with admin quote/onboarding link, customer onboarding, Stripe test checkout, account activation, and admin/customer verification.
+
+## 2026-07-15 - Fresh Testing Reset
+
+Status: completed.
+
+Goal: reset the online testing environment so the next real-life scenario starts from a clean state.
+
+Supabase:
+- Cleared operational test data from customers, subscriptions, devices, playlists, videos, customer messages/assets, consent records, email delivery records, Stripe webhook records, admin notifications, and audit events.
+- Kept baseline configuration data: `pricing_plans=2` and `legal_documents=4`.
+- Removed old customer/admin auth users.
+- Created one confirmed admin auth user: `admin@screenia.se` with `app_metadata.role=admin`.
+- Did not store the temporary admin password in the repository.
+
+Stripe test mode:
+- Cancelled the remaining active trial subscriptions.
+- Deleted old Stripe test customers.
+- Archived old/QA Stripe products and prices.
+- Kept only the active products and price IDs referenced by the current Screenia pricing plans.
+- Verified Stripe has `0` customers and `0` active subscriptions after cleanup.
+
+Visual verification:
+- Logged into the live admin dashboard at `https://screenia.se/admin-login` as `admin@screenia.se`.
+- Dashboard showed `0` new requests, `0` invited customers, `0` content setup customers, `0` devices, and `0` unread notifications.
+
+Next required step:
+- Start the next production dummy scenario from the live landing page using fresh customer data.
