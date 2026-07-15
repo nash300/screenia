@@ -595,7 +595,6 @@ export async function POST(
       customerId,
       {
         status: "active",
-        fulfillment_status: "active",
       },
       syncContext(action),
     );
@@ -740,7 +739,6 @@ export async function POST(
       customerId,
       {
         status: "paused",
-        fulfillment_status: "paused",
         pause_reason: reason,
       },
       syncContext(action),
@@ -787,14 +785,16 @@ export async function POST(
 
     const subscription = await stripe.subscriptions.update(
       customer.stripe_subscription_id,
-      { pause_collection: "" } as Stripe.SubscriptionUpdateParams,
+      {
+        cancel_at_period_end: false,
+        pause_collection: "",
+      } as Stripe.SubscriptionUpdateParams,
     );
     const { entitlement, syncFailureResponse } = await updateLocalSubscription(
       subscription,
       customerId,
       {
         status: "active",
-        fulfillment_status: "active",
         pause_reason: null,
       },
       syncContext(action),

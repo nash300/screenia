@@ -1614,6 +1614,10 @@ export default function CustomerDetailPage({
     customer.production_status !== null ||
     customer.layout_started_at !== null ||
     customer.setup_fee_locked_at !== null;
+  const currentSubscription = subscriptions[0] || null;
+  const hasScheduledCancellation = Boolean(
+    currentSubscription?.cancel_at_period_end,
+  );
   const customerOperations: CustomerOperation[] = [
     customer.payment_status === "paid" &&
     customer.status !== "active" &&
@@ -1673,7 +1677,8 @@ export default function CustomerDetailPage({
         }
       : null,
     customer.stripe_subscription_id &&
-    customer.service_access_status !== "paused"
+    customer.service_access_status !== "paused" &&
+    !hasScheduledCancellation
       ? {
           id: "pause_subscription",
           title: "Pause subscription",
@@ -1685,12 +1690,16 @@ export default function CustomerDetailPage({
         }
       : null,
     customer.stripe_subscription_id &&
-    customer.service_access_status === "paused"
+    (customer.service_access_status === "paused" || hasScheduledCancellation)
       ? {
           id: "resume_subscription",
           title: "Resume subscription",
-          description: "Use when billing and display access can restart.",
-          result: "Stripe collection resumes and access is restored if otherwise paid.",
+          description: hasScheduledCancellation
+            ? "Use to undo a scheduled cancellation before the period ends."
+            : "Use when billing and display access can restart.",
+          result: hasScheduledCancellation
+            ? "Stripe cancellation is removed and the subscription stays active."
+            : "Stripe collection resumes and access is restored if otherwise paid.",
           tone: "success",
           requiresStripe: true,
           requiresConfirmation: true,
@@ -1707,7 +1716,7 @@ export default function CustomerDetailPage({
           requiresDiscount: true,
         }
       : null,
-    customer.stripe_subscription_id
+    customer.stripe_subscription_id && !hasScheduledCancellation
       ? {
           id: "cancel_period_end",
           title: "Cancel at period end",
