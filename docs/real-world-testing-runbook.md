@@ -61,22 +61,28 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Open the new customer in admin.
    - Prepare quote/onboarding with a clear audit reason.
    - Confirm onboarding email delivery and Resend event logging.
+   - Completed 2026-07-15: admin prepare-onboarding for Premium 4K customer `10000053` created order `1000000041`, generated onboarding URL `/onboarding/b0492224-3f2d-4740-abc0-1a9ed6d18002`, and delivered quote email `21e1f09c-bfed-4c9b-b124-08a5c56bf0d1` from `Screenia <service@screenia.se>`.
 
 4. Customer onboarding
    - Open the onboarding link.
    - Complete customer profile, legal consent, billing details, and content setup.
    - Confirm the app blocks incomplete legal/payment prerequisites.
+   - Completed 2026-07-15: onboarding page loaded visually, accepted required company/delivery/legal details with Swedish organisation number validation, stored terms/privacy evidence, and advanced to Stripe payment.
 
 5. Stripe test checkout
    - Complete Stripe Checkout using test-mode payment details.
    - Confirm success redirect.
    - Confirm customer, order, payment status, Stripe customer/subscription/session IDs, VAT totals, and audit events in admin.
+   - Completed 2026-07-15: Stripe Checkout session `cs_test_b1OefeYtW9YKV0yp1EEWpSXKuPCsA8py9RegRf4OcCtkV0B5ihXL4JhlAQ` showed Premium 4K total `2 797 kr`, included VAT `559,40 kr`, and monthly trial line `349 kr/månad efter 21 dagar gratis`; test card payment succeeded and redirected to payment success.
+   - Completed 2026-07-15: Stripe API confirmed `amount_total=279700`, `amount_tax=55940`, `automatic_tax.status=complete`; local order/customer became paid and active.
 
 6. Supabase Auth customer access
    - Confirm the customer receives the account activation/reset email.
    - Set a password and log into `/account`.
    - Verify account details, subscription state, messages, content, and billing portal behavior.
    - Current partial proof from 2026-07-15: direct temporary-password login for active Premium 4K QA customer succeeded, account/billing details rendered correctly, Stripe billing portal opened, and audit events were stored.
+   - Completed 2026-07-15: fixed existing-user payment account access path so the Stripe webhook updates existing Supabase Auth metadata and requests a password setup/reset email after payment.
+   - Completed 2026-07-15: Resend delivered reset email `01bea64b-38f2-4b03-8cd4-a8460183db05` to `service@screenia.se` from `"Screenia" <service@screenia.se>` after the paid onboarding test.
    - Remaining proof: complete the real mailbox activation/reset link and submit a password from the email flow.
 
 7. Display entitlement
@@ -98,6 +104,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: tested Stripe dispute/chargeback behavior with signed local webhook events. Open disputes block customer display access and record urgent evidence; won disputes restore the customer, subscription, and display access while preserving `fulfillment_status=layout_started`.
    - Completed 2026-07-15: cleaned Stripe test-mode active prices so only the 8 Supabase-referenced Standard FHD and Premium 4K prices remain active, with dedicated setup-fee products and inclusive tax behavior.
    - Completed 2026-07-15: updated Stripe branding/account display name to Screenia where dashboard/API access allowed, and updated the checkout route to use static Stripe price IDs for standard checkouts instead of creating new active product/price objects.
+   - Completed 2026-07-15: cleaned up paid onboarding QA customer `10000053` by refunding before layout through the production admin refund endpoint. Stripe refund `re_3TtV6lGhi0eDHRQZ1WlMpAUu` succeeded for `279700` ore and subscription `sub_1TtV6mGhi0eDHRQZzvNyuMEC` was canceled.
 
 9. Evidence export
    - Completed 2026-07-15: fixed accounting CSV old discount-column names and verified production export includes active/refunded orders with customer/order/payment/VAT evidence.

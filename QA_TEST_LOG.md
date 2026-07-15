@@ -983,3 +983,53 @@ Cleanup:
 - The customer record no longer exists.
 - Deletion evidence remains in audit as `customer_deleted` and `customers_delete`, with customer references detached for traceability.
 - Post-cleanup footprint returned to 6 customers: 1 active paid, 3 refunded, 2 cancelled; no remaining `Screenia Public Request QA 20260715154349` customer.
+
+### Premium Onboarding, Stripe Payment, Account Email, And Refund Cleanup QA - 2026-07-15
+
+Scenario tested:
+- Full production Premium 4K flow from request creation through admin quote/onboarding, customer profile/legal details, Stripe test checkout, payment success, account-access email evidence, and cleanup refund before layout work started.
+
+Flow evidence:
+- Created dummy request `Screenia Onboarding QA 20260715154834 AB`, customer `10000053` / `3ac0fe17-5f33-48b7-936d-cf2a7f4cc9a3`.
+- Admin prepare-onboarding created order `1000000041` / `58e440a7-c1e6-4d59-b882-bf8ace5803de` and onboarding URL `https://screenia.se/onboarding/b0492224-3f2d-4740-abc0-1a9ed6d18002`.
+- Quote email was delivered through Resend email `21e1f09c-bfed-4c9b-b124-08a5c56bf0d1` to `service@screenia.se` from `Screenia <service@screenia.se>` with subject `Din Screenia-offert 1000000041`.
+- Customer onboarding page loaded visually with the correct customer/company context.
+- Customer profile/legal form accepted valid Swedish organisation number `556016-0680`, delivery address, billing email, terms consent, and privacy consent, then advanced to the payment step.
+- Stripe Checkout session `cs_test_b1OefeYtW9YKV0yp1EEWpSXKuPCsA8py9RegRf4OcCtkV0B5ihXL4JhlAQ` displayed:
+  - Premium 4K setup `1 599 kr`
+  - Premium 4K device `1 099 kr`
+  - Premium 4K shipping `99 kr`
+  - Premium 4K monthly subscription `349 kr/månad efter 21 dagar gratis`
+  - Total due today `2 797 kr`
+  - Included VAT `559,40 kr`
+- Stripe API confirmed automatic tax `enabled=true`, `status=complete`, `amount_total=279700`, and `amount_tax=55940`.
+- Stripe test payment succeeded and redirected to `/onboarding/payment-success?customer_id=3ac0fe17-5f33-48b7-936d-cf2a7f4cc9a3`.
+- App state after payment: customer `status=paid`, `payment_status=paid`, `service_access_status=active`; order `status=paid`, `stripe_payment_status=paid`, `tax_status=complete`, `fulfillment_status=content_collection`, `inventory_status=ready_to_reserve`.
+- Stripe subscription `sub_1TtV6mGhi0eDHRQZzvNyuMEC` entered `trialing` with paid period ending `2026-08-05T15:52:26+00:00`.
+
+Issue found and fixed:
+- Existing-user payment scenario updated Supabase Auth `user_metadata.customer_id`, but the paid customer did not get `auth_user_id` because `customers.auth_user_id` is unique and `service@screenia.se` was already linked to the earlier active QA customer.
+- The payment success page told the customer they would receive an account/password email, but no new account email was sent for the existing-user case.
+- Fixed `src/app/api/stripe/webhook/route.ts` so `ensureCustomerAuthUser` finds an existing Supabase Auth user before inviting, updates customer metadata, requests a Supabase password setup/reset email, and audits `customer_password_setup_email_requested` or failure.
+- The fix also avoids false error logging for the expected `customers_auth_user_id_key` unique constraint when account routing is handled by metadata for an existing user.
+- Local verification passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_7s1hiGdiSk6LAad3DpBNoXYFzjh4` was aliased to `https://screenia.se`.
+
+Account email proof:
+- Backfilled the paid QA customer with the fixed account-access behavior.
+- Supabase Auth password setup/reset email was requested for `service@screenia.se` and audited as `customer_password_setup_email_requested`.
+- Resend delivered email `01bea64b-38f2-4b03-8cd4-a8460183db05` to `service@screenia.se` from `"Screenia" <service@screenia.se>` with subject `Reset Your Password`.
+- Manual remaining step: open the real email link and submit a compliant password. The final password-change form was not submitted by Codex.
+
+Cleanup:
+- Refunded the temporary paid QA customer before layout work started through the production admin refund endpoint.
+- Refund response was HTTP 200 with refund `re_3TtV6lGhi0eDHRQZ1WlMpAUu`, amount `279700`, status `succeeded`, and Stripe subscription cancellation status `canceled`.
+- Stripe charge `ch_3TtV6lGhi0eDHRQZ1819dxPD` is fully refunded.
+- Customer `10000053` is now `status=suspended`, `payment_status=refunded`, `service_access_status=refunded`, `inactive_reason=refunded_before_production`, `cancellation_source=admin`.
+- Order `1000000041` is now `status=refunded`, `stripe_payment_status=refunded`, `fulfillment_status=cancelled`, with VAT evidence retained.
+
+Post-deploy smoke:
+- `/login` returned HTTP 200.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 `Missing signature`.
+- Launch readiness remained `53 pass`, `10 warning`, `0 fail`.

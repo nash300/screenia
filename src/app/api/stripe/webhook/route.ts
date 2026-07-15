@@ -976,9 +976,106 @@ async function saveCustomerAuthUser(customerId: string, authUserId: string) {
     .update({ auth_user_id: authUserId })
     .eq("id", customerId);
 
-  if (error && error.code !== "PGRST204" && error.code !== "42703") {
+  if (
+    error &&
+    error.code !== "PGRST204" &&
+    error.code !== "42703" &&
+    error.code !== "23505"
+  ) {
     console.error("Save customer auth user error:", error);
   }
+}
+
+async function findAuthUserByEmail(email: string) {
+  const normalizedEmail = email.toLowerCase();
+  let page = 1;
+  const perPage = 100;
+
+  while (page <= 10) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({
+      page,
+      perPage,
+    });
+
+    if (error) {
+      console.error("List auth users error:", error);
+      return null;
+    }
+
+    const existingUser = data.users.find(
+      (user) => user.email?.toLowerCase() === normalizedEmail,
+    );
+
+    if (existingUser) return existingUser;
+    if (!data.nextPage || data.users.length === 0) return null;
+    page = data.nextPage;
+  }
+
+  return null;
+}
+
+async function sendCustomerPasswordSetupEmail({
+  customerId,
+  email,
+}: {
+  customerId: string;
+  email: string;
+}) {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  const redirectTo = appUrl
+    ? `${appUrl}/auth/callback?next=/account/reset-password`
+    : undefined;
+
+  const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  });
+
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId,
+        actorType: "system",
+        eventType: error
+          ? "customer_password_setup_email_failed"
+          : "customer_password_setup_email_requested",
+        eventDescription: error
+          ? "System could not request an account password setup email after payment."
+          : "System requested an account password setup email after payment.",
+        metadata: {
+          email,
+          redirectTo: redirectTo || null,
+          error: error?.message || null,
+        },
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    console.error("Customer password setup email audit error:", auditError);
+  }
+
+  if (error) {
+    await createAdminNotification(supabaseAdmin, {
+      customerId,
+      eventType: "customer_password_setup_email_failed",
+      title: "Customer password setup email failed",
+      message:
+        "A customer paid successfully, but Screenia could not send the account password setup email. Send a password reset link manually before handoff.",
+      priority: "urgent",
+      metadata: {
+        email,
+        redirectTo: redirectTo || null,
+        error: error.message,
+      },
+    }).catch((notificationError) => {
+      console.error(
+        "Customer password setup failure notification error:",
+        notificationError,
+      );
+    });
+  }
+
+  return !error;
 }
 
 async function ensureCustomerAuthUser(customerId: string, email?: string | null) {
@@ -1000,6 +1097,30 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
 
   if (customer?.auth_user_id) return customer.auth_user_id;
 
+  const existingUser = await findAuthUserByEmail(email);
+
+  if (existingUser) {
+    const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(
+      existingUser.id,
+      {
+        user_metadata: {
+          ...(existingUser.user_metadata || {}),
+          customer_id: customerId,
+          account_type: "customer",
+        },
+      },
+    );
+
+    if (metadataError) {
+      console.error("Update existing customer auth user error:", metadataError);
+      return null;
+    }
+
+    await saveCustomerAuthUser(customerId, existingUser.id);
+    await sendCustomerPasswordSetupEmail({ customerId, email });
+    return existingUser.id;
+  }
+
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   const redirectTo = appUrl
     ? `${appUrl}/auth/callback?next=/account/activate`
@@ -1015,10 +1136,7 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
     });
 
   if (inviteError) {
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = users.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
-    );
+    const existingUser = await findAuthUserByEmail(email);
 
     if (existingUser) {
       await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
@@ -1029,6 +1147,7 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
         },
       });
       await saveCustomerAuthUser(customerId, existingUser.id);
+      await sendCustomerPasswordSetupEmail({ customerId, email });
       return existingUser.id;
     }
 

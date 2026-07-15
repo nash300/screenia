@@ -655,6 +655,18 @@ Current deployment status:
   - Confirm `/account` login.
   - Only then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 
+2026-07-15 paid onboarding account-access fix:
+
+- Full Premium 4K onboarding/payment test found that an already-existing Supabase Auth user could receive updated metadata after payment without receiving a fresh account/password email.
+- Fixed `src/app/api/stripe/webhook/route.ts` so the Stripe paid webhook:
+  - Looks up an existing auth user by email before trying to invite.
+  - Updates `user_metadata.customer_id` and `account_type`.
+  - Requests a Supabase password setup/reset email for existing users.
+  - Audits success/failure as `customer_password_setup_email_requested` or `customer_password_setup_email_failed`.
+- Deployed production fix `dpl_7s1hiGdiSk6LAad3DpBNoXYFzjh4` and aliased it to `https://screenia.se`.
+- Backfill proof for paid QA customer `10000053`: reset email `01bea64b-38f2-4b03-8cd4-a8460183db05` delivered to `service@screenia.se`.
+- Manual remaining verification stays the same: open the real email link, submit a compliant password, and confirm `/account` login before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
 ## Admin Panel Consistency Work
 
 Completed in this pass:
