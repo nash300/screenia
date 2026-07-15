@@ -1451,6 +1451,50 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
 
+### Customer Account, Support, Email, And Data Export QA - 2026-07-15
+
+Scenario tested:
+- Customer signs in to the production customer portal, requests account/password support email, creates a support ticket, admin reviews and replies from the customer communication page, the customer-visible reply is emailed, and the customer downloads GDPR/account data export.
+
+Customer account result:
+- Browser login at `https://screenia.se/login` succeeded for QA customer `service@screenia.se`.
+- Customer portal loaded customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Account overview showed active access, timeline, company details, 3 screens, and message count.
+- Customer role boundary passed: the same customer credentials were rejected from admin-mode login with HTTP 401.
+
+Password/reset email result:
+- `/api/auth/password-reset` returned HTTP 200 with the generic safe message for `service@screenia.se`.
+- Resend delivery events stored `email.sent` and `email.delivered` for subject `Reset Your Password`, sender `Screenia <service@screenia.se>`.
+- Audit event `password_reset_email_requested` was stored.
+- Manual gate remains: open a real reset/setup link, submit a compliant password, and only then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
+Support ticket and admin reply result:
+- Customer created ticket `IS-260715-F5EF3A` visually from `/account?section=messages`; it appeared immediately in the customer history and admin communication page.
+- Admin replied visually from `/admin/customers/a0fe0b3d-d3f4-45a5-9316-1e0bc8588009?section=communication&view=messages`, and Resend delivered the reply email.
+- That first reply exposed a workflow bug: replying to a `new` ticket kept both the original ticket and reply row as `new`.
+- Fixed `src/app/admin/customers/[customerId]/page.tsx` so customer-visible replies default to `waiting_for_customer`, unless the admin explicitly selected `resolved`.
+- Deployed production fix `dpl_8n32qM7UYuVLtiKFS36Tru6UEWUV`.
+- Retested with ticket `IS-260715-64A3B8`:
+  - Customer ticket submitted visually from the portal.
+  - Admin reply submitted visually.
+  - Original ticket status became `waiting_for_customer`.
+  - Reply row status became `waiting_for_customer`.
+  - Audit events stored `customer_message_sent`, `customer_support_reply_sent`, and `customer_support_reply_email_sent`.
+  - Resend delivery events stored `email.sent` and `email.delivered` for `[IS-260715-64A3B8] Reply from Screenia`.
+
+Account data export result:
+- Customer opened `/account?section=legal` and clicked `Ladda ner data`.
+- Portal showed `Dataexporten har laddats ner.`
+- Audit event `customer_data_export_downloaded` was stored at `2026-07-15T18:30:24Z`.
+- Export metadata included `customer`, `subscriptions`, `devices`, `messages`, `displayAssets`, `legalAgreements`, `consentRecords`, and `auditEvents`.
+
+Checks and deployment:
+- Local text quality check passed: `npm.cmd run text:check`.
+- Production deployment `dpl_8n32qM7UYuVLtiKFS36Tru6UEWUV` was aliased to `https://screenia.se`.
+
+Post-test smoke:
+- Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
 ### Subscription Billing Lifecycle QA - 2026-07-15
 
 Scenario tested:

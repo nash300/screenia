@@ -766,10 +766,12 @@ Completed in this pass:
 - Inventory/device lifecycle was production-tested with a Premium 4K QA item. Returned, defective, repair, retired, and lost stock now releases the linked device; only explicitly `in_stock` hardware can be allocated or linked to a device.
 - Subscription billing lifecycle was production-tested: admin pause/resume, admin period-end cancellation, customer period-end cancellation, immediate admin cancellation on disposable Stripe test subscriptions, and temporary discount apply/remove all sync Stripe, customer access, local subscription state, display entitlement, and audit evidence.
 - Accounting/VAT exports were production-tested: accounting CSV includes paid/cancelled/refunded order evidence, VAT summary includes only active paid taxable rows, export downloads are audited, and terminal orders now close inventory status as `cancelled`.
+- Customer account/email/support flow was production-tested: customer login, password reset delivery evidence, customer support ticket submission, admin communication reply, customer-visible reply email delivery, and customer account data export all work. Admin replies now move tickets to `waiting_for_customer` after fix `bfa88d9` / deployment `dpl_8n32qM7UYuVLtiKFS36Tru6UEWUV`.
 
 Next admin areas to clean up before broad real-world testing:
 
 - Continue visual spot checks as new admin workflows are added; avoid reintroducing browser prompts for audited actions.
+- Complete the remaining manual email-link gate: open a real Supabase reset/setup email link, submit a compliant password, confirm `/account` login, then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 
 ## Detailed Test Pass To Run Later
 
