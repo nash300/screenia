@@ -936,3 +936,23 @@ Result:
 - The app checkout route should no longer clutter Stripe test mode with new active product/price objects for standard checkouts.
 - Production deployment `dpl_BSr9N6ME8Dvq1g3scJvEexVRafSo` was aliased to `https://screenia.se` after the static checkout route fix.
 - Post-deploy smoke checks passed: `/login` HTTP 200, `/api/display/QRWXVA/playlist` HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, launch readiness HTTP 200 with `53 pass`, `10 warning`, `0 fail`, pricing API returned the expected 8 Stripe price IDs across Standard/Premium, accounting export HTTP 200, and VAT summary HTTP 200.
+
+### Production Password Reset And Export Smoke QA - 2026-07-15
+
+Scenario tested:
+- Final production smoke check after Stripe static checkout cleanup, focusing on customer password-reset email delivery and admin accounting/VAT evidence exports.
+
+Verification:
+- Live `/login` loaded visually at `https://screenia.se/login` with Screenia branding, no visible error alerts, and the expected login, Google-coming-soon, password-reset, and home controls.
+- Live `/display/QRWXVA` loaded visually at `https://screenia.se/display/QRWXVA` and rendered one video element with no visible error state.
+- Supabase audit recorded `password_reset_email_requested` for `service@screenia.se` at `2026-07-15T15:31:16.857471+00:00`.
+- Resend webhook audit recorded `email.sent` and `email.delivered` for Resend email `423246f2-223a-4ebc-8d96-14d2fb128eee` to `service@screenia.se`.
+- `resend_delivery_events` stored the same `email.sent` and `email.delivered` events with subject `Reset Your Password`.
+- Production `/api/admin/launch-readiness` returned HTTP 200 with `53 pass`, `10 warning`, `0 fail`.
+- Production `/api/admin/accounting-export` returned HTTP 200 CSV with the expected accounting/VAT/order evidence columns.
+- Production `/api/admin/vat-summary?format=csv` returned HTTP 200 CSV with the expected VAT summary columns.
+- Unsigned production `/api/stripe/webhook` continued to reject requests with HTTP 400 `Missing signature`.
+
+Result:
+- Password reset email delivery through Supabase Auth SMTP/Resend is service-level verified.
+- Manual remaining step: open the real reset email link and submit a compliant test password. Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until that final password-change and `/account` login are confirmed.

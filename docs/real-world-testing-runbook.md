@@ -23,6 +23,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 
 2. Supabase Auth proof
    - Completed 2026-07-15: a controlled password reset request to `service@screenia.se` was delivered through Supabase Auth SMTP/Resend from `"Screenia" <service@screenia.se>`.
+   - Completed 2026-07-15: latest production reset proof stored Resend email `423246f2-223a-4ebc-8d96-14d2fb128eee` with `email.sent` and `email.delivered`, plus audit event `password_reset_email_requested` at `2026-07-15T15:31:16.857471+00:00`.
    - Completed 2026-07-15: the earlier Supabase Auth SMTP sender drift was corrected from `hello@screenia.se` to `service@screenia.se` in the Supabase dashboard.
    - Open the link and confirm it lands on `https://screenia.se/account/activate` or `https://screenia.se/account/reset-password`.
    - Submit a test password that satisfies the policy: at least 10 characters with letters and numbers.
@@ -100,6 +101,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: fixed accounting CSV old discount-column names and verified production export includes active/refunded orders with customer/order/payment/VAT evidence.
    - Completed 2026-07-15: fixed VAT summary to include paid setup orders during trial by using active/paid rows with `tax_status=complete`.
    - Completed 2026-07-15: production VAT summary returned gross `2797.00` SEK, VAT `559.40` SEK, net `2237.60` SEK for active order `1000000036`.
+   - Completed 2026-07-15: final production smoke confirmed `/api/admin/accounting-export` returns HTTP 200 CSV and `/api/admin/vat-summary?format=csv` returns HTTP 200 CSV. Use `/api/admin/accounting-export`; the older `/api/admin/accounting/export?format=csv` path is not a valid route.
 
 ## Evidence To Record
 

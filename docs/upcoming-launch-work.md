@@ -642,6 +642,19 @@ Current deployment status:
   - Submit a controlled test password with a future real test customer or run a password reset flow to confirm account activation fully completes.
   - Set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after password setup or reset is verified end-to-end.
 
+2026-07-15 production password reset delivery proof:
+
+- Live `/api/auth/password-reset`/Supabase Auth reset flow produced audit event `password_reset_email_requested` for `service@screenia.se`.
+- Resend delivery event records were stored for email `423246f2-223a-4ebc-8d96-14d2fb128eee`:
+  - `email.sent`
+  - `email.delivered`
+- Subject was `Reset Your Password`.
+- Manual remaining verification:
+  - Open the real reset email link.
+  - Submit a compliant password.
+  - Confirm `/account` login.
+  - Only then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
 ## Admin Panel Consistency Work
 
 Completed in this pass:
