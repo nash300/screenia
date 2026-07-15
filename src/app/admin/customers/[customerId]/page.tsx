@@ -1110,6 +1110,8 @@ export default function CustomerDetailPage({
       adminNote: message.adminNote || "",
       reason: "",
     };
+    const replyStatus =
+      draft.status === "resolved" ? "resolved" : "waiting_for_customer";
 
     setSaving(true);
     const response = await fetch("/api/admin/customer-messages", {
@@ -1119,7 +1121,7 @@ export default function CustomerDetailPage({
         customerId: customer?.id,
         messageId: message.id,
         reply,
-        status: draft.status || "waiting_for_customer",
+        status: replyStatus,
       }),
     });
     const result = await response.json();
