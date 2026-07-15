@@ -230,6 +230,12 @@ Current deployment status:
     - Zoho Mail still redirected to the Zoho Accounts sign-in page instead of the inbox.
     - The remaining proof is external-account gated: sign in to Zoho, open the actual setup/reset email, click the link, and confirm it reaches the Screenia password page.
     - Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until that literal mailbox-click proof is complete.
+  - Zoho mailbox-click proof completed on 2026-07-16:
+    - Zoho inbox was signed in as `admin@screenia.se`.
+    - A fresh Screenia password reset email appeared in Zoho at `12:08 AM`, addressed to `service+activation-20260715193724@screenia.se`.
+    - The actual email link landed on `https://screenia.se/account/reset-password` with the customer password form visible and no expired-link error.
+    - `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` was added to Vercel production and production was redeployed as `dpl_7DRuG53sETkuSwPPBDWwvgMAVT2B`.
+    - Post-deploy readiness improved to `54 passed`, `9 review`, `0 blocked`; the Supabase Auth email verification check now passes.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

@@ -1767,6 +1767,39 @@ Current evidence that is already verified:
 Remaining blocked proof:
 - Sign in to Zoho Mail, open the actual customer setup/reset email from the inbox, click the link, and confirm it lands on the Screenia password page. Only after that should `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` be considered.
 
+### Zoho Mailbox Click Proof Completed - 2026-07-16
+
+Scenario tested:
+- Verified the actual production mailbox flow for Supabase Auth password reset/setup email delivery and link handling.
+
+Mailbox proof:
+- Zoho Mail was signed in and visible at `https://mail.zoho.eu/zm/#mail/folder/inbox`.
+- Inbox title showed `Inbox - Zoho Mail (admin@screenia.se)`.
+- Triggered a fresh Screenia password reset request through `POST /api/auth/password-reset`, which returned HTTP 200 with the generic Swedish safety response.
+- Zoho inbox visibly showed the newest `Reset Your Password` email at `12:08 AM`.
+- Opened the newest email in Zoho. It was addressed to `service+activation-20260715193724@screenia.se` and contained the `Reset Password` link.
+- Opened the actual link from that email. It landed on `https://screenia.se/account/reset-password`.
+- The Screenia page showed the expected customer password reset form:
+  - placeholder `Minst 6 tecken, bokstäver och siffror`
+  - confirm password field
+  - `Spara lösenord` button
+- No expired-link error was present on the successful 12:08 AM email proof.
+
+Notes:
+- An earlier 12:06 AM email link reached the Screenia reset page but had an `otp_expired` URL error after an intermediate Zoho click attempt. A fresh email was therefore generated and verified cleanly.
+- This completes the literal mailbox-click proof that had previously blocked `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED`.
+
+Environment/deployment update:
+- Added `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` to the Vercel production environment only.
+- Redeployed production with Vercel deployment `dpl_7DRuG53sETkuSwPPBDWwvgMAVT2B`, aliased to `https://screenia.se`.
+
+Post-deploy smoke:
+- `/login` returned HTTP 200.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `POST /api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness returned `54 pass`, `9 warning`, `0 fail`.
+- The `screenia_supabase_auth_email_verified` readiness check now passes with detail: `Supabase Auth password setup and reset emails have been tested with the production sender/domain.`
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:
