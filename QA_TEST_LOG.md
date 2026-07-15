@@ -1611,6 +1611,74 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
 
+### Unique Email Premium 4K Activation And Cleanup QA - 2026-07-15
+
+Scenario tested:
+- A fresh Premium 4K customer used a unique email alias, paid through live Stripe test Checkout, received account-setup email delivery events, created a password through the customer-facing reset/setup page, logged in with the new password, and was then refunded/cancelled before layout work started.
+
+Customer/request intake:
+- Live pricing page was opened visually at `https://screenia.se/#pricing`.
+- Premium package selector was unique and opened the request form.
+- Submitted request for `Screenia Activation Premium 4K 20260715193724 AB` using `service+activation-20260715193724@screenia.se`.
+- Created customer `10000058` / `efab22c1-65ac-44b2-8cb0-1172e0fae14f` with `requested_quote_items[0].pricingPlanCode=premium_4k`, `resolution=4K`, and `requested_screen_quantity=1`.
+- Request confirmation email reached Resend `email.sent` and `email.delivered` for email id `36e96d24-1553-4332-8b6f-00208b1a751e`, sender `Screenia <service@screenia.se>`, subject `Screenia har tagit emot din förfrågan`.
+- Admin customer page visually showed the new request, unique email, one requested screen, and Premium 4K request notes.
+
+Admin quote/onboarding:
+- Admin onboarding tab visually previewed Premium 4K pricing:
+  - setup `1 599 kr`
+  - device `1 099 kr`
+  - shipping `99 kr`
+  - first payment `2 797 kr`
+  - monthly `349 kr`
+  - included VAT `559,40 kr`
+- Admin prepared onboarding link `/onboarding/c3b1b2fc-f163-4310-9c5d-f51aaf28138f`.
+- Created order `1000000044` / `8b6e6e57-ef83-48bc-997b-238ddf6a0c1f`.
+- Quote email reached Resend `email.sent` and `email.delivered` for email id `e84e07c2-ea29-4708-8bcc-f0da2a65b15c`, sender `Screenia <service@screenia.se>`, subject `Din Screenia-offert 1000000044`.
+
+Customer onboarding/payment:
+- Customer onboarding page visually stated that material, logo, and campaigns are collected after payment.
+- Submitted required business details with valid dummy Swedish organisation number `5599999991`, billing email, Swedish address, terms consent, privacy consent, and remote-support consent. Marketing and statistics consent stayed unchecked.
+- Stripe Checkout initially showed `Skatt 0,00 kr` while address/tax calculation was still loading, then recalculated to `Moms 559,40 kr` with total still `2 797 kr`.
+- Stripe Checkout was paid with test card `4242`.
+- Payment success page loaded at `/onboarding/payment-success?customer_id=efab22c1-65ac-44b2-8cb0-1172e0fae14f` and told the customer they would receive an email to choose a password.
+
+Payment/account evidence:
+- Local customer became `status=paid`, `payment_status=paid`, `service_access_status=active`, with auth user `622d1f5a-68f9-4b0a-a5cf-09429c01a2c6`.
+- Local order became `status=paid`, `stripe_payment_status=paid`, `fulfillment_status=content_collection`, `inventory_status=ready_to_reserve`, `total_amount_sek=279700`, `tax_amount_sek=55940`, invoice `in_1TtYjlGhi0eDHRQZe05Kwe9h`.
+- Stripe customer `cus_UtLOs2ximq7FSq`, subscription `sub_1TtYjoGhi0eDHRQZbRDrbds4`, invoice `in_1TtYjlGhi0eDHRQZe05Kwe9h`.
+- Stripe subscription was `trialing`; invoice was `paid` for `279700` ore.
+- Supabase Auth created one unique customer user with metadata `account_type=customer` and `customer_id=efab22c1-65ac-44b2-8cb0-1172e0fae14f`.
+- Account setup email reached Resend `email.sent` and `email.delivered` for email id `7027e583-2a61-4c92-bebd-aae983f6cb73`, sender `"Screenia" <service@screenia.se>`, subject `You have been invited`.
+
+Password setup/login:
+- Zoho Mail was signed out in the browser, so the exact mailbox-click proof is still a manual gate.
+- Generated a one-time Supabase recovery action link for the same new test user and opened it visually at `https://screenia.se/account/reset-password`.
+- Password setup page showed `Minst 6 tecken, bokstäver och siffror`.
+- Invalid password `abcdef` was rejected with `Lösenordet måste vara minst 6 tecken och innehålla både bokstäver och siffror.`
+- Valid dummy password `Screenia123` succeeded and redirected to `/account?section=overview`.
+- After logout, fresh login with `service+activation-20260715193724@screenia.se` and `Screenia123` succeeded and loaded the customer portal for customer `10000058`.
+- Customer billing page showed first payment `2 797 kr`, monthly price `349 kr`, latest VAT `559,40 kr`, trial period `21 dagar`, and a simple explanation: setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, all prices including moms.
+- Login page clearly showed Google login as `Google-inloggning kommer snart`, so it is not presented as a working broken OAuth option.
+
+Admin/refund cleanup:
+- Admin onboarding page visually showed paid state, terms/privacy timestamps, Stripe customer/subscription IDs, active service access, and refund boundary `Refundable until layout work starts`.
+- Admin refund operation was available before layout work started.
+- Ran `Refund first payment` from the admin UI with reason `QA cleanup after unique-email Premium 4K activation test 20260715193724; refund before layout work started.`
+- Refund succeeded: customer became `status=suspended`, `payment_status=refunded`, `service_access_status=refunded`, `inactive_reason=refunded_before_production`, `cancellation_source=admin`.
+- Order `1000000044` became `status=refunded`, `stripe_payment_status=refunded`, `fulfillment_status=cancelled`, and `inventory_status=cancelled`.
+- Stripe refund `re_3TtYjmGhi0eDHRQZ1luyPVXW` succeeded for `2 797 kr`; Stripe subscription `sub_1TtYjoGhi0eDHRQZbRDrbds4` became `canceled`; charge `ch_3TtYjmGhi0eDHRQZ12Pib0UG` was fully refunded.
+
+Post-test smoke:
+- `/login` returned HTTP 200.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `POST /api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
+- Authenticated `/api/account` for the refunded test customer returned customer `10000058` with `payment_status=refunded` and `service_access_status=refunded`.
+
+Remaining manual action:
+- Sign in to Zoho Mail and click the actual customer account setup email from the mailbox UI. Resend proves delivery, and the Screenia password page was verified with an equivalent action link, but the literal mailbox-click proof remains open.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:

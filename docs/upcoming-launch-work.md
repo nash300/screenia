@@ -211,6 +211,13 @@ Current deployment status:
     - Production deployment `dpl_GGo1FvUACVwxvhXCoaA8JGRxHJgX` was aliased to `https://screenia.se` after the duplicate-email guard.
     - Disposable paid test customer was refunded before production work started; Stripe refund `re_3TtYPoGhi0eDHRQZ0UIS8f7l` succeeded and the trialing subscription was cancelled.
     - Post-deploy smoke checks passed: login HTTP 200, authenticated customer account returned the original active customer `10000044`, display playlist HTTP 200, unsigned Stripe webhook HTTP 400, and launch readiness 53 pass / 10 warning / 0 fail.
+  - Unique-email activation QA on 2026-07-15:
+    - A fresh Premium 4K customer `10000058` used `service+activation-20260715193724@screenia.se`, completed onboarding, paid Stripe Checkout, created a password, logged in from `/login`, and was then refunded/cancelled before layout work started.
+    - Customer billing and admin screens both showed the confirmed VAT-inclusive model: first payment `2 797 kr`, monthly `349 kr`, latest included VAT `559,40 kr`, 21-day trial.
+    - Password validation rejected `abcdef` and accepted `Screenia123`, proving the 6-character letters-plus-numbers rule in the customer-facing page.
+    - Account setup email was delivered by Resend, but Zoho Mail was signed out, so literal mailbox-click proof remains a manual gate before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+    - Cleanup succeeded: Stripe refund `re_3TtYjmGhi0eDHRQZ1luyPVXW` fully refunded `2 797 kr`, subscription `sub_1TtYjoGhi0eDHRQZbRDrbds4` was cancelled, and local order `1000000044` moved to refunded/cancelled.
+    - Smoke checks stayed green: login HTTP 200, display playlist HTTP 200, unsigned Stripe webhook POST HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:
