@@ -46,6 +46,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 1. Preflight
    - Open `https://screenia.se/admin/launch-readiness`.
    - Record pass/review/blocked counts.
+   - Current production proof from 2026-07-15: 52 passed, 10 review warnings, 1 blocked, 83% progress.
+   - Current blocker: one active display device has no playlist.
    - Fix blocked items before continuing.
 
 2. Public request flow

@@ -74,8 +74,15 @@ type ReadinessCheck = {
   detail: string;
 };
 
+type AuthCookie = {
+  name: string;
+  value: string;
+  options?: Parameters<NextResponse["cookies"]["set"]>[2];
+};
+
 async function getAuthenticatedAdmin() {
   const cookieStore = await cookies();
+  const authCookies: AuthCookie[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -83,7 +90,11 @@ async function getAuthenticatedAdmin() {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: () => {},
+        setAll: (items) => {
+          items.forEach(({ name, value, options }) => {
+            authCookies.push({ name, value, options });
+          });
+        },
       },
     },
   );
@@ -92,7 +103,10 @@ async function getAuthenticatedAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  return user?.app_metadata?.role === "admin" ? user : null;
+  return {
+    authCookies,
+    user: user?.app_metadata?.role === "admin" ? user : null,
+  };
 }
 
 function envSet(name: string) {
@@ -113,17 +127,24 @@ function check(
   return { key, label, status, detail };
 }
 
-function noStoreJson(body: unknown, init?: ResponseInit) {
+function noStoreJson(
+  body: unknown,
+  init?: ResponseInit,
+  authCookies: AuthCookie[] = [],
+) {
   const response = NextResponse.json(body, init);
   response.headers.set("Cache-Control", "no-store");
+  authCookies.forEach(({ name, value, options }) => {
+    response.cookies.set(name, value, options);
+  });
   return response;
 }
 
 export async function GET() {
-  const user = await getAuthenticatedAdmin();
+  const { authCookies, user } = await getAuthenticatedAdmin();
 
   if (!user) {
-    return noStoreJson({ error: "Unauthorized" }, { status: 401 });
+    return noStoreJson({ error: "Unauthorized" }, { status: 401 }, authCookies);
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
@@ -626,10 +647,14 @@ export async function GET() {
     fail: checks.filter((item) => item.status === "fail").length,
   };
 
-  return noStoreJson({
-    checkedAt: new Date().toISOString(),
-    readyForLivePayments: summary.fail === 0 && summary.warning === 0,
-    summary,
-    checks,
-  });
+  return noStoreJson(
+    {
+      checkedAt: new Date().toISOString(),
+      readyForLivePayments: summary.fail === 0 && summary.warning === 0,
+      summary,
+      checks,
+    },
+    undefined,
+    authCookies,
+  );
 }

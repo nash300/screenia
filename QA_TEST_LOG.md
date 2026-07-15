@@ -480,3 +480,33 @@ Retest:
 Result:
 - Supabase Auth password reset emails now use `service@screenia.se` as the sender.
 - Remaining gate: open a real password reset/activation link from the mailbox UI, submit a compliant password, and confirm `/account` login before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
+### Launch Readiness Page QA - 2026-07-15
+
+Scenario tested:
+- Admin logs into production and opens `/admin/launch-readiness` to verify the prelaunch readiness dashboard.
+
+Issue found:
+- The admin login page accepted the QA admin account, but the launch-readiness page initially showed `Could not check readiness`.
+- Direct API verification showed `/api/admin/launch-readiness` returned `500` after authentication.
+- Vercel logs showed `ENOENT`, caused by source/doc file checks that worked locally but were not included in the Vercel serverless trace.
+- The requested temporary admin password `12345` could not be used because Supabase enforces a minimum of 6 characters.
+
+Fix completed:
+- Updated `/api/admin/launch-readiness` to preserve refreshed Supabase auth cookies in JSON responses.
+- Added explicit Next.js output file tracing includes for the launch-readiness route so production has access to the source, docs, Supabase migration, and public files it checks.
+- Reset the QA admin account to the compliant temporary password `Screenia12345`.
+
+Retest:
+- Local build passed.
+- Production deployment `dpl_8krGRzft1EHUpDkYoGtcNXui2jez` was aliased to `https://screenia.se`.
+- Direct authenticated API check returned HTTP 200.
+- Visible browser retest showed:
+  - `Passed`: 52
+  - `Needs review`: 10
+  - `Blocked`: 1
+  - `Progress`: 83%
+
+Result:
+- Launch-readiness dashboard is usable in production after admin login.
+- Remaining blocked item: `Operational fulfillment readiness` because 1 active display device has no playlist.

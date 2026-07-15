@@ -4,9 +4,9 @@ Last updated: 2026-07-15
 
 ## Current Readiness Snapshot
 
-- Launch readiness: 52 passed, 11 needs review, 0 blocked.
-- Progress: about 83% strict readiness, 100% non-blocked readiness.
-- Critical blockers are cleared for now.
+- Launch readiness: 52 passed, 10 needs review, 1 blocked.
+- Progress: about 83% strict readiness.
+- Current blocker: one active display device has no playlist.
 - Detailed end-to-end testing should resume after domain, hosting, and email services are purchased/configured.
 
 Critical validation checkpoint on 2026-07-14:
@@ -66,6 +66,12 @@ Current deployment status:
 
 - Vercel project `screenia` was created on the Hobby plan for setup/testing.
 - Production deployment is live at `https://screenia.se`.
+- Launch-readiness production check on 2026-07-15:
+  - Fixed production readiness API crash caused by Vercel not bundling dynamically-read source/doc files.
+  - Deployment `dpl_8krGRzft1EHUpDkYoGtcNXui2jez` is aliased to `https://screenia.se`.
+  - Visible browser result: 52 passed, 10 review warnings, 1 blocked, 83% progress.
+  - Current blocked item is operational fulfillment: one active display device has no playlist.
+  - QA admin login uses `admin@screenia.se`; the requested password `12345` is not allowed by Supabase's 6-character minimum, so the temporary QA password was set to `Screenia12345`.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:
