@@ -4,9 +4,9 @@ Last updated: 2026-07-15
 
 ## Current Readiness Snapshot
 
-- Launch readiness: 52 passed, 10 needs review, 1 blocked.
-- Progress: about 83% strict readiness.
-- Current blocker: one active display device has no playlist.
+- Launch readiness: 53 passed, 10 needs review, 0 blocked.
+- Progress: about 84% strict readiness.
+- Critical technical blockers are cleared for now; remaining items are manual/business/legal/service review gates.
 - Detailed end-to-end testing should resume after domain, hosting, and email services are purchased/configured.
 
 Critical validation checkpoint on 2026-07-14:
@@ -69,8 +69,11 @@ Current deployment status:
 - Launch-readiness production check on 2026-07-15:
   - Fixed production readiness API crash caused by Vercel not bundling dynamically-read source/doc files.
   - Deployment `dpl_8krGRzft1EHUpDkYoGtcNXui2jez` is aliased to `https://screenia.se`.
-  - Visible browser result: 52 passed, 10 review warnings, 1 blocked, 83% progress.
-  - Current blocked item is operational fulfillment: one active display device has no playlist.
+  - Initial visible browser result after the API fix: 52 passed, 10 review warnings, 1 blocked, 83% progress.
+  - The blocked item was operational fulfillment: one active display device had no playlist.
+  - Uploaded the existing QA MP4 asset through the admin media API for device `QRWXVA`, creating playlist `4b0e1b0e-4a95-4717-80b4-86e074e87432`.
+  - Verified `/api/display/QRWXVA/playlist` returns HTTP 200 with one signed playlist item.
+  - Final visible browser result: 53 passed, 10 review warnings, 0 blocked, 84% progress.
   - QA admin login uses `admin@screenia.se`; the requested password `12345` is not allowed by Supabase's 6-character minimum, so the temporary QA password was set to `Screenia12345`.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.

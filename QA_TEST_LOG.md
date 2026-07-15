@@ -509,4 +509,11 @@ Retest:
 
 Result:
 - Launch-readiness dashboard is usable in production after admin login.
-- Remaining blocked item: `Operational fulfillment readiness` because 1 active display device has no playlist.
+- Follow-up fix: uploaded the existing QA MP4 asset through the admin device media API for active device `QRWXVA`, creating playlist `4b0e1b0e-4a95-4717-80b4-86e074e87432`.
+- Verified `/api/display/QRWXVA/playlist` returns HTTP 200 with one signed playlist item.
+- Final visible browser retest showed:
+  - `Passed`: 53
+  - `Needs review`: 10
+  - `Blocked`: 0
+  - `Progress`: 84%
+- Remaining items are review/manual launch gates, not blocked technical checks.
