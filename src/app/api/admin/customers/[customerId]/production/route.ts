@@ -265,7 +265,10 @@ export async function POST(
 
   const subscriptionResult = await supabaseAdmin
     .from("customer_subscriptions")
-    .update({ fulfillment_status: "layout_started" })
+    .update({
+      fulfillment_status: "layout_started",
+      setup_started_at: timestamp,
+    })
     .eq("customer_id", customer.id)
     .in("status", ["paid", "active", "checkout_started"]);
 
