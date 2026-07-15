@@ -80,8 +80,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Assign or use a test display device.
    - Confirm active paid customer content plays.
    - Completed 2026-07-15 for active test device `QRWXVA`: visible display page rendered one playing muted video at 1280x720.
-   - Pause subscription and confirm display content is blocked.
-   - Resume subscription and confirm display content is restored.
+   - Completed 2026-07-15: pausing the Premium 4K subscription set Stripe `pause_collection.behavior=void`, local/customer access to paused, made `/api/display/QRWXVA/playlist` return HTTP 403, and showed `Display inactive`.
+   - Completed 2026-07-15: resuming the same subscription cleared Stripe pause collection, restored local/customer active access, and restored visible display playback.
    - Schedule cancellation at period end and confirm access remains active until paid-through date.
 
 8. Billing operations
@@ -106,6 +106,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 - Admin audit event names for each sensitive action.
 - Display result for active, paused, payment failed, and cancelled/paid-through states.
 - Any errors, screenshots, or support actions needed.
+- Note for automated admin testing: reuse an authenticated admin session where possible. Repeated `/api/auth/login` calls can correctly hit the login rate limiter.
 
 ## Expected Remaining Review Gates
 

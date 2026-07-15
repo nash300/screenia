@@ -82,6 +82,11 @@ Current deployment status:
     - `/display/QRWXVA` rendered one playing muted video at 1280x720.
     - Stripe account/customer-portal branding still says `New business sandbox`; update Stripe branding to Screenia before real customer tests.
     - This is not the final Supabase Auth email-link proof, because the password was set directly for QA.
+  - Pause/resume QA on 2026-07-15:
+    - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
+    - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
+    - Audit events `subscription_paused` and `subscription_resumed` were stored with admin reasons.
+    - Repeated QA admin password logins triggered the login rate limiter, so future automated admin tests should reuse a session.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

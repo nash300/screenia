@@ -561,3 +561,50 @@ Issue found:
 Result:
 - Customer portal login, Premium 4K billing display, Stripe billing portal connection, audit tracking, and display playback all passed for the active QA customer.
 - Remaining account proof gate is still the real mailbox activation/password-reset link submission; this pass used a direct Supabase Admin temporary password and does not prove the email-link password setup flow.
+
+### Pause And Resume Subscription QA - 2026-07-15
+
+Scenario tested:
+- Active Premium 4K customer subscription is paused by admin, display access is blocked, then subscription is resumed and display playback is restored.
+
+Baseline:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Device `QRWXVA`.
+- Before pause:
+  - Customer `status=active`, `payment_status=paid`, `service_access_status=active`.
+  - Local subscription `status=active`, `stripe_payment_status=trialing`, `pause_started_at=null`.
+  - Stripe subscription `status=trialing`, `pause_collection=null`.
+  - `/api/display/QRWXVA/playlist` returned HTTP 200 with one playlist item.
+
+Pause action:
+- Called production admin subscription API with `action=pause_subscription`.
+- Reason: `QA pause/resume test: verify paused subscription blocks display access and is auditable.`
+- Result: HTTP 200.
+
+Paused-state verification:
+- Stripe subscription kept `status=trialing` and set `pause_collection.behavior=void`.
+- Local subscription became `status=paused`, `pause_started_at=2026-07-15T13:52:03.513+00:00`, with the QA pause reason stored.
+- Customer became `status=suspended`, `service_access_status=paused`, `inactive_reason=paused`, `cancellation_source=admin`.
+- Audit event `subscription_paused` was stored with the admin reason and Stripe subscription id.
+- `/api/display/QRWXVA/playlist` returned HTTP 403 with `Display is not active.`
+- Visible `/display/QRWXVA` showed `Display inactive`, no video element.
+
+Resume action:
+- Initial resume attempt through `/api/auth/login` was blocked by login rate limiting after repeated QA admin logins; this confirms rate limiting works.
+- Used a valid Supabase admin session through `/auth/session` to call the same production admin subscription API with `action=resume_subscription`.
+- Reason: `QA pause/resume test cleanup: restore active access after verifying paused display blocking.`
+- Result: HTTP 200.
+
+Restored-state verification:
+- Stripe subscription returned to `status=trialing`, `pause_collection=null`, `cancel_at_period_end=false`.
+- Customer returned to `status=active`, `payment_status=paid`, `service_access_status=active`, `inactive_reason=null`, `cancellation_source=null`.
+- Local subscription returned to `status=active`, `pause_started_at=null`, `pause_resumes_at=null`, `pause_reason=null`.
+- Audit event `subscription_resumed` was stored with the admin reason and Stripe subscription id.
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with one playlist item.
+- Visible `/display/QRWXVA` rendered one playing muted video, readyState `4`, at `1280x720`.
+
+Result:
+- Pause/resume lifecycle passed.
+- Display entitlement correctly blocks during pause and restores after resume.
+- Future automated admin tests should reuse an authenticated session instead of repeatedly calling `/api/auth/login`, because the login rate limiter is active.
