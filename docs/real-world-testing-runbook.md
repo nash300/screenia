@@ -88,7 +88,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: a paid-invoice recovery test restored customer/display access and now preserves `fulfillment_status=layout_started` instead of losing production progress.
 
 8. Billing operations
-   - Apply a temporary test discount and confirm Stripe/local audit evidence.
+   - Completed 2026-07-15: applied and removed a 15% / 2 month temporary discount through the production admin API, confirming Stripe discount state, local `subscription_adjustments`, audit events, and display access.
    - Completed 2026-07-15: triggered payment failed behavior in test mode and confirmed display access blocks.
    - Test refund-before-layout boundary if applicable.
 

@@ -707,3 +707,46 @@ Result:
 - Display entitlement blocks on failed payment and restores after payment recovery.
 - Production deployment `dpl_CzYPFEbnZ5VEX1yRWuj5ytKh7WLZ` was aliased to `https://screenia.se` after the fix.
 - Post-deploy smoke checks passed: `/api/display/QRWXVA/playlist` returned HTTP 200, `/login` returned HTTP 200, unsigned Stripe webhook POST returned HTTP 400 `Missing signature`, visible `/display/QRWXVA` played one muted video, and launch readiness stayed 53 pass / 10 warning / 0 fail.
+
+### Temporary Discount Lifecycle QA - 2026-07-15
+
+Scenario tested:
+- Admin applies a short temporary discount to an active Premium 4K subscription, Stripe/local/audit evidence is created, then admin removes it and the subscription returns to a clean no-discount state.
+
+Baseline:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Before applying the discount:
+  - Stripe subscription `status=trialing`.
+  - Stripe subscription had no active discounts.
+  - `subscription_adjustments` had no active adjustment for this subscription, only older inactive QA records.
+  - Production `/api/display/QRWXVA/playlist` returned HTTP 200.
+
+Apply action:
+- Called production admin subscription API with `action=apply_temporary_discount`.
+- Discount: `15%` for `2` months.
+- Reason: `QA temporary discount lifecycle test: apply 15 percent for two months.`
+- Result: HTTP 200 with Stripe coupon id `IrF6uzVo`.
+
+Applied-state verification:
+- Stripe subscription stayed `status=trialing`.
+- Stripe subscription had one discount after apply.
+- Local `subscription_adjustments` row `55f6a5e4-d47d-419a-855d-2ae7de792ad8` became `active`, with `percent_off=15`, `duration_months=2`, `stripe_coupon_id=IrF6uzVo`.
+- Audit event `subscription_discount_applied` was stored with coupon `IrF6uzVo`.
+- Production display playlist stayed HTTP 200.
+
+Remove action:
+- Called production admin subscription API with `action=remove_temporary_discount`.
+- Reason: `QA temporary discount lifecycle cleanup: remove test discount.`
+- Result: HTTP 200.
+
+Removed-state verification:
+- Stripe subscription returned to zero active discounts.
+- Local adjustment `55f6a5e4-d47d-419a-855d-2ae7de792ad8` became `inactive`.
+- Audit event `subscription_discount_removed` was stored with removed coupon `IrF6uzVo`.
+- Production display playlist stayed HTTP 200.
+- Visible admin login and customer page loaded successfully after the test; customer stayed active.
+
+Result:
+- Temporary discount apply/remove lifecycle passed.
+- Note for final cleanup: older inactive QA discount rows and old test Stripe coupons remain as historical test evidence. They are harmless for live subscription state, but should be cleaned or archived before a final production data reset if we want a pristine database/Stripe test account.
