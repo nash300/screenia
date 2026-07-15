@@ -218,6 +218,14 @@ Current deployment status:
     - Account setup email was delivered by Resend, but Zoho Mail was signed out, so literal mailbox-click proof remains a manual gate before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
     - Cleanup succeeded: Stripe refund `re_3TtYjmGhi0eDHRQZ1luyPVXW` fully refunded `2 797 kr`, subscription `sub_1TtYjoGhi0eDHRQZbRDrbds4` was cancelled, and local order `1000000044` moved to refunded/cancelled.
     - Smoke checks stayed green: login HTTP 200, display playlist HTTP 200, unsigned Stripe webhook POST HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
+  - Final manual gate review on 2026-07-15:
+    - Production readiness remains `53 passed`, `10 review`, `0 blocked`, with live payments intentionally disabled.
+    - Stripe test mode has active Swedish tax registration, exactly 8 active SEK prices, and every active price is `tax_behavior=inclusive`.
+    - Stripe branding still needs logo/icon upload and the Stripe business/support profile still needs final company details before real payments.
+    - Vercel project `screenia` points to `https://screenia.se`; core production env vars are present, while company org/address and live-payment flags remain intentionally unset.
+    - DNS MX points to Zoho and DMARC exists; the current Resend key is send-only, so Resend domain/DKIM status must be checked in the Resend dashboard or with a read-capable key.
+    - Legal PDFs and public policy pages return HTTP 200, but active Supabase legal versions are still `2026-07-12-prelaunch`; final legal review/versioning remains open.
+    - Use `npx.cmd vercel ...` on this Windows machine because PowerShell blocks `npx.ps1`.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

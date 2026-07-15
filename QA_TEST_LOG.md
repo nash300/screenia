@@ -1679,6 +1679,75 @@ Post-test smoke:
 Remaining manual action:
 - Sign in to Zoho Mail and click the actual customer account setup email from the mailbox UI. Resend proves delivery, and the Screenia password page was verified with an equivalent action link, but the literal mailbox-click proof remains open.
 
+### Final Manual Gate Review - 2026-07-15
+
+Scenario tested:
+- Reviewed the current production launch-readiness warnings, external service configuration, customer/test-data cleanup state, email DNS, Stripe tax/pricing setup, legal pages, and Vercel project/env visibility without enabling live payments.
+
+Production readiness:
+- Authenticated `/api/admin/launch-readiness` returned `53 pass`, `10 warning`, `0 fail`.
+- `readyForLivePayments=false`, which is correct before the manual business/legal/live-payment gates are complete.
+- Warnings are currently expected manual gates:
+  - `SCREENIA_LIVE_PAYMENTS_ENABLED`
+  - business registration
+  - Vercel Pro / commercial hosting confirmation
+  - VAT decision
+  - legal review
+  - live Stripe webhook verification
+  - Supabase Auth email verified
+  - Stripe Tax/manual VAT confirmation
+  - company identity
+  - final legal versions
+
+Stripe test-mode configuration:
+- Stripe account `acct_1RYYQkGhi0eDHRQZ` is still in test mode.
+- Stripe Dashboard display name is `Screenia`.
+- Branding colors are set to Screenia blue/navy.
+- Stripe branding `icon` and `logo` are still missing and should be uploaded before real customer payments.
+- Stripe business profile fields are still mostly empty (`support_email`, `support_url`, `url`, support address/phone, MCC), so Stripe account profile remains a manual before-launch item.
+- Stripe Tax registration for Sweden is active in test mode: `taxreg_1Tpxm0Ghi0eDHRQZvTmgZZ8J`, country `SE`, status `active`.
+- Stripe has exactly 8 active prices, all SEK and all `tax_behavior=inclusive`.
+- Active Stripe prices match the two live pricing plans:
+  - Standard FHD: setup `1 599 kr`, device `699 kr`, shipping `99 kr`, monthly `249 kr`.
+  - Premium 4K: setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, monthly `349 kr`.
+
+Database/test-data state:
+- Supabase contains 2 pricing plans and both have the expected Stripe price IDs.
+- Recent paid disposable Premium 4K activation customer `10000058` is `suspended/refunded` with refunded order `1000000044`.
+- Duplicate-email guard test customer `10000057` is `suspended/refunded` with refunded order `1000000043`.
+- The main QA customer `10000044` remains the only current active paid customer in the inspected recent customer list.
+- Recent disposable customers are suspended/cancelled/refunded; this is acceptable test-history retention because payment, Stripe, audit, and accounting evidence must remain traceable rather than permanently deleted.
+
+Vercel/environment state:
+- `npx.cmd vercel project ls` showed project `screenia` with latest production URL `https://screenia.se`.
+- `npx.cmd vercel env ls` showed core production/preview/development variables present for Supabase, Stripe, Resend, app URL, company email, newsletter sender, and company legal name.
+- `NEXT_PUBLIC_COMPANY_ORG_NUMBER`, `NEXT_PUBLIC_COMPANY_ADDRESS`, and all live-payment confirmation flags remain unset/not listed, which matches the current manual warning gates.
+- PowerShell blocks `npx.ps1`, so use `npx.cmd` on this Windows machine when running Vercel CLI through npm.
+
+Email/domain state:
+- DNS MX for `screenia.se` points to Zoho: `mx.zoho.eu`, `mx2.zoho.eu`, `mx3.zoho.eu`.
+- DNS TXT for `screenia.se` includes Zoho verification and SPF `v=spf1 include:zohomail.eu ~all`.
+- DNS TXT for `_dmarc.screenia.se` is `v=DMARC1; p=none;`.
+- Current Resend API key is send-only; `GET https://api.resend.com/domains` returned `401 restricted_api_key`, so Resend domain/DKIM status cannot be checked through this key.
+- Resend delivery events already prove request, quote, support, reset, and setup emails are being sent and delivered, but dashboard-level domain authentication still needs manual verification.
+
+Legal/public pages:
+- `https://screenia.se/legal/villkor-current.pdf` returned HTTP 200 with `application/pdf`.
+- `https://screenia.se/legal/integritetspolicy-current.pdf` returned HTTP 200 with `application/pdf`.
+- `https://screenia.se/subscription-billing-policy`, `/privacy`, and `/terms` returned HTTP 200.
+- Active Supabase legal document versions are still `2026-07-12-prelaunch`, so final legal review/versioning remains intentionally open.
+
+Manual actions still required before live payments:
+- Sign in to Zoho Mail and click the actual customer setup/reset email from the inbox.
+- Verify Resend domain authentication/DKIM in the Resend dashboard or with a read-capable Resend API key.
+- Complete legal company identity: organisation number, registered address, and final public business identity.
+- Confirm business registration, F/FA-skatt path, VAT/moms registration or exemption decision, invoice wording, and accounting process.
+- Upgrade/confirm Vercel Pro or another commercial-ready hosting plan.
+- Upload Stripe logo/icon and complete Stripe business/support profile fields.
+- Final-review terms, privacy, cookie, support/service, subscription, billing, cancellation, and refund wording; then publish non-prelaunch legal versions.
+- Configure and verify the live Stripe webhook only after switching to live Stripe mode.
+- Set each `SCREENIA_*_CONFIRMED` flag only after the corresponding item has real evidence.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:
