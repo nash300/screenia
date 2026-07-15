@@ -2876,8 +2876,8 @@ export default function CustomerDetailPage({
                       {subscription.order_number || "Order number pending"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      Status: {subscription.status} ? Fulfillment:{" "}
-                      {subscription.fulfillment_status || "pending"} ? Inventory:{" "}
+                      Status: {subscription.status} | Fulfillment:{" "}
+                      {subscription.fulfillment_status || "pending"} | Inventory:{" "}
                       {subscription.inventory_status || "not reserved"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
