@@ -259,3 +259,101 @@ Visual verification:
 
 Next required step:
 - Start the next production dummy scenario from the live landing page using fresh customer data.
+
+## 2026-07-15 - Production Premium 4K Customer Lifecycle Scenario
+
+Status: passed for the tested Premium 4K happy path and reversible billing operations, with launch blockers still listed below.
+
+Scope:
+- Production environment: `https://screenia.se`.
+- Stripe test mode only.
+- Customer journey tested visually in the in-app browser from landing page through admin, onboarding, Stripe Checkout, account activation/login, customer portal, device assignment, display entitlement, and admin billing operations.
+
+Customer and order:
+- Customer id: `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Customer number: `10000044`.
+- Company: `Screenia Live Premium 4K 20260715014357 AB`.
+- Email: `service@screenia.se`.
+- Order number: `1000000036`.
+- Onboarding token: `43e0fa79-7df2-4c32-9498-59c7c65b45a4`.
+- Package: `premium_4k`, Premium, 4K, quantity `1`.
+- Device code: `QRWXVA`.
+- Stripe customer: `cus_Ut43Oaq32pKmj7`.
+- Stripe subscription: `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Stripe checkout session: `cs_test_b1lr992plRqhP3jA7hwJ0RfJjLWXcTDaYHne0gmmjx1lulcyiAWLrlvqxV`.
+- Stripe invoice: `in_1TtHxeGhi0eDHRQZmEU7FVET`.
+
+Pricing and payment evidence:
+- Landing and admin quote selected Premium 4K correctly.
+- First payment shown in Stripe Checkout: `2 797,00 kr`.
+- Breakdown: setup `1 599 kr`, Premium 4K device `1 099 kr`, shipping `99 kr`.
+- Included VAT: `559,40 kr`.
+- Monthly subscription after trial: `349 kr/month`, included monthly VAT `69,80 kr`.
+- Trial period: 21 days, `2026-07-15` to `2026-08-05`.
+- Customer portal and admin order views showed the same customer-facing totals after previous VAT/pricing corrections.
+
+Customer journey results:
+- Landing order form saved customer details and created admin notification/audit events.
+- Invalid Swedish organisation number was rejected; valid test number `556016-0680` was accepted.
+- Quote/onboarding email was sent and delivered.
+- Onboarding profile, legal acceptance, and Stripe test payment completed.
+- Supabase Auth invite/account activation email arrived and the customer created a password successfully.
+- Customer could log out and log in again.
+- Customer portal showed billing, content setup, support messages, consent controls, and data export.
+- Customer content setup and support messages created admin notifications and audit events.
+- Data export created an audit event.
+
+Admin and device results:
+- Admin could see the customer, order, communication, devices, and history.
+- Admin assigned a Premium 4K inventory item and created device `QRWXVA`.
+- Display endpoint after activation showed `No content assigned`, which is correct for an active device without a published playlist.
+- Display endpoint while paused showed `Display inactive`.
+- Display endpoint after resume returned to `No content assigned`.
+
+Billing lifecycle operations tested:
+- Start layout work:
+  - Admin page warned that setup/layout fee becomes non-refundable.
+  - Customer `production_status` became `layout_started`.
+  - `layout_started_at`, `setup_fee_locked_at`, and subscription `setup_started_at` were recorded.
+  - The admin refund-first-payment action disappeared after the lock.
+- Pause subscription:
+  - Stripe `pause_collection` was set.
+  - Local customer access became paused/suspended.
+  - Display endpoint was blocked.
+- Resume subscription:
+  - Stripe `pause_collection` was cleared.
+  - Local customer access became active again.
+  - Display endpoint became active/no-content again.
+- Cancel at period end:
+  - Stripe `cancel_at_period_end` was set.
+  - Local access became `active_until_period_end` until `2026-08-05T01:50:10+00:00`.
+  - Display remained active during the paid/trial period.
+- Undo scheduled cancellation:
+  - Added/fixed admin resume path for scheduled cancellations.
+  - Stripe `cancel_at_period_end` was cleared.
+  - Local cancellation reason/source/details were cleared.
+- Temporary discount:
+  - Admin applied Stripe test coupons through the operation flow.
+  - Local `subscription_adjustments` rows were recorded.
+  - Production fulfillment status stayed `layout_started` after the webhook preservation fix.
+
+Fixes completed during this scenario:
+- Fixed payment-success page heading contrast.
+- Fixed Stripe trial/current-period sync so local subscription stores `trial_starts_at`, `trial_ends_at`, and period dates.
+- Fixed customer activation timestamp sync after password setup/login.
+- Fixed customer portal content submission access for paid customers before final admin activation.
+- Fixed customer portal message/material submissions to refresh visible state immediately.
+- Fixed admin order status separators.
+- Removed stale pre-Screenia MP4 media and replaced the landing service video with safe Screenia imagery.
+- Fixed layout-start operation to write subscription `setup_started_at`.
+- Fixed admin scheduled-cancellation UX to show `Resume subscription` as the undo action.
+- Fixed resume subscription to clear stale cancellation reason/source/details.
+- Fixed admin billing operations and Stripe webhook sync so billing changes do not overwrite production fulfillment state such as `layout_started`.
+
+Remaining launch blockers / manual action:
+- Supabase Auth sender must be rechecked before launch. During this scenario one invite showed `hello@screenia.se`; clients should see/reply to `service@screenia.se` only.
+- Admin media native file-picker upload was not fully automated visually; a fresh Screenia-branded MP4 asset is still needed for final playback QA.
+- Inventory form field labels/field mapping need polish: a service-note style entry appeared under a defect-related field during inventory creation.
+- Legal consent checkboxes work but need better stable labels/ids for accessibility and automated testing.
+- There is no admin operation to remove/revoke a temporary Stripe discount after applying it; add this before launch if customer-specific discounts will be managed from the admin panel.
+- `Cancel now` and actual refund-before-layout require separate destructive test customers; the main Premium 4K test customer was preserved in active/layout-started state.
