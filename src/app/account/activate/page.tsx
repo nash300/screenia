@@ -120,7 +120,7 @@ function PasswordFields({
         </span>
         <input
           type="password"
-          placeholder="Minst 10 tecken, bokstäver och siffror"
+          placeholder="Minst 6 tecken, bokstäver och siffror"
           value={password}
           onChange={(event) => onPassword(event.target.value)}
           onKeyDown={(event) => {

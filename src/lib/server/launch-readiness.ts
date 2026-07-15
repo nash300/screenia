@@ -784,15 +784,15 @@ export function hasCustomerConsentManagementWorkflow() {
 }
 
 export function hasCustomerPasswordPolicy() {
-  const rejectsShortPassword = !validatePasswordPolicy("abc123");
-  const rejectsNoNumber = !validatePasswordPolicy("abcdefghij");
-  const rejectsNoLetter = !validatePasswordPolicy("1234567890");
-  const acceptsValidPassword = validatePasswordPolicy("screenia2026");
+  const rejectsShortPassword = !validatePasswordPolicy("abc12");
+  const rejectsNoNumber = !validatePasswordPolicy("abcdef");
+  const rejectsNoLetter = !validatePasswordPolicy("123456");
+  const acceptsValidPassword = validatePasswordPolicy("abc123");
   const descriptionMatches = passwordPolicyDescription.includes(
     String(PASSWORD_POLICY_MIN_LENGTH),
   );
   const ok =
-    PASSWORD_POLICY_MIN_LENGTH >= 10 &&
+    PASSWORD_POLICY_MIN_LENGTH >= 6 &&
     rejectsShortPassword &&
     rejectsNoNumber &&
     rejectsNoLetter &&

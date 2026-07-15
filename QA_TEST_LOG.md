@@ -1497,6 +1497,49 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
 
+### Supabase Auth Reset And Customer Login QA - 2026-07-15
+
+Scenario tested:
+- Customer password reset/setup path for active QA customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`, including real reset email delivery, reset-page password update, fresh customer login, and final restoration of the known QA password.
+
+Issue found and fixed:
+- The product requirement is a customer password with at least 6 characters containing letters and numbers, but the shared password policy still required 10 characters.
+- Updated `src/lib/auth/password-policy.ts` to use `PASSWORD_POLICY_MIN_LENGTH=6`.
+- Updated `/account/activate` and `/account/reset-password` placeholders to say `Minst 6 tecken, bokstäver och siffror`.
+- Updated launch-readiness password-policy checks to validate the confirmed 6-character rule: reject `abc12`, reject no-number/no-letter values, and accept `abc123`.
+
+Email delivery result:
+- Live `POST /api/auth/password-reset` for `service@screenia.se` returned HTTP 200 with the generic Swedish safety message.
+- Audit `password_reset_email_requested` was stored at `2026-07-15T19:04:20.829886+00:00` with `error=null`.
+- Resend delivery events stored both:
+  - `email.sent`, id `996be77b-e6b9-43f7-b0f7-40b41822fd54`.
+  - `email.delivered`, id `adfbc98f-7308-44b3-93c8-e766b70a8767`.
+- Both events used Resend email id `f5c1cd7e-f4ed-4fdc-b22f-52fec84a1cb5`, recipient `service@screenia.se`, subject `Reset Your Password`, and sender `"Screenia" <service@screenia.se>`.
+
+Password setup and login result:
+- Zoho Mail was signed out in the browser, so the exact mailbox click could not be completed in this pass.
+- To keep moving without exposing email tokens in the QA record, a Supabase recovery action link was generated and opened directly in the browser.
+- The reset page loaded visually at `https://screenia.se/account/reset-password`, consumed the recovery session, and showed the corrected `Minst 6 tecken` password guidance.
+- Reusing the previous password was correctly rejected with `New password should be different from the old password.`
+- Setting a different temporary password succeeded and redirected to `/account?section=overview`.
+- Fresh customer login with the temporary password succeeded visually and loaded the customer portal.
+- The known QA password was then restored to `ScreeniaCustomer123` through Supabase Admin for future testing.
+- Fresh customer login with restored `ScreeniaCustomer123` succeeded visually and loaded `/account?section=overview`.
+
+Deployments:
+- `dpl_FyPMnV78B1jDZfqWiWa39iveiomv` deployed the 6-character policy and customer-facing placeholder changes.
+- `dpl_HvZSVjskJscrrhgRVD3sQfQ8dzYt` deployed the matching launch-readiness baseline.
+
+Remaining manual action:
+- Open the actual reset email from the Zoho mailbox UI and click its link once Zoho is signed in again. Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until that exact mailbox-click proof is completed.
+
+Post-test smoke:
+- `/login` returned HTTP 200.
+- Authenticated `/api/account` returned HTTP 200 for `service@screenia.se` with restored password `ScreeniaCustomer123`.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:

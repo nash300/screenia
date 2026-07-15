@@ -1,4 +1,4 @@
-export const PASSWORD_POLICY_MIN_LENGTH = 10;
+export const PASSWORD_POLICY_MIN_LENGTH = 6;
 
 export const passwordPolicyDescription =
   `Lösenordet måste vara minst ${PASSWORD_POLICY_MIN_LENGTH} tecken och innehålla både bokstäver och siffror.`;

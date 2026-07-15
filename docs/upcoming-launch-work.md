@@ -768,11 +768,12 @@ Completed in this pass:
 - Accounting/VAT exports were production-tested: accounting CSV includes paid/cancelled/refunded order evidence, VAT summary includes only active paid taxable rows, export downloads are audited, and terminal orders now close inventory status as `cancelled`.
 - Customer account/email/support flow was production-tested: customer login, password reset delivery evidence, customer support ticket submission, admin communication reply, customer-visible reply email delivery, and customer account data export all work. Admin replies now move tickets to `waiting_for_customer` after fix `bfa88d9` / deployment `dpl_8n32qM7UYuVLtiKFS36Tru6UEWUV`.
 - Stripe failed-payment recovery was production-tested with official Stripe CLI test events on disposable customer `10000056`: `invoice.payment_failed` suspended service and display access, created audit/admin notification evidence, `invoice.paid` restored access, and audited cleanup then cancelled the disposable subscription and deactivated display `PF0DFB`. Launch readiness returned to `53 pass`, `10 warning`, `0 fail`.
+- Customer password reset/setup was production-tested as far as current mailbox access allowed: real Supabase Auth reset email was sent and delivered by Resend from `Screenia <service@screenia.se>`, the reset page accepted a Supabase recovery session, password update redirected to the customer portal, and restored-password login succeeded. The confirmed password rule is 6+ characters with letters and numbers. The remaining gate is only the literal Zoho mailbox-click proof, because Zoho was signed out in the browser during this pass.
 
 Next admin areas to clean up before broad real-world testing:
 
 - Continue visual spot checks as new admin workflows are added; avoid reintroducing browser prompts for audited actions.
-- Complete the remaining manual email-link gate: open a real Supabase reset/setup email link, submit a compliant password, confirm `/account` login, then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+- Complete the remaining manual email-link gate: sign in to Zoho, open the real Supabase reset/setup email link from the mailbox UI, submit a compliant password, confirm `/account` login, then set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 
 ## Detailed Test Pass To Run Later
 
