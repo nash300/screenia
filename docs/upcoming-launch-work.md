@@ -112,6 +112,13 @@ Current deployment status:
     - Authenticated admin API returned the request in `/api/admin/data-subject-requests`.
     - Admin update moved it to `in_progress` with a QA note and stored `data_subject_request_updated` audit evidence with before/after fields and reason.
     - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
+  - VAT/tax payment register QA on 2026-07-15:
+    - Admin created tax payment record `fd736f0c-68f4-4a95-bf59-620743731742` for `2026-07-01` to `2026-08-01`, taxable amount `223760` ore, VAT `55940` ore, status `draft`.
+    - Audit `admin_tax_payment_recorded` was stored with period, amount, and admin reason metadata.
+    - Admin updated the same record to `paid` with paid-at `2026-07-15T16:45:00+00:00`, reference `QA-VAT-202607-SCREENIA-TEST`, and QA notes.
+    - Audit `admin_tax_payment_updated` stored changed fields plus before/after values and reason.
+    - Authenticated admin `GET /api/admin/tax-payments` listed the paid record; visible `/admin/tax-payments` redirected to `/admin-login` without an admin browser session, confirming page protection.
+    - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

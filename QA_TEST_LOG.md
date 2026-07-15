@@ -1131,6 +1131,38 @@ Post-test smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
 
+### Admin VAT/Tax Payment Register QA - 2026-07-15
+
+Scenario tested:
+- Admin records a VAT/tax period, updates it to paid with reference evidence, verifies audit history, and confirms the admin API lists the record.
+
+Create result:
+- `POST /api/admin/tax-payments` returned HTTP 201.
+- Created tax payment record `fd736f0c-68f4-4a95-bf59-620743731742`.
+- Period: `2026-07-01` to `2026-08-01`.
+- Currency: `sek`.
+- Taxable amount: `223760` ore.
+- VAT amount: `55940` ore.
+- Initial status: `draft`.
+- Initial notes: `QA VAT register test for Screenia production test mode. Values mirror one Premium 4K test payment net/VAT evidence.`
+- Audit `admin_tax_payment_recorded` was stored at `2026-07-15T16:43:53.548405+00:00` with the admin reason and amount/period metadata.
+
+Update result:
+- `PATCH /api/admin/tax-payments/fd736f0c-68f4-4a95-bf59-620743731742` returned HTTP 200.
+- Status changed to `paid`.
+- Paid at: `2026-07-15T16:45:00+00:00`.
+- Reference: `QA-VAT-202607-SCREENIA-TEST`.
+- Notes changed to `QA VAT register test marked paid after validating required reference and audit trail.`
+- Audit `admin_tax_payment_updated` was stored at `2026-07-15T16:43:54.475119+00:00` with changed fields, before/after values, and admin reason.
+
+Admin visibility:
+- Authenticated admin `GET /api/admin/tax-payments` returned HTTP 200 and listed the record with status `paid`, reference `QA-VAT-202607-SCREENIA-TEST`, taxable amount `223760`, and VAT amount `55940`.
+- Browser navigation to `/admin/tax-payments` redirected to `/admin-login` when the visible tab had no admin session, which confirms the page is protected; the authenticated admin API list is the visibility proof for this pass.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
 ### Customer Privacy Request And Data Subject Register QA - 2026-07-15
 
 Scenario tested:
