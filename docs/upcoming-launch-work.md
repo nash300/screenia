@@ -102,6 +102,8 @@ Current deployment status:
     - Temporary discount lifecycle passed: a 15% / 2 month discount was applied and removed through the production admin API, with Stripe/local/audit evidence and display access remaining active.
     - Refund boundary passed: the layout-started customer returned HTTP 409 for automatic refund, while a separate paid-before-layout Premium 4K test customer refunded `2 797 kr`, canceled its trialing Stripe subscription, and moved local access to refunded/suspended.
     - Stripe refund webhook de-duplication was fixed and verified locally by replaying the same refund id twice without creating new duplicate audit/notification rows.
+    - Production deployment `dpl_CFp597dXQr2M6Wy3taAqdeo5URo8` was aliased to `https://screenia.se` after the refund webhook de-duplication fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, and unsigned Stripe webhook HTTP 400 `Missing signature`.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

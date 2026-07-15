@@ -793,4 +793,5 @@ Result:
 - Refund boundary lifecycle passed.
 - Automatic refund is correctly blocked after layout work starts.
 - Refund before layout correctly refunds Stripe, cancels the Stripe subscription, suspends/refunds local access, and records admin evidence.
-- The webhook de-duplication fix still needs production deployment before it protects future live webhook events.
+- Production deployment `dpl_CFp597dXQr2M6Wy3taAqdeo5URo8` was aliased to `https://screenia.se` after the webhook de-duplication fix.
+- Post-deploy smoke checks passed: `/api/display/QRWXVA/playlist` returned HTTP 200, `/login` returned HTTP 200, and unsigned Stripe webhook POST returned HTTP 400 `Missing signature`.
