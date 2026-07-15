@@ -705,4 +705,5 @@ Restored-state verification:
 Result:
 - Failed-payment lifecycle passed after the fulfillment recovery fix.
 - Display entitlement blocks on failed payment and restores after payment recovery.
-- Production deployment still needs to receive the patched webhook code before this fix is active on `https://screenia.se/api/stripe/webhook`.
+- Production deployment `dpl_CzYPFEbnZ5VEX1yRWuj5ytKh7WLZ` was aliased to `https://screenia.se` after the fix.
+- Post-deploy smoke checks passed: `/api/display/QRWXVA/playlist` returned HTTP 200, `/login` returned HTTP 200, unsigned Stripe webhook POST returned HTTP 400 `Missing signature`, visible `/display/QRWXVA` played one muted video, and launch readiness stayed 53 pass / 10 warning / 0 fail.

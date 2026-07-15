@@ -96,6 +96,8 @@ Current deployment status:
     - A signed Stripe failed-payment test event suspended customer `10000044`, set `service_access_status=payment_failed`, created urgent admin/audit evidence, and made production `/display/QRWXVA` show `Display inactive`.
     - A paid-invoice recovery test restored customer/display access and verified the local subscription returns to `fulfillment_status=layout_started` after the webhook recovery fix.
     - Production webhook signing stayed protected: an event signed with the stale local secret was rejected with HTTP 400 before the local connected-services test was used.
+    - Production deployment `dpl_CzYPFEbnZ5VEX1yRWuj5ytKh7WLZ` was aliased to `https://screenia.se` after the webhook recovery fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, visible display playback restored, and launch readiness remained 53 pass / 10 warning / 0 fail.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:
