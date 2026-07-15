@@ -22,6 +22,14 @@ const statuses = new Set([
   "retired",
   "lost",
 ]);
+const statusesThatReleaseLinkedDevice = new Set([
+  "in_stock",
+  "returned",
+  "defective",
+  "in_repair",
+  "retired",
+  "lost",
+]);
 const conditions = new Set([
   "new",
   "tested",
@@ -108,6 +116,53 @@ async function rollbackInventoryFields(
     .eq("id", itemId);
 
   return { ok: !error, errors: error ? [error.message] : [] };
+}
+
+async function rollbackInventoryStatusUpdate({
+  itemId,
+  fieldsChanged,
+  existing,
+  existingDevice,
+}: {
+  itemId: string;
+  fieldsChanged: string[];
+  existing: Record<string, unknown>;
+  existingDevice?: Record<string, unknown> | null;
+}) {
+  const rollbackResults = await Promise.allSettled([
+    rollbackInventoryFields(itemId, fieldsChanged, existing),
+    existingDevice
+      ? supabaseAdmin
+          .from("devices")
+          .update({
+            make: existingDevice.make,
+            model: existingDevice.model,
+            serial_number: existingDevice.serial_number,
+            purchase_cost: existingDevice.purchase_cost,
+            purchase_date: existingDevice.purchase_date,
+            warranty_period_months: existingDevice.warranty_period_months,
+            supplier: existingDevice.supplier,
+            inventory_status: existingDevice.inventory_status,
+            inventory_notes: existingDevice.inventory_notes,
+            is_active: existingDevice.is_active,
+          })
+          .eq("id", existingDevice.id)
+      : Promise.resolve({ error: null }),
+  ]);
+
+  const errors = rollbackResults
+    .map((result) => {
+      if (result.status === "rejected") return String(result.reason);
+      if ("ok" in result.value) {
+        return result.value.errors.length > 0
+          ? result.value.errors.join(" | ")
+          : null;
+      }
+      return result.value.error?.message || null;
+    })
+    .filter(Boolean) as string[];
+
+  return { ok: errors.length === 0, errors };
 }
 
 async function rollbackInventoryDeviceAllocation({
@@ -416,6 +471,16 @@ export async function PATCH(
     if (body.defect_description !== undefined) {
       payload.defect_description = cleanString(body.defect_description, 1000);
     }
+    const shouldReleaseLinkedDevice =
+      Boolean(existing.device_id) && statusesThatReleaseLinkedDevice.has(status);
+    let existingDevice: Record<string, unknown> | null = null;
+
+    if (shouldReleaseLinkedDevice) {
+      payload.customer_id = null;
+      payload.device_id = null;
+      payload.assigned_at = null;
+    }
+
     if (status === "returned") payload.returned_at = timestamp;
     if (status === "shipped") payload.shipped_at = timestamp;
     if (status === "in_stock") payload.last_checked_at = timestamp;
@@ -424,6 +489,25 @@ export async function PATCH(
 
     if (fieldsChanged.length === 0) {
       return NextResponse.json({ success: true, changedFields: [] });
+    }
+
+    if (shouldReleaseLinkedDevice) {
+      const { data: linkedDevice, error: linkedDeviceError } = await supabaseAdmin
+        .from("devices")
+        .select(
+          "id, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, inventory_status, inventory_notes, is_active",
+        )
+        .eq("id", existing.device_id)
+        .single();
+
+      if (linkedDeviceError || !linkedDevice) {
+        return NextResponse.json(
+          { error: "Linked device could not be found before updating inventory." },
+          { status: 500 },
+        );
+      }
+
+      existingDevice = linkedDevice as Record<string, unknown>;
     }
 
     const { error } = await supabaseAdmin
@@ -437,6 +521,35 @@ export async function PATCH(
         { error: "Could not update inventory status." },
         { status: 500 },
       );
+    }
+
+    if (shouldReleaseLinkedDevice && existingDevice) {
+      const { error: deviceUpdateError } = await supabaseAdmin
+        .from("devices")
+        .update({
+          is_active: false,
+          inventory_status: status,
+          inventory_notes: `Released from inventory item ${existing.item_code}: ${reason}`,
+        })
+        .eq("id", existingDevice.id);
+
+      if (deviceUpdateError) {
+        console.error("Inventory linked device release error:", deviceUpdateError);
+        const rollbackResult = await rollbackInventoryFields(
+          existing.id,
+          fieldsChanged,
+          existing as Record<string, unknown>,
+        );
+
+        return NextResponse.json(
+          {
+            error: rollbackResult.ok
+              ? "Inventory status was not saved because the linked device could not be released."
+              : "Inventory status was saved, but linked device release and inventory rollback failed. Contact technical support before retrying.",
+          },
+          { status: 500 },
+        );
+      }
     }
 
     try {
@@ -453,6 +566,9 @@ export async function PATCH(
             itemCode: existing.item_code,
             fromStatus: existing.status,
             toStatus: status,
+            releasedDeviceId: shouldReleaseLinkedDevice
+              ? existing.device_id
+              : null,
             changedFields: fieldsChanged,
             reason,
           },
@@ -460,14 +576,15 @@ export async function PATCH(
           userAgent: request.headers.get("user-agent"),
         },
         { throwOnError: true },
-    );
+      );
   } catch (auditError) {
     console.error("Inventory status update audit error:", auditError);
-      const rollbackResult = await rollbackInventoryFields(
-        existing.id,
+      const rollbackResult = await rollbackInventoryStatusUpdate({
+        itemId: existing.id,
         fieldsChanged,
-        existing as Record<string, unknown>,
-      );
+        existing: existing as Record<string, unknown>,
+        existingDevice,
+      });
 
       if (!rollbackResult.ok) {
         console.error("Inventory status update rollback error:", rollbackResult.errors);
@@ -527,6 +644,13 @@ export async function PATCH(
 
   if (action === "allocate_new_device") {
     const customerId = cleanString(body.customer_id, 80);
+
+    if (existing.status !== "in_stock") {
+      return NextResponse.json(
+        { error: "Only in-stock inventory items can be allocated." },
+        { status: 400 },
+      );
+    }
 
     if (!customerId) {
       return NextResponse.json(
@@ -687,6 +811,13 @@ export async function PATCH(
 
   if (action === "link_existing_device") {
     const deviceId = cleanString(body.device_id, 80);
+
+    if (existing.status !== "in_stock") {
+      return NextResponse.json(
+        { error: "Only in-stock inventory items can be linked to a device." },
+        { status: 400 },
+      );
+    }
 
     if (!deviceId) {
       return NextResponse.json(

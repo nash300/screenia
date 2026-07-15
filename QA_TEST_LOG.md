@@ -1414,3 +1414,39 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Inventory And Device Stock Lifecycle QA - 2026-07-15
+
+Scenario tested:
+- Admin manages a Premium 4K hardware item through the real stock lifecycle: create stock, edit bench-tested details, allocate to a customer, mark shipped, mark returned, process defect/repair, return to stock, and retire the temporary QA item.
+
+Lifecycle result:
+- `POST /api/admin/inventory` created Premium 4K item `e4b299e6-5a4d-448f-92df-7357cf1ace27`.
+- Item code: `1AFEBC62`.
+- Serial number: `QA-INV-P4K-FIX-20260715173249`.
+- Allocation created device `43f07ee3-cb46-45e2-b42f-a744ad7b8b43` with device code `MK3FFY`.
+- The item successfully moved through `in_stock -> assigned -> shipped -> returned -> defective -> in_repair -> in_stock -> retired`.
+- Final item state: `retired`, condition `tested`, no customer, no linked device, no assigned timestamp.
+- Inventory history stored 8 lifecycle records for the item.
+
+Issue found and fixed:
+- Returned hardware stayed linked to an active device after the return operation. That could leave phantom active devices and prevent clean reuse of returned stock.
+- Fixed `src/app/api/admin/inventory/[itemId]/route.ts` so returned, in-stock, defective, in-repair, retired, and lost stock releases the linked device, deactivates it, stores the released device in audit metadata, and rolls back both inventory and device state if audit storage fails.
+- A retired item still looked allocatable in the admin UI.
+- Fixed `src/app/api/admin/inventory/[itemId]/route.ts` so only `in_stock` inventory can be allocated or linked to a device.
+- Fixed `src/app/admin/inventory/page.tsx` so Ready stock counts only `in_stock` items, retired/unavailable items show `Not available for allocation`, and existing-device linking is hidden unless the item is in stock.
+
+Retest result:
+- Production return retest passed: the returned Premium 4K item detached from the device, set customer/device/assigned fields to `null`, and set the created device inactive with `inventory_status=returned`.
+- Production retired-allocation guard returned HTTP 400 with `Only in-stock inventory items can be allocated.`
+- Browser page `https://screenia.se/admin/inventory` showed the retired QA item as `RETIRED`, `Not assigned`, `Not created`, Ready stock `0`, button `Not available for allocation`, and no existing-device link action.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployments:
+  - `dpl_5ynrw9FMUJH5ipJGWTNguDuAMkRJ` for device-release behavior.
+  - `dpl_7BcN2b9VMzJJ2PztqEMHF8KjqNw7` for allocation guards and admin UI tightening.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

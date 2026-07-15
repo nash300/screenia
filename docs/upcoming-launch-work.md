@@ -763,6 +763,7 @@ Completed in this pass:
 - Customer detail quote preparation, message/material review, anonymization, and deletion now use inline reason/confirmation fields instead of browser prompts.
 - Compliance/review registers, tax payment status updates, and dashboard bulk notification actions now use inline reason flows instead of browser prompts.
 - Main admin navigation was simplified: compliance, tax, privacy, access, backup, retention, legal, and processor tools are grouped under `/admin/compliance` instead of cluttering daily operations.
+- Inventory/device lifecycle was production-tested with a Premium 4K QA item. Returned, defective, repair, retired, and lost stock now releases the linked device; only explicitly `in_stock` hardware can be allocated or linked to a device.
 
 Next admin areas to clean up before broad real-world testing:
 

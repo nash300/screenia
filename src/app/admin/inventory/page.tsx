@@ -234,6 +234,10 @@ export default function AdminInventoryPage() {
   const [nowMs] = useState(() => Date.now());
 
   const selectedItem = items.find((item) => item.id === selectedId) || null;
+  const selectedItemCanBeAllocated =
+    Boolean(selectedItem) &&
+    selectedItem?.status === "in_stock" &&
+    !selectedItem?.device_id;
 
   const loadInventory = useCallback(async () => {
     setLoading(true);
@@ -404,7 +408,7 @@ export default function AdminInventoryPage() {
   }, [items, query, statusFilter, typeFilter]);
 
   const stockSummary = {
-    ready: items.filter((item) => ["in_stock", "returned"].includes(item.status)).length,
+    ready: items.filter((item) => item.status === "in_stock").length,
     allocated: items.filter((item) => ["assigned", "shipped"].includes(item.status)).length,
     attention: items.filter((item) => ["defective", "in_repair", "lost"].includes(item.status)).length,
     warrantySoon: items.filter((item) => {
@@ -620,6 +624,13 @@ export default function AdminInventoryPage() {
 
   const allocateSelectedItem = async () => {
     if (!selectedItem) return;
+    if (selectedItem.status !== "in_stock") {
+      showAdminNotification(
+        "warning",
+        "Only in-stock hardware can be allocated. Inspect or repair the item first.",
+      );
+      return;
+    }
     if (!allocationCustomerId) {
       showAdminNotification("warning", "Select a customer before allocation.");
       return;
@@ -667,6 +678,13 @@ export default function AdminInventoryPage() {
 
   const linkExistingDevice = async () => {
     if (!selectedItem) return;
+    if (selectedItem.status !== "in_stock") {
+      showAdminNotification(
+        "warning",
+        "Only in-stock hardware can be linked to a device.",
+      );
+      return;
+    }
     if (!existingDeviceId) {
       showAdminNotification("warning", "Select an existing device to link.");
       return;
@@ -876,6 +894,12 @@ export default function AdminInventoryPage() {
                   the physical box. The system creates the matching Device
                   Manager record automatically.
                 </p>
+                {selectedItem.status !== "in_stock" && (
+                  <p className="admin-muted">
+                    Move this item back to In stock after inspection before
+                    assigning it to a customer.
+                  </p>
+                )}
                 <SelectValue
                   label="Customer"
                   value={allocationCustomerId}
@@ -907,15 +931,19 @@ export default function AdminInventoryPage() {
                   className="admin-button-primary"
                   disabled={
                     saving ||
-                    Boolean(selectedItem.device_id) ||
+                    !selectedItemCanBeAllocated ||
                     !allocationReason.trim()
                   }
                   onClick={allocateSelectedItem}
                 >
-                  {selectedItem.device_id ? "Already allocated" : "Allocate and create device"}
+                  {selectedItem.device_id
+                    ? "Already allocated"
+                    : selectedItem.status !== "in_stock"
+                      ? "Not available for allocation"
+                      : "Allocate and create device"}
                 </button>
 
-                {!selectedItem.device_id && (
+                {selectedItemCanBeAllocated && (
                   <div className="admin-inventory-existing-device">
                     <p>
                       Already configured the screen in Device Manager? Link this
