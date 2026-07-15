@@ -1451,6 +1451,37 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
 
+### Online Email And Data Closing Checkpoint - 2026-07-16
+
+Scenario tested:
+- Closing review after production domain/email setup, Zoho mailbox proof, Supabase Auth email proof, and broad dummy-data/Stripe test-mode testing.
+
+Current production state:
+- Site is online at `https://screenia.se`.
+- Latest verified production deployment for Supabase Auth email proof: `dpl_7DRuG53sETkuSwPPBDWwvgMAVT2B`.
+- Production environment has `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` after the Zoho mailbox link proof.
+- Authenticated launch readiness returned `54 pass`, `9 warning`, `0 fail`, with `readyForLivePayments=false`.
+- `/login` returned HTTP 200.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+
+Current test data state:
+- Supabase customer records: 12 total.
+- 6 customers are suspended/refunded, 5 customers are suspended/cancelled, and 1 QA customer remains active/paid/active.
+- Active QA customer kept for future testing: customer `10000044`, email `service@screenia.se`, device `QRWXVA`, Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Stripe test-mode active subscriptions: 1, subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`, status `trialing`, customer `cus_Ut43Oaq32pKmj7`.
+
+Cleanup decision:
+- No destructive database cleanup was performed in this closing pass.
+- Cancelled/refunded disposable test customers are intentionally retained because they contain payment, refund, cancellation, VAT, accounting, and audit evidence.
+- Deleting those records would reduce traceability and make later accounting/audit testing harder.
+- The active QA customer and active Stripe test subscription are intentionally retained for the next real-world test session.
+
+Next session:
+- Start from `https://screenia.se/admin/launch-readiness`.
+- Continue with real-world scenario tests and improvement work against the online site.
+- Treat remaining readiness warnings as launch/business configuration gates unless a new test exposes a functional failure.
+
 ### Stripe Failed Payment And Recovery With Real Test Events - 2026-07-15
 
 Scenario tested:

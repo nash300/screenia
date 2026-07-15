@@ -781,6 +781,16 @@ Current deployment status:
 - Backfill proof for paid QA customer `10000053`: reset email `01bea64b-38f2-4b03-8cd4-a8460183db05` delivered to `service@screenia.se`.
 - Manual remaining verification stays the same: open the real email link, submit a compliant password, and confirm `/account` login before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
 
+2026-07-16 online/email-ready closing checkpoint:
+
+- Site is online at `https://screenia.se`.
+- Zoho mailbox proof completed: a live Supabase Auth reset email arrived in the Screenia mailbox and the real email link opened `https://screenia.se/account/reset-password`.
+- Vercel production has `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+- Latest verified production deployment for that proof: `dpl_7DRuG53sETkuSwPPBDWwvgMAVT2B`.
+- Authenticated launch readiness returned `54 pass`, `9 warning`, `0 fail`, with `readyForLivePayments=false`.
+- Current retained test state: 12 Supabase customers total, 11 terminal cancelled/refunded test records kept for audit/accounting traceability, and 1 active QA customer/subscription kept for the next real-world test session.
+- Do not delete cancelled/refunded payment-history rows casually; use admin anonymization/deletion workflows only when there is a clear legal/privacy reason and after considering accounting/audit retention.
+
 ## Admin Panel Consistency Work
 
 Completed in this pass:
