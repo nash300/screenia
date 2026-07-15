@@ -193,7 +193,7 @@ Current deployment status:
      - Gmail -> `service@screenia.se` was received in Zoho Inbox with subject `Screenia mailbox test Gmail to service 2026-07-15T00-24-48-849Z`.
      - Zoho Mail -> Gmail was sent with the From identity set to `service@screenia.se`; Gmail search `from:service@screenia.se` found subject `Screenia mailbox test service to Gmail 2026-07-15T00-29-10-253Z` in the inbox.
      - Production request confirmation was triggered through `https://screenia.se` with test company `Screenia Live Email Test 2026-07-15T00-31-28-834Z`; Gmail search `from:service@screenia.se` found subject `Screenia har tagit emot din förfrågan` in the inbox.
-     - Zoho outgoing display names were corrected from the personal account name to `Screenia` for `admin@screenia.se`, `hello@screenia.se`, `service@screenia.se`, and `info@screenia.se`.
+     - Zoho outgoing display names were corrected from the personal account name to `Screenia` for the active mailbox/sender identities.
      - Gmail confirmed the corrected manual Zoho sender display with subject `Screenia sender name proof 2026-07-15T00-42-15-102Z`; the visible sender name is `Screenia`.
      - The unused legacy alias `hello@screenia.se` was removed from Zoho on 2026-07-15 so clients only reply to `service@screenia.se`.
      - `info@screenia.se` remains reserved for newsletter/broadcast sender identity; transactional/customer-service email should continue to use `service@screenia.se`.

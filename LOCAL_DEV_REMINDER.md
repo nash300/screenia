@@ -1,4 +1,4 @@
-# InfoSync Platform Runbook
+# Screenia Platform Runbook
 
 When you restart the computer, these services do not start automatically.
 
@@ -10,7 +10,7 @@ local development, QA, and future launch checks.
 Open PowerShell:
 
 ```powershell
-cd "$env:USERPROFILE\Desktop\infosync-git"
+cd "$env:USERPROFILE\Desktop\screenia"
 ```
 
 Check the current branch:
@@ -182,7 +182,7 @@ Recommended order:
 1. Add Google login first. This is what customers usually mean by "login with Gmail".
 2. Add Facebook later only if real customers ask for it.
 
-Important rule for InfoSync:
+Important rule for Screenia:
 
 ```text
 Social login must link to an existing paid/approved customer record.
@@ -198,7 +198,7 @@ Suggested implementation shape:
    the paid customer's expected email, then store the Supabase Auth user id in
    `customers.auth_user_id`.
 4. If a social-login user has no linked paid customer, redirect them to a clear
-   "No active InfoSync account found" page.
+   "No active Screenia account found" page.
 5. Record an audit event when a social account is connected.
 
 Configuration locations when implementing:
@@ -211,7 +211,7 @@ Google Cloud Console -> APIs and services -> Credentials
 
 Manual Google setup checklist:
 
-1. Open Google Cloud Console and create/select the InfoSync project.
+1. Open Google Cloud Console and create/select the Screenia project.
 2. Go to `APIs and services -> OAuth consent screen` and set the app name,
    support email, logo, and authorized domains.
 3. Go to `APIs and services -> Credentials`.
@@ -363,9 +363,9 @@ Authentication -> URL Configuration
 4. Add allowed redirect URLs:
 
 ```text
-https://your-domain.example/auth/callback
-https://your-domain.example/account/activate
-https://your-domain.example/account/reset-password
+https://screenia.se/auth/callback
+https://screenia.se/account/activate
+https://screenia.se/account/reset-password
 ```
 
 5. Test that a paid customer receives the account creation/password email in a
@@ -379,7 +379,7 @@ SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true
 
 ### Resend
 
-Resend sends InfoSync application emails such as request confirmation and
+Resend sends Screenia application emails such as request confirmation and
 quote/onboarding emails.
 
 1. Open:
@@ -394,7 +394,7 @@ https://resend.com/domains
 5. Set production `RESEND_FROM_EMAIL`, for example:
 
 ```text
-InfoSync <onboarding@your-domain.example>
+Screenia <service@screenia.se>
 ```
 
 6. Send and inspect these emails in Gmail:
@@ -424,7 +424,7 @@ Premium 4K shipping
 Premium 4K monthly
 ```
 
-2. Confirm price tax behavior matches InfoSync pricing:
+2. Confirm price tax behavior matches Screenia pricing:
 
 ```text
 Customer-facing prices are totals including Swedish moms.
@@ -434,7 +434,7 @@ Do not add moms on top of the promised price.
 3. Configure the production webhook endpoint:
 
 ```text
-https://your-domain.example/api/stripe/webhook
+https://screenia.se/api/stripe/webhook
 ```
 
 4. Add webhook events needed by the app:
@@ -448,7 +448,7 @@ customer.subscription.deleted
 5. Set the production `STRIPE_WEBHOOK_SECRET`.
 6. Confirm `STRIPE_SECRET_KEY` uses the correct Stripe mode.
 7. Confirm Stripe customer portal settings allow subscription/payment-method
-   management in the way InfoSync wants.
+   management in the way Screenia wants.
 8. Confirm refund workflow manually before launch:
 
 ```text
