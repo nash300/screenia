@@ -191,9 +191,20 @@ export async function POST(request: Request) {
   }
 
   if (user.app_metadata?.role === "admin") {
+    await supabase.auth.signOut();
+    await recordAuditEvent(supabaseAdmin, {
+      actorType: "admin",
+      actorId: user.id,
+      eventType: "admin_login_wrong_surface",
+      eventDescription: "Admin account attempted to sign in through the customer login.",
+      metadata: { email },
+      ipAddress,
+      userAgent,
+    });
+
     return jsonWithCookies(
-      { success: true, next: "/admin" },
-      { headers: rateLimitHeaders(emailLimit) },
+      { error: LOGIN_ATTEMPT_GENERIC_ERROR },
+      { status: 401, headers: rateLimitHeaders(emailLimit) },
     );
   }
 

@@ -90,6 +90,14 @@ Current deployment status:
     - Fixed `src/lib/server/subscription-entitlements.ts` so display entitlement is driven by `payment_status` plus `service_access_status`, with explicit blocked customer states, rather than requiring the workflow status to equal `active`.
     - Production deployment `dpl_3QF4CJEXaDpKcd4dDmyGSaxuAqpm` was aliased to `https://screenia.se`; `/api/display/QRWXVA/playlist` returned HTTP 200 and visible `/display/QRWXVA` played one muted 1280x720 video again.
     - Launch readiness remained `53 passed`, `10 review`, `0 blocked`.
+  - Password reset and login-boundary QA on 2026-07-15:
+    - Visible customer login reset request worked: after entering `service@screenia.se`, `Glömt lösenord?` enabled and showed the generic reset-link message.
+    - `POST /api/auth/password-reset` for invalid email returned the same generic HTTP 200 response.
+    - `service@screenia.se` reset request created audit event `password_reset_email_requested` at `2026-07-15T16:24:28.973151+00:00`; Supabase Auth user updated at `2026-07-15T16:24:28.786072Z`.
+    - Found that valid admin credentials on the customer login endpoint redirected to `/admin`.
+    - Fixed `src/app/api/auth/login/route.ts` so admin accounts must use `/admin-login`; customer-mode admin attempts now sign out, audit `admin_login_wrong_surface`, and return the generic login error.
+    - Production deployment `dpl_e1J67wHxnRucFsnNg85tXnJk4pjT` was aliased to `https://screenia.se`.
+    - Retest passed: admin-on-customer login returns HTTP 401, admin-on-admin login returns HTTP 200, customer-on-admin login returns HTTP 401, wrong customer password returns HTTP 401, display playlist still returns HTTP 200, and launch readiness remains `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

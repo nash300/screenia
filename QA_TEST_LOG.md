@@ -1070,3 +1070,36 @@ Retest:
 
 Remaining:
 - This pass still used a temporary Supabase Admin-set customer password. The final real email-link password setup remains a manual launch gate before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.
+
+### Password Reset And Login Surface Boundary QA - 2026-07-15
+
+Scenario tested:
+- Production customer login password-reset request and account-boundary behavior for customer/admin identities.
+
+Visual customer result:
+- Opened `https://screenia.se/login` in the in-app browser.
+- Entered `service@screenia.se`; `Glömt lösenord?` became enabled.
+- Clicking `Glömt lösenord?` showed the generic customer-safe message: `Om e-postadressen finns hos Screenia skickar vi en återställningslänk.`
+- No final password-change form was submitted by Codex.
+
+API and audit result:
+- `POST /api/auth/password-reset` with invalid email returned HTTP 200 and the same generic message, so the route does not reveal whether an account exists.
+- `POST /api/auth/password-reset` for `service@screenia.se` returned HTTP 200 and created audit event `password_reset_email_requested` at `2026-07-15T16:24:28.973151+00:00` with `error=null`.
+- Supabase Auth user `service@screenia.se` was updated at `2026-07-15T16:24:28.786072Z`, matching the reset request.
+
+Issue found and fixed:
+- Before this pass, an admin could post valid admin credentials to the customer login endpoint and receive `{ success: true, next: "/admin" }`.
+- Fixed `src/app/api/auth/login/route.ts` so admin accounts must use the admin login surface. Customer-mode login now signs out the admin session, records `admin_login_wrong_surface`, and returns the generic login error.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_e1J67wHxnRucFsnNg85tXnJk4pjT` was aliased to `https://screenia.se`.
+
+Retest:
+- Admin credentials on customer mode returned HTTP 401 with generic error and audit `admin_login_wrong_surface`.
+- Admin credentials on admin mode returned HTTP 200 with `next=/admin` and audit `admin_login_success`.
+- Customer credentials on admin mode returned HTTP 401 with generic error and audit `admin_login_denied`.
+- Wrong customer password returned HTTP 401 with generic error and audit `login_failed`.
+- Display smoke after deployment still passed: `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+Remaining:
+- Supabase Auth reset/setup email request is now verified at API/audit level. The final manual mailbox step is still opening the real email link and submitting a compliant password, then marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after that full customer login proof.
