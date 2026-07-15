@@ -676,6 +676,7 @@ export async function POST(
       .from("customer_subscriptions")
       .update({
         status: "cancelled",
+        stripe_payment_status: "canceled",
         fulfillment_status: "cancelled",
         cancellation_effective_at: cancelledAt,
         cancel_at_period_end: false,
@@ -690,6 +691,7 @@ export async function POST(
         subscriptionSyncError.message,
         {
           status: "cancelled",
+          stripe_payment_status: "canceled",
           fulfillment_status: "cancelled",
           cancellation_effective_at: cancelledAt,
           cancel_at_period_end: false,

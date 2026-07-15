@@ -1450,3 +1450,54 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Subscription Billing Lifecycle QA - 2026-07-15
+
+Scenario tested:
+- Admin and customer subscription operations for the live Premium 4K QA customer, plus irreversible immediate cancellation using disposable Stripe test subscriptions.
+
+Admin lifecycle result:
+- Customer: `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`, customer number `10000044`.
+- Stripe subscription: `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Display device: `QRWXVA`.
+- Admin pause set customer access to `paused`, Stripe `pause_collection.behavior=void`, stored `subscription_paused`, and `/api/display/QRWXVA/playlist` returned HTTP 403 with `Display is not active.`
+- Admin resume cleared Stripe pause collection, restored customer access to `active`, stored `subscription_resumed`, and `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Admin period-end cancellation set Stripe `cancel_at_period_end=true`, local `cancel_at_period_end=true`, customer access `active_until_period_end`, effective date `2026-08-05T01:50:10Z`, stored `subscription_cancel_scheduled`, and display access stayed HTTP 200.
+- Admin resume cleared the period-end cancellation in Stripe and locally.
+- Admin discount flow applied a temporary 10% / 1 month Stripe discount, recorded local adjustment `dc29272a-d3b5-49f7-b725-a74e72abdfe9`, stored `subscription_discount_applied`, then removed the discount, marked the adjustment inactive, stored `subscription_discount_removed`, and deleted the temporary QA Stripe coupon `5bqceQ7m` after removal to avoid Stripe clutter.
+
+Immediate cancellation result:
+- Disposable customer `10000055` / `d3a64a82-1b7f-4144-a63a-2afa92e05a92` used Stripe subscription `sub_1TtWvyGhi0eDHRQZz7sSXnd4`.
+- Admin immediate cancel returned HTTP 200.
+- Stripe subscription ended as `canceled`.
+- Customer ended as `payment_status=cancelled`, `service_access_status=cancelled`, `inactive_reason=subscription_cancelled`, `cancellation_source=admin`.
+- Local subscription ended as `status=cancelled`, `fulfillment_status=cancelled`, `stripe_payment_status=canceled`, `cancel_at_period_end=false`.
+- Audit `subscription_cancelled_immediately` was stored with the admin reason.
+
+Customer-side cancellation result:
+- Customer account cancellation endpoint scheduled period-end cancellation with reason `temporary_pause`.
+- Stripe and local subscription set `cancel_at_period_end=true`.
+- Customer access became `active_until_period_end`; display access stayed HTTP 200 until the paid-through date.
+- Admin resume then cleared cancellation and restored active access.
+- Audit records included customer `subscription_cancel_scheduled` with customer reason/details and admin `subscription_resumed` cleanup.
+
+Issues found and fixed:
+- Immediate admin cancellation changed local subscription status to `cancelled`, but left `stripe_payment_status=trialing`. Fixed `src/app/api/admin/customers/[customerId]/subscription/route.ts` so immediate cancellation stores `stripe_payment_status=canceled`.
+- Stripe webhook sync cleared `cancellation_source` after customer-side period-end cancellation. Fixed `src/app/api/stripe/webhook/route.ts` so `active_until_period_end` sync preserves the source set by the customer/admin route.
+- Two disposable QA customers initially had invalid Swedish organisation numbers. Corrected them to valid dummy numbers `5599999991` and `5599999983`; readiness returned to green.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/customers/a0fe0b3d-d3f4-45a5-9316-1e0bc8588009?section=onboarding` showed the Customer operation flow with `Pause subscription`, `Apply temporary discount`, `Cancel at period end`, and `Cancel now`.
+- Browser Orders section showed the active Premium 4K order, Stripe subscription, paid period, setup/device/shipping/monthly amounts, included VAT, and total.
+
+Checks and deployment:
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployments:
+  - `dpl_3aLv5s1xtK4Vm7YXwQchFfmqj6gR` for immediate-cancel Stripe payment-status sync.
+  - `dpl_BMvGJq4mDMw5CrebXKSrE3GKrN6L` for cancellation-source preservation in Stripe webhook sync.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

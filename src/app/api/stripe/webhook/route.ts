@@ -316,6 +316,14 @@ async function syncStripeSubscription(subscription: Stripe.Subscription) {
             inactive_reason: "payment_failed",
             cancellation_source: "stripe",
           }
+      : entitlement.serviceAccessStatus === "active_until_period_end"
+        ? {
+            status: "active",
+            payment_status: "paid",
+            service_access_status: "active_until_period_end",
+            service_access_until: entitlement.serviceAccessUntil,
+            inactive_reason: null,
+          }
       : {
           status: "active",
           payment_status: "paid",
