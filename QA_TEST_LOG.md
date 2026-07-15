@@ -1103,3 +1103,30 @@ Retest:
 
 Remaining:
 - Supabase Auth reset/setup email request is now verified at API/audit level. The final manual mailbox step is still opening the real email link and submitting a compliant password, then marking `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` only after that full customer login proof.
+
+### Admin Support Reply, Customer Portal History, And Email Delivery QA - 2026-07-15
+
+Scenario tested:
+- Admin sends a customer-visible support reply for the active Premium 4K customer, the customer can see the reply in the portal, the email is sent/delivered, and admin/audit evidence is stored.
+
+Flow evidence:
+- Customer: `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Original support ticket: `IS-260715-084E99`, message `e8c626e9-38f1-41a9-a653-6c263c9f6866`.
+- Admin reply API returned HTTP 200 with `success=true`, `emailSent=true`, and `warning=null`.
+- Reply message created: `13a69cbf-1fe2-4fef-bf98-28b6f8cf30d1`, subject `[IS-260715-084E99] Reply from Screenia`, status `waiting_for_customer`.
+- Original ticket status also changed from `new` to `waiting_for_customer`.
+
+Email and audit result:
+- Audit `customer_support_reply_sent` was stored at `2026-07-15T16:31:46.621405+00:00`.
+- Audit `customer_support_reply_email_sent` was stored at `2026-07-15T16:31:46.857299+00:00`.
+- Email was sent to `service@screenia.se` with Resend email id `489cb91d-ffc0-4f3c-8cd4-c9a29193a509`.
+- Resend webhook ledger stored both `email.sent` and `email.delivered` for subject `[IS-260715-084E99] Reply from Screenia`, from `Screenia <service@screenia.se>`.
+
+Visual verification:
+- Customer portal `https://screenia.se/account?section=messages` showed `[IS-260715-084E99] Reply from Screenia` and the reply body in the customer-visible history.
+- Admin `Email Events` page showed `email.delivered`, recipient `service@screenia.se`, subject `[IS-260715-084E99] Reply from Screenia`, and Resend id `489cb91d-ffc0-4f3c-8cd4-c9a29193a509`.
+- Admin customer communication page showed `Communication (7)`, `Conversations (4)`, the reply message, and the original ticket marked `waiting_for_customer`.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

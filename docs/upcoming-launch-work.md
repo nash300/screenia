@@ -98,6 +98,13 @@ Current deployment status:
     - Fixed `src/app/api/auth/login/route.ts` so admin accounts must use `/admin-login`; customer-mode admin attempts now sign out, audit `admin_login_wrong_surface`, and return the generic login error.
     - Production deployment `dpl_e1J67wHxnRucFsnNg85tXnJk4pjT` was aliased to `https://screenia.se`.
     - Retest passed: admin-on-customer login returns HTTP 401, admin-on-admin login returns HTTP 200, customer-on-admin login returns HTTP 401, wrong customer password returns HTTP 401, display playlist still returns HTTP 200, and launch readiness remains `53 passed`, `10 review`, `0 blocked`.
+  - Admin support reply and delivery QA on 2026-07-15:
+    - Admin replied to active customer ticket `IS-260715-084E99`; reply message `13a69cbf-1fe2-4fef-bf98-28b6f8cf30d1` was created with status `waiting_for_customer`.
+    - Original support ticket `e8c626e9-38f1-41a9-a653-6c263c9f6866` also moved to `waiting_for_customer`.
+    - Audit events `customer_support_reply_sent` and `customer_support_reply_email_sent` were stored.
+    - Resend email id `489cb91d-ffc0-4f3c-8cd4-c9a29193a509` reached both `email.sent` and `email.delivered` in the webhook ledger for `service@screenia.se`.
+    - Customer portal message history, admin customer communication, and admin Email Events page all visibly showed the reply/delivery evidence.
+    - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
