@@ -337,6 +337,13 @@ Billing lifecycle operations tested:
   - Local `subscription_adjustments` rows were recorded.
   - Production fulfillment status stayed `layout_started` after the webhook preservation fix.
   - QA-only active discounts were removed from the Stripe test subscription after verification, and local adjustment rows were marked inactive.
+- Remove temporary discount:
+  - Added and deployed an audited admin operation for removing/revoking a temporary Stripe discount.
+  - Retested visually on the live admin customer page by applying a 3% one-month test discount, confirming the `Remove temporary discount` action appeared, then removing it through the new operation flow.
+  - Stripe subscription ended with `discountCount=0`.
+  - Local active `subscription_adjustments` ended at `0`, with the QA adjustment row marked `inactive`.
+  - Audit events included `subscription_discount_applied` and `subscription_discount_removed`.
+  - Customer and subscription remained `active`, and order fulfillment remained `layout_started`.
 
 Fixes completed during this scenario:
 - Fixed payment-success page heading contrast.
@@ -356,5 +363,4 @@ Remaining launch blockers / manual action:
 - Admin media native file-picker upload was not fully automated visually; a fresh Screenia-branded MP4 asset is still needed for final playback QA.
 - Inventory form field labels/field mapping need polish: a service-note style entry appeared under a defect-related field during inventory creation.
 - Legal consent checkboxes work but need better stable labels/ids for accessibility and automated testing.
-- There is no admin operation to remove/revoke a temporary Stripe discount after applying it; add this before launch if customer-specific discounts will be managed from the admin panel.
 - `Cancel now` and actual refund-before-layout require separate destructive test customers; the main Premium 4K test customer was preserved in active/layout-started state.
