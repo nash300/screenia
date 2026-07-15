@@ -339,6 +339,8 @@ async function syncStripeSubscription(subscription: Stripe.Subscription) {
               ? "payment_failed"
               : "active",
       stripe_payment_status: subscription.status,
+      trial_starts_at: entitlement.trialStart,
+      trial_ends_at: entitlement.trialEnd,
       stripe_current_period_start: entitlement.currentPeriodStart,
       stripe_current_period_end: entitlement.currentPeriodEnd,
       cancel_at_period_end: entitlement.cancelAtPeriodEnd,
@@ -1074,6 +1076,8 @@ export async function POST(request: Request) {
           fulfillment_status: "content_collection",
           inventory_status: "ready_to_reserve",
           stripe_discount_coupon_id: discountCouponId,
+          trial_starts_at: entitlement?.trialStart || null,
+          trial_ends_at: entitlement?.trialEnd || null,
           stripe_current_period_start: entitlement?.currentPeriodStart || null,
           stripe_current_period_end: entitlement?.currentPeriodEnd || null,
           cancel_at_period_end: entitlement?.cancelAtPeriodEnd || false,

@@ -3446,12 +3446,13 @@
 }
 
 .flow-result-copy h1 {
-  color: var(--landing-blue-950);
-  font-family: var(--landing-font-ui);
+  color: #061942 !important;
+  font-family: var(--landing-font-display);
   font-size: clamp(2.2rem, 5vw, 4rem);
-  font-weight: 900;
+  font-weight: 400;
   letter-spacing: 0;
   line-height: 1.03;
+  text-shadow: none;
 }
 
 .flow-result-copy p:not(.landing-eyebrow) {

@@ -12,9 +12,17 @@ export type ServiceAccessStatus =
 type StripeSubscriptionSnapshot = Stripe.Subscription & {
   current_period_start?: number | null;
   current_period_end?: number | null;
+  trial_start?: number | null;
+  trial_end?: number | null;
   cancel_at?: number | null;
   cancel_at_period_end?: boolean | null;
   canceled_at?: number | null;
+  items?: {
+    data?: Array<{
+      current_period_start?: number | null;
+      current_period_end?: number | null;
+    }>;
+  };
   pause_collection?: {
     behavior?: string | null;
     resumes_at?: number | null;
@@ -29,8 +37,15 @@ export function getStripeSubscriptionEntitlement(
   subscription: Stripe.Subscription,
 ) {
   const snapshot = subscription as StripeSubscriptionSnapshot;
-  const currentPeriodStart = fromUnixSeconds(snapshot.current_period_start);
-  const currentPeriodEnd = fromUnixSeconds(snapshot.current_period_end);
+  const firstItem = snapshot.items?.data?.[0];
+  const currentPeriodStart = fromUnixSeconds(
+    snapshot.current_period_start ?? firstItem?.current_period_start,
+  );
+  const currentPeriodEnd = fromUnixSeconds(
+    snapshot.current_period_end ?? firstItem?.current_period_end,
+  );
+  const trialStart = fromUnixSeconds(snapshot.trial_start);
+  const trialEnd = fromUnixSeconds(snapshot.trial_end);
   const cancelAt = fromUnixSeconds(snapshot.cancel_at);
   const pauseResumesAt = fromUnixSeconds(snapshot.pause_collection?.resumes_at);
   const isPaused = Boolean(snapshot.pause_collection);
@@ -53,6 +68,8 @@ export function getStripeSubscriptionEntitlement(
       serviceAccessStatus === "active_until_period_end" ? cancellationEffectiveAt : null,
     currentPeriodStart,
     currentPeriodEnd,
+    trialStart,
+    trialEnd,
     cancelAtPeriodEnd,
     cancellationEffectiveAt,
     pauseStartedAt: isPaused ? new Date().toISOString() : null,
