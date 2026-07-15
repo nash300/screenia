@@ -1748,6 +1748,25 @@ Manual actions still required before live payments:
 - Configure and verify the live Stripe webhook only after switching to live Stripe mode.
 - Set each `SCREENIA_*_CONFIRMED` flag only after the corresponding item has real evidence.
 
+### Zoho Mailbox Click Proof Recheck - 2026-07-15
+
+Scenario tested:
+- Reopened Zoho Mail in the in-app browser to check whether the remaining literal customer setup/reset email click proof could be completed.
+
+Result:
+- Browser opened `https://mail.zoho.eu/zm/#mail/folder/inbox`, but Zoho redirected to `https://accounts.zoho.eu/signin?...`.
+- The visible page was the Zoho Accounts sign-in screen for Mail, not the inbox.
+- Visible controls included email address, password, CAPTCHA, OTP/MFA, and smart sign-in approval controls.
+- Because the mailbox is signed out, Screenia cannot visually verify the actual inbox email click in this session.
+
+Current evidence that is already verified:
+- Resend delivery events prove the relevant customer request, quote, support, reset, and setup emails reached `email.sent` and `email.delivered`.
+- The customer-facing Screenia password setup/reset page has been verified with an equivalent Supabase action link.
+- Password validation and fresh customer login have been verified for a unique paid Premium 4K test customer.
+
+Remaining blocked proof:
+- Sign in to Zoho Mail, open the actual customer setup/reset email from the inbox, click the link, and confirm it lands on the Screenia password page. Only after that should `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` be considered.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:
