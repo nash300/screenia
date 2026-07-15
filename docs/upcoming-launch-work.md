@@ -114,6 +114,12 @@ Current deployment status:
     - Dedicated setup-fee products/prices were created for Standard FHD and Premium 4K, replacing old setup prices that were attached to monthly subscription products.
     - A Premium 4K dry-run Checkout session was created and immediately expired; line items showed setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, monthly subscription `0 kr` during trial, and first payment total `2 797 kr`.
     - System audit events were written for the Stripe pricing cleanup.
+  - Stripe branding/static-checkout cleanup on 2026-07-15:
+    - Stripe dashboard account name now shows `Screenia`; branding colors are set to Screenia blue/navy.
+    - Billing portal headline, privacy URL, and terms URL are set for Screenia.
+    - The app checkout route was updated locally to use the 8 existing Stripe price IDs for standard checkouts instead of creating new dynamic Stripe products/prices.
+    - Local disposable route test session `cs_test_b1MtsxqnUs1WmwDzMDtZjw4P6QycfL2yrLK7RaugtKw2vw3JehyRmawpV3` used the expected Premium 4K static price IDs and created no new active prices.
+    - Remaining Stripe branding polish: upload logo/icon in Stripe Dashboard before real customer payments.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

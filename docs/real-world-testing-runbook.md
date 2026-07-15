@@ -94,6 +94,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: fixed Stripe refund webhook evidence de-duplication so repeated refund events do not create new duplicate admin audit/notification rows.
    - Completed 2026-07-15: tested Stripe dispute/chargeback behavior with signed local webhook events. Open disputes block customer display access and record urgent evidence; won disputes restore the customer, subscription, and display access while preserving `fulfillment_status=layout_started`.
    - Completed 2026-07-15: cleaned Stripe test-mode active prices so only the 8 Supabase-referenced Standard FHD and Premium 4K prices remain active, with dedicated setup-fee products and inclusive tax behavior.
+   - Completed 2026-07-15: updated Stripe branding/account display name to Screenia where dashboard/API access allowed, and updated the checkout route to use static Stripe price IDs for standard checkouts instead of creating new active product/price objects.
 
 9. Evidence export
    - Completed 2026-07-15: fixed accounting CSV old discount-column names and verified production export includes active/refunded orders with customer/order/payment/VAT evidence.

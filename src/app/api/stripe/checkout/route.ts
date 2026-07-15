@@ -23,6 +23,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 const stripeAutomaticTaxEnabled =
   process.env.STRIPE_AUTOMATIC_TAX_ENABLED === "true";
 const DEFAULT_SHIPPING_FEE_SEK = 99;
+type CheckoutLineItem =
+  NonNullable<
+    NonNullable<Parameters<typeof stripe.checkout.sessions.create>[0]>["line_items"]
+  >[number];
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -96,6 +100,25 @@ type QuoteItem = {
   shippingFeeSek?: number;
   monthlyFeeSek?: number;
 };
+
+function staticPriceLineItem({
+  priceId,
+  expectedAmountSek,
+  actualAmountSek,
+  quantity,
+}: {
+  priceId?: string | null;
+  expectedAmountSek: number;
+  actualAmountSek: number;
+  quantity: number;
+}): CheckoutLineItem | null {
+  if (!priceId || expectedAmountSek !== actualAmountSek) return null;
+
+  return {
+    price: priceId,
+    quantity,
+  };
+}
 
 type CheckoutFailureContext = {
   customerId?: string;
@@ -509,10 +532,6 @@ export async function POST(request: Request) {
       36,
       Math.max(0, Number(quotedOrder?.device_discount_months) || 0),
     );
-    const discountedHardwareFeeSek = Math.max(
-      0,
-      Math.round(hardwareFeeSek * (1 - deviceDiscountPercent / 100)),
-    );
     const quoteItems =
       Array.isArray(quotedOrder?.quote_items) &&
       quotedOrder.quote_items.length > 0
@@ -537,7 +556,7 @@ export async function POST(request: Request) {
       supabaseAdmin
         .from("pricing_plans")
         .select(
-          "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek",
+          "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
         )
         .in("code", quotePlanCodes),
       3000,
@@ -573,6 +592,9 @@ export async function POST(request: Request) {
         ),
         shippingFeeSek: itemShippingFee,
         monthlyFeeSek: item.monthlyFeeSek ?? itemPlan.monthly_fee_sek,
+        stripeHardwarePriceId: itemPlan.stripe_hardware_price_id,
+        stripeShippingPriceId: itemPlan.stripe_shipping_price_id,
+        stripeMonthlyPriceId: itemPlan.stripe_monthly_price_id,
       };
     });
     const checkoutScreenQuantity = checkoutQuoteItems.reduce(
@@ -764,6 +786,98 @@ export async function POST(request: Request) {
     }
     failureContext.stripeCustomerId = stripeCustomer.id;
 
+    const setupLineItem =
+      staticPriceLineItem({
+        priceId: plan.stripe_setup_price_id,
+        expectedAmountSek: plan.setup_fee_sek,
+        actualAmountSek: plan.setup_fee_sek,
+        quantity: 1,
+      }) || {
+        price_data: {
+          currency,
+          unit_amount: toOre(plan.setup_fee_sek),
+          tax_behavior: priceTaxBehavior,
+          product_data: {
+            name: `${plan.name} start- och konfigurationsavgift`,
+            description:
+              "Engångsavgift. Återbetalas inte när setupen har startat.",
+            images: [setupImage],
+          },
+        },
+        quantity: 1,
+      };
+
+    const checkoutLineItems: CheckoutLineItem[] = [
+      setupLineItem,
+      ...checkoutQuoteItems.flatMap((item) => {
+        const hardwareLineItem =
+          item.discountedHardwareFeeSek > 0
+            ? staticPriceLineItem({
+                priceId: item.stripeHardwarePriceId,
+                expectedAmountSek: item.hardwareFeeSek,
+                actualAmountSek: item.discountedHardwareFeeSek,
+                quantity: item.quantity,
+              }) || {
+                price_data: {
+                  currency,
+                  unit_amount: toOre(item.discountedHardwareFeeSek),
+                  tax_behavior: priceTaxBehavior,
+                  product_data: {
+                    name: `${item.name} ${item.resolution} skärmenhet`,
+                    images: [deviceImage],
+                  },
+                },
+                quantity: item.quantity,
+              }
+            : null;
+
+        const shippingLineItem =
+          staticPriceLineItem({
+            priceId: item.stripeShippingPriceId,
+            expectedAmountSek: item.shippingFeeSek,
+            actualAmountSek: item.shippingFeeSek,
+            quantity: item.quantity,
+          }) || {
+            price_data: {
+              currency,
+              unit_amount: toOre(item.shippingFeeSek),
+              tax_behavior: priceTaxBehavior,
+              product_data: {
+                name: "Frakt inom Sverige",
+                images: [subscriptionImage],
+              },
+            },
+            quantity: item.quantity,
+          };
+
+        const monthlyLineItem =
+          staticPriceLineItem({
+            priceId: item.stripeMonthlyPriceId,
+            expectedAmountSek: item.monthlyFeeSek,
+            actualAmountSek: item.monthlyFeeSek,
+            quantity: item.quantity,
+          }) || {
+            price_data: {
+              currency,
+              unit_amount: toOre(item.monthlyFeeSek),
+              tax_behavior: priceTaxBehavior,
+              recurring: {
+                interval: "month",
+              },
+              product_data: {
+                name: `Screenia ${item.name} ${item.resolution} månadsabonnemang`,
+                images: [subscriptionImage],
+              },
+            },
+            quantity: item.quantity,
+          };
+
+        return [hardwareLineItem, shippingLineItem, monthlyLineItem].filter(
+          (lineItem): lineItem is CheckoutLineItem => Boolean(lineItem),
+        );
+      }),
+    ];
+
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomer.id,
@@ -786,112 +900,7 @@ export async function POST(request: Request) {
         name: "auto",
         shipping: "auto",
       },
-      line_items: [
-        {
-          price_data: {
-            currency,
-            unit_amount: toOre(plan.setup_fee_sek),
-            tax_behavior: priceTaxBehavior,
-            product_data: {
-              name: `${plan.name} start- och konfigurationsavgift`,
-              description: "Engångsavgift. Återbetalas inte när setupen har startat.",
-              images: [setupImage],
-            },
-          },
-          quantity: 1,
-        },
-        ...((checkoutQuoteItems[0]?.discountedHardwareFeeSek ?? discountedHardwareFeeSek) > 0
-          ? [
-              {
-                price_data: {
-                  currency,
-                  unit_amount: toOre(
-                    checkoutQuoteItems[0]?.discountedHardwareFeeSek ??
-                      discountedHardwareFeeSek,
-                  ),
-                  tax_behavior: priceTaxBehavior,
-                  product_data: {
-                    name: `${plan.name} ${plan.resolution} skärmenhet`,
-                    images: [deviceImage],
-                  },
-                },
-                quantity: checkoutQuoteItems[0]?.quantity ?? screenQuantity,
-              },
-            ]
-          : []),
-        {
-          price_data: {
-            currency,
-            unit_amount: toOre(checkoutQuoteItems[0]?.shippingFeeSek ?? shippingFeeSek),
-            tax_behavior: priceTaxBehavior,
-            product_data: {
-              name: "Frakt inom Sverige",
-              images: [subscriptionImage],
-            },
-          },
-          quantity: checkoutScreenQuantity,
-        },
-        {
-          price_data: {
-            currency,
-            unit_amount: toOre(checkoutQuoteItems[0]?.monthlyFeeSek ?? plan.monthly_fee_sek),
-            tax_behavior: priceTaxBehavior,
-            recurring: {
-              interval: "month",
-            },
-            product_data: {
-              name: `Screenia ${plan.name} ${plan.resolution} månadsabonnemang`,
-              images: [subscriptionImage],
-            },
-          },
-          quantity: checkoutQuoteItems[0]?.quantity ?? 1,
-        },
-        ...checkoutQuoteItems.slice(1).flatMap((item) => [
-          ...(item.discountedHardwareFeeSek > 0
-            ? [
-                {
-                  price_data: {
-                    currency,
-                    unit_amount: toOre(item.discountedHardwareFeeSek),
-                    tax_behavior: priceTaxBehavior,
-                    product_data: {
-                      name: `${item.name} ${item.resolution} skärmenhet`,
-                      images: [deviceImage],
-                    },
-                  },
-                  quantity: item.quantity,
-                },
-              ]
-            : []),
-          {
-            price_data: {
-              currency,
-              unit_amount: toOre(item.shippingFeeSek),
-              tax_behavior: priceTaxBehavior,
-              product_data: {
-                name: `Frakt ${item.name} ${item.resolution}`,
-                images: [subscriptionImage],
-              },
-            },
-            quantity: item.quantity,
-          },
-          {
-            price_data: {
-              currency,
-              unit_amount: toOre(item.monthlyFeeSek),
-              tax_behavior: priceTaxBehavior,
-              recurring: {
-                interval: "month" as const,
-              },
-              product_data: {
-                name: `Screenia ${item.name} ${item.resolution} månadsabonnemang`,
-                images: [subscriptionImage],
-              },
-            },
-            quantity: item.quantity,
-          },
-        ]),
-      ],
+      line_items: checkoutLineItems,
       subscription_data: {
         trial_period_days: plan.trial_days,
         metadata: {

@@ -900,3 +900,37 @@ Verification:
 Result:
 - Stripe test-mode pricing is clean for the active Standard FHD and Premium 4K plans.
 - Checkout line-item names now match the business model and should be clearer for customers.
+
+### Stripe Branding And Static Checkout Route QA - 2026-07-15
+
+Scenario tested:
+- Stripe-hosted customer payment surfaces and the app checkout route after Stripe catalogue cleanup.
+
+Branding/configuration completed:
+- Updated Stripe test dashboard account name from `New business sandbox` to `Screenia` in the Stripe Dashboard.
+- Set Stripe branding colors to primary `#0b4dff` and secondary `#071e49`.
+- Updated the default billing portal configuration:
+  - headline: `Hantera ditt Screenia-abonnemang`
+  - privacy policy: `https://screenia.se/privacy`
+  - terms: `https://screenia.se/terms`
+- Logo/icon upload remains a manual Stripe dashboard polish item because the Stripe API cannot update this account's own branding files with the current secret key.
+
+Route fix completed:
+- Updated `src/app/api/stripe/checkout/route.ts` so normal Standard FHD and Premium 4K checkout sessions use the Supabase-referenced Stripe price IDs instead of creating dynamic `price_data` products/prices on every checkout.
+- Dynamic `price_data` remains as a fallback for custom quoted amounts, such as discounted hardware.
+- The route still requires Swedish shipping address collection and required billing address collection when Stripe automatic tax is enabled.
+
+Verification:
+- `npm.cmd run text:check`, `npm.cmd run lint`, and `npm.cmd run build` passed.
+- Disposable local checkout-route test customer `93f0ef4e-59f4-4d18-a177-2bc1a4ae27c5` created session `cs_test_b1MtsxqnUs1WmwDzMDtZjw4P6QycfL2yrLK7RaugtKw2vw3JehyRmawpV3`, which was expired without payment and the local disposable records were marked cancelled.
+- Route-created line items used the expected static prices:
+  - setup `price_1TtUEWGhi0eDHRQZUq8olf0U`
+  - device `price_1TpytlGhi0eDHRQZ0B8iJOZd`
+  - shipping `price_1TpyT9Ghi0eDHRQZ3mV5Pu0c`
+  - monthly `price_1TpyTAGhi0eDHRQZ9hccVL3r`
+- No new active Stripe prices were created by the route test.
+- Stripe verification after the test: exactly 8 active prices, zero unreferenced active prices, account display name `Screenia`, and customer portal policy URLs set.
+
+Result:
+- Stripe-hosted Checkout branding no longer shows `New business sandbox`.
+- The app checkout route should no longer clutter Stripe test mode with new active product/price objects for standard checkouts.
