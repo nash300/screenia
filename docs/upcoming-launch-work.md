@@ -195,6 +195,7 @@ Current deployment status:
      - Production request confirmation was triggered through `https://screenia.se` with test company `Screenia Live Email Test 2026-07-15T00-31-28-834Z`; Gmail search `from:service@screenia.se` found subject `Screenia har tagit emot din förfrågan` in the inbox.
      - Zoho outgoing display names were corrected from the personal account name to `Screenia` for `admin@screenia.se`, `hello@screenia.se`, `service@screenia.se`, and `info@screenia.se`.
      - Gmail confirmed the corrected manual Zoho sender display with subject `Screenia sender name proof 2026-07-15T00-42-15-102Z`; the visible sender name is `Screenia`.
+     - The unused legacy alias `hello@screenia.se` was removed from Zoho on 2026-07-15 so clients only reply to `service@screenia.se`.
      - `info@screenia.se` remains reserved for newsletter/broadcast sender identity; transactional/customer-service email should continue to use `service@screenia.se`.
 
    Human mailbox setup runbook:
@@ -207,6 +208,7 @@ Current deployment status:
    - Current real mailbox: `admin@screenia.se`.
    - Current public alias: `service@screenia.se` on the admin mailbox.
    - Current newsletter/broadcast alias: `info@screenia.se` on the admin mailbox.
+   - Removed legacy alias: `hello@screenia.se`. Do not recreate or use it for customer communication.
    - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first send/receive test passes.
    - Keep transactional/product email separate in Resend. Use `service@screenia.se` for app/client emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
    - Keep newsletter/broadcast identity separate as `info@screenia.se`.
