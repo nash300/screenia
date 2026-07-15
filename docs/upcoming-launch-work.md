@@ -109,6 +109,11 @@ Current deployment status:
     - Signed local Stripe won-dispute recovery events now restore customer status, payment status, service access, cancellation source, subscription status, and display playback while preserving `fulfillment_status=layout_started`.
     - Production deployment `dpl_AL3AHsKEM5FrH2gg9XbqjGynLaJJ` was aliased to `https://screenia.se` after the dispute recovery fix.
     - Post-deploy smoke checks passed: display playlist HTTP 200, visible display playback active, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, launch readiness 53 pass / 10 warning / 0 fail, accounting export HTTP 200, and VAT summary HTTP 200.
+  - Stripe pricing cleanup on 2026-07-15:
+    - Stripe test mode now has exactly 8 active prices, all referenced by Supabase `pricing_plans` and all `tax_behavior=inclusive`.
+    - Dedicated setup-fee products/prices were created for Standard FHD and Premium 4K, replacing old setup prices that were attached to monthly subscription products.
+    - A Premium 4K dry-run Checkout session was created and immediately expired; line items showed setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, monthly subscription `0 kr` during trial, and first payment total `2 797 kr`.
+    - System audit events were written for the Stripe pricing cleanup.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

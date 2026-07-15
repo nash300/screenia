@@ -870,3 +870,33 @@ Result:
 - Production deployment `dpl_AL3AHsKEM5FrH2gg9XbqjGynLaJJ` was aliased to `https://screenia.se` after the dispute recovery fix.
 - Post-deploy smoke checks passed: `/login` returned HTTP 200, `/api/display/QRWXVA/playlist` returned HTTP 200, unsigned Stripe webhook POST returned HTTP 400 `Missing signature`, admin launch readiness returned HTTP 200 with `53 pass`, `10 warning`, `0 fail`, accounting export returned HTTP 200 CSV, and VAT summary returned HTTP 200 with gross `2797.00` SEK / VAT `559.40` SEK.
 - Visible production `/display/QRWXVA` still rendered a playing muted video after deployment with `readyState=4`.
+
+### Stripe Pricing Configuration Cleanup QA - 2026-07-15
+
+Scenario tested:
+- Stripe test-mode product/price cleanliness and Premium 4K checkout line-item correctness after the customer-facing pricing model was finalized.
+
+Cleanup completed:
+- Created dedicated setup-fee products:
+  - `Screenia Standard FHD setup and configuration` / product `prod_UtGmEczHwcMBIY` / price `price_1TtUEVGhi0eDHRQZc2KtT7EN`.
+  - `Screenia Premium 4K setup and configuration` / product `prod_UtGmfAcdTnwUoX` / price `price_1TtUEWGhi0eDHRQZUq8olf0U`.
+- Updated Supabase `pricing_plans` so Standard and Premium setup fees reference those new setup prices.
+- Restored the Standard and Premium monthly subscription products to use their recurring monthly prices as default prices.
+- Archived 7 old active unreferenced Stripe prices plus the 2 old setup prices that were attached to monthly products.
+- Wrote system audit events `stripe_pricing_configuration_cleanup` and `stripe_product_default_price_cleanup`.
+
+Verification:
+- Stripe now has exactly 8 active prices for the two live plans.
+- Every active Stripe price is referenced by Supabase `pricing_plans`.
+- All active Stripe prices use `tax_behavior=inclusive`.
+- Premium 4K dry-run Checkout session `cs_test_b1m7fhoxFMtHoW9t0YHo3nJJo0chQ5aPcUajLzGLVAziznqCWDXak4I3oE` was created and immediately expired without payment.
+- Dry-run line items:
+  - `Screenia Premium 4K setup and configuration`: `159900` ore.
+  - `Screenia Premium 4K screen device`: `109900` ore.
+  - `Screenia Premium 4K shipping`: `9900` ore.
+  - `Screenia Premium 4K monthly subscription`: `0` ore during the 21-day trial.
+- Dry-run first payment total was `279700` ore / `2 797 kr`, matching setup + device + shipping.
+
+Result:
+- Stripe test-mode pricing is clean for the active Standard FHD and Premium 4K plans.
+- Checkout line-item names now match the business model and should be clearer for customers.
