@@ -182,6 +182,7 @@ type CustomerOperationId =
   | "pause_subscription"
   | "resume_subscription"
   | "apply_temporary_discount"
+  | "remove_temporary_discount"
   | "cancel_period_end"
   | "cancel_immediately"
   | "start_layout"
@@ -361,6 +362,7 @@ export default function CustomerDetailPage({
   const [operationDiscountPercent, setOperationDiscountPercent] = useState("20");
   const [operationDiscountMonths, setOperationDiscountMonths] = useState("3");
   const [operationConfirmed, setOperationConfirmed] = useState(false);
+  const [activeDiscountCount, setActiveDiscountCount] = useState(0);
 
   const formatInactiveReason = (
     reason: string | null,
@@ -746,6 +748,20 @@ export default function CustomerDetailPage({
         );
       }
       setSubscriptions((subscriptionData || []).map(normalizeSubscription));
+    }
+
+    const { data: activeDiscountData, error: activeDiscountError } =
+      await supabase
+        .from("subscription_adjustments")
+        .select("id")
+        .eq("customer_id", customerId)
+        .eq("status", "active");
+
+    if (activeDiscountError) {
+      console.warn("Active discounts could not be loaded.", activeDiscountError);
+      setActiveDiscountCount(0);
+    } else {
+      setActiveDiscountCount((activeDiscountData || []).length);
     }
 
     const { data: pricingData, error: pricingError } = await supabase
@@ -1284,6 +1300,16 @@ export default function CustomerDetailPage({
       return;
     }
 
+    if (selectedOperationId === "remove_temporary_discount") {
+      await runSubscriptionAction({
+        action: "remove_temporary_discount",
+        payload: { reason: cleanedReason },
+        successMessage: "Temporary Stripe discount removed and recorded.",
+      });
+      finish();
+      return;
+    }
+
     if (selectedOperationId === "pause_subscription") {
       await pauseSubscription(cleanedReason);
       finish();
@@ -1303,6 +1329,7 @@ export default function CustomerDetailPage({
       pause_subscription: "Subscription paused. Display access is blocked.",
       resume_subscription: "Subscription resumed.",
       apply_temporary_discount: "Temporary Stripe discount applied and recorded.",
+      remove_temporary_discount: "Temporary Stripe discount removed and recorded.",
       cancel_period_end:
         "Cancellation scheduled. Customer keeps access until the paid period ends.",
       cancel_immediately: "Subscription cancelled immediately and access blocked.",
@@ -1716,6 +1743,17 @@ export default function CustomerDetailPage({
           requiresDiscount: true,
         }
       : null,
+    customer.stripe_subscription_id && activeDiscountCount > 0
+      ? {
+          id: "remove_temporary_discount",
+          title: "Remove temporary discount",
+          description: "Use when a customer-specific Stripe discount should end.",
+          result: "Stripe discount is removed and local discount records are closed.",
+          tone: "warning",
+          requiresStripe: true,
+          requiresConfirmation: true,
+        }
+      : null,
     customer.stripe_subscription_id && !hasScheduledCancellation
       ? {
           id: "cancel_period_end",
@@ -1759,11 +1797,13 @@ export default function CustomerDetailPage({
                   ? "Reason for immediate subscription cancellation"
                   : selectedOperationId === "apply_temporary_discount"
                     ? "Reason for applying this temporary discount"
-                    : selectedOperationId === "start_layout"
-                      ? "Reason for starting layout work"
-                      : selectedOperationId === "refund_first_payment"
-                        ? "Reason for refunding the first payment"
-                        : "Reason for audit history";
+                    : selectedOperationId === "remove_temporary_discount"
+                      ? "Reason for removing this temporary discount"
+                      : selectedOperationId === "start_layout"
+                        ? "Reason for starting layout work"
+                        : selectedOperationId === "refund_first_payment"
+                          ? "Reason for refunding the first payment"
+                          : "Reason for audit history";
 
   return (
     <div>

@@ -942,5 +942,123 @@ export async function POST(
     return NextResponse.json({ success: true, stripeCouponId: coupon.id });
   }
 
+  if (action === "remove_temporary_discount") {
+    if (!requireAdminReason(reason)) {
+      return NextResponse.json(
+        { error: "A reason of at least 5 characters is required." },
+        { status: 400 },
+      );
+    }
+
+    const existingSubscription = await stripe.subscriptions.retrieve(
+      customer.stripe_subscription_id,
+      { expand: ["discounts"] },
+    );
+    const hasStripeDiscount =
+      Array.isArray(existingSubscription.discounts) &&
+      existingSubscription.discounts.length > 0;
+
+    const { data: activeAdjustments, error: activeAdjustmentError } =
+      await supabaseAdmin
+        .from("subscription_adjustments")
+        .select("id, stripe_coupon_id, percent_off, duration_months")
+        .eq("customer_id", customerId)
+        .eq("stripe_subscription_id", customer.stripe_subscription_id)
+        .eq("status", "active");
+
+    if (activeAdjustmentError) {
+      const evidenceFailureResponse = await recordCustomerAccessSyncFailure(
+        customerId,
+        customer.stripe_subscription_id,
+        syncContext(action),
+        activeAdjustmentError.message,
+        { operation: "lookup_active_subscription_adjustments" },
+      );
+
+      if (evidenceFailureResponse) return evidenceFailureResponse;
+
+      return NextResponse.json(
+        { error: "Could not verify active local discount records." },
+        { status: 500 },
+      );
+    }
+
+    if (!hasStripeDiscount && !(activeAdjustments || []).length) {
+      return NextResponse.json(
+        { error: "No active temporary discount is connected to this subscription." },
+        { status: 400 },
+      );
+    }
+
+    const subscription = await stripe.subscriptions.update(
+      customer.stripe_subscription_id,
+      { discounts: "" } as Stripe.SubscriptionUpdateParams,
+    );
+    const { entitlement, syncFailureResponse } = await updateLocalSubscription(
+      subscription,
+      customerId,
+      {},
+      syncContext(action),
+    );
+    if (syncFailureResponse) return syncFailureResponse;
+
+    const adjustmentIds = (activeAdjustments || []).map((adjustment) => adjustment.id);
+    if (adjustmentIds.length) {
+      const { error: adjustmentUpdateError } = await supabaseAdmin
+        .from("subscription_adjustments")
+        .update({ status: "inactive" })
+        .in("id", adjustmentIds);
+
+      if (adjustmentUpdateError) {
+        const evidenceFailureResponse = await recordCustomerAccessSyncFailure(
+          customerId,
+          customer.stripe_subscription_id,
+          syncContext(action),
+          adjustmentUpdateError.message,
+          { operation: "mark_subscription_adjustments_inactive", adjustmentIds },
+        );
+
+        if (evidenceFailureResponse) return evidenceFailureResponse;
+
+        return NextResponse.json(
+          {
+            error:
+              "Stripe discount was removed, but Screenia could not mark local discount records inactive.",
+          },
+          { status: 500 },
+        );
+      }
+    }
+
+    const customerSyncResponse = await updateCustomerAccessAfterStripe(
+      customerId,
+      customer.stripe_subscription_id,
+      {
+        service_access_status: entitlement.serviceAccessStatus,
+        service_access_until: entitlement.serviceAccessUntil,
+      },
+      syncContext(action),
+    );
+
+    if (customerSyncResponse) return customerSyncResponse;
+
+    const auditResponse = await recordRequiredSubscriptionAudit({
+      ...auditBase,
+      eventType: "subscription_discount_removed",
+      eventDescription: "Admin removed a temporary subscription discount.",
+      metadata: {
+        reason,
+        stripeSubscriptionId: customer.stripe_subscription_id,
+        removedAdjustmentIds: adjustmentIds,
+        removedStripeCoupons: (activeAdjustments || []).map(
+          (adjustment) => adjustment.stripe_coupon_id,
+        ),
+      },
+    });
+    if (auditResponse) return auditResponse;
+
+    return NextResponse.json({ success: true });
+  }
+
   return NextResponse.json({ error: "Unsupported subscription action." }, { status: 400 });
 }
