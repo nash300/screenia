@@ -346,56 +346,60 @@ export default function AdminLegalChangeNoticesPage() {
                     <small>{notice.evidence_reference || "-"}</small>
                   </td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === notice.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [notice.id]: {
-                              status: "approved",
-                              reason: current[notice.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === notice.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [notice.id]: {
-                              status: "sent",
-                              reason: current[notice.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Sent
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === notice.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [notice.id]: {
-                              status: "needs_review",
-                              reason: current[notice.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Needs review
-                      </button>
-                    </div>
+                    {notice.notice_status === "sent" ? (
+                      <span className="admin-muted">Sent</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === notice.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [notice.id]: {
+                                status: "approved",
+                                reason: current[notice.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === notice.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [notice.id]: {
+                                status: "sent",
+                                reason: current[notice.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Sent
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === notice.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [notice.id]: {
+                                status: "needs_review",
+                                reason: current[notice.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Needs review
+                        </button>
+                      </div>
+                    )}
                     {actionDrafts[notice.id] && (
                       <div className="admin-inline-flow">
                         <label>

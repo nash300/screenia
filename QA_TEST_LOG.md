@@ -1372,3 +1372,45 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Legal Change Notice QA - 2026-07-15
+
+Scenario tested:
+- Admin records a legal/policy change, marks customer notice and re-acceptance as required, approves the change, marks the notice as sent with evidence, and verifies the admin page shows the finished notice cleanly.
+
+Lifecycle result:
+- Initial authenticated admin `GET /api/admin/legal-change-notices` returned an empty register for this fresh pass.
+- `POST /api/admin/legal-change-notices` returned HTTP 201 and created notice `97a0e285-ed2a-4cb6-af72-db1ae8612248`.
+- Document type: `terms`.
+- Document version: `qa-terms-20260715171949`.
+- Initial status: `draft`.
+- Customer notice required: `true`.
+- Re-acceptance required: `true`.
+- Effective at: `2026-08-01T00:00:00+02:00`.
+- First `PATCH /api/admin/legal-change-notices/97a0e285-ed2a-4cb6-af72-db1ae8612248` moved the notice to `approved`.
+- Final `PATCH` moved the notice to `sent`, set `notice_sent_at=2026-07-15T17:19:52.75+00:00`, and changed evidence reference to `QA-LEGAL-SENT-20260715171949`.
+
+Audit and notification result:
+- Audit `legal_change_notice_recorded` was stored at `2026-07-15T17:19:51.270893+00:00`.
+- Audit `legal_change_notice_updated` was stored for both updates, with changed fields, before/after values, and admin reasons.
+- High-priority admin notification `a40e0217-4522-49ba-a2ba-0d5dcc771198` was created when the required customer notice was first recorded.
+- High-priority admin notification `11b6d2a8-03e4-4c9f-9c89-4c49530feddf` was created while the notice was approved but still unsent.
+- No additional follow-up notification was created after the notice was marked `sent`.
+
+Issue found and fixed:
+- Sent legal notices still showed `Approve`, `Sent`, and `Needs review` controls, which made a completed notice look unfinished.
+- Fixed `src/app/admin/legal-change-notices/page.tsx` so sent rows show a simple `Sent` label instead of action buttons.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_Zj7AL573qGTkigTAYvuwmDC9Rqgg` was aliased to `https://screenia.se`.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/legal-change-notices` showed the legal notice as `sent`.
+- The row showed `Required: yes`, `Re-accept: yes`, sent timestamp `2026-07-15 19:19:52`, evidence `QA-LEGAL-SENT-20260715171949`, and final `Sent` label.
+- The page badge showed `0 need notice`.
+- Browser console had no errors for the page.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

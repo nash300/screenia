@@ -156,6 +156,14 @@ Current deployment status:
     - Found and fixed an approved-row UI issue: fully approved access reviews no longer show Approve/Needs review/Removed controls, and instead show `Approved`.
     - Production deployment `dpl_13HxtyitzkGBfRrZ1gkfbJEFvY41` was aliased to `https://screenia.se` after the fix.
     - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
+  - Legal change notice QA on 2026-07-15:
+    - Admin created terms notice `97a0e285-ed2a-4cb6-af72-db1ae8612248` for version `qa-terms-20260715171949`, with customer notice and re-acceptance required.
+    - Admin moved it from `draft` to `approved` to `sent`, with sent timestamp `2026-07-15T17:19:52.75+00:00` and evidence `QA-LEGAL-SENT-20260715171949`.
+    - Audit events `legal_change_notice_recorded` and `legal_change_notice_updated` were stored with reasons and before/after metadata.
+    - High-priority notifications were created while customer notice was required but unsent; no additional follow-up notification was created after `sent`.
+    - Found and fixed a sent-row UI issue: sent legal notices no longer show Approve/Sent/Needs review controls, and instead show `Sent`.
+    - Production deployment `dpl_Zj7AL573qGTkigTAYvuwmDC9Rqgg` was aliased to `https://screenia.se` after the fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
