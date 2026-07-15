@@ -188,7 +188,12 @@ Current deployment status:
      - Zoho's own dashboard may still take time to refresh MX status; external DNS is correct.
      - Supabase Auth invite delivery was confirmed in the Zoho Inbox on 2026-07-13. The visible invite references `https://screenia.se`, and the accept button points to the Supabase Auth verify endpoint with `redirect_to`, `token`, and `type` parameters.
      - Clicking the invite completed the redirect check and landed on `https://screenia.se/account/activate` with the Screenia password setup form. No password was submitted.
-     - Next required test: send Gmail -> `service@screenia.se`, then send `service@screenia.se` -> Gmail and check spam placement.
+   - Zoho Mail setup proof as of 2026-07-15 02:31 Europe/Stockholm:
+     - `service@screenia.se` and `info@screenia.se` exist as aliases on the `admin@screenia.se` Zoho mailbox.
+     - Gmail -> `service@screenia.se` was received in Zoho Inbox with subject `Screenia mailbox test Gmail to service 2026-07-15T00-24-48-849Z`.
+     - Zoho Mail -> Gmail was sent with the From identity set to `service@screenia.se`; Gmail search `from:service@screenia.se` found subject `Screenia mailbox test service to Gmail 2026-07-15T00-29-10-253Z` in the inbox.
+     - Production request confirmation was triggered through `https://screenia.se` with test company `Screenia Live Email Test 2026-07-15T00-31-28-834Z`; Gmail search `from:service@screenia.se` found subject `Screenia har tagit emot din förfrågan` in the inbox.
+     - `info@screenia.se` remains reserved for newsletter/broadcast sender identity; transactional/customer-service email should continue to use `service@screenia.se`.
 
    Human mailbox setup runbook:
 
@@ -199,6 +204,7 @@ Current deployment status:
      - Current official pricing check on 2026-07-13: Migadu Micro is listed at `$19/year`, not available monthly, with unlimited addresses/domains subject to account usage limits.
    - Current real mailbox: `admin@screenia.se`.
    - Current public alias: `service@screenia.se` on the admin mailbox.
+   - Current newsletter/broadcast alias: `info@screenia.se` on the admin mailbox.
    - Add aliases or mailboxes for `support@screenia.se` and `billing@screenia.se` after the first send/receive test passes.
    - Keep transactional/product email separate in Resend. Use `service@screenia.se` for app/client emails such as quotes, onboarding links, password reset, support notifications, and delivery-status webhooks.
    - Keep newsletter/broadcast identity separate as `info@screenia.se`.
@@ -210,7 +216,7 @@ Current deployment status:
      - SPF includes the selected mailbox provider and does not break the existing Resend `send` subdomain SPF.
      - DKIM is verified for the selected mailbox provider.
      - DMARC stays at monitoring mode (`p=none`) until real send/receive tests are stable.
-     - `service@screenia.se` can receive from Gmail and can send to Gmail without spam warnings.
+     - `service@screenia.se` can receive from Gmail and can send to Gmail without spam warnings. Completed on 2026-07-15 with inbox placement.
    - Save provider plan, billing receipt, DPA/data-processing terms, account owner, and DNS evidence for bookkeeping/GDPR launch records.
 
    Human mailbox handoff checklist:

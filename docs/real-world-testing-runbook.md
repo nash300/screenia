@@ -1,6 +1,6 @@
 ﻿# Screenia Real-World Testing Runbook
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and Stripe test-mode setup are ready for real scenario testing. Keep Stripe in test mode until business registration, VAT/tax, legal review, and live webhook verification are complete.
 
@@ -16,10 +16,9 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 ## Current Manual Gates
 
 1. Mailbox proof
-   - Send Gmail to `service@screenia.se`.
-   - Confirm delivery in Zoho Mail for `admin@screenia.se` through the `service@screenia.se` alias.
-   - Send Zoho Mail from `service@screenia.se` or the configured Screenia mailbox back to Gmail.
-   - Confirm Gmail receives it and record whether it lands in inbox, promotions, updates, or spam.
+   - Completed 2026-07-15: Gmail to `service@screenia.se` delivered into Zoho Mail for `admin@screenia.se` through the `service@screenia.se` alias.
+   - Completed 2026-07-15: Zoho Mail from `service@screenia.se` to Gmail delivered to Gmail inbox.
+   - Completed 2026-07-15: production request confirmation from `https://screenia.se` delivered to Gmail from `service@screenia.se`.
    - Keep `info@screenia.se` reserved for newsletters/broadcasts; do not use it for one-to-one customer service tests.
 
 2. Supabase Auth proof
