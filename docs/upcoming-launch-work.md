@@ -117,8 +117,10 @@ Current deployment status:
   - Stripe branding/static-checkout cleanup on 2026-07-15:
     - Stripe dashboard account name now shows `Screenia`; branding colors are set to Screenia blue/navy.
     - Billing portal headline, privacy URL, and terms URL are set for Screenia.
-    - The app checkout route was updated locally to use the 8 existing Stripe price IDs for standard checkouts instead of creating new dynamic Stripe products/prices.
+    - The app checkout route was updated to use the 8 existing Stripe price IDs for standard checkouts instead of creating new dynamic Stripe products/prices.
     - Local disposable route test session `cs_test_b1MtsxqnUs1WmwDzMDtZjw4P6QycfL2yrLK7RaugtKw2vw3JehyRmawpV3` used the expected Premium 4K static price IDs and created no new active prices.
+    - Production deployment `dpl_BSr9N6ME8Dvq1g3scJvEexVRafSo` was aliased to `https://screenia.se` after the static checkout route fix.
+    - Post-deploy smoke checks passed: login HTTP 200, display playlist HTTP 200, unsigned Stripe webhook HTTP 400, launch readiness 53 pass / 10 warning / 0 fail, pricing API with expected Stripe price IDs, accounting export HTTP 200, and VAT summary HTTP 200.
     - Remaining Stripe branding polish: upload logo/icon in Stripe Dashboard before real customer payments.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.

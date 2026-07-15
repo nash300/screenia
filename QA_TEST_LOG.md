@@ -934,3 +934,5 @@ Verification:
 Result:
 - Stripe-hosted Checkout branding no longer shows `New business sandbox`.
 - The app checkout route should no longer clutter Stripe test mode with new active product/price objects for standard checkouts.
+- Production deployment `dpl_BSr9N6ME8Dvq1g3scJvEexVRafSo` was aliased to `https://screenia.se` after the static checkout route fix.
+- Post-deploy smoke checks passed: `/login` HTTP 200, `/api/display/QRWXVA/playlist` HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, launch readiness HTTP 200 with `53 pass`, `10 warning`, `0 fail`, pricing API returned the expected 8 Stripe price IDs across Standard/Premium, accounting export HTTP 200, and VAT summary HTTP 200.
