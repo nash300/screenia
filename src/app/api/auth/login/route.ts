@@ -11,6 +11,7 @@ import {
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
   getCustomerForUser,
+  markCustomerAccountActivated,
   supabaseAdmin,
 } from "@/lib/server/customer-account";
 import { checkRateLimit, rateLimitHeaders } from "@/lib/server/rate-limit";
@@ -215,6 +216,8 @@ export async function POST(request: Request) {
       { status: 401, headers: rateLimitHeaders(emailLimit) },
     );
   }
+
+  await markCustomerAccountActivated(user);
 
   await recordAuditEvent(supabaseAdmin, {
     customerId: customer.id,

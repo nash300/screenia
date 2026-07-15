@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
+import { recordAuditEvent } from "@/lib/server/audit";
 import { hasDisplayEntitlement } from "@/lib/server/subscription-entitlements";
 
 export const supabaseAdmin = createClient(
@@ -36,7 +37,7 @@ export async function getCustomerForUser(
   if (!user?.email) return null;
 
   const baseCustomerSelect =
-    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes, marketing_consent, analytics_consent, remote_support_consent";
+    "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, auth_user_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes, marketing_consent, analytics_consent, remote_support_consent";
   const extendedCustomerSelect =
     `${baseCustomerSelect}, service_access_status, service_access_until, business_description, opening_hours, promotions, social_media, content_option, content_collected_at, preview_status, preview_url, preview_feedback, production_status, layout_started_at, setup_fee_locked_at`;
 
@@ -93,6 +94,57 @@ export async function getCustomerForUser(
   if (error) {
     console.error("Customer account email lookup error:", error);
     return null;
+  }
+
+  return data;
+}
+
+export async function markCustomerAccountActivated(
+  user: User | null,
+  client: SupabaseClient = supabaseAdmin,
+) {
+  if (!user) return null;
+
+  const customer = await getCustomerForUser(user, client);
+  if (!customer) return null;
+
+  const shouldSetActivatedAt = !customer.activated_at;
+  const shouldLinkAuthUser = customer.auth_user_id !== user.id;
+
+  if (!shouldSetActivatedAt && !shouldLinkAuthUser) {
+    return customer;
+  }
+
+  const activatedAt = shouldSetActivatedAt
+    ? new Date().toISOString()
+    : customer.activated_at;
+  const { data, error } = await client
+    .from("customers")
+    .update({
+      activated_at: activatedAt,
+      auth_user_id: user.id,
+    })
+    .eq("id", customer.id)
+    .select("*")
+    .single();
+
+  if (error) {
+    console.error("Customer activation sync error:", error);
+    return customer;
+  }
+
+  if (shouldSetActivatedAt) {
+    await recordAuditEvent(client, {
+      customerId: customer.id,
+      actorType: "customer",
+      actorId: user.id,
+      eventType: "customer_account_activated",
+      eventDescription: "Customer activated their account password.",
+      metadata: {
+        email: user.email,
+        activatedAt,
+      },
+    });
   }
 
   return data;
