@@ -90,7 +90,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
 8. Billing operations
    - Completed 2026-07-15: applied and removed a 15% / 2 month temporary discount through the production admin API, confirming Stripe discount state, local `subscription_adjustments`, audit events, and display access.
    - Completed 2026-07-15: triggered payment failed behavior in test mode and confirmed display access blocks.
-   - Test refund-before-layout boundary if applicable.
+   - Completed 2026-07-15: confirmed refund is blocked after layout starts, then refunded a separate paid-before-layout Premium 4K test customer through the production admin refund API.
+   - Completed 2026-07-15: fixed Stripe refund webhook evidence de-duplication so repeated refund events do not create new duplicate admin audit/notification rows.
 
 9. Evidence export
    - Export accounting/VAT evidence for the test order.

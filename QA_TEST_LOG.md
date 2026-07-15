@@ -750,3 +750,47 @@ Removed-state verification:
 Result:
 - Temporary discount apply/remove lifecycle passed.
 - Note for final cleanup: older inactive QA discount rows and old test Stripe coupons remain as historical test evidence. They are harmless for live subscription state, but should be cleaned or archived before a final production data reset if we want a pristine database/Stripe test account.
+
+### Refund Boundary QA - 2026-07-15
+
+Scenario tested:
+- Admin refund behavior before and after layout work starts.
+
+Locked-layout negative test:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009` already has `layout_started_at` and `setup_fee_locked_at`.
+- Called production admin refund API with reason: `QA refund boundary test: layout already started, automatic refund must be blocked.`
+- Result: HTTP 409.
+- Error shown by API: `The setup fee is locked because layout work has started. Handle this refund manually if an exception is approved.`
+- Result: passed. Automatic refund is blocked after layout work starts.
+
+Refund-before-layout positive test:
+- Created a throwaway Premium 4K paid test customer with no `layout_started_at` or `setup_fee_locked_at`.
+- Customer `10000048` / `5b34b942-82b1-4b0b-a4c2-a3e01d33a302`.
+- Order `1000000048`.
+- Stripe customer `cus_UtGDjqrzrr7CkA`.
+- Stripe payment intent `pi_3TtTh7Ghi0eDHRQZ0hHLCP9l`.
+- Stripe subscription `sub_1TtTh8Ghi0eDHRQZiTaxoYtd`.
+- First payment amount: `279700` ore / `2 797 kr`; VAT: `55940` ore / `559,40 kr`.
+
+Positive refund action:
+- Called production admin refund API with reason: `QA refund-before-layout positive test: refund first payment before layout work starts.`
+- Result: HTTP 200.
+- Stripe refund `re_3TtTh7Ghi0eDHRQZ0A7rF7NW` succeeded for `279700` ore.
+- Stripe subscription cancellation status returned `canceled`.
+
+Positive refund verification:
+- Customer became `status=suspended`, `payment_status=refunded`, `service_access_status=refunded`, `inactive_reason=refunded_before_production`, `cancellation_source=admin`.
+- Local subscription became `status=refunded`, `stripe_payment_status=refunded`, `fulfillment_status=cancelled`.
+- Stripe subscription `sub_1TtTh8Ghi0eDHRQZiTaxoYtd` is `canceled`.
+- Admin audit/notification evidence was created for the refund.
+
+Issue found and fixed:
+- Stripe emitted multiple refund-related webhook events for the same refund id, creating duplicate `payment_refunded_externally` audit/notification rows.
+- Fixed `src/app/api/stripe/webhook/route.ts` so Stripe refund webhook evidence is recorded once per customer/refund id.
+- Verification: replayed `refund.updated` twice for refund `re_3TtTh7Ghi0eDHRQZ0A7rF7NW`; both returned HTTP 200 and the existing counts stayed at 2 audit / 2 notification rows, with no new duplicates added.
+
+Result:
+- Refund boundary lifecycle passed.
+- Automatic refund is correctly blocked after layout work starts.
+- Refund before layout correctly refunds Stripe, cancels the Stripe subscription, suspends/refunds local access, and records admin evidence.
+- The webhook de-duplication fix still needs production deployment before it protects future live webhook events.

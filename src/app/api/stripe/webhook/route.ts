@@ -840,16 +840,32 @@ async function handleStripeRefund(
 
   try {
     await Promise.all(
-      customers.map((customer) =>
-        Promise.all([
+      customers.map(async (customer) => {
+        const evidenceEventType = fullRefund
+          ? "payment_refunded_externally"
+          : "payment_refund_updated";
+        const { data: existingEvidence, error: existingEvidenceError } =
+          await supabaseAdmin
+            .from("audit_events")
+            .select("id")
+            .eq("customer_id", customer.id)
+            .eq("event_type", evidenceEventType)
+            .contains("metadata", { refundId: refund.id })
+            .limit(1);
+
+        if (existingEvidenceError) {
+          throw existingEvidenceError;
+        }
+
+        if (existingEvidence?.length) return;
+
+        return Promise.all([
           recordAuditEvent(
             supabaseAdmin,
             {
               customerId: customer.id,
               actorType: "stripe",
-              eventType: fullRefund
-                ? "payment_refunded_externally"
-                : "payment_refund_updated",
+              eventType: evidenceEventType,
               eventDescription: fullRefund
                 ? "Stripe reported a full external refund. Customer display access was blocked."
                 : "Stripe reported a refund update.",
@@ -861,9 +877,7 @@ async function handleStripeRefund(
             supabaseAdmin,
             {
               customerId: customer.id,
-              eventType: fullRefund
-                ? "payment_refunded_externally"
-                : "payment_refund_updated",
+              eventType: evidenceEventType,
               title: fullRefund
                 ? "Payment refunded in Stripe"
                 : "Stripe refund updated",
@@ -875,8 +889,8 @@ async function handleStripeRefund(
             },
             { throwOnError: true },
           ),
-        ]),
-      ),
+        ]);
+      }),
     );
   } catch (evidenceError) {
     console.error("Stripe refund evidence storage error:", evidenceError);
