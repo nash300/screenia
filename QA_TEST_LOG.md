@@ -1294,3 +1294,42 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Processor Compliance Review QA - 2026-07-15
+
+Scenario tested:
+- Admin records third-party processor evidence for a launch-critical provider, verifies incomplete-evidence admin visibility, approves the provider after DPA/security/account-owner evidence, and confirms the approved row is not presented as still needing action.
+
+Lifecycle result:
+- Initial authenticated admin `GET /api/admin/processor-reviews` returned an empty register for this fresh pass.
+- `POST /api/admin/processor-reviews` returned HTTP 201 and created review `47b90289-4a97-45f1-b72b-ec70cec92819`.
+- Provider: `Vercel`.
+- Processing purpose: hosting the Screenia production application, serverless functions, logs, and deployment metadata for customer onboarding and admin operations.
+- Evidence reference: `QA-PROCESSOR-VERCEL-20260715170524`.
+- Initial status: `needs_review`.
+- Initial evidence flags: DPA `false`, security `true`, account owner `false`.
+- `PATCH /api/admin/processor-reviews/47b90289-4a97-45f1-b72b-ec70cec92819` approved the review with DPA/security/account-owner all `true`.
+- Next review due: `2027-07-15`.
+
+Audit and notification result:
+- Audit `processor_compliance_review_recorded` was stored at `2026-07-15T17:05:26.394184+00:00`.
+- Audit `processor_compliance_review_updated` was stored at `2026-07-15T17:05:27.467508+00:00` with changed fields, before/after values, and admin reason.
+- High-priority admin notification `eebe9383-d1cb-4a23-be44-7de1735680ce` was created because the initial processor evidence was incomplete.
+
+Issue found and fixed:
+- Approved processor rows still showed `Approve`, `Needs review`, and `Disabled` controls, which made a fully verified provider look unfinished.
+- Fixed `src/app/admin/processor-reviews/page.tsx` so fully approved rows show a simple `Approved` label instead of action buttons.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_CusYPT6dBbtvd2JqXxdu8LZcNGc9` was aliased to `https://screenia.se`.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/processor-reviews` showed the Vercel review as `approved`.
+- The row showed `DPA: yes | Security: yes | Owner: yes`, evidence `QA-PROCESSOR-VERCEL-20260715170524`, next review `2027-07-15`, and a final `Approved` label.
+- The page badge showed `0 need review`.
+- Browser console had no errors for the page.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

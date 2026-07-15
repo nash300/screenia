@@ -354,59 +354,66 @@ export default function AdminProcessorReviewsPage() {
                   <td>{review.evidence_reference || "-"}</td>
                   <td>{formatDate(review.next_review_due)}</td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "approved",
-                              approved: true,
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Approve
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "needs_review",
-                              approved: false,
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Needs review
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "disabled",
-                              approved: false,
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Disabled
-                      </button>
-                    </div>
+                    {review.review_status === "approved" &&
+                    review.dpa_verified &&
+                    review.security_reviewed &&
+                    review.account_owner_verified ? (
+                      <span className="admin-muted">Approved</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "approved",
+                                approved: true,
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Approve
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "needs_review",
+                                approved: false,
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Needs review
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "disabled",
+                                approved: false,
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Disabled
+                        </button>
+                      </div>
+                    )}
                     {actionDrafts[review.id] && (
                       <div className="admin-inline-flow">
                         <label>

@@ -140,6 +140,14 @@ Current deployment status:
     - Found and fixed a completed-row UI issue: completed retention reviews no longer show Retain/Anonymize/Complete controls, and instead show `Completed`.
     - Production deployment `dpl_DjbeKayKLu871tzpkYXMjimkuD9J` was aliased to `https://screenia.se` after the fix.
     - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
+  - Processor compliance review QA on 2026-07-15:
+    - Admin created Vercel processor review `47b90289-4a97-45f1-b72b-ec70cec92819` with evidence `QA-PROCESSOR-VERCEL-20260715170524`.
+    - The initial `needs_review` state with incomplete DPA/account-owner evidence created high-priority notification `eebe9383-d1cb-4a23-be44-7de1735680ce`.
+    - Admin approved the review with DPA/security/account-owner all verified and next review due `2027-07-15`.
+    - Audit events `processor_compliance_review_recorded` and `processor_compliance_review_updated` were stored with reasons and before/after metadata.
+    - Found and fixed an approved-row UI issue: fully approved processor reviews no longer show Approve/Needs review/Disabled controls, and instead show `Approved`.
+    - Production deployment `dpl_CusYPT6dBbtvd2JqXxdu8LZcNGc9` was aliased to `https://screenia.se` after the fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
