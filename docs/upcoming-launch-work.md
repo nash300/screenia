@@ -204,6 +204,13 @@ Current deployment status:
     - Production deployment `dpl_BSr9N6ME8Dvq1g3scJvEexVRafSo` was aliased to `https://screenia.se` after the static checkout route fix.
     - Post-deploy smoke checks passed: login HTTP 200, display playlist HTTP 200, unsigned Stripe webhook HTTP 400, launch readiness 53 pass / 10 warning / 0 fail, pricing API with expected Stripe price IDs, accounting export HTTP 200, and VAT summary HTTP 200.
     - Remaining Stripe branding polish: upload logo/icon in Stripe Dashboard before real customer payments.
+  - Fresh Premium 4K repeat QA on 2026-07-15:
+    - A live visitor request, admin quote, onboarding form, Stripe Checkout payment, tax evidence, account setup email request, and admin refund cleanup were completed for customer `10000057` / order `1000000043`.
+    - Premium 4K pricing matched the confirmed business model: setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, first payment `2 797 kr`, monthly subscription `349 kr` after a 21-day trial, all prices including Swedish moms.
+    - Found and fixed duplicate-email Supabase Auth relinking: an existing auth user for another customer now records `customer_auth_user_conflict`, creates an urgent admin notification, and does not reassign login metadata.
+    - Production deployment `dpl_GGo1FvUACVwxvhXCoaA8JGRxHJgX` was aliased to `https://screenia.se` after the duplicate-email guard.
+    - Disposable paid test customer was refunded before production work started; Stripe refund `re_3TtYPoGhi0eDHRQZ0UIS8f7l` succeeded and the trialing subscription was cancelled.
+    - Post-deploy smoke checks passed: login HTTP 200, authenticated customer account returned the original active customer `10000044`, display playlist HTTP 200, unsigned Stripe webhook HTTP 400, and launch readiness 53 pass / 10 warning / 0 fail.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

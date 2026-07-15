@@ -1024,6 +1024,82 @@ async function findAuthUserByEmail(email: string) {
   return null;
 }
 
+async function getAuthUserCustomerConflict(
+  authUserId: string,
+  targetCustomerId: string,
+  metadataCustomerId?: unknown,
+) {
+  const metadataId =
+    typeof metadataCustomerId === "string" ? metadataCustomerId.trim() : "";
+
+  if (metadataId && metadataId !== targetCustomerId) {
+    return metadataId;
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("customers")
+    .select("id")
+    .eq("auth_user_id", authUserId)
+    .neq("id", targetCustomerId)
+    .limit(1)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116" && error.code !== "42703") {
+    console.error("Customer auth user conflict lookup error:", error);
+  }
+
+  return data?.id || null;
+}
+
+async function recordCustomerAuthUserConflict({
+  customerId,
+  email,
+  existingAuthUserId,
+  conflictingCustomerId,
+}: {
+  customerId: string;
+  email: string;
+  existingAuthUserId: string;
+  conflictingCustomerId: string;
+}) {
+  try {
+    await recordAuditEvent(
+      supabaseAdmin,
+      {
+        customerId,
+        actorType: "system",
+        eventType: "customer_auth_user_conflict",
+        eventDescription:
+          "A paid customer email already belongs to another customer account.",
+        metadata: {
+          email,
+          existingAuthUserId,
+          conflictingCustomerId,
+        },
+      },
+      { throwOnError: true },
+    );
+  } catch (auditError) {
+    console.error("Customer auth conflict audit error:", auditError);
+  }
+
+  await createAdminNotification(supabaseAdmin, {
+    customerId,
+    eventType: "customer_auth_user_conflict",
+    title: "Customer account email conflict",
+    message:
+      "A paid customer uses an email address that is already linked to another customer account. Do not send account access until the duplicate email is resolved.",
+    priority: "urgent",
+    metadata: {
+      email,
+      existingAuthUserId,
+      conflictingCustomerId,
+    },
+  }).catch((notificationError) => {
+    console.error("Customer auth conflict notification error:", notificationError);
+  });
+}
+
 async function sendCustomerPasswordSetupEmail({
   customerId,
   email,
@@ -1110,6 +1186,22 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
   const existingUser = await findAuthUserByEmail(email);
 
   if (existingUser) {
+    const conflictingCustomerId = await getAuthUserCustomerConflict(
+      existingUser.id,
+      customerId,
+      existingUser.user_metadata?.customer_id,
+    );
+
+    if (conflictingCustomerId) {
+      await recordCustomerAuthUserConflict({
+        customerId,
+        email,
+        existingAuthUserId: existingUser.id,
+        conflictingCustomerId,
+      });
+      return null;
+    }
+
     const { error: metadataError } = await supabaseAdmin.auth.admin.updateUserById(
       existingUser.id,
       {
@@ -1149,6 +1241,22 @@ async function ensureCustomerAuthUser(customerId: string, email?: string | null)
     const existingUser = await findAuthUserByEmail(email);
 
     if (existingUser) {
+      const conflictingCustomerId = await getAuthUserCustomerConflict(
+        existingUser.id,
+        customerId,
+        existingUser.user_metadata?.customer_id,
+      );
+
+      if (conflictingCustomerId) {
+        await recordCustomerAuthUserConflict({
+          customerId,
+          email,
+          existingAuthUserId: existingUser.id,
+          conflictingCustomerId,
+        });
+        return null;
+      }
+
       await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
         user_metadata: {
           ...(existingUser.user_metadata || {}),

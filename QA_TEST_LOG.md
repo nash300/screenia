@@ -1540,6 +1540,77 @@ Post-test smoke:
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
 
+### Fresh Premium 4K Production Flow Repeat And Duplicate Email Guard - 2026-07-15
+
+Scenario tested:
+- A visitor selects Premium 4K on the live landing page, submits a fresh request, admin prepares a quote/onboarding link, the customer completes required business/legal details, Stripe test Checkout succeeds with VAT included, account setup email is requested, and the disposable paid customer is safely refunded/cancelled before layout work starts.
+
+Customer/request intake:
+- Live pricing section visually showed Premium 4K monthly `349 kr`, setup `1 599 kr`, device `1 099 kr`, and the note that prices include Swedish moms.
+- Submitted live request for `Screenia Fresh Premium 4K 20260715191739 AB` with email `service@screenia.se`.
+- Created customer `10000057` / `ab7ce2e1-aaf0-47ac-8356-e5c426c06ecc` as `new_request`.
+- Saved request metadata with `pricingPlanCode=premium_4k`, `resolution=4K`, and `screenQuantity=1`.
+- Stored privacy request consent version `2026-07-12-prelaunch`.
+- Admin page visually showed the new request, contact details, requested screens, and Premium 4K request notes.
+- Confirmation email was sent and delivered through Resend email `a9e32e68-ff9a-43b2-9d29-4bfa613be4d1`, sender `Screenia <service@screenia.se>`, subject `Screenia har tagit emot din förfrågan`.
+
+Admin quote/onboarding:
+- Admin prepare-onboarding created order `1000000043` / `524dd556-ff8b-4783-8748-94a92abd3dc7`.
+- Onboarding link: `https://screenia.se/onboarding/e50c7c8c-384a-407c-bf49-7a220fd7e5ba`.
+- Quote/order pricing matched the model:
+  - setup `1 599 kr`
+  - Premium 4K device `1 099 kr`
+  - shipping `99 kr`
+  - first payment `2 797 kr`
+  - monthly `349 kr`
+  - trial `21` days
+- Quote email was sent and delivered through Resend email `a028a09e-5569-439c-ad94-68ef42622c9e`, sender `Screenia <service@screenia.se>`, subject `Din Screenia-offert 1000000043`.
+
+Customer onboarding and payment:
+- Onboarding page visually told the customer that material, logo, and campaigns are collected after payment, so the stage does not over-collect content data.
+- Submitted required company/legal details with valid dummy Swedish organisation number `5599999991`, Swedish address, terms consent, privacy consent, and remote-support consent. Marketing/statistics consent stayed unchecked.
+- Stored required legal agreement records for terms and privacy, plus consent records for privacy, terms, marketing=false, analytics=false, and remote_support=true.
+- Stripe Checkout visually showed:
+  - setup `1 599,00 kr`
+  - device `1 099,00 kr`
+  - shipping `99,00 kr`
+  - monthly subscription `349,00 kr/månad efter 21 dagar gratis`
+  - `Moms 559,40 kr`
+  - today total `2 797,00 kr`
+- Stripe session `cs_test_b1iigcha9lImGF1XqUpqMurHmnkUAbKUJUewsqY1hbY2yZ4kT2S7jsXhvS` completed successfully with `amount_total=279700`, `amount_tax=55940`, and `automatic_tax.status=complete`.
+- Payment success page loaded at `/onboarding/payment-success?customer_id=ab7ce2e1-aaf0-47ac-8356-e5c426c06ecc` and told the customer they would receive an email to choose a password.
+
+Payment records:
+- Stripe customer `cus_UtL3PnzFeopPF3`.
+- Stripe subscription `sub_1TtYPpGhi0eDHRQZprGCsvb1`.
+- Stripe invoice `in_1TtYPnGhi0eDHRQZJfNFGfR7`.
+- Local customer became `payment_status=paid`, `service_access_status=active`.
+- Local order became `status=paid`, `stripe_payment_status=paid`, `fulfillment_status=content_collection`, `inventory_status=ready_to_reserve`, `tax_status=complete`, `total_amount_sek=279700`, `tax_amount_sek=55940`, `trial_starts_at=2026-07-15T19:24:19Z`, `trial_ends_at=2026-08-05T19:24:19Z`.
+- Supabase Auth password setup/reset email was requested and delivered through Resend email `4b15ce32-c827-4988-9b50-c7114718028c`, sender `"Screenia" <service@screenia.se>`, subject `Reset Your Password`.
+
+Issue found and fixed:
+- Because this pass reused `service@screenia.se`, the existing Supabase Auth user for active customer `10000044` was silently re-pointed to the fresh paid customer through `user_metadata.customer_id`.
+- This is unsafe for real duplicate email cases: one login could jump between customers while the database still shows the auth user linked to the original customer.
+- Restored Supabase Auth user `4a501388-d257-4300-90af-b084d0fadc54` back to customer `10000044`.
+- Fixed `src/app/api/stripe/webhook/route.ts` so an existing Auth user is only updated for the same customer or an unlinked user. If the email belongs to another customer, Screenia now records `customer_auth_user_conflict`, creates an urgent admin notification, and does not reassign the login.
+- Added conflict audit/admin notification evidence to customer `10000057` for the observed duplicate-email case.
+- Production deployment `dpl_GGo1FvUACVwxvhXCoaA8JGRxHJgX` shipped the guard.
+
+Cleanup:
+- Refunded the disposable paid order before layout work started through the audited admin refund route.
+- Stripe refund `re_3TtYPoGhi0eDHRQZ0UIS8f7l` succeeded for `2 797 kr`.
+- Stripe subscription `sub_1TtYPpGhi0eDHRQZprGCsvb1` was cancelled.
+- Customer `10000057` ended as `payment_status=refunded`, `service_access_status=refunded`, `inactive_reason=refunded_before_production`, and `cancellation_source=admin`.
+- Order `1000000043` ended as `status=refunded`, `stripe_payment_status=refunded`, `fulfillment_status=cancelled`, and `inventory_status=cancelled`.
+- Admin history visually showed onboarding, checkout, payment completion, password setup email request, duplicate-email conflict, admin refund, and Stripe refund/cancellation events.
+
+Post-test smoke:
+- `/login` returned HTTP 200.
+- Authenticated `/api/account` for `service@screenia.se` with restored password `ScreeniaCustomer123` returned the original active customer `10000044`.
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness returned `53 pass`, `10 warning`, `0 fail`.
+
 ### Customer Account, Support, Email, And Data Export QA - 2026-07-15
 
 Scenario tested:
