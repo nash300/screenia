@@ -235,7 +235,7 @@ export async function POST(
       payment_status: "refunded",
       service_access_status: "refunded",
       service_access_until: null,
-      inactive_reason: "subscription_cancelled",
+      inactive_reason: "refunded_before_production",
       cancellation_reason: "refunded_before_production",
       cancellation_details:
         "First payment was refunded before layout work started.",

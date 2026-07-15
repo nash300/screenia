@@ -452,7 +452,9 @@ async function findCustomersForStripeFinancialEvent({
   if (stripeCustomerId) {
     const { data, error } = await supabaseAdmin
       .from("customers")
-      .select("id, payment_status, inactive_reason, stripe_subscription_id")
+      .select(
+        "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id",
+      )
       .eq("stripe_customer_id", stripeCustomerId);
 
     if (error) {
@@ -486,7 +488,9 @@ async function findCustomersForStripeFinancialEvent({
 
   const { data, error } = await supabaseAdmin
     .from("customers")
-    .select("id, payment_status, inactive_reason, stripe_subscription_id")
+    .select(
+      "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id",
+    )
     .in("id", customerIds);
 
   if (error) {
@@ -728,38 +732,50 @@ async function handleStripeRefund(
 
   if (fullRefund) {
     const timestamp = new Date().toISOString();
-    const { error: customerUpdateError } = await supabaseAdmin
-      .from("customers")
-      .update({
-        status: "suspended",
-        payment_status: "refunded",
-        service_access_status: "refunded",
-        service_access_until: null,
-        inactive_reason: "refunded_before_production",
-        cancellation_reason: "external_stripe_refund",
-        cancellation_source: "stripe",
-        cancelled_at: timestamp,
-      })
-      .in(
-        "id",
-        customers.map((customer) => customer.id),
-      );
+    for (const customer of customers) {
+      const appInitiatedRefund =
+        customer.cancellation_source === "admin" ||
+        customer.cancellation_source === "customer";
+      const { error: customerUpdateError } = await supabaseAdmin
+        .from("customers")
+        .update({
+          status: "suspended",
+          payment_status: "refunded",
+          service_access_status: "refunded",
+          service_access_until: null,
+          inactive_reason: appInitiatedRefund
+            ? customer.inactive_reason || "refunded_before_production"
+            : "refunded_before_production",
+          cancellation_reason: appInitiatedRefund
+            ? customer.cancellation_reason || "refunded_before_production"
+            : "external_stripe_refund",
+          cancellation_details: appInitiatedRefund
+            ? customer.cancellation_details
+            : "Full payment was refunded in Stripe.",
+          cancellation_source: appInitiatedRefund
+            ? customer.cancellation_source
+            : "stripe",
+          cancelled_at: customer.cancelled_at || timestamp,
+        })
+        .eq("id", customer.id);
 
-    if (customerUpdateError) {
-      console.error(
-        "Stripe external refund customer update error:",
-        customerUpdateError,
-      );
-      await recordStripeWebhookFailureVisibility({
-        eventType: "stripe_refund_sync_failed",
-        title: "Stripe refund sync failed",
-        message: `Stripe refund ${refund.id} could not block refunded customer access: ${customerUpdateError.message}`,
-        metadata: {
-          ...refundMetadata,
-          error: customerUpdateError.message,
-        },
-        customerIds: customers.map((customer) => customer.id),
-      });
+      if (customerUpdateError) {
+        console.error(
+          "Stripe external refund customer update error:",
+          customerUpdateError,
+        );
+        await recordStripeWebhookFailureVisibility({
+          eventType: "stripe_refund_sync_failed",
+          title: "Stripe refund sync failed",
+          message: `Stripe refund ${refund.id} could not block refunded customer access: ${customerUpdateError.message}`,
+          metadata: {
+            ...refundMetadata,
+            customerId: customer.id,
+            error: customerUpdateError.message,
+          },
+          customerIds: [customer.id],
+        });
+      }
     }
 
     const subscriptionUpdate = supabaseAdmin

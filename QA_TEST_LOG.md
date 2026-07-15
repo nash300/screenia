@@ -364,3 +364,40 @@ Remaining launch blockers / manual action:
 - Inventory form field labels/field mapping need polish: a service-note style entry appeared under a defect-related field during inventory creation.
 - Legal consent checkboxes work but need better stable labels/ids for accessibility and automated testing.
 - `Cancel now` and actual refund-before-layout require separate destructive test customers; the main Premium 4K test customer was preserved in active/layout-started state.
+
+### Refund Before Layout QA - 2026-07-15
+
+Scenario tested:
+- Disposable Standard FHD customer requests a quote, accepts onboarding, pays first Stripe payment, then admin refunds before layout work starts.
+
+First run:
+- Customer `10000045` / `ea071626-a2ac-4a3a-87cf-0fa98cdd2268`.
+- Stripe Checkout correctly showed first payment `2 397 kr`, included VAT `479,40 kr`, and monthly `249 kr` after 21-day trial.
+- Payment succeeded, customer became `paid`, service access became `active`, production stayed `not_started`, and setup fee remained refundable.
+- Admin refund action succeeded, Stripe charge was fully refunded (`239700` ore), and Stripe subscription was canceled.
+- Issue found: Stripe webhook evidence overwrote the customer record's admin refund context with a generic Stripe cancellation/refund source.
+
+Fix completed:
+- Updated admin refund route to set `inactive_reason=refunded_before_production`.
+- Updated Stripe refund webhook customer lookup and full-refund sync so app/admin initiated refund context is preserved instead of being overwritten by later Stripe refund/subscription webhooks.
+
+Retest after deployment:
+- Deployment: `dpl_GaZztUKgHBq7Mz5P7jYLGRwcMHoH`, aliased to `https://screenia.se`.
+- Customer `10000046` / `47e6e4ca-1b45-480b-a5c2-adb6540a0ece`.
+- Stripe Checkout initially rendered `Moms 0,00 kr`, but the Checkout Session API already had correct `automatic_tax.status=complete` and `total_details.amount_tax=47940`; after refresh, Checkout visually showed `Moms 479,40 kr`.
+- Payment succeeded, then the refund was executed and Stripe fully refunded charge `ch_3TtSCyGhi0eDHRQZ1hC6JNwR` with refund `re_3TtSCyGhi0eDHRQZ1hIlNkVN`.
+- After Stripe refund and subscription deletion webhooks, customer state remained correct:
+  - `status=suspended`
+  - `payment_status=refunded`
+  - `service_access_status=refunded`
+  - `production_status=not_started`
+  - `layout_started_at=null`
+  - `setup_fee_locked_at=null`
+  - `inactive_reason=refunded_before_production`
+  - `cancellation_reason=refunded_before_production`
+  - `cancellation_source=admin`
+- Audit events include admin `payment_refunded`, Stripe `payment_refunded_externally`, and Stripe `subscription_cancelled`.
+
+Result:
+- Refund-before-layout business rule now works and preserves the admin/legal reason after Stripe webhook sync.
+- Launch note: Stripe test-mode branding still shows `New business sandbox`; Stripe account branding/name must be changed to Screenia before live launch.
