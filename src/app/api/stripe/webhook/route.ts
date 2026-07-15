@@ -391,6 +391,7 @@ async function syncStripeSubscription(subscription: Stripe.Subscription) {
 
   if (entitlement.serviceAccessStatus === "cancelled") {
     subscriptionUpdate.fulfillment_status = "cancelled";
+    subscriptionUpdate.inventory_status = "cancelled";
   } else if (entitlement.serviceAccessStatus === "payment_failed") {
     subscriptionUpdate.fulfillment_status = "payment_failed";
   }
@@ -884,6 +885,7 @@ async function handleStripeRefund(
         status: "refunded",
         stripe_payment_status: "refunded",
         fulfillment_status: "cancelled",
+        inventory_status: "cancelled",
         },
         { paymentIntentId, stripeCustomerId },
       );
@@ -1937,6 +1939,7 @@ export async function POST(request: Request) {
       .from("customer_subscriptions")
       .update({
         fulfillment_status: "cancelled",
+        inventory_status: "cancelled",
       })
       .eq("stripe_subscription_id", subscription.id);
 
@@ -1962,6 +1965,7 @@ export async function POST(request: Request) {
       .update({
         status: "cancelled",
         fulfillment_status: "cancelled",
+        inventory_status: "cancelled",
       })
       .eq("stripe_subscription_id", subscription.id)
       .neq("status", "refunded");

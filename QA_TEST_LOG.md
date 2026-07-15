@@ -1501,3 +1501,70 @@ Post-test smoke:
 - `/login` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
 - Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Accounting And VAT Export QA - 2026-07-15
+
+Scenario tested:
+- Admin downloads accounting CSV and VAT period summary from production, then compares exported paid/cancelled/refunded order evidence with Supabase source data and the visible Orders admin page.
+
+Accounting export result:
+- `GET /api/admin/accounting-export` returned HTTP 200.
+- Response headers were `Content-Type: text/csv; charset=utf-8`, attachment filename `screenia-accounting-export-2026-07-15.csv`, and `Cache-Control: no-store`.
+- Export contained 9 order rows.
+- Paid Premium 4K order `1000000036` exported:
+  - Customer number `10000044`.
+  - Customer payment status `paid`.
+  - Service access `active`.
+  - Stripe payment status `trialing`.
+  - Stripe invoice `in_qa_payment_recovered_fix_20260715141054`.
+  - Gross `279700` ore / `2797.00` SEK.
+  - Included VAT `55940` ore / `559.40` SEK.
+- Admin-cancelled disposable order `1010000055` exported:
+  - Customer payment status `cancelled`.
+  - Service access `cancelled`.
+  - Cancellation reason `admin_immediate`.
+  - Cancellation source `admin`.
+  - Gross `279700` ore / `2797.00` SEK.
+- Refunded order `1000000038` exported:
+  - Customer payment status `refunded`.
+  - Service access `refunded`.
+  - Cancellation reason `refunded_before_production`.
+  - Cancellation source `admin`.
+  - Gross `239700` ore / `2397.00` SEK.
+  - Included VAT `47940` ore / `479.40` SEK.
+
+VAT summary result:
+- `GET /api/admin/vat-summary?from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200 JSON.
+- `GET /api/admin/vat-summary?format=csv&from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200 CSV with no-store attachment headers.
+- VAT summary included only active/paid taxable order `1000000036`.
+- Cancelled order `1010000055` and refunded orders `1000000037` / `1000000038` were correctly excluded from the VAT period summary.
+- Period total row matched JSON and source data:
+  - Gross `279700` ore / `2797.00` SEK.
+  - VAT `55940` ore / `559.40` SEK.
+  - Net `223760` ore / `2237.60` SEK.
+
+Audit result:
+- `admin_accounting_export_downloaded` audit was stored with `rowCount=9`, format `csv`, and export identifiers.
+- `admin_vat_summary_exported` audits were stored for JSON and CSV with `rowCount=1`, `grossOre=279700`, and `vatOre=55940`.
+
+Issue found and fixed:
+- Cancelled/refunded orders still showed inventory as `ready_to_reserve` or `not_reserved` in the Orders admin page. This could make cancelled orders look available for hardware reservation.
+- Fixed immediate admin cancellation in `src/app/api/admin/customers/[customerId]/subscription/route.ts` to set `inventory_status=cancelled`.
+- Fixed Stripe webhook cancellation/refund paths in `src/app/api/stripe/webhook/route.ts` to set `inventory_status=cancelled`.
+- Fixed admin refund route `src/app/api/admin/customers/[customerId]/refund/route.ts` to set `inventory_status=cancelled`.
+- Tidied existing cancelled/refunded QA rows so all terminal orders now have `inventory_status=cancelled`.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/orders` showed both `Export accounting CSV` and `Export VAT summary`.
+- Cancelled order `1010000055` showed `ORDER STATUS cancelled`, `FULFILLMENT cancelled`, and `INVENTORY cancelled`.
+- Cancelled order `1000000054` also showed `INVENTORY cancelled`.
+
+Checks and deployment:
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_HzZVB64gui2EBJn4gbn9FkDLETgs` was aliased to `https://screenia.se`.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Authenticated production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

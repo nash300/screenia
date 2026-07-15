@@ -250,6 +250,7 @@ export async function POST(
       status: "refunded",
       stripe_payment_status: "refunded",
       fulfillment_status: "cancelled",
+      inventory_status: "cancelled",
     })
     .eq("id", subscription.id);
 

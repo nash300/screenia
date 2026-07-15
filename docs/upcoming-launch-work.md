@@ -765,6 +765,7 @@ Completed in this pass:
 - Main admin navigation was simplified: compliance, tax, privacy, access, backup, retention, legal, and processor tools are grouped under `/admin/compliance` instead of cluttering daily operations.
 - Inventory/device lifecycle was production-tested with a Premium 4K QA item. Returned, defective, repair, retired, and lost stock now releases the linked device; only explicitly `in_stock` hardware can be allocated or linked to a device.
 - Subscription billing lifecycle was production-tested: admin pause/resume, admin period-end cancellation, customer period-end cancellation, immediate admin cancellation on disposable Stripe test subscriptions, and temporary discount apply/remove all sync Stripe, customer access, local subscription state, display entitlement, and audit evidence.
+- Accounting/VAT exports were production-tested: accounting CSV includes paid/cancelled/refunded order evidence, VAT summary includes only active paid taxable rows, export downloads are audited, and terminal orders now close inventory status as `cancelled`.
 
 Next admin areas to clean up before broad real-world testing:
 
