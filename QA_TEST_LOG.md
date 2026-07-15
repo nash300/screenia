@@ -1190,3 +1190,34 @@ Admin-side result:
 Post-test smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Backup Restore Drill And Admin Evidence QA - 2026-07-15
+
+Scenario tested:
+- Admin records backup coverage, updates the record to restore-tested, creates a needs-attention backup follow-up item, and verifies audit/notification evidence.
+
+Create and update result:
+- Initial authenticated admin `GET /api/admin/backup-drills` returned an empty register for this fresh pass.
+- `POST /api/admin/backup-drills` returned HTTP 201 and created backup drill `cb59c489-43f8-4afa-9a9e-d5aea5df7549`.
+- Evidence reference: `QA-BACKUP-20260715165004`.
+- Initial status: `backup_verified`.
+- `PATCH /api/admin/backup-drills/cb59c489-43f8-4afa-9a9e-d5aea5df7549` returned HTTP 200 and updated the drill to `restore_tested`.
+- Restore tested at: `2026-07-15T16:50:06.270Z`.
+- Audit `backup_restore_drill_recorded` was stored at `2026-07-15T16:50:06.223475+00:00`.
+- Audit `backup_restore_drill_updated` was stored at `2026-07-15T16:50:06.891678+00:00` with changed fields, before/after values, and admin reason.
+
+Needs-attention visibility result:
+- `POST /api/admin/backup-drills` returned HTTP 201 and created needs-attention drill `160e1bd0-0c6e-4abf-aff0-384e61a5bf84`.
+- Evidence reference: `QA-BACKUP-ATTENTION-20260715165004`.
+- Audit `backup_restore_drill_recorded` was stored at `2026-07-15T16:50:07.410579+00:00`.
+- Urgent admin notification `1190bc82-e1b3-4642-892b-9dd2dc27ba8d` was created with title `Backup/restore needs attention`.
+
+Visual/admin verification:
+- Browser login to `https://screenia.se/admin` succeeded with the QA admin account.
+- Browser page `https://screenia.se/admin/backup-drills` showed both new records in the Backup restore register.
+- The page badge showed `1 need evidence`, matching the deliberate needs-attention follow-up item.
+- Authenticated admin list returned both new records.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

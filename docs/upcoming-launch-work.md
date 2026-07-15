@@ -119,6 +119,13 @@ Current deployment status:
     - Audit `admin_tax_payment_updated` stored changed fields plus before/after values and reason.
     - Authenticated admin `GET /api/admin/tax-payments` listed the paid record; visible `/admin/tax-payments` redirected to `/admin-login` without an admin browser session, confirming page protection.
     - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
+  - Backup/restore drill QA on 2026-07-15:
+    - Admin created backup drill `cb59c489-43f8-4afa-9a9e-d5aea5df7549` with evidence `QA-BACKUP-20260715165004`, then updated it from `backup_verified` to `restore_tested`.
+    - Audit events `backup_restore_drill_recorded` and `backup_restore_drill_updated` were stored with reason, changed fields, and before/after metadata.
+    - Admin created needs-attention drill `160e1bd0-0c6e-4abf-aff0-384e61a5bf84` with evidence `QA-BACKUP-ATTENTION-20260715165004`.
+    - Urgent admin notification `1190bc82-e1b3-4642-892b-9dd2dc27ba8d` was created for the needs-attention drill.
+    - Visible `https://screenia.se/admin/backup-drills` showed both records and the `1 need evidence` badge.
+    - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
