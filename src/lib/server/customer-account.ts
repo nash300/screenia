@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient, type User } from "@supabase/supabase-js";
 import { recordAuditEvent } from "@/lib/server/audit";
-import { hasDisplayEntitlement } from "@/lib/server/subscription-entitlements";
 
 export const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -156,12 +155,26 @@ export function hasCustomerServiceAccess(customer: {
   service_access_status?: string | null;
   service_access_until?: string | null;
 }) {
-  return hasDisplayEntitlement({
-    customerStatus: customer.status,
-    paymentStatus: customer.payment_status,
-    serviceAccessStatus: customer.service_access_status,
-    serviceAccessUntil: customer.service_access_until,
-  });
+  const allowedCustomerStatuses = new Set([
+    "paid",
+    "content_pending",
+    "content_received",
+    "active",
+  ]);
+
+  if (!allowedCustomerStatuses.has(customer.status || "")) return false;
+  if (customer.payment_status !== "paid") return false;
+  if (!["active", "active_until_period_end"].includes(customer.service_access_status || "")) {
+    return false;
+  }
+  if (
+    customer.service_access_until &&
+    new Date(customer.service_access_until).getTime() <= Date.now()
+  ) {
+    return false;
+  }
+
+  return true;
 }
 
 export function customerAccessDeniedResponse() {
