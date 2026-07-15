@@ -517,3 +517,47 @@ Result:
   - `Blocked`: 0
   - `Progress`: 84%
 - Remaining items are review/manual launch gates, not blocked technical checks.
+
+### Customer Portal, Billing Portal, And Display Playback QA - 2026-07-15
+
+Scenario tested:
+- Active Premium 4K dummy customer logs into the production customer portal, reviews subscription/billing details, opens Stripe billing portal, and confirms the assigned display plays content.
+
+Customer:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Email `service@screenia.se`.
+- Auth user `4a501388-d257-4300-90af-b084d0fadc54`.
+- Stripe customer `cus_Ut43Oaq32pKmj7`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Temporary QA password was set directly through Supabase Admin for this portal test: `ScreeniaCustomer123`.
+
+Customer portal results:
+- Login from `https://screenia.se/login` succeeded and redirected to `/account?section=overview`.
+- Overview showed the customer as active, with Premium 4K context, 1 screen, and layout-started/refund-boundary information.
+- Billing section showed:
+  - Package: `Premium 4K`
+  - First payment: `2 797 kr`
+  - Monthly price after trial: `349 kr`
+  - Latest invoice amount: `2 797 kr`
+  - Latest VAT: `559,40 kr`
+  - Trial period: `21 dagar`
+  - Explanation: first payment is setup `1 599 kr`, device `1 099 kr`, shipping `99 kr`, all including moms.
+
+Stripe billing portal results:
+- `Öppna betalningsportal` opened Stripe billing portal successfully.
+- Stripe portal showed the current trial subscription ending `5 Aug 2026`.
+- Stripe portal showed `Screenia Premium 4K månadsabonnemang`, `SEK 349.00 per month`, card `4242`, billing info for the QA customer, and invoice history `SEK 2,797.00 Paid`.
+- Audit event `billing_portal_session_created` was stored with Stripe portal session `bps_1TtTAzGhi0eDHRQZo3mLHMZa`.
+- Audit event `customer_login_success` was stored with the customer auth user.
+
+Display playback results:
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with one signed playlist item.
+- Visible `/display/QRWXVA` page rendered one video element.
+- Video was playing, muted, readyState `4`, and rendered at `1280x720`.
+
+Issue found:
+- Stripe billing portal branding still says `New business sandbox`. This is an external Stripe account branding/configuration item and must be changed to Screenia before real customers.
+
+Result:
+- Customer portal login, Premium 4K billing display, Stripe billing portal connection, audit tracking, and display playback all passed for the active QA customer.
+- Remaining account proof gate is still the real mailbox activation/password-reset link submission; this pass used a direct Supabase Admin temporary password and does not prove the email-link password setup flow.

@@ -73,10 +73,13 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Confirm the customer receives the account activation/reset email.
    - Set a password and log into `/account`.
    - Verify account details, subscription state, messages, content, and billing portal behavior.
+   - Current partial proof from 2026-07-15: direct temporary-password login for active Premium 4K QA customer succeeded, account/billing details rendered correctly, Stripe billing portal opened, and audit events were stored.
+   - Remaining proof: complete the real mailbox activation/reset link and submit a password from the email flow.
 
 7. Display entitlement
    - Assign or use a test display device.
    - Confirm active paid customer content plays.
+   - Completed 2026-07-15 for active test device `QRWXVA`: visible display page rendered one playing muted video at 1280x720.
    - Pause subscription and confirm display content is blocked.
    - Resume subscription and confirm display content is restored.
    - Schedule cancellation at period end and confirm access remains active until paid-through date.

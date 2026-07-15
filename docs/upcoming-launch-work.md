@@ -75,6 +75,13 @@ Current deployment status:
   - Verified `/api/display/QRWXVA/playlist` returns HTTP 200 with one signed playlist item.
   - Final visible browser result: 53 passed, 10 review warnings, 0 blocked, 84% progress.
   - QA admin login uses `admin@screenia.se`; the requested password `12345` is not allowed by Supabase's 6-character minimum, so the temporary QA password was set to `Screenia12345`.
+  - Customer portal/billing/display QA on 2026-07-15:
+    - Active Premium 4K QA customer `10000044` logged in with a direct temporary Supabase Admin password for portal testing.
+    - Customer account overview and billing page rendered correct Premium 4K status and prices: first payment `2 797 kr`, monthly price `349 kr`, latest VAT `559,40 kr`.
+    - Stripe billing portal opened for the QA customer and showed the trial subscription, invoice history, card `4242`, and billing details.
+    - `/display/QRWXVA` rendered one playing muted video at 1280x720.
+    - Stripe account/customer-portal branding still says `New business sandbox`; update Stripe branding to Screenia before real customer tests.
+    - This is not the final Supabase Auth email-link proof, because the password was set directly for QA.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:
