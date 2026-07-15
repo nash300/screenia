@@ -828,3 +828,43 @@ Result:
 - Production `GET /api/admin/accounting-export` returned HTTP 200 CSV with 5 rows, including active order `1000000036` and refunded order `1000000048`.
 - Production `GET /api/admin/vat-summary?from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200 with gross `279700` ore / VAT `55940` ore / net `223760` ore.
 - Production launch readiness remained 53 pass / 10 warning / 0 fail.
+
+### Dispute And Chargeback Lifecycle QA - 2026-07-15
+
+Scenario tested:
+- Stripe dispute/chargeback access control and recovery for the active Premium 4K customer.
+
+Customer and payment under test:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Stripe customer `cus_Ut43Oaq32pKmj7`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Stripe charge `ch_3TtHxeGhi0eDHRQZ0lvBL0fo`.
+- Payment intent `pi_3TtHxeGhi0eDHRQZ0BZTvQS4`.
+- Display device `QRWXVA`.
+
+Dispute-open verification:
+- Replayed a signed local Stripe `charge.dispute.created` event for the active customer.
+- Webhook returned HTTP 200.
+- Customer became `status=suspended`, `payment_status=disputed`, `service_access_status=payment_disputed`, `inactive_reason=payment_disputed`, `cancellation_source=stripe`.
+- Local subscription became `status=disputed`, `stripe_payment_status=disputed`, `fulfillment_status=payment_failed`.
+- Production display playlist returned HTTP 403 and the visible display page showed inactive behavior.
+- Audit/notification evidence included `payment_disputed`.
+
+Issues found and fixed:
+- Financial-event subscription updates could miss the active local subscription row when `stripe_payment_intent_id` was empty, even though `stripe_customer_id` was present.
+- Won-dispute recovery could restore payment/subscription state but leave the customer row suspended if a prior partial recovery had already cleared `inactive_reason`.
+- Fixed `src/app/api/stripe/webhook/route.ts` so dispute/refund financial updates match by Stripe customer id or payment intent, and won-dispute recovery explicitly restores the customer access row from the current Stripe subscription entitlement.
+- Fixed won-dispute recovery so it no longer depends on `inactive_reason=payment_disputed` being present.
+
+Won-dispute recovery verification:
+- Replayed signed local Stripe `charge.dispute.closed` events with `status=won`.
+- Final accepted event: `evt_qa_dispute_restore_skipfix_20260715144756`.
+- Webhook returned HTTP 200.
+- Customer recovered to `status=active`, `payment_status=paid`, `service_access_status=active`, `inactive_reason=null`, `cancellation_source=null`.
+- Local subscription recovered to `status=active`, `stripe_payment_status=trialing`, `fulfillment_status=layout_started`.
+- Production `/api/display/QRWXVA/playlist` returned HTTP 200.
+- Visible production `/display/QRWXVA` rendered a playing muted video with `readyState=4`.
+
+Result:
+- Dispute open and won-dispute recovery passed locally after fixes.
+- Remaining action: deploy the dispute webhook recovery fix to production and run post-deploy smoke checks.

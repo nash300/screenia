@@ -317,10 +317,12 @@ async function syncStripeSubscription(subscription: Stripe.Subscription) {
             cancellation_source: "stripe",
           }
       : {
+          status: "active",
           payment_status: "paid",
           service_access_status: entitlement.serviceAccessStatus,
           service_access_until: entitlement.serviceAccessUntil,
           inactive_reason: null,
+          cancellation_source: null,
         };
 
   const { data: customers, error: customerError } = await supabaseAdmin
@@ -530,6 +532,30 @@ async function findCustomersForStripeFinancialEvent({
   return data || [];
 }
 
+async function updateSubscriptionsForStripeFinancialEvent(
+  update: Record<string, unknown>,
+  {
+    stripeCustomerId,
+    paymentIntentId,
+  }: {
+    stripeCustomerId?: string | null;
+    paymentIntentId?: string | null;
+  },
+) {
+  const query = supabaseAdmin.from("customer_subscriptions").update(update);
+
+  if (paymentIntentId && stripeCustomerId) {
+    return await query.or(
+      `stripe_payment_intent_id.eq.${paymentIntentId},stripe_customer_id.eq.${stripeCustomerId}`,
+    );
+  }
+
+  if (paymentIntentId) return await query.eq("stripe_payment_intent_id", paymentIntentId);
+  if (stripeCustomerId) return await query.eq("stripe_customer_id", stripeCustomerId);
+
+  return { error: null };
+}
+
 async function handleStripeDispute(
   dispute: Stripe.Dispute,
   stripeEventType: string,
@@ -597,18 +623,15 @@ async function handleStripeDispute(
       });
     }
 
-    const subscriptionUpdate = supabaseAdmin
-      .from("customer_subscriptions")
-      .update({
+    const { error: subscriptionUpdateError } =
+      await updateSubscriptionsForStripeFinancialEvent(
+        {
         status: "disputed",
         stripe_payment_status: "disputed",
         fulfillment_status: "payment_failed",
-      });
-    const { error: subscriptionUpdateError } = paymentIntentId
-      ? await subscriptionUpdate.eq("stripe_payment_intent_id", paymentIntentId)
-      : stripeCustomerId
-        ? await subscriptionUpdate.eq("stripe_customer_id", stripeCustomerId)
-        : { error: null };
+        },
+        { paymentIntentId, stripeCustomerId },
+      );
 
     if (subscriptionUpdateError) {
       console.error(
@@ -629,7 +652,6 @@ async function handleStripeDispute(
   } else {
     await Promise.all(
       customers
-        .filter((customer) => customer.inactive_reason === "payment_disputed")
         .map(async (customer) => {
           if (!customer.stripe_subscription_id) {
             await recordStripeWebhookFailureVisibility({
@@ -647,7 +669,48 @@ async function handleStripeDispute(
             const subscription = await stripe.subscriptions.retrieve(
               customer.stripe_subscription_id,
             );
-            await syncStripeSubscription(subscription);
+            const entitlement = await syncStripeSubscription(subscription);
+            const { data: journeyCustomer, error: journeyCustomerError } =
+              await supabaseAdmin
+                .from("customers")
+                .select(
+                  "id, status, production_status, layout_started_at, content_collected_at, preview_status",
+                )
+                .eq("id", customer.id)
+                .maybeSingle();
+
+            if (journeyCustomerError) {
+              throw journeyCustomerError;
+            }
+
+            const { error: customerRestoreError } = await supabaseAdmin
+              .from("customers")
+              .update({
+                status: "active",
+                payment_status: "paid",
+                service_access_status: entitlement.serviceAccessStatus,
+                service_access_until: entitlement.serviceAccessUntil,
+                inactive_reason: null,
+                cancellation_source: null,
+              })
+              .eq("id", customer.id);
+
+            if (customerRestoreError) {
+              throw customerRestoreError;
+            }
+
+            const restoredFulfillmentStatus = fulfillmentStatusForPaidRecovery(
+              journeyCustomer || {},
+            );
+            const { error: fulfillmentRestoreError } = await supabaseAdmin
+              .from("customer_subscriptions")
+              .update({ fulfillment_status: restoredFulfillmentStatus })
+              .eq("stripe_subscription_id", customer.stripe_subscription_id)
+              .in("status", ["paid", "active"]);
+
+            if (fulfillmentRestoreError) {
+              throw fulfillmentRestoreError;
+            }
           } catch (error) {
             console.error("Stripe dispute won entitlement sync error:", error);
             await recordStripeWebhookFailureVisibility({
@@ -807,18 +870,15 @@ async function handleStripeRefund(
       }
     }
 
-    const subscriptionUpdate = supabaseAdmin
-      .from("customer_subscriptions")
-      .update({
+    const { error: subscriptionUpdateError } =
+      await updateSubscriptionsForStripeFinancialEvent(
+        {
         status: "refunded",
         stripe_payment_status: "refunded",
         fulfillment_status: "cancelled",
-      });
-    const { error: subscriptionUpdateError } = paymentIntentId
-      ? await subscriptionUpdate.eq("stripe_payment_intent_id", paymentIntentId)
-      : stripeCustomerId
-        ? await subscriptionUpdate.eq("stripe_customer_id", stripeCustomerId)
-        : { error: null };
+        },
+        { paymentIntentId, stripeCustomerId },
+      );
 
     if (subscriptionUpdateError) {
       console.error(

@@ -104,6 +104,10 @@ Current deployment status:
     - Stripe refund webhook de-duplication was fixed and verified locally by replaying the same refund id twice without creating new duplicate audit/notification rows.
     - Production deployment `dpl_CFp597dXQr2M6Wy3taAqdeo5URo8` was aliased to `https://screenia.se` after the refund webhook de-duplication fix.
     - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, and unsigned Stripe webhook HTTP 400 `Missing signature`.
+  - Dispute/chargeback QA on 2026-07-15:
+    - Signed local Stripe dispute-open events suspended customer `10000044`, set `service_access_status=payment_disputed`, updated the local subscription to disputed/payment failed, recorded admin/audit evidence, and blocked production display access.
+    - Signed local Stripe won-dispute recovery events now restore customer status, payment status, service access, cancellation source, subscription status, and display playback while preserving `fulfillment_status=layout_started`.
+    - Fixes are pending production deployment and post-deploy smoke checks.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

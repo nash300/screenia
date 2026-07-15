@@ -92,6 +92,7 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: triggered payment failed behavior in test mode and confirmed display access blocks.
    - Completed 2026-07-15: confirmed refund is blocked after layout starts, then refunded a separate paid-before-layout Premium 4K test customer through the production admin refund API.
    - Completed 2026-07-15: fixed Stripe refund webhook evidence de-duplication so repeated refund events do not create new duplicate admin audit/notification rows.
+   - Completed 2026-07-15: tested Stripe dispute/chargeback behavior with signed local webhook events. Open disputes block customer display access and record urgent evidence; won disputes restore the customer, subscription, and display access while preserving `fulfillment_status=layout_started`.
 
 9. Evidence export
    - Completed 2026-07-15: fixed accounting CSV old discount-column names and verified production export includes active/refunded orders with customer/order/payment/VAT evidence.
