@@ -336,6 +336,7 @@ Billing lifecycle operations tested:
   - Admin applied Stripe test coupons through the operation flow.
   - Local `subscription_adjustments` rows were recorded.
   - Production fulfillment status stayed `layout_started` after the webhook preservation fix.
+  - QA-only active discounts were removed from the Stripe test subscription after verification, and local adjustment rows were marked inactive.
 
 Fixes completed during this scenario:
 - Fixed payment-success page heading contrast.
