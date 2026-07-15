@@ -29,8 +29,8 @@ type AccountingExportRow = {
   tax_amount_sek: number | null;
   tax_status: string | null;
   trial_days: number | null;
-  discount_percent: number | null;
-  discount_months: number | null;
+  device_discount_percent: number | null;
+  device_discount_months: number | null;
   stripe_current_period_start: string | null;
   stripe_current_period_end: string | null;
   cancel_at_period_end: boolean | null;
@@ -236,8 +236,8 @@ export async function GET(request: Request) {
         tax_amount_sek,
         tax_status,
         trial_days,
-        discount_percent,
-        discount_months,
+        device_discount_percent,
+        device_discount_months,
         stripe_current_period_start,
         stripe_current_period_end,
         cancel_at_period_end,
@@ -305,8 +305,8 @@ export async function GET(request: Request) {
         oreToSek(row.tax_amount_sek),
         row.tax_status,
         row.trial_days,
-        row.discount_percent,
-        row.discount_months,
+        row.device_discount_percent,
+        row.device_discount_months,
         row.stripe_checkout_session_id,
         row.stripe_invoice_id,
         row.stripe_current_period_start,

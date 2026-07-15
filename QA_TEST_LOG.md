@@ -795,3 +795,33 @@ Result:
 - Refund before layout correctly refunds Stripe, cancels the Stripe subscription, suspends/refunds local access, and records admin evidence.
 - Production deployment `dpl_CFp597dXQr2M6Wy3taAqdeo5URo8` was aliased to `https://screenia.se` after the webhook de-duplication fix.
 - Post-deploy smoke checks passed: `/api/display/QRWXVA/playlist` returned HTTP 200, `/login` returned HTTP 200, and unsigned Stripe webhook POST returned HTTP 400 `Missing signature`.
+
+### Accounting And VAT Export QA - 2026-07-15
+
+Scenario tested:
+- Admin accounting CSV and VAT summary exports for paid/refunded Premium 4K test data.
+
+Initial production result:
+- `GET /api/admin/accounting-export` returned HTTP 500 with `Could not create accounting export.`
+- Root cause: accounting export still selected old `discount_percent` / `discount_months` columns, while the current schema uses `device_discount_percent` / `device_discount_months`.
+- `GET /api/admin/vat-summary?from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200 but zero rows.
+- Root cause: VAT summary filtered to `stripe_payment_status in ["paid", "succeeded"]`, but the active setup payment row can later sync to `stripe_payment_status=trialing` because the subscription is in its free-trial period.
+
+Fixes completed:
+- Fixed `src/app/api/admin/accounting-export/route.ts` to use `device_discount_percent` and `device_discount_months`.
+- Fixed `src/app/api/admin/vat-summary/route.ts` to include active/paid rows with `tax_status=complete`, so paid setup orders remain reportable during the free-trial period.
+- Updated launch-readiness scanners to expect the new VAT rule.
+
+Local verification:
+- `GET http://localhost:3000/api/admin/accounting-export` returned HTTP 200.
+- Accounting export row count: 5.
+- Accounting export included active order `1000000036` / customer `10000044` with `total_amount_ore=279700`, `vat_amount_ore=55940`, `tax_behavior=inclusive`.
+- Accounting export included refunded order `1000000048` / customer `10000048` with `customer_payment_status=refunded`, `service_access_status=refunded`, `order_status=refunded`, `payment_status=refunded`, `total_amount_ore=279700`, `vat_amount_ore=55940`.
+- `GET http://localhost:3000/api/admin/vat-summary?from=2026-07-01T00:00:00.000Z&to=2026-08-01T00:00:00.000Z` returned HTTP 200.
+- VAT summary row count: 1.
+- VAT summary totals: gross `279700` ore / `2797.00` SEK, VAT `55940` ore / `559.40` SEK, net `223760` ore / `2237.60` SEK.
+- Visible production `/admin/orders` page shows both export controls: `Export accounting CSV` and `Export VAT summary`.
+
+Result:
+- Accounting/VAT export lifecycle passed locally after fixes.
+- Production deployment still needs to receive the accounting/VAT export fixes before live endpoints are corrected.

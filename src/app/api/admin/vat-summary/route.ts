@@ -134,7 +134,7 @@ export async function GET(request: Request) {
     .gte("created_at", from)
     .lt("created_at", to)
     .in("status", ["paid", "active"])
-    .in("stripe_payment_status", ["paid", "succeeded"])
+    .eq("tax_status", "complete")
     .order("created_at", { ascending: true });
 
   if (error) {

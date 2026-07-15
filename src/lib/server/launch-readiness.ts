@@ -3449,8 +3449,8 @@ export async function hasVatSummaryWorkflow(supabaseAdmin: SupabaseClient) {
       ? "VAT summary is missing Stripe invoice identifiers"
       : null,
     !vatRouteSource.includes('.in("status", ["paid", "active"])') ||
-    !vatRouteSource.includes('.in("stripe_payment_status", ["paid", "succeeded"])')
-      ? "VAT summary does not restrict rows to active paid subscription records"
+    !vatRouteSource.includes('.eq("tax_status", "complete")')
+      ? "VAT summary does not restrict rows to active paid subscription records with complete tax evidence"
       : null,
     !ordersPageSource.includes("/api/admin/vat-summary?format=csv")
       ? "orders admin page does not expose the VAT summary export"

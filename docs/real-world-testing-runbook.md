@@ -94,8 +94,9 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: fixed Stripe refund webhook evidence de-duplication so repeated refund events do not create new duplicate admin audit/notification rows.
 
 9. Evidence export
-   - Export accounting/VAT evidence for the test order.
-   - Confirm included VAT, gross/net values, Stripe references, customer number, and audit history.
+   - Completed locally 2026-07-15: fixed accounting CSV old discount-column names and verified active/refunded orders export with customer/order/payment/VAT evidence.
+   - Completed locally 2026-07-15: fixed VAT summary to include paid setup orders during trial by using active/paid rows with `tax_status=complete`.
+   - Deploy and retest production accounting/VAT endpoints after the export fixes.
 
 ## Evidence To Record
 
