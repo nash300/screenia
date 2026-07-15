@@ -107,7 +107,8 @@ Current deployment status:
   - Dispute/chargeback QA on 2026-07-15:
     - Signed local Stripe dispute-open events suspended customer `10000044`, set `service_access_status=payment_disputed`, updated the local subscription to disputed/payment failed, recorded admin/audit evidence, and blocked production display access.
     - Signed local Stripe won-dispute recovery events now restore customer status, payment status, service access, cancellation source, subscription status, and display playback while preserving `fulfillment_status=layout_started`.
-    - Fixes are pending production deployment and post-deploy smoke checks.
+    - Production deployment `dpl_AL3AHsKEM5FrH2gg9XbqjGynLaJJ` was aliased to `https://screenia.se` after the dispute recovery fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, visible display playback active, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, launch readiness 53 pass / 10 warning / 0 fail, accounting export HTTP 200, and VAT summary HTTP 200.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

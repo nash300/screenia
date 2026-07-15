@@ -867,4 +867,6 @@ Won-dispute recovery verification:
 
 Result:
 - Dispute open and won-dispute recovery passed locally after fixes.
-- Remaining action: deploy the dispute webhook recovery fix to production and run post-deploy smoke checks.
+- Production deployment `dpl_AL3AHsKEM5FrH2gg9XbqjGynLaJJ` was aliased to `https://screenia.se` after the dispute recovery fix.
+- Post-deploy smoke checks passed: `/login` returned HTTP 200, `/api/display/QRWXVA/playlist` returned HTTP 200, unsigned Stripe webhook POST returned HTTP 400 `Missing signature`, admin launch readiness returned HTTP 200 with `53 pass`, `10 warning`, `0 fail`, accounting export returned HTTP 200 CSV, and VAT summary returned HTTP 200 with gross `2797.00` SEK / VAT `559.40` SEK.
+- Visible production `/display/QRWXVA` still rendered a playing muted video after deployment with `readyState=4`.
