@@ -608,3 +608,48 @@ Result:
 - Pause/resume lifecycle passed.
 - Display entitlement correctly blocks during pause and restores after resume.
 - Future automated admin tests should reuse an authenticated session instead of repeatedly calling `/api/auth/login`, because the login rate limiter is active.
+
+### Scheduled Cancellation At Period End QA - 2026-07-15
+
+Scenario tested:
+- Active Premium 4K subscription is scheduled to cancel at period end, display access remains active during the paid-through/trial period, then the scheduled cancellation is undone.
+
+Baseline:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Device `QRWXVA`.
+- Before scheduling:
+  - Customer `status=active`, `payment_status=paid`, `service_access_status=active`, no cancellation fields.
+  - Local subscription `status=active`, `cancel_at_period_end=false`, `cancellation_effective_at=null`.
+  - Stripe subscription `status=trialing`, `cancel_at_period_end=false`, `cancel_at=null`, `pause_collection=null`.
+  - `/api/display/QRWXVA/playlist` returned HTTP 200 with one playlist item.
+
+Schedule action:
+- Called production admin subscription API with `action=cancel_period_end`.
+- Reason: `QA scheduled cancellation test: verify paid-through access remains active until trial period end.`
+- Result: HTTP 200 with `cancellationEffectiveAt=2026-08-05T01:50:10.000Z`.
+
+Scheduled-state verification:
+- Stripe subscription stayed `status=trialing`, set `cancel_at_period_end=true`, and set `cancel_at=1785894610`.
+- Local subscription stayed `status=active`, set `cancel_at_period_end=true`, and set `cancellation_effective_at=2026-08-05T01:50:10+00:00`.
+- Customer stayed `status=active`, `payment_status=paid`, and became `service_access_status=active_until_period_end` with `service_access_until=2026-08-05T01:50:10+00:00`.
+- Audit event `subscription_cancel_scheduled` was stored with the admin reason and effective date.
+- `/api/display/QRWXVA/playlist` still returned HTTP 200 with one playlist item.
+- Visible `/display/QRWXVA` still played one muted video, readyState `4`.
+
+Undo action:
+- Called production admin subscription API with `action=resume_subscription`.
+- Reason: `QA scheduled cancellation cleanup: undo period-end cancellation after verifying paid-through access.`
+- Result: HTTP 200.
+
+Restored-state verification:
+- Stripe subscription returned to `status=trialing`, `cancel_at_period_end=false`, `cancel_at=null`, `pause_collection=null`.
+- Customer returned to `status=active`, `payment_status=paid`, `service_access_status=active`, and cancellation fields cleared.
+- Local subscription returned to `status=active`, `cancel_at_period_end=false`, `cancellation_effective_at=null`.
+- Audit event `subscription_resumed` was stored with the cleanup reason.
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with one playlist item.
+- Launch readiness stayed HTTP 200 with `53 passed`, `10 review`, `0 blocked`.
+
+Result:
+- Period-end cancellation lifecycle passed.
+- Display entitlement remains active until the paid-through/trial end date and restores cleanly when the scheduled cancellation is undone.

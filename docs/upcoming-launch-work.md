@@ -87,6 +87,11 @@ Current deployment status:
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
     - Audit events `subscription_paused` and `subscription_resumed` were stored with admin reasons.
     - Repeated QA admin password logins triggered the login rate limiter, so future automated admin tests should reuse a session.
+  - Scheduled cancellation QA on 2026-07-15:
+    - Scheduling period-end cancellation set Stripe `cancel_at_period_end=true`, local `cancel_at_period_end=true`, and customer `service_access_status=active_until_period_end` through `2026-08-05T01:50:10Z`.
+    - Display playback stayed active while the subscription was scheduled to cancel at period end.
+    - Undoing the scheduled cancellation cleared Stripe/local/customer cancellation fields and launch readiness remained `53 passed`, `10 review`, `0 blocked`.
+    - Audit events `subscription_cancel_scheduled` and cleanup `subscription_resumed` were stored with admin reasons.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

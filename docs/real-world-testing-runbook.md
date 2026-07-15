@@ -82,7 +82,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15 for active test device `QRWXVA`: visible display page rendered one playing muted video at 1280x720.
    - Completed 2026-07-15: pausing the Premium 4K subscription set Stripe `pause_collection.behavior=void`, local/customer access to paused, made `/api/display/QRWXVA/playlist` return HTTP 403, and showed `Display inactive`.
    - Completed 2026-07-15: resuming the same subscription cleared Stripe pause collection, restored local/customer active access, and restored visible display playback.
-   - Schedule cancellation at period end and confirm access remains active until paid-through date.
+   - Completed 2026-07-15: scheduling cancellation at period end set Stripe/local cancellation flags and `active_until_period_end`, while display content stayed playable until `2026-08-05T01:50:10Z`.
+   - Completed 2026-07-15: undoing the scheduled cancellation cleared Stripe/local/customer cancellation fields and kept display playback active.
 
 8. Billing operations
    - Apply a temporary test discount and confirm Stripe/local audit evidence.
