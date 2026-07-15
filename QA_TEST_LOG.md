@@ -653,3 +653,56 @@ Restored-state verification:
 Result:
 - Period-end cancellation lifecycle passed.
 - Display entitlement remains active until the paid-through/trial end date and restores cleanly when the scheduled cancellation is undone.
+
+### Failed Payment And Recovery QA - 2026-07-15
+
+Scenario tested:
+- Active Premium 4K subscription receives a Stripe failed-payment invoice event, display access is blocked, admin/audit evidence is created, then a paid invoice recovery restores access.
+
+Baseline:
+- Customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Stripe customer `cus_Ut43Oaq32pKmj7`.
+- Stripe subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm`.
+- Device `QRWXVA`.
+- Before failure:
+  - Customer `status=active`, `payment_status=paid`, `service_access_status=active`.
+  - Local subscription `status=active`, `stripe_payment_status=trialing`.
+  - Stripe subscription `status=trialing`, no pause/cancellation flags.
+  - `/api/display/QRWXVA/playlist` returned HTTP 200.
+
+Failure action:
+- Sent a signed synthetic Stripe test webhook to the local Screenia webhook route connected to the shared Supabase/Stripe test services.
+- Production webhook endpoint rejected a stale local signing secret with HTTP 400, confirming signature protection; Vercel hides the current production webhook secret after pull, so the controlled behavior test used the same committed route locally.
+- Accepted failed-payment event: `evt_qa_invoice_payment_failed_20260715141053`.
+- Failed invoice id: `in_qa_payment_failed_fix_20260715141053`.
+
+Failed-state verification:
+- Customer became `status=suspended`, `payment_status=failed`, `service_access_status=payment_failed`, `inactive_reason=payment_failed`, `cancellation_source=stripe`.
+- Local subscription became `status=payment_failed`, `stripe_payment_status=failed`, `fulfillment_status=payment_failed`, with total `34900` ore and VAT `6980` ore.
+- Stripe subscription itself remained `status=trialing`, proving the test did not damage the real Stripe test subscription.
+- Production `/api/display/QRWXVA/playlist` returned HTTP 403 with `Display is not active.`
+- Visible `https://screenia.se/display/QRWXVA` showed `Display inactive`, no video element.
+- Audit event `payment_failed` was stored.
+- Urgent admin notification `Payment failed` was stored.
+
+Issue found and fixed:
+- Recovery initially restored payment/access correctly, but set local `fulfillment_status` to generic `active`, losing the previous layout-work progress label.
+- Fixed `src/app/api/stripe/webhook/route.ts` so `invoice.paid` recovery derives the fulfillment status from customer journey fields such as `production_status`, `layout_started_at`, `preview_status`, and `content_collected_at`.
+
+Recovery action:
+- Sent a signed paid-invoice recovery event after the fix.
+- Accepted recovery event: `evt_qa_invoice_paid_20260715141054`.
+- Recovery invoice id: `in_qa_payment_recovered_fix_20260715141054`.
+
+Restored-state verification:
+- Customer returned to `status=active`, `payment_status=paid`, `service_access_status=active`; failure fields were cleared.
+- Local subscription returned to `status=active`, `stripe_payment_status=trialing`, `fulfillment_status=layout_started`, total `279700` ore, VAT `55940` ore.
+- Stripe subscription stayed `status=trialing`, no pause/cancellation flags.
+- Production `/api/display/QRWXVA/playlist` returned HTTP 200 with one playlist item.
+- Visible `https://screenia.se/display/QRWXVA` rendered one muted playing video, readyState `4`, video size `1280x720`.
+- Audit event `subscription_invoice_paid` was stored for recovery.
+
+Result:
+- Failed-payment lifecycle passed after the fulfillment recovery fix.
+- Display entitlement blocks on failed payment and restores after payment recovery.
+- Production deployment still needs to receive the patched webhook code before this fix is active on `https://screenia.se/api/stripe/webhook`.

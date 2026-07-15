@@ -56,6 +56,35 @@ function invoiceSubscriptionId(invoice: Stripe.Invoice) {
         null;
 }
 
+function fulfillmentStatusForPaidRecovery(customer: {
+  status?: string | null;
+  production_status?: string | null;
+  layout_started_at?: string | null;
+  content_collected_at?: string | null;
+  preview_status?: string | null;
+}) {
+  if (customer.production_status === "published") return "completed";
+  if (
+    customer.production_status === "layout_started" ||
+    customer.production_status === "ready_for_preview" ||
+    customer.layout_started_at
+  ) {
+    return "layout_started";
+  }
+  if (
+    customer.production_status === "approved" ||
+    customer.preview_status === "approved"
+  ) {
+    return "preview_approved";
+  }
+  if (customer.preview_status === "changes_requested") return "content_pending";
+  if (customer.content_collected_at || customer.status === "content_received") {
+    return "content_received";
+  }
+  if (customer.status === "content_pending") return "content_pending";
+  return "active";
+}
+
 async function recordStripeWebhookFailureVisibility({
   eventType,
   title,
@@ -1322,7 +1351,9 @@ export async function POST(request: Request) {
 
       const { data: customers, error: customerError } = await supabaseAdmin
         .from("customers")
-        .select("id, status, payment_status, inactive_reason")
+        .select(
+          "id, status, payment_status, inactive_reason, production_status, layout_started_at, content_collected_at, preview_status",
+        )
         .eq("stripe_customer_id", paidStripeCustomerId);
 
       if (customerError) {
@@ -1417,6 +1448,10 @@ export async function POST(request: Request) {
       };
 
       if (!["refunded", "cancelled"].includes(matchedSubscription.status)) {
+        const recoveryFulfillmentStatus = fulfillmentStatusForPaidRecovery(
+          matchedCustomers[0] || {},
+        );
+
         const { error: subscriptionError } = await supabaseAdmin
           .from("customer_subscriptions")
           .update({
@@ -1425,7 +1460,7 @@ export async function POST(request: Request) {
             stripe_payment_status: "paid",
             tax_amount_sek: invoiceTaxAmountOre(invoice),
             total_amount_sek: invoice.total,
-            fulfillment_status: "active",
+            fulfillment_status: recoveryFulfillmentStatus,
           })
           .eq("id", matchedSubscription.id);
 

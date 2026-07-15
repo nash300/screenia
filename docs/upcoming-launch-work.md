@@ -92,6 +92,10 @@ Current deployment status:
     - Display playback stayed active while the subscription was scheduled to cancel at period end.
     - Undoing the scheduled cancellation cleared Stripe/local/customer cancellation fields and launch readiness remained `53 passed`, `10 review`, `0 blocked`.
     - Audit events `subscription_cancel_scheduled` and cleanup `subscription_resumed` were stored with admin reasons.
+  - Failed-payment/recovery QA on 2026-07-15:
+    - A signed Stripe failed-payment test event suspended customer `10000044`, set `service_access_status=payment_failed`, created urgent admin/audit evidence, and made production `/display/QRWXVA` show `Display inactive`.
+    - A paid-invoice recovery test restored customer/display access and verified the local subscription returns to `fulfillment_status=layout_started` after the webhook recovery fix.
+    - Production webhook signing stayed protected: an event signed with the stale local secret was rejected with HTTP 400 before the local connected-services test was used.
 - Vercel environment variables were added for production, preview, and development.
 - Production `NEXT_PUBLIC_APP_URL` now points to `https://screenia.se`.
 - Vercel environment metadata audit on 2026-07-14:

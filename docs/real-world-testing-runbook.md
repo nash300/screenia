@@ -84,11 +84,12 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Completed 2026-07-15: resuming the same subscription cleared Stripe pause collection, restored local/customer active access, and restored visible display playback.
    - Completed 2026-07-15: scheduling cancellation at period end set Stripe/local cancellation flags and `active_until_period_end`, while display content stayed playable until `2026-08-05T01:50:10Z`.
    - Completed 2026-07-15: undoing the scheduled cancellation cleared Stripe/local/customer cancellation fields and kept display playback active.
+   - Completed 2026-07-15: a signed Stripe failed-payment test event suspended the customer, set `service_access_status=payment_failed`, created urgent admin/audit evidence, and made `/display/QRWXVA` show `Display inactive`.
+   - Completed 2026-07-15: a paid-invoice recovery test restored customer/display access and now preserves `fulfillment_status=layout_started` instead of losing production progress.
 
 8. Billing operations
    - Apply a temporary test discount and confirm Stripe/local audit evidence.
-   - Trigger or simulate payment failed behavior in test mode.
-   - Confirm `payment_failed` blocks display access.
+   - Completed 2026-07-15: triggered payment failed behavior in test mode and confirmed display access blocks.
    - Test refund-before-layout boundary if applicable.
 
 9. Evidence export
