@@ -1130,3 +1130,31 @@ Visual verification:
 Post-test smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Customer Privacy Request And Data Subject Register QA - 2026-07-15
+
+Scenario tested:
+- Customer submits a privacy/GDPR request from the account portal, the system creates the support ticket and data-subject request register entry, admin can see and update it, and audit evidence is stored.
+
+Customer-side result:
+- Submitted `POST /api/account/messages` as customer `10000044` with `requestType=privacy_request`, `priority=high`, and no files.
+- Response returned HTTP 200 with ticket `IS-260715-430977`.
+- Customer portal `https://screenia.se/account?section=messages` visibly showed `[IS-260715-430977] Privacy request QA 20260715163701`, type `Integritet eller personuppgifter`, priority `Hög`, date `15 juli 2026`, and status `Nytt`.
+
+Register, audit, and notification result:
+- Data-subject request register entry `bcc2729d-57a9-43d3-8d40-6291731528ad` was created for customer `10000044`.
+- Source support message id: `2c8b8643-4577-4027-a10a-3d1f4e2af5ef`.
+- Register status started as `received`; due date was `2026-08-14T16:37:02.805+00:00`, 30 days after request creation.
+- Audit `customer_message_sent` and trigger-level `customer_messages_insert` were stored.
+- Audit `data_subject_request_received` was stored at `2026-07-15T16:37:03.233875+00:00`, including request id, ticket number, message id, and due date.
+- High-priority admin notification `New customer message` was stored with request type `privacy_request` and ticket `IS-260715-430977`.
+
+Admin-side result:
+- Authenticated admin `GET /api/admin/data-subject-requests` returned HTTP 200 and included the register entry with customer number `10000044`, customer email `service@screenia.se`, status `received`, and due date.
+- Admin update `PATCH /api/admin/data-subject-requests/bcc2729d-57a9-43d3-8d40-6291731528ad` returned HTTP 200.
+- Admin moved the request to `in_progress` with note `QA admin review started. Verify exported customer data and support history before closing this test request.`
+- Audit `data_subject_request_updated` was stored at `2026-07-15T16:40:28.536395+00:00`, including changed fields, before/after values, and admin reason.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200 with a signed Supabase playlist URL.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.

@@ -105,6 +105,13 @@ Current deployment status:
     - Resend email id `489cb91d-ffc0-4f3c-8cd4-c9a29193a509` reached both `email.sent` and `email.delivered` in the webhook ledger for `service@screenia.se`.
     - Customer portal message history, admin customer communication, and admin Email Events page all visibly showed the reply/delivery evidence.
     - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
+  - Customer privacy/data-subject request QA on 2026-07-15:
+    - Customer submitted privacy request ticket `IS-260715-430977` from the account portal; customer history showed type `Integritet eller personuppgifter`, priority `Hög`, and status `Nytt`.
+    - Data-subject request `bcc2729d-57a9-43d3-8d40-6291731528ad` was created from source message `2c8b8643-4577-4027-a10a-3d1f4e2af5ef` with due date `2026-08-14T16:37:02.805+00:00`.
+    - Audit events `customer_message_sent`, `data_subject_request_received`, and trigger insert evidence were stored, plus a high-priority admin notification.
+    - Authenticated admin API returned the request in `/api/admin/data-subject-requests`.
+    - Admin update moved it to `in_progress` with a QA note and stored `data_subject_request_updated` audit evidence with before/after fields and reason.
+    - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.
