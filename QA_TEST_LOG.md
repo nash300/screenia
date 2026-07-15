@@ -1033,3 +1033,40 @@ Post-deploy smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200.
 - Unsigned `/api/stripe/webhook` returned HTTP 400 `Missing signature`.
 - Launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Customer Portal, Admin Visibility, And Display Entitlement Regression QA - 2026-07-15
+
+Scenario tested:
+- Active Premium 4K customer `10000044` / `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009` uses the production customer portal after payment, then admin verifies submitted support/content/material records and display playback.
+
+Customer portal result:
+- Restored the QA auth metadata for `service@screenia.se` to active customer `10000044` and set the temporary test password `ScreeniaCustomer123` for this controlled portal pass.
+- Visual login from `https://screenia.se/login` succeeded and showed the correct active Premium 4K customer account.
+- Portal sections loaded correctly: overview, content setup, display material, support cases, billing, and legal/data export.
+- Customer support ticket submission returned HTTP 200 with ticket `IS-260715-084E99`.
+- Customer display-material text submission returned HTTP 200 and created a new material record.
+- Customer data export returned HTTP 200 with no-store JSON download headers and file name `screenia-data-export-2026-07-15.json`.
+- Stripe billing portal creation returned HTTP 200 with a Stripe billing portal URL.
+- Corrected content setup submission with full required business details returned HTTP 200.
+- Consent update retest used the correct `PATCH /api/account/consents` method and returned HTTP 200; marketing and analytics consent were set to false while remote support stayed true.
+
+Admin-side result:
+- Visual admin login with `admin@screenia.se` / `Screenia12345` succeeded.
+- Admin customer communication page showed the latest support ticket with request type, priority, timestamp, status controls, internal note field, and customer reply field.
+- Admin uploaded-media tab showed three text material records, including the corrected content setup notes from this pass.
+- Admin device media page for `QRWXVA` showed the assigned Premium 4K device, one playlist item, and audited upload/remove controls.
+
+Issue found and fixed:
+- Retesting `https://screenia.se/display/QRWXVA` initially showed `Display inactive`.
+- Root cause: `POST /api/account/content-setup` updates `customers.status` to `content_received`; the display entitlement helper required `customers.status === "active"` even though `payment_status=paid` and `service_access_status=active`.
+- Fixed `src/lib/server/subscription-entitlements.ts` so display access is blocked by explicit inactive/refunded/cancelled/suspended/deleted customer states, while workflow statuses such as `content_received` no longer disable a paid active display.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_3QF4CJEXaDpKcd4dDmyGSaxuAqpm` was aliased to `https://screenia.se`.
+
+Retest:
+- Production `GET /api/display/QRWXVA/playlist` returned HTTP 200 with signed playlist item `4b0e1b0e-4a95-4717-80b4-86e074e87432`.
+- Visible `https://screenia.se/display/QRWXVA` rendered one muted playing video at 1280x720 with `readyState=4`.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+Remaining:
+- This pass still used a temporary Supabase Admin-set customer password. The final real email-link password setup remains a manual launch gate before setting `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true`.

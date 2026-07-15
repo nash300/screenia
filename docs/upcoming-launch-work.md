@@ -82,6 +82,14 @@ Current deployment status:
     - `/display/QRWXVA` rendered one playing muted video at 1280x720.
     - Stripe account/customer-portal branding still says `New business sandbox`; update Stripe branding to Screenia before real customer tests.
     - This is not the final Supabase Auth email-link proof, because the password was set directly for QA.
+  - Customer portal/admin visibility/display entitlement regression QA on 2026-07-15:
+    - `service@screenia.se` was temporarily pointed back to active customer `10000044` and tested with QA password `ScreeniaCustomer123`.
+    - Customer portal login, support ticket creation, display-material text submission, full content setup submission, data export, consent update, and Stripe billing portal creation passed against production.
+    - Admin customer communication showed ticket `IS-260715-084E99`; uploaded-media view showed the new text material and corrected content setup notes with timestamps.
+    - Found a real display regression after content setup: `customers.status=content_received` made `/display/QRWXVA` show `Display inactive` even though payment/access fields were active.
+    - Fixed `src/lib/server/subscription-entitlements.ts` so display entitlement is driven by `payment_status` plus `service_access_status`, with explicit blocked customer states, rather than requiring the workflow status to equal `active`.
+    - Production deployment `dpl_3QF4CJEXaDpKcd4dDmyGSaxuAqpm` was aliased to `https://screenia.se`; `/api/display/QRWXVA/playlist` returned HTTP 200 and visible `/display/QRWXVA` played one muted 1280x720 video again.
+    - Launch readiness remained `53 passed`, `10 review`, `0 blocked`.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

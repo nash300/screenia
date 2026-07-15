@@ -88,7 +88,17 @@ export function hasDisplayEntitlement({
   serviceAccessStatus: string | null | undefined;
   serviceAccessUntil: string | null | undefined;
 }) {
-  if (customerStatus !== "active" || paymentStatus !== "paid") return false;
+  const blockedCustomerStatuses = new Set([
+    "cancelled",
+    "canceled",
+    "refunded",
+    "suspended",
+    "inactive",
+    "deleted",
+  ]);
+
+  if (blockedCustomerStatuses.has(customerStatus || "")) return false;
+  if (paymentStatus !== "paid") return false;
   if (!["active", "active_until_period_end"].includes(serviceAccessStatus || "")) {
     return false;
   }
