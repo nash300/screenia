@@ -1,6 +1,6 @@
 ﻿# Screenia Upcoming Launch Work
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 ## Current Readiness Snapshot
 
@@ -28,6 +28,17 @@ Current critical next actions:
 
 - Use `docs/real-world-testing-runbook.md` for the next full scenario pass.
 - Use `.env.example` as the safe variable template for local/Vercel setup checks; it contains placeholders only and keeps live-payment gates false by default.
+
+Production deployment checkpoint on 2026-07-15 03:06 Europe/Stockholm:
+
+- Deployed the latest clean local state to Vercel production for online dummy-data scenario testing.
+- Vercel production deployment `dpl_3599mQ6jNd2e5Z1BpWphrYZ1wH78` reached Ready.
+- Production URL: `https://screenia-jck8upktg-nadeesha7314-1449s-projects.vercel.app`.
+- Aliased to `https://screenia.se` and `https://www.screenia.se`.
+- Verified `https://screenia.se` returned HTTP 200 with title `Screenia | Digital skyltning för företag i Sverige`.
+- Verified the live page includes `service@screenia.se` and does not include `hello@screenia.se`.
+- Verified unauthenticated `https://screenia.se/api/admin/launch-readiness` returns HTTP 401.
+- Verified unauthenticated GET `https://screenia.se/api/onboarding-requests` returns HTTP 405.
 
 Production deployment checkpoint on 2026-07-14 17:04 Europe/Stockholm:
 
