@@ -54,6 +54,8 @@ Use this runbook when the domain, mailbox, Resend, Supabase Auth, Vercel, and St
    - Submit a real-looking customer request from `https://screenia.se`.
    - Verify the customer/request appears in admin.
    - Verify confirmation email and admin notification behavior.
+   - Completed 2026-07-15: production Premium 4K request modal opened from `Välj Premium`, request `Screenia Public Request QA 20260715154349 AB` saved as customer `10000052`, admin list showed it under requests, audit/admin notification records were created, and Resend delivered confirmation email `d4c4a3c2-069b-4ac4-8d55-30ea3f6fb3c3` from `Screenia <service@screenia.se>`.
+   - Completed 2026-07-15 cleanup: unpaid/no-Stripe dummy request `10000052` was permanently deleted through the admin DELETE endpoint with audit evidence retained and detached.
 
 3. Admin quote and onboarding
    - Open the new customer in admin.

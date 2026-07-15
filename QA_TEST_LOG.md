@@ -956,3 +956,30 @@ Verification:
 Result:
 - Password reset email delivery through Supabase Auth SMTP/Resend is service-level verified.
 - Manual remaining step: open the real reset email link and submit a compliant test password. Do not set `SCREENIA_SUPABASE_AUTH_EMAIL_VERIFIED=true` until that final password-change and `/account` login are confirmed.
+
+### Public Premium Request And Cleanup QA - 2026-07-15
+
+Scenario tested:
+- A visitor selects the Premium 4K package on the production landing page, submits a request, admin sees the request, the customer receives confirmation email, and the unpaid dummy request is safely removed afterward.
+
+Visual customer-side result:
+- `https://screenia.se/` loaded with package cards showing customer-facing inclusive prices.
+- Clicking `Välj Premium` opened the `Starta med Premium 4K` request dialog.
+- The dialog collected company name, email, contact person, phone, screen quantity, message, and privacy-policy consent.
+- Submitted dummy request `Screenia Public Request QA 20260715154349 AB` with email `service@screenia.se`.
+- The page showed the Swedish success message: `Tack. Din förfrågan är mottagen och Screenia återkommer med en personlig startguide.`
+
+Database, admin, audit, and email result:
+- Supabase created customer `10000052` / `9e6f51df-8c27-4782-94ad-24e6b763b9dc` with status `new_request`, service access `inactive`, and no payment/Stripe IDs.
+- Saved request metadata included `planCode=premium_4k`, `planResolution=4K`, `screenQuantity=1`, and privacy version `2026-07-12-prelaunch`.
+- Admin notification `New customer request` was created for the dummy customer.
+- Audit events included `landing_purchase_request_created`, `request_confirmation_email_sent`, and trigger-level `customers_insert`.
+- Resend delivered confirmation email `d4c4a3c2-069b-4ac4-8d55-30ea3f6fb3c3` to `service@screenia.se` from `Screenia <service@screenia.se>` with subject `Screenia har tagit emot din förfrågan`.
+- The production admin customer list visually showed the new request under `Requests (1)` with customer number `10000052`.
+
+Cleanup:
+- Because the dummy customer had no payment or Stripe history, production admin DELETE safely removed the customer with reason `QA cleanup after verified public Premium request flow on 2026-07-15.`
+- Delete response was HTTP 200 / `{ "success": true }`.
+- The customer record no longer exists.
+- Deletion evidence remains in audit as `customer_deleted` and `customers_delete`, with customer references detached for traceability.
+- Post-cleanup footprint returned to 6 customers: 1 active paid, 3 refunded, 2 cancelled; no remaining `Screenia Public Request QA 20260715154349` customer.
