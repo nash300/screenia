@@ -133,6 +133,13 @@ Current deployment status:
     - Urgent admin notifications were created while the high-severity incident still needed follow-up; no follow-up notification was created after final resolution.
     - Visible `https://screenia.se/admin/privacy-incidents` showed the incident as `high`, `resolved`, `Authority: yes`, `Customer: yes`, and `0 open`.
     - Display playlist smoke remained HTTP 200 and launch readiness stayed `53 passed`, `10 review`, `0 blocked`.
+  - Data retention review QA on 2026-07-15:
+    - Admin created support-message retention review `506a6b37-b306-4c7c-8d89-494afa07ec6e` for customer `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009` and related ticket `IS-260715-430977`.
+    - Initial recommended action `anonymize` created high-priority notification `8a8f5218-2eef-4c8d-aeef-db2ba823d532`.
+    - Admin updated the review to `retain` and then to `completed`, with audit events `data_retention_review_recorded` and `data_retention_review_updated` storing reasons and before/after metadata.
+    - Found and fixed a completed-row UI issue: completed retention reviews no longer show Retain/Anonymize/Complete controls, and instead show `Completed`.
+    - Production deployment `dpl_DjbeKayKLu871tzpkYXMjimkuD9J` was aliased to `https://screenia.se` after the fix.
+    - Post-deploy smoke checks passed: display playlist HTTP 200, login HTTP 200, unsigned Stripe webhook HTTP 400 `Missing signature`, and launch readiness 53 pass / 10 warning / 0 fail.
   - Pause/resume QA on 2026-07-15:
     - Pausing Premium 4K subscription `sub_1TtHxgGhi0eDHRQZnv0vnynm` set Stripe `pause_collection.behavior=void`, local subscription/customer access to paused, and blocked `/display/QRWXVA`.
     - Resuming the same subscription cleared Stripe pause collection, restored active local/customer access, and restored visible display playback.

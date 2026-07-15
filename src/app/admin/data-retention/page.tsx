@@ -340,59 +340,63 @@ export default function AdminDataRetentionPage() {
                   <td>{formatDate(review.retention_until)}</td>
                   <td>{review.recommended_action}</td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "retain",
-                              action: "retain",
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Retain
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "anonymize",
-                              action: "anonymize",
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Anonymize
-                      </button>
-                      <button
-                        type="button"
-                        className="admin-button-secondary"
-                        disabled={updatingId === review.id}
-                        onClick={() =>
-                          setActionDrafts((current) => ({
-                            ...current,
-                            [review.id]: {
-                              status: "completed",
-                              action: "review",
-                              reason: current[review.id]?.reason || "",
-                            },
-                          }))
-                        }
-                      >
-                        Complete
-                      </button>
-                    </div>
+                    {review.review_status === "completed" ? (
+                      <span className="admin-muted">Completed</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "retain",
+                                action: "retain",
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Retain
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "anonymize",
+                                action: "anonymize",
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Anonymize
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-button-secondary"
+                          disabled={updatingId === review.id}
+                          onClick={() =>
+                            setActionDrafts((current) => ({
+                              ...current,
+                              [review.id]: {
+                                status: "completed",
+                                action: "review",
+                                reason: current[review.id]?.reason || "",
+                              },
+                            }))
+                          }
+                        >
+                          Complete
+                        </button>
+                      </div>
+                    )}
                     {actionDrafts[review.id] && (
                       <div className="admin-inline-flow">
                         <label>

@@ -1255,3 +1255,42 @@ Visual/admin verification:
 Post-test smoke:
 - `/api/display/QRWXVA/playlist` returned HTTP 200.
 - Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
+
+### Data Retention Review QA - 2026-07-15
+
+Scenario tested:
+- Admin records a retention review for customer support/privacy-request records, verifies anonymization-review visibility, updates retention decision, completes the review, and confirms completed reviews no longer expose confusing action controls.
+
+Lifecycle result:
+- Initial authenticated admin `GET /api/admin/data-retention` returned an empty register for this fresh pass.
+- `POST /api/admin/data-retention` returned HTTP 201 and created review `506a6b37-b306-4c7c-8d89-494afa07ec6e`.
+- Record area: `support_messages`.
+- Related customer id: `a0fe0b3d-d3f4-45a5-9316-1e0bc8588009`.
+- Related record id: `IS-260715-430977`.
+- Initial status: `pending_review`.
+- Initial recommended action: `anonymize`.
+- Retention until: `2026-12-31`.
+- `PATCH /api/admin/data-retention/506a6b37-b306-4c7c-8d89-494afa07ec6e` updated the review to `retain` / `retain`.
+- Final `PATCH` updated the review to `completed` / `review` and set `completed_at=2026-07-15T16:57:46.837+00:00`.
+
+Audit and notification result:
+- Audit `data_retention_review_recorded` was stored at `2026-07-15T16:57:45.186843+00:00`.
+- Audit `data_retention_review_updated` was stored for both updates, with changed fields, before/after values, and admin reasons.
+- High-priority admin notification `8a8f5218-2eef-4c8d-aeef-db2ba823d532` was created because the initial recommended action was `anonymize`.
+
+Issue found and fixed:
+- Completed rows still showed the `Retain`, `Anonymize`, and `Complete` controls, which made a closed review look editable.
+- Fixed `src/app/admin/data-retention/page.tsx` so completed rows show a simple `Completed` label instead of action buttons.
+- Local checks passed: `npm.cmd run lint`, `npm.cmd run text:check`, and `npm.cmd run build`.
+- Production deployment `dpl_DjbeKayKLu871tzpkYXMjimkuD9J` was aliased to `https://screenia.se`.
+
+Visual/admin verification:
+- Browser page `https://screenia.se/admin/data-retention` showed the review with status `completed`, until date `2026-12-31`, and action `review`.
+- After the production fix, the row controls showed only `Completed`.
+- Browser console had no errors for the page.
+
+Post-test smoke:
+- `/api/display/QRWXVA/playlist` returned HTTP 200.
+- `/login` returned HTTP 200.
+- Unsigned `/api/stripe/webhook` returned HTTP 400 with `Missing signature`.
+- Production launch readiness remained `53 pass`, `10 warning`, `0 fail`.
