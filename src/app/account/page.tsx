@@ -665,8 +665,8 @@ export default function AccountPage() {
     setMaterialDescription("");
     setMaterialFiles([]);
     setNotice("Materialet har skickats till Screenia.");
+    await loadAccount();
     setUploadingMaterial(false);
-    loadAccount();
   };
 
   const sendMessage = async () => {
@@ -707,8 +707,8 @@ export default function AccountPage() {
         ? `Ärendet har skickats. Ärendenummer: ${result.ticketNumber}`
         : "Ärendet har skickats till Screenia.",
     );
+    await loadAccount();
     setSending(false);
-    loadAccount();
   };
 
   const openBillingPortal = async () => {
