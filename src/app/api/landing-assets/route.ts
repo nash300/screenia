@@ -22,6 +22,27 @@ const toLabel = (fileName: string) => {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 };
 
+const getPngDimensions = async (filePath: string) => {
+  try {
+    const file = await readFile(filePath);
+    const isPng =
+      file.length >= 24 &&
+      file[0] === 0x89 &&
+      file[1] === 0x50 &&
+      file[2] === 0x4e &&
+      file[3] === 0x47;
+
+    if (!isPng) return null;
+
+    return {
+      width: file.readUInt32BE(16),
+      height: file.readUInt32BE(20),
+    };
+  } catch {
+    return null;
+  }
+};
+
 const listPublicFiles = async (
   directory: string,
   publicPath: string,
@@ -30,15 +51,22 @@ const listPublicFiles = async (
   try {
     const entries = await readdir(directory, { withFileTypes: true });
 
-    return entries
+    const files = entries
       .filter((entry) => entry.isFile())
       .map((entry) => entry.name)
       .filter((fileName) => extensions.has(path.extname(fileName).toLowerCase()))
-      .sort((first, second) => first.localeCompare(second, "sv"))
-      .map((fileName) => ({
+      .sort((first, second) => first.localeCompare(second, "sv"));
+
+    return Promise.all(files.map(async (fileName) => {
+      const dimensions = await getPngDimensions(path.join(directory, fileName));
+
+      return {
         label: toLabel(fileName),
         src: `${publicPath}/${encodeURIComponent(fileName)}`,
-      }));
+        width: dimensions?.width,
+        height: dimensions?.height,
+      };
+    }));
   } catch {
     return [];
   }

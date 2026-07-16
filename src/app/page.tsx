@@ -306,6 +306,8 @@ const heroBenefits = [
 type LandingAsset = {
   label: string;
   src: string;
+  width?: number;
+  height?: number;
 };
 
 type HeroSlideAsset = LandingAsset & {
@@ -731,8 +733,8 @@ export default function Home() {
                         <Image
                           src={logo.src}
                           alt={group === 0 ? `${logo.label} logo` : ""}
-                          width={138}
-                          height={30}
+                          width={logo.width || 138}
+                          height={logo.height || 30}
                         />
                       </span>
                     ))}
