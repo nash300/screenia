@@ -263,8 +263,8 @@ export default function AdminHomePage() {
         />
         <ActionCard
           href="/admin/customers?filter=needs_device"
-          title="Prepare hardware"
-          description="Content received without an assigned screen."
+          title="Allocate devices"
+          description="Content received without a customer device allocation."
           count={needsDisplayCount}
           tone="warning"
           loading={loading}
@@ -397,7 +397,7 @@ export default function AdminHomePage() {
           <div className="admin-status-list admin-status-list-compact">
             <StatusRow label="Ready" value={readyCustomerCount} tone="success" />
             <StatusRow
-              label="Missing displays"
+              label="Missing device allocation"
               value={needsDisplayCount}
               tone="warning"
             />

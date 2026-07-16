@@ -40,7 +40,7 @@ const statusFilters = [
   { value: "paid", label: "Paid" },
   { value: "content_pending", label: "Content pending" },
   { value: "content_received", label: "Content received" },
-  { value: "needs_device", label: "Needs display" },
+  { value: "needs_device", label: "Needs device allocation" },
   { value: "needs_playlist", label: "Needs playlist" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
@@ -48,7 +48,7 @@ const statusFilters = [
 
 const onboardingFilters = [
   { value: "new_request", label: "Requests", hint: "needs review" },
-  { value: "draft", label: "Draft", hint: "needs quote" },
+  { value: "draft", label: "Drafts", hint: "prepare quote" },
   { value: "invited", label: "Invited", hint: "waiting details/payment" },
 ];
 
@@ -335,6 +335,13 @@ function CustomersContent() {
     return new Date(value).toLocaleDateString("sv-SE");
   };
 
+  const formatStatusLabel = (value: string | null | undefined) => {
+    if (!value) return "-";
+    return value
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  };
+
   const formatStripeSek = (value: number | null | undefined) => {
     if (value === null || typeof value === "undefined") return "-";
     const hasOre = value % 100 !== 0;
@@ -371,14 +378,14 @@ function CustomersContent() {
       <div className="admin-page-header">
         <h1 className="admin-title">Customer work</h1>
         <p className="admin-subtitle">
-          Manage requests, onboarding, account setup, communication, and the
-          full customer profile.
+          Manage request review, quote/onboarding, payment follow-up, content,
+          device allocation, communication, and the full customer profile.
         </p>
       </div>
 
       <div className="admin-customers-controls">
         <section className="admin-card admin-customers-create p-6">
-          <h2 className="admin-card-title text-xl">Create customer draft</h2>
+          <h2 className="admin-card-title text-xl">Manual customer draft</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm font-semibold text-slate-700">
               Company name *
@@ -420,7 +427,7 @@ function CustomersContent() {
         </section>
 
         <section className="admin-card admin-customers-search p-6">
-          <h2 className="admin-card-title text-xl">Search customers</h2>
+          <h2 className="admin-card-title text-xl">Find customer work</h2>
           <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-800">
               Onboarding queue
@@ -489,7 +496,7 @@ function CustomersContent() {
           hasSelectedFilter ? "" : "admin-customers-list-panel-empty"
         }`}
       >
-        <h2 className="admin-card-title text-xl">Customer list</h2>
+        <h2 className="admin-card-title text-xl">Customer queue</h2>
         {hasSelectedFilter ? (
           <div className="admin-customer-table-wrap mt-4">
             {loading ? (
@@ -503,9 +510,9 @@ function CustomersContent() {
                     <th>Customer</th>
                     <th>Contact</th>
                     <th>Status</th>
-                    <th>Latest order</th>
-                    <th>Billing</th>
-                    <th>Displays</th>
+                    <th>Order</th>
+                    <th>Payment</th>
+                    <th>Device allocation</th>
                     <th>Created</th>
                     <th>Updated</th>
                   </tr>
@@ -516,7 +523,7 @@ function CustomersContent() {
                     const subscription = latestSubscription(customer);
                     const needsSetup =
                       customer.status === "active" && deviceCount === 0
-                        ? "Needs display"
+                        ? "Needs device allocation"
                         : customer.status === "active" && hasDeviceWithoutPlaylist(customer)
                           ? "Needs playlist"
                           : "";
@@ -534,18 +541,24 @@ function CustomersContent() {
                         </td>
                         <td>
                           <span className={`admin-table-pill ${getStatusClass(customer.status)}`}>
-                            {customer.status || "draft"}
+                            {formatStatusLabel(customer.status || "draft")}
                           </span>
                           {needsSetup && <small>{needsSetup}</small>}
                         </td>
                         <td>
                           <strong>{subscription?.order_number || "-"}</strong>
-                          <span>{subscription?.status || "No order"}</span>
+                          <span>{formatStatusLabel(subscription?.status || "No order")}</span>
                           <small>{formatDate(subscription?.created_at)}</small>
                         </td>
                         <td>
                           <strong>{formatStripeSek(subscription?.total_amount_sek)}</strong>
-                          <span>{subscription?.stripe_payment_status || customer.payment_status || "-"}</span>
+                          <span>
+                            {formatStatusLabel(
+                              subscription?.stripe_payment_status ||
+                                customer.payment_status ||
+                                "-",
+                            )}
+                          </span>
                           <small>{formatDate(subscription?.updated_at)}</small>
                         </td>
                         <td>{deviceCount}</td>
@@ -564,7 +577,7 @@ function CustomersContent() {
           </div>
         ) : (
           <div className="admin-customers-empty-message">
-            Select a filter above to load matching customers.
+            Select a queue above to load matching customers.
           </div>
         )}
       </section>
