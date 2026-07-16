@@ -95,7 +95,7 @@ function describeComplianceItem(href: string) {
     case "/admin/data-subject-requests":
       return "GDPR access, deletion, export, or correction requests";
     case "/admin/privacy-incidents":
-      return "Security/privacy incident response register";
+      return "Security/privacy incident response workflow";
     case "/admin/access-reviews":
       return "Admin access and MFA review evidence";
     case "/admin/processor-reviews":

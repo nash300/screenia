@@ -36,6 +36,25 @@ function formatDateTime(value: string | null) {
   return new Date(value).toLocaleString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatDocumentType(value: string) {
+  const labels: Record<string, string> = {
+    terms: "Terms",
+    privacy: "Privacy policy",
+    cookie: "Cookie policy",
+    subscription_billing: "Subscription billing",
+    support_service: "Support service",
+  };
+
+  return labels[value] || formatChoice(value);
+}
+
 function noticeToForm(
   notice: LegalChangeNotice,
   status = notice.notice_status,
@@ -73,6 +92,50 @@ export default function AdminLegalChangeNoticesPage() {
       ).length,
     [notices],
   );
+  const approvedCount = useMemo(
+    () =>
+      notices.filter((notice) =>
+        ["approved", "sent"].includes(notice.notice_status),
+      ).length,
+    [notices],
+  );
+  const sentCount = useMemo(
+    () => notices.filter((notice) => notice.notice_status === "sent").length,
+    [notices],
+  );
+  const reacceptanceCount = useMemo(
+    () =>
+      notices.filter(
+        (notice) => notice.reacceptance_required && notice.notice_status === "sent",
+      ).length,
+    [notices],
+  );
+  const noticeWorkflow = [
+    {
+      stage: "1",
+      label: "Draft change",
+      value: notices.length,
+      description: "Record what changed, version, and effective date.",
+    },
+    {
+      stage: "2",
+      label: "Approve notice",
+      value: approvedCount,
+      description: "Confirm if customers need notice or re-acceptance.",
+    },
+    {
+      stage: "3",
+      label: "Send customers",
+      value: sentCount,
+      description: "Track sent notice time and delivery evidence.",
+    },
+    {
+      stage: "4",
+      label: "Collect acceptance",
+      value: reacceptanceCount,
+      description: "Keep re-acceptance requirements visible for follow-up.",
+    },
+  ];
 
   const loadNotices = async () => {
     setLoading(true);
@@ -187,7 +250,19 @@ export default function AdminLegalChangeNoticesPage() {
       </div>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record policy change</h2>
+        <h2 className="admin-card-title text-xl">Policy notice workflow</h2>
+        <div className="admin-legal-workflow" aria-label="Legal notice workflow">
+          {noticeWorkflow.map((item) => (
+            <div key={item.stage} className="admin-legal-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitNotice}>
           <label className="admin-field">
             <span>Document</span>
@@ -312,7 +387,7 @@ export default function AdminLegalChangeNoticesPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Legal change register</h2>
+        <h2 className="admin-card-title text-xl">Customer notice cases</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -329,16 +404,16 @@ export default function AdminLegalChangeNoticesPage() {
               {notices.map((notice) => (
                 <tr key={notice.id}>
                   <td>
-                    <strong>{notice.document_type}</strong>
+                    <strong>{formatDocumentType(notice.document_type)}</strong>
                     <br />
                     <small>{notice.document_version}</small>
                   </td>
                   <td>{notice.change_summary}</td>
-                  <td>{notice.notice_status}</td>
+                  <td>{formatChoice(notice.notice_status)}</td>
                   <td>
-                    Required: {notice.notice_required ? "yes" : "no"}
+                    Required: {notice.notice_required ? "Yes" : "No"}
                     <br />
-                    Re-accept: {notice.reacceptance_required ? "yes" : "no"}
+                    Re-accept: {notice.reacceptance_required ? "Yes" : "No"}
                   </td>
                   <td>
                     {formatDateTime(notice.notice_sent_at)}
@@ -454,7 +529,7 @@ export default function AdminLegalChangeNoticesPage() {
               ))}
               {!loading && notices.length === 0 && (
                 <tr>
-                  <td colSpan={6}>No legal change notices recorded.</td>
+                  <td colSpan={6}>No customer notice cases yet.</td>
                 </tr>
               )}
             </tbody>
