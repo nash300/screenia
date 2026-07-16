@@ -53,18 +53,18 @@ export const orderSections: Array<{
   {
     id: "pipeline",
     label: "Quote to production",
-    description: "Prepared quotes, paid orders, content, and layout work",
+    description: "Prepared quotes, payment, material review, and layout work",
     stage: "1",
   },
   {
     id: "payment",
-    label: "Payment attention",
+    label: "Payment issues",
     description: "Checkout started, failed, or disputed payments",
     stage: "2",
   },
   {
     id: "shipping",
-    label: "Device and shipping",
+    label: "Device allocation & shipping",
     description: "Allocated devices, shipment readiness, and tracking",
     stage: "3",
   },
@@ -89,8 +89,8 @@ export const orderOperations: Array<{
   },
   {
     id: "fulfillment_status",
-    label: "Fulfillment",
-    description: "Use for content collection, layout/production, approval, shipping readiness, and completion.",
+    label: "Material & production",
+    description: "Use for material collection, layout/production, approval, shipping readiness, and completion.",
     tone: "success",
   },
   {
@@ -102,7 +102,7 @@ export const orderOperations: Array<{
   {
     id: "tracking",
     label: "Shipment tracking",
-    description: "Save carrier tracking details; this can move fulfillment to shipped.",
+    description: "Save carrier tracking details; this can move the order to shipped.",
   },
 ];
 
@@ -166,6 +166,22 @@ export function formatStripeSek(amount: number | null) {
 }
 
 export function formatStatusLabel(value: string) {
+  const labels: Record<string, string> = {
+    content_collection: "Material collection",
+    content_pending: "Material pending",
+    content_received: "Material received",
+    preview_approved: "Preview approved",
+    ready_to_ship: "Ready to ship",
+    not_reserved: "Not reserved",
+    ready_to_reserve: "Ready to reserve",
+    checkout_started: "Checkout started",
+    payment_failed: "Payment failed",
+    quote_prepared: "Quote prepared",
+    quote_sent: "Quote sent",
+  };
+
+  if (labels[value]) return labels[value];
+
   return value
     .replace(/_/g, " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());

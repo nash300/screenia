@@ -361,8 +361,8 @@ function AdminOrdersContent() {
       <div className="admin-page-header">
         <h1 className="admin-title">Orders & billing</h1>
         <p className="admin-subtitle">
-          Follow quotes, Stripe payment state, refunds, customer device allocation,
-          shipping, and order updates in one place.
+          Follow quote, Stripe payment, material review, layout production,
+          device allocation, shipping, refunds, and order evidence in one place.
         </p>
         <a
           href="/api/admin/accounting-export"
@@ -452,7 +452,7 @@ function AdminOrdersContent() {
                     <strong>{formatStatusLabel(order.status)}</strong>
                   </div>
                   <div>
-                    <span>Fulfillment</span>
+                    <span>Material / production</span>
                     <strong>
                       {formatStatusLabel(order.fulfillment_status || "pending")}
                     </strong>
@@ -544,7 +544,7 @@ function AdminOrdersContent() {
                         {operationDraft.operation === "fulfillment_status" && (
                           <div className="admin-operation-fields admin-order-single-field">
                             <label>
-                              Fulfillment status
+                              Material / production status
                               <select
                                 value={operationDraft.fulfillment_status}
                                 disabled={savingId === order.id}
