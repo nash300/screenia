@@ -85,7 +85,7 @@ export default function AdminInventoryPage() {
     if (itemError) {
       if (itemError.code === "PGRST205") {
         setSchemaWarning(
-          "Inventory tables are missing in Supabase. Apply the inventory migration before adding stock items.",
+          "Hardware stock is not ready in the database yet. Ask the developer to apply the inventory setup before adding boxes.",
         );
       } else {
         console.error("Load inventory error:", itemError);
@@ -198,6 +198,32 @@ export default function AdminInventoryPage() {
       return diff > 0 && diff <= 1000 * 60 * 60 * 24 * 60;
     }).length,
   };
+  const stockWorkflow = [
+    {
+      stage: "1",
+      label: "Register purchase",
+      value: counts.all,
+      description: "Add each Android box with serial, seller, invoice, and warranty.",
+    },
+    {
+      stage: "2",
+      label: "Prepare stock",
+      value: stockSummary.ready,
+      description: "Keep tested hardware ready for customer assignment.",
+    },
+    {
+      stage: "3",
+      label: "Assign from customer",
+      value: stockSummary.allocated,
+      description: "Reserve hardware from the customer profile after onboarding.",
+    },
+    {
+      stage: "4",
+      label: "Service lifecycle",
+      value: stockSummary.attention,
+      description: "Track shipped, returned, defective, repair, lost, and retired boxes.",
+    },
+  ];
 
   const updateForm = (field: keyof InventoryForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -420,12 +446,24 @@ export default function AdminInventoryPage() {
         <InventoryKpi label="Warranty soon" value={stockSummary.warrantySoon} tone="warning" />
       </section>
 
+      <section className="admin-card admin-inventory-workflow" aria-label="Hardware stock workflow">
+        {stockWorkflow.map((item) => (
+          <div key={item.stage} className="admin-inventory-workflow-step">
+            <span>{item.stage}</span>
+            <strong>
+              {item.label}
+              <em>{item.value}</em>
+            </strong>
+            <small>{item.description}</small>
+          </div>
+        ))}
+      </section>
+
       <section className="admin-card p-6">
         {schemaWarning && (
           <div className="admin-inventory-warning" role="status">
-            <strong>Database setup needed</strong>
+            <strong>Hardware stock setup needed</strong>
             <p>{schemaWarning}</p>
-            <code>supabase/migrations/202606070000_inventory_management.sql</code>
           </div>
         )}
         <div className="admin-inventory-toolbar">

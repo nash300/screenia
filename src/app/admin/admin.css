@@ -3220,6 +3220,70 @@
   background: linear-gradient(135deg, #ffffff, #fef3c7);
 }
 
+.admin-inventory-workflow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  padding: 0.75rem;
+}
+
+.admin-inventory-workflow-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.15rem 0.55rem;
+  min-height: 96px;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(238, 245, 255, 0.86));
+  padding: 0.75rem;
+  color: #061942;
+  box-shadow: 0 12px 24px rgba(7, 31, 84, 0.06);
+}
+
+.admin-inventory-workflow-step > span {
+  display: grid;
+  grid-row: span 2;
+  min-width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(47, 125, 246, 0.12);
+  color: #061942;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.admin-inventory-workflow-step strong {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  min-width: 0;
+  font-size: 0.9rem;
+  line-height: 1.15;
+}
+
+.admin-inventory-workflow-step strong em {
+  display: grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(6, 25, 66, 0.08);
+  color: inherit;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 950;
+}
+
+.admin-inventory-workflow-step small {
+  grid-column: 2;
+  color: #54627d;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
 .admin-inventory-toolbar,
 .admin-inventory-side {
   display: grid;
@@ -3245,15 +3309,6 @@
 .admin-inventory-warning p {
   margin: 0;
   color: #7c2d12;
-}
-
-.admin-inventory-warning code {
-  width: fit-content;
-  border-radius: 8px;
-  background: rgba(124, 45, 18, 0.08);
-  padding: 0.2rem 0.45rem;
-  color: #7c2d12;
-  font-size: 0.78rem;
 }
 
 .admin-inventory-toolbar > input,
@@ -4449,6 +4504,10 @@
   .admin-display-workflow {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+
+  .admin-inventory-workflow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -4473,6 +4532,10 @@
   }
 
   .admin-communication-workflow {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-inventory-workflow {
     grid-template-columns: 1fr;
   }
 
