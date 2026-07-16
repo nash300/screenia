@@ -10,10 +10,11 @@ const navItems = [
   { href: "/#pricing", homeHref: "#pricing", label: "Priser" },
   { href: "/#examples", homeHref: "#examples", label: "Exempel" },
   { href: "/#faq", homeHref: "#faq", label: "FAQ" },
+  { href: "/om-oss", homeHref: "/om-oss", label: "Om oss" },
 ] as const;
 
 type LandingNavProps = {
-  currentPath?: "/" | "/sa-fungerar-det" | "/account";
+  currentPath?: "/" | "/sa-fungerar-det" | "/om-oss" | "/account";
   accountMode?: boolean;
   onSignOut?: () => void;
 };
@@ -57,8 +58,9 @@ export function LandingNav({
           {navItems.map((item) => {
             const href = isHome ? item.homeHref : item.href;
             const active =
-              currentPath === "/sa-fungerar-det" &&
-              item.href === "/sa-fungerar-det";
+              (currentPath === "/sa-fungerar-det" &&
+                item.href === "/sa-fungerar-det") ||
+              (currentPath === "/om-oss" && item.href === "/om-oss");
 
             return (
               <Link

@@ -235,6 +235,7 @@ const planCopy = {
         "Uppspelning i Full HD (1080p)",
         "Rekommenderas för skärmar upp till 43 tum",
         "Passar kampanjer, erbjudanden och informationsskärmar",
+        "Bäst för salonger, väntrum och mindre butiker",
         "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
       ],
@@ -259,6 +260,7 @@ const planCopy = {
         "Full HD playback (1080p)",
         "Recommended for screens up to 43 inches",
         "Fits campaigns, offers, and information screens",
+        "Best for salons, waiting rooms, and smaller shops",
         "3-week free trial",
         "No commitment",
       ],
@@ -371,6 +373,7 @@ export default function Home() {
   const [requestMessage, setRequestMessage] = useState("");
   const [heroSlides, setHeroSlides] = useState<HeroSlideAsset[]>([]);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
+  const [heroSlideDirection, setHeroSlideDirection] = useState<"next" | "previous">("next");
   const [heroInteractionKey, setHeroInteractionKey] = useState(0);
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
 
@@ -384,6 +387,7 @@ export default function Home() {
     process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
   ].filter(Boolean);
   const footerLinks = [
+    { label: "About Screenia", href: "/om-oss" },
     { label: "Terms of Service", href: "/terms" },
     { label: "Privacy Policy", href: "/privacy" },
     { label: "Cookie Policy", href: "/cookie-policy" },
@@ -535,11 +539,18 @@ export default function Home() {
   const currentHighlightWords = currentHeroMedia
     ? heroHighlightWords[currentHeroMedia.id] || []
     : ["Professionellt", "tydlig plattform"];
+  const heroSlideMotionClass = `landing-hero-slide-motion landing-hero-slide-motion-${heroSlideDirection} landing-hero-slide-motion-${heroSlideDirection}-${currentHeroIndex}`;
+  const heroSlideMotionKey = `${heroSlideDirection}-${currentHeroIndex}-${heroInteractionKey}`;
 
   const goToHeroSlide = (index: number) => {
     if (heroSlideCount <= 1) return;
 
-    setActiveHeroSlide((index + heroSlideCount) % heroSlideCount);
+    const targetIndex = (index + heroSlideCount) % heroSlideCount;
+    const stepForward =
+      targetIndex === (currentHeroIndex + 1) % heroSlideCount ||
+      (currentHeroIndex === heroSlideCount - 1 && targetIndex === 0);
+    setHeroSlideDirection(stepForward ? "next" : "previous");
+    setActiveHeroSlide(targetIndex);
     setHeroInteractionKey((current) => current + 1);
   };
 
@@ -555,6 +566,7 @@ export default function Home() {
     if (heroSlideCount <= 1) return;
 
     const timer = window.setInterval(() => {
+      setHeroSlideDirection("next");
       setActiveHeroSlide((current) => (current + 1) % heroSlideCount);
     }, 6500);
 
@@ -581,6 +593,7 @@ export default function Home() {
     const elements = Array.from(
       document.querySelectorAll<HTMLElement>(selectors.join(",")),
     );
+    let lastScrollY = window.scrollY;
 
     elements.forEach((element, index) => {
       element.classList.add("landing-reveal-target");
@@ -589,15 +602,19 @@ export default function Home() {
 
     const observer = new IntersectionObserver(
       (entries) => {
+        const isScrollingDown = window.scrollY >= lastScrollY;
+        lastScrollY = window.scrollY;
+
         entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
+          const target = entry.target as HTMLElement;
+          target.classList.toggle("from-scroll-down", isScrollingDown);
+          target.classList.toggle("from-scroll-up", !isScrollingDown);
+          target.classList.toggle("is-visible", entry.isIntersecting);
         });
       },
       {
-        rootMargin: "0px 0px -12% 0px",
-        threshold: 0.12,
+        rootMargin: "0px 0px -4% 0px",
+        threshold: 0.08,
       },
     );
 
@@ -606,7 +623,12 @@ export default function Home() {
     return () => {
       observer.disconnect();
       elements.forEach((element) => {
-        element.classList.remove("landing-reveal-target", "is-visible");
+        element.classList.remove(
+          "landing-reveal-target",
+          "is-visible",
+          "from-scroll-down",
+          "from-scroll-up",
+        );
         element.style.removeProperty("--reveal-index");
       });
     };
@@ -670,12 +692,15 @@ export default function Home() {
                 fill
                 priority
                 sizes="100vw"
-                className="landing-hero-background-image"
+                className={`landing-hero-background-image landing-hero-background-image-${heroSlideDirection}`}
               />
             )}
           </div>
           <div className="landing-hero-copy">
-            <div className="landing-hero-copy-main">
+            <div
+              key={`hero-copy-${heroSlideMotionKey}`}
+              className={`landing-hero-copy-main ${heroSlideMotionClass}`}
+            >
               <h1>
                 {renderHighlightedText(currentHeroSlide.title, currentHighlightWords)}
               </h1>
@@ -700,7 +725,11 @@ export default function Home() {
               </div>
               <p className="landing-seo-copy">{t.seoIntro}</p>
             </div>
-            <div className="landing-hero-benefits" aria-label="Screenia benefits">
+            <div
+              key={`hero-benefits-${heroSlideMotionKey}`}
+              className={`landing-hero-benefits ${heroSlideMotionClass}`}
+              aria-label="Screenia benefits"
+            >
               {heroBenefits.map(([title, text, highlight]) => (
                 <div key={title} className="landing-hero-benefit">
                   <span className="landing-hero-benefit-icon" aria-hidden="true" />
@@ -812,7 +841,13 @@ export default function Home() {
                     plan.featured ? "featured" : ""
                   }`}
                 >
-                  {plan.featured && <span className="landing-plan-badge">{t.recommended}</span>}
+                  <div className="landing-plan-card-top">
+                    {plan.featured ? (
+                      <span className="landing-plan-badge">{t.recommended}</span>
+                    ) : (
+                      <span className="landing-plan-badge-placeholder">Startpaket</span>
+                    )}
+                  </div>
                   <div className="landing-plan-heading">
                     <h3>{plan.name}</h3>
                     <span>{plan.resolution}</span>

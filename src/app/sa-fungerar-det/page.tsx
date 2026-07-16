@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { LandingNav } from "@/components/LandingNav";
+import { LandingScrollReveal } from "@/components/LandingScrollReveal";
 import "../landing.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
@@ -109,6 +110,7 @@ export default function HowItWorksPage() {
   return (
     <div className="landing-page how-page">
       <LandingNav currentPath="/sa-fungerar-det" />
+      <LandingScrollReveal />
 
       <main className="how-main">
         <section className="how-hero">

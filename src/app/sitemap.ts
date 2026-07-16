@@ -27,6 +27,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       ],
     },
     {
+      url: `${siteUrl}/om-oss`,
+      lastModified,
+      changeFrequency: "monthly",
+      priority: 0.75,
+      images: [
+        `${siteUrl}/brand/screenia-pricing-devices.png`,
+        `${siteUrl}/brand/screenia-helper.png`,
+      ],
+    },
+    {
       url: `${siteUrl}/terms`,
       lastModified,
       changeFrequency: "monthly",
