@@ -346,7 +346,7 @@ export default function PricingPage() {
           <div>
             <span>First payment range</span>
             <strong>{formatRange(pricingSummary.firstPaymentRange)}</strong>
-            <small>Setup + hardware + shipping, moms included</small>
+            <small>Setup + device + shipping, moms included</small>
           </div>
           <div>
             <span>Monthly range</span>
@@ -402,7 +402,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Hardware
+                    Device price
                     <input
                       type="number"
                       min="0"
@@ -532,7 +532,7 @@ export default function PricingPage() {
                     <div className="admin-operation-header">
                       <div>
                         <p className="admin-operation-kicker">
-                          Pricing operation flow
+                          Selected pricing action
                         </p>
                         <h3>
                           {operationDraft.operation === "save"
@@ -552,67 +552,6 @@ export default function PricingPage() {
                       </div>
                     </div>
 
-                    <div className="admin-pricing-operation-choice">
-                      <button
-                        type="button"
-                        className={`admin-operation-card ${
-                          operationDraft.operation === "save"
-                            ? "is-selected"
-                            : ""
-                        }`}
-                        disabled={saving || syncing}
-                        onClick={() =>
-                          updateOperationDraft({
-                            operation: "save",
-                            reason: "",
-                            confirmed: false,
-                          })
-                        }
-                      >
-                        <span>
-                          <strong>Save pricing</strong>
-                          <small>
-                            Updates Screenia plan values used for quotes and
-                            checkout preparation.
-                          </small>
-                        </span>
-                        <em>
-                          {operationDraft.operation === "save"
-                            ? "Open"
-                            : "Choose"}
-                        </em>
-                      </button>
-                      <button
-                        type="button"
-                        className={`admin-operation-card admin-operation-warning ${
-                          operationDraft.operation === "sync"
-                            ? "is-selected"
-                            : ""
-                        }`}
-                        disabled={saving || syncing}
-                        onClick={() =>
-                          updateOperationDraft({
-                            operation: "sync",
-                            reason: "",
-                            confirmed: false,
-                          })
-                        }
-                      >
-                        <span>
-                          <strong>Sync Stripe</strong>
-                          <small>
-                            Creates or updates Stripe price references for this
-                            plan after reviewing values.
-                          </small>
-                        </span>
-                        <em>
-                          {operationDraft.operation === "sync"
-                            ? "Open"
-                            : "Choose"}
-                        </em>
-                      </button>
-                    </div>
-
                     <div className="admin-operation-flow">
                       <div className="admin-operation-flow-header">
                         <p className="admin-operation-kicker">
@@ -624,6 +563,9 @@ export default function PricingPage() {
                             : "Sync the current plan with Stripe"}
                         </h4>
                         <p>
+                          {operationDraft.operation === "save"
+                            ? "Updates Screenia plan values used for quotes and checkout preparation."
+                            : "Creates or updates Stripe price references for this plan after reviewing values."}{" "}
                           Current initial payment is{" "}
                           {formatSek(firstPaymentByPlan[plan.id])}; monthly is{" "}
                           {formatSek(parseInteger(form.monthlyFeeSek))}.
@@ -661,7 +603,7 @@ export default function PricingPage() {
                           }
                         />
                         <span>
-                          I checked the plan values and want to save this
+                          I checked the plan values and want to complete this
                           audited pricing operation.
                         </span>
                       </label>
