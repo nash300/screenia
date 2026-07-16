@@ -127,7 +127,7 @@ function NewDevicePageContent() {
         <h1 className="admin-title">Add device</h1>
         <p className="admin-subtitle">
           Create a customer display endpoint after onboarding. Physical hardware
-          stock is managed in Inventory.
+          stock is managed in Hardware stock.
         </p>
       </div>
 
@@ -138,7 +138,7 @@ function NewDevicePageContent() {
             Need to add a device to stock first?
           </p>
           <p className="admin-muted mt-1 text-sm">
-            Go to Inventory to register serial number, purchase, warranty, and
+            Go to Hardware stock to register serial number, purchase, warranty, and
             condition. Then assign the stock item from the customer profile.
           </p>
         </div>

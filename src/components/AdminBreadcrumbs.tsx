@@ -7,7 +7,7 @@ const labels: Record<string, string> = {
   admin: "Admin",
   customers: "Customers",
   compliance: "Compliance",
-  orders: "Orders",
+  orders: "Orders & billing",
   inventory: "Hardware stock",
   devices: "Displays",
   pricing: "Pricing",

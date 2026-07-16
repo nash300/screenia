@@ -294,7 +294,7 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    showAdminNotification("success", editingId ? "Inventory item updated." : "Inventory item added.");
+    showAdminNotification("success", editingId ? "Stock item updated." : "Stock item added.");
     resetForm();
     await loadInventory();
     setSaving(false);
@@ -345,7 +345,7 @@ export default function AdminInventoryPage() {
       return;
     }
 
-    showAdminNotification("success", "Inventory status updated.");
+    showAdminNotification("success", "Hardware stock status updated.");
     setOperationDraft(null);
     await loadInventory();
     await loadEvents(item.id);
@@ -566,9 +566,9 @@ export default function AdminInventoryPage() {
               </div>
 
               <div className="admin-inventory-allocation">
-                <h3>Inventory ownership</h3>
+                <h3>Hardware stock ownership</h3>
                 <p>
-                  Inventory is the hardware bank: purchase details, serial
+                  Hardware stock is the hardware bank: purchase details, serial
                   numbers, warranty, condition, returns, repair, and retirement.
                   Customer assignment is handled from the customer profile so
                   Screenia can compare the device count with the paid subscription.
@@ -592,7 +592,7 @@ export default function AdminInventoryPage() {
                 <div className="admin-operation-panel admin-inventory-operation-panel">
                   <div className="admin-operation-header">
                     <div>
-                      <p className="admin-operation-kicker">Inventory operation flow</p>
+                      <p className="admin-operation-kicker">Hardware stock operation flow</p>
                       <h3>Update stock lifecycle</h3>
                       <p>
                         Choose the next hardware state, add a reason, then
@@ -757,7 +757,7 @@ export default function AdminInventoryPage() {
 
           {selectedItem && (
             <section className="admin-card p-6">
-              <h2 className="admin-card-title text-xl">Inventory history</h2>
+              <h2 className="admin-card-title text-xl">Hardware stock history</h2>
               <div className="admin-inventory-events">
                 {events.length === 0 ? (
                   <p className="admin-muted">No events yet.</p>

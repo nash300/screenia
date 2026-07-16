@@ -5,180 +5,27 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
-
-type OrderRow = {
-  id: string;
-  order_number: string | null;
-  status: string;
-  fulfillment_status: string | null;
-  inventory_status: string | null;
-  stripe_payment_status: string | null;
-  screen_quantity: number | null;
-  setup_fee_sek: number | null;
-  hardware_fee_sek: number | null;
-  shipping_fee_sek: number | null;
-  monthly_fee_sek: number | null;
-  total_amount_sek: number | null;
-  tracking_number: string | null;
-  tracking_url: string | null;
-  quote_notes: string | null;
-  quote_items: Array<{
-    name?: string;
-    resolution?: string;
-    quantity?: number;
-  }> | null;
-  created_at: string;
-  updated_at: string | null;
-  customers: {
-    id: string;
-    name: string;
-    customer_number: string | null;
-    email: string | null;
-    city: string | null;
-  } | null;
-  pricing_plans: {
-    name: string;
-    resolution: string;
-  } | null;
-};
-
-type SupabaseSchemaError = {
-  code?: string;
-  message?: string;
-};
-
-const isSchemaMismatch = (error: SupabaseSchemaError | null | undefined) =>
-  error?.code === "42703" || error?.code === "PGRST204";
-
-const normalizeOrder = (row: Partial<OrderRow>): OrderRow => ({
-  id: row.id || "",
-  order_number: row.order_number ?? null,
-  status: row.status || "pending",
-  fulfillment_status: row.fulfillment_status ?? null,
-  inventory_status: row.inventory_status ?? null,
-  stripe_payment_status: row.stripe_payment_status ?? null,
-  screen_quantity: row.screen_quantity ?? null,
-  setup_fee_sek: row.setup_fee_sek ?? null,
-  hardware_fee_sek: row.hardware_fee_sek ?? null,
-  shipping_fee_sek: row.shipping_fee_sek ?? null,
-  monthly_fee_sek: row.monthly_fee_sek ?? null,
-  total_amount_sek: row.total_amount_sek ?? null,
-  tracking_number: row.tracking_number ?? null,
-  tracking_url: row.tracking_url ?? null,
-  quote_notes: row.quote_notes ?? null,
-  quote_items: row.quote_items ?? null,
-  created_at: row.created_at || new Date().toISOString(),
-  updated_at: row.updated_at ?? null,
-  customers: row.customers
-    ? {
-        id: row.customers.id,
-        name: row.customers.name,
-        customer_number: row.customers.customer_number ?? null,
-        email: row.customers.email ?? null,
-        city: row.customers.city ?? null,
-      }
-    : null,
-  pricing_plans: row.pricing_plans
-    ? {
-        name: row.pricing_plans.name,
-        resolution: row.pricing_plans.resolution,
-      }
-    : null,
-});
-
-const orderStatuses = [
-  "quote_prepared",
-  "quote_sent",
-  "checkout_started",
-  "paid",
-  "active",
-  "payment_failed",
-  "disputed",
-  "cancelled",
-];
-
-const fulfillmentStatuses = [
-  "pending",
-  "content_collection",
-  "content_pending",
-  "content_received",
-  "preview_approved",
-  "layout_started",
-  "paid",
-  "in_production",
-  "ready_to_ship",
-  "shipped",
-  "completed",
-  "active",
-  "paused",
-  "cancelled",
-];
-
-const inventoryStatuses = [
-  "not_reserved",
-  "ready_to_reserve",
-  "reserved",
-  "assigned",
-  "shipped",
-  "returned",
-];
-
-type OrderSection = "all" | "pipeline" | "payment" | "shipping" | "cancelled";
-type OrderOperationId =
-  | "status"
-  | "fulfillment_status"
-  | "inventory_status"
-  | "tracking";
-
-type OrderOperationDraft = {
-  orderId: string;
-  operation: OrderOperationId;
-  status: string;
-  fulfillment_status: string;
-  inventory_status: string;
-  tracking_number: string;
-  tracking_url: string;
-  reason: string;
-  confirmed: boolean;
-};
-
-const orderSections: Array<{ id: OrderSection; label: string; description: string }> = [
-  { id: "all", label: "All orders", description: "Everything in one list" },
-  { id: "pipeline", label: "Pipeline", description: "Quote, content, and production" },
-  { id: "payment", label: "Payment", description: "Checkout and failed payments" },
-  { id: "shipping", label: "Shipping", description: "Ready to ship, shipped, and tracking" },
-  { id: "cancelled", label: "Cancelled", description: "Cancelled orders" },
-];
-
-const orderOperations: Array<{
-  id: OrderOperationId;
-  label: string;
-  description: string;
-  tone?: "warning" | "danger" | "success";
-}> = [
-  {
-    id: "status",
-    label: "Order status",
-    description: "Move the commercial order state after payment or customer events.",
-  },
-  {
-    id: "fulfillment_status",
-    label: "Fulfillment",
-    description: "Track production, shipping readiness, completion, or cancellation.",
-    tone: "success",
-  },
-  {
-    id: "inventory_status",
-    label: "Inventory",
-    description: "Reserve, assign, ship, or return the physical screen hardware.",
-    tone: "warning",
-  },
-  {
-    id: "tracking",
-    label: "Shipment tracking",
-    description: "Save carrier tracking details and mark the order shipped when appropriate.",
-  },
-];
+import {
+  formatSek,
+  formatStatusLabel,
+  formatStripeSek,
+  fulfillmentStatuses,
+  hardwareStatuses,
+  isSchemaMismatch,
+  matchesOrderSection,
+  normalizeOrder,
+  orderOperations,
+  orderSections,
+  orderStatuses,
+  summarizeQuoteItems,
+} from "./order-workflow";
+import type {
+  OrderOperationDraft,
+  OrderOperationId,
+  OrderRow,
+  OrderSection,
+  SupabaseSchemaError,
+} from "./types";
 
 export default function AdminOrdersPage() {
   return (
@@ -373,7 +220,7 @@ function AdminOrdersContent() {
       operation,
       status: order.status,
       fulfillment_status: order.fulfillment_status || "pending",
-      inventory_status: order.inventory_status || "not_reserved",
+      hardware_status: order.hardware_status || "not_reserved",
       tracking_number: trackingDraft.tracking_number,
       tracking_url: trackingDraft.tracking_url,
       reason: "",
@@ -423,8 +270,8 @@ function AdminOrdersContent() {
       payload.fulfillment_status = operationDraft.fulfillment_status;
     }
 
-    if (operationDraft.operation === "inventory_status") {
-      payload.inventory_status = operationDraft.inventory_status;
+    if (operationDraft.operation === "hardware_status") {
+      payload.inventory_status = operationDraft.hardware_status;
     }
 
     if (operationDraft.operation === "tracking") {
@@ -464,8 +311,8 @@ function AdminOrdersContent() {
                 status: payload.status ?? order.status,
                 fulfillment_status:
                   payload.fulfillment_status ?? order.fulfillment_status,
-                inventory_status:
-                  payload.inventory_status ?? order.inventory_status,
+                hardware_status:
+                  payload.inventory_status ?? order.hardware_status,
                 tracking_number:
                   "tracking_number" in payload
                     ? payload.tracking_number ?? null
@@ -508,7 +355,7 @@ function AdminOrdersContent() {
         <h1 className="admin-title">Orders & billing</h1>
         <p className="admin-subtitle">
           Follow quotes, Stripe payment state, VAT evidence, refunds,
-          inventory status, shipping, and order updates in one place.
+          hardware stock state, shipping, and order updates in one place.
         </p>
         <a
           href="/api/admin/accounting-export"
@@ -575,12 +422,12 @@ function AdminOrdersContent() {
                     <p className="admin-order-number">{order.order_number}</p>
                     <h2>{order.customers?.name || "Unknown customer"}</h2>
                     <p>
-                      Customer {order.customers?.customer_number || "pending"} ·{" "}
-                      {order.customers?.email || "No email"} ·{" "}
+                      Customer {order.customers?.customer_number || "pending"} -{" "}
+                      {order.customers?.email || "No email"} -{" "}
                       {order.customers?.city || "No city"}
                     </p>
                     <p>
-                      {summarizeQuoteItems(order)} · Created{" "}
+                      {summarizeQuoteItems(order)} - Created{" "}
                       {new Date(order.created_at).toLocaleDateString("sv-SE")}
                     </p>
                   </div>
@@ -606,9 +453,9 @@ function AdminOrdersContent() {
                     </strong>
                   </div>
                   <div>
-                    <span>Inventory</span>
+                    <span>Hardware stock</span>
                     <strong>
-                      {formatStatusLabel(order.inventory_status || "not_reserved")}
+                      {formatStatusLabel(order.hardware_status || "not_reserved")}
                     </strong>
                   </div>
                   <div>
@@ -737,21 +584,21 @@ function AdminOrdersContent() {
                           </div>
                         )}
 
-                        {operationDraft.operation === "inventory_status" && (
+                        {operationDraft.operation === "hardware_status" && (
                           <div className="admin-operation-fields admin-order-single-field">
                             <label>
-                              Inventory status
+                              Hardware stock status
                               <select
-                                value={operationDraft.inventory_status}
+                                value={operationDraft.hardware_status}
                                 disabled={savingId === order.id}
                                 onChange={(event) =>
                                   updateOperationDraft({
-                                    inventory_status: event.target.value,
+                                    hardware_status: event.target.value,
                                     confirmed: false,
                                   })
                                 }
                               >
-                                {inventoryStatuses.map((option) => (
+                                {hardwareStatuses.map((option) => (
                                   <option key={option} value={option}>
                                     {formatStatusLabel(option)}
                                   </option>
@@ -869,61 +716,3 @@ function AdminOrdersContent() {
   );
 }
 
-function summarizeQuoteItems(order: OrderRow) {
-  if (Array.isArray(order.quote_items) && order.quote_items.length > 0) {
-    return order.quote_items
-      .map((item) =>
-        `${item.quantity || 1} x ${item.name || order.pricing_plans?.name || "Plan"} ${
-          item.resolution || order.pricing_plans?.resolution || ""
-        }`.trim(),
-      )
-      .join(", ");
-  }
-
-  return `${order.screen_quantity || 1} x ${order.pricing_plans?.name || "Plan"} ${
-    order.pricing_plans?.resolution || ""
-  }`.trim();
-}
-
-function matchesOrderSection(order: OrderRow, section: OrderSection) {
-  if (section === "all") return true;
-  if (section === "cancelled") {
-    return order.status === "cancelled" || order.fulfillment_status === "cancelled";
-  }
-  if (section === "payment") {
-    return ["checkout_started", "payment_failed"].includes(order.status);
-  }
-  if (section === "shipping") {
-    return (
-      ["ready_to_ship", "shipped", "completed"].includes(
-        order.fulfillment_status || "",
-      ) ||
-      ["assigned", "shipped"].includes(order.inventory_status || "") ||
-      Boolean(order.tracking_number || order.tracking_url)
-    );
-  }
-  return (
-    ["quote_prepared", "quote_sent", "paid", "active"].includes(order.status) ||
-    ["content_collection", "content_pending", "content_received", "preview_approved", "in_production"].includes(
-      order.fulfillment_status || "",
-    )
-  );
-}
-
-function formatSek(amount: number | null) {
-  if (amount === null) return "pending";
-  return `${amount.toLocaleString("sv-SE")} kr`;
-}
-
-function formatStripeSek(amount: number | null) {
-  if (amount === null) return "pending";
-  const hasOre = amount % 100 !== 0;
-  return `${(amount / 100).toLocaleString("sv-SE", {
-    minimumFractionDigits: hasOre ? 2 : 0,
-    maximumFractionDigits: 2,
-  })} kr`;
-}
-
-function formatStatusLabel(value: string) {
-  return value.replace(/_/g, " ");
-}

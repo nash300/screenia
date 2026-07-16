@@ -2798,7 +2798,7 @@ export default function CustomerDetailPage({
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
                       Status: {subscription.status} | Fulfillment:{" "}
-                      {subscription.fulfillment_status || "pending"} | Inventory:{" "}
+                      {subscription.fulfillment_status || "pending"} | Hardware stock:{" "}
                       {subscription.inventory_status || "not reserved"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
@@ -2937,8 +2937,8 @@ export default function CustomerDetailPage({
 
         <p className="admin-muted mt-2 text-sm">
           Create customer display endpoints and assign physical stock after
-          onboarding. Hardware stock, warranty, returns, and repairs stay in
-          Inventory.
+          onboarding. Stock purchase records, warranty, returns, and repairs stay
+          in Hardware stock.
         </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">

@@ -2851,7 +2851,7 @@ export async function hasInventoryOperationsWorkflow(
       ? "inventory migration does not preserve item event history"
       : null,
     !inventoryPageSource.includes("/api/admin/inventory") ||
-    !inventoryPageSource.includes("Inventory is the hardware bank") ||
+    !inventoryPageSource.includes("Hardware stock is the hardware bank") ||
     !inventoryPageSource.includes("Assign stock from the customer profile")
       ? "admin inventory page does not keep stock operations focused on physical hardware lifecycle"
       : null,
@@ -2894,7 +2894,7 @@ export async function hasInventoryOperationsWorkflow(
     ok: errors.length === 0,
     details: errors.length
       ? errors.map((error) => error?.message).join(" | ")
-      : "Inventory stock creation, edits, status changes, allocation, device linking, event history, and admin audit trails are routed through server-side operations.",
+      : "Hardware stock creation, edits, status changes, allocation, device linking, event history, and admin audit trails are routed through server-side operations.",
   };
 }
 
@@ -4757,7 +4757,7 @@ export async function getLiveCheckoutBlockers(supabaseAdmin: SupabaseClient) {
 
   if (!inventoryOperationsWorkflow.ok) {
     blockers.push(
-      `Inventory operations workflow (${inventoryOperationsWorkflow.details})`,
+      `Hardware stock operations workflow (${inventoryOperationsWorkflow.details})`,
     );
   }
 

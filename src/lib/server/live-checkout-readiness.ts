@@ -2174,7 +2174,7 @@ async function inventoryOperationsReady(
       ? "inventory migration does not preserve item event history"
       : null,
     !inventoryPageSource.includes("/api/admin/inventory") ||
-    !inventoryPageSource.includes("Inventory is the hardware bank") ||
+    !inventoryPageSource.includes("Hardware stock is the hardware bank") ||
     !inventoryPageSource.includes("Assign stock from the customer profile")
       ? "admin inventory page does not keep stock operations focused on physical hardware lifecycle"
       : null,
@@ -3984,7 +3984,7 @@ export async function getLiveCheckoutBlockers(supabaseAdmin: SupabaseClient) {
     ["Customer support ticket intake workflow", customerSupportTicketTables],
     ["Billing portal workflow", billingPortalWorkflowReadiness()],
     ["Operational fulfillment readiness", operationalTables],
-    ["Inventory operations workflow", inventoryTables],
+    ["Hardware stock operations workflow", inventoryTables],
     ["Device management workflow", deviceTables],
     ["Admin customer draft workflow", customerDraftTables],
     ["Admin customer profile edit workflow", customerProfileEditTables],
