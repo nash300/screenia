@@ -8,216 +8,32 @@ import { showAdminNotification } from "@/lib/admin/notifications";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
-
-type Customer = {
-  id: string;
-  customer_number: string | null;
-  requested_screen_quantity: number | null;
-  requested_quote_items: QuoteItemRecord[] | null;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  contact_person: string | null;
-  organisation_number: string | null;
-  billing_email: string | null;
-  address: string | null;
-  postal_code: string | null;
-  city: string | null;
-  country: string | null;
-  business_category: string | null;
-  website_url: string | null;
-  preferred_contact_channel: string | null;
-  remote_support_consent: boolean | null;
-  analytics_consent: boolean | null;
-  notes: string | null;
-  status: string | null;
-  created_at: string | null;
-  updated_at: string | null;
-  onboarding_token: string | null;
-  onboarding_token_expires_at: string | null;
-  terms_accepted_at: string | null;
-  privacy_accepted_at: string | null;
-  marketing_consent: boolean | null;
-  payment_status: string | null;
-  stripe_customer_id: string | null;
-  stripe_subscription_id: string | null;
-  service_access_status: string | null;
-  service_access_until: string | null;
-  production_status: string | null;
-  layout_started_at: string | null;
-  setup_fee_locked_at: string | null;
-  activated_at: string | null;
-  inactive_reason: string | null;
-  cancellation_reason: string | null;
-  cancellation_details: string | null;
-  cancelled_at: string | null;
-  cancellation_source: string | null;
-};
-
-type Device = {
-  id: string;
-  name: string | null;
-  device_code: string;
-  is_active: boolean | null;
-  inventory_status: string | null;
-  make: string | null;
-  model: string | null;
-  serial_number: string | null;
-};
-
-type CustomerSubscription = {
-  id: string;
-  order_number: string | null;
-  status: string;
-  setup_fee_sek: number | null;
-  setup_fee_paid: boolean | null;
-  hardware_fee_sek: number | null;
-  shipping_fee_sek: number | null;
-  monthly_fee_sek: number | null;
-  tax_amount_sek: number | null;
-  total_amount_sek: number | null;
-  tax_status: string | null;
-  fulfillment_status: string | null;
-  inventory_status: string | null;
-  stripe_checkout_session_id: string | null;
-  stripe_subscription_id: string | null;
-  stripe_invoice_id: string | null;
-  stripe_payment_status: string | null;
-  stripe_current_period_start: string | null;
-  stripe_current_period_end: string | null;
-  cancel_at_period_end: boolean | null;
-  cancellation_effective_at: string | null;
-  pause_started_at: string | null;
-  pause_resumes_at: string | null;
-  pause_reason: string | null;
-  screen_quantity: number | null;
-  device_discount_percent: number | null;
-  device_discount_months: number | null;
-  device_discount_amount_sek: number | null;
-  monthly_discount_amount_sek: number | null;
-  created_at: string;
-};
-
-type PricingPlan = {
-  id: string;
-  code: string;
-  name: string;
-  resolution: string;
-  setup_fee_sek: number;
-  hardware_fee_sek: number | null;
-  shipping_fee_sek: number | null;
-  monthly_fee_sek: number;
-  trial_days: number;
-  currency: string | null;
-};
-
-type QuoteItem = {
-  id: string;
-  pricingPlanCode: string;
-  quantity: number;
-};
-
-type QuoteItemRecord = {
-  pricingPlanCode?: string;
-  name?: string;
-  resolution?: string;
-  quantity?: number;
-};
-
-type CustomerMessage = {
-  id: string;
-  ticketNumber: string | null;
-  requestType: string;
-  priority: string;
-  relatedTicketNumber: string | null;
-  subject: string | null;
-  message: string;
-  status: string;
-  adminNote: string | null;
-  adminNoteUpdatedAt: string | null;
-  resolvedAt: string | null;
-  createdAt: string;
-  files: Array<{
-    id: string;
-    fileName: string;
-    contentType: string;
-    fileSize: number;
-    downloadUrl: string | null;
-  }>;
-};
-
-type CustomerAsset = {
-  id: string;
-  fileName: string | null;
-  contentType: string | null;
-  fileSize: number | null;
-  category: string;
-  description: string | null;
-  source: string;
-  status: string;
-  adminNote: string | null;
-  adminNoteUpdatedAt: string | null;
-  reviewedAt: string | null;
-  createdAt: string;
-  downloadUrl: string | null;
-};
-
-type AuditEvent = {
-  id: string;
-  actor_type: string;
-  actor_id: string | null;
-  event_type: string;
-  event_description: string;
-  metadata: Record<string, unknown>;
-  created_at: string;
-};
-
-type CustomerDetailSection =
-  | "overview"
-  | "onboarding"
-  | "communication"
-  | "orders"
-  | "devices"
-  | "history";
-
-type CommunicationView = "messages" | "uploads";
-
-type CustomerOperationId =
-  | "activate_customer"
-  | "suspend_customer"
-  | "reactivate_customer"
-  | "pause_subscription"
-  | "resume_subscription"
-  | "apply_temporary_discount"
-  | "remove_temporary_discount"
-  | "cancel_period_end"
-  | "cancel_immediately"
-  | "start_layout"
-  | "refund_first_payment";
-
-type CustomerOperation = {
-  id: CustomerOperationId;
-  title: string;
-  description: string;
-  result: string;
-  tone: "primary" | "warning" | "danger" | "success";
-  requiresStripe?: boolean;
-  requiresDiscount?: boolean;
-  requiresConfirmation?: boolean;
-};
-
-type InventoryStockItem = {
-  id: string;
-  item_code: string;
-  item_type: string;
-  status: string;
-  condition: string;
-  make: string | null;
-  model: string | null;
-  serial_number: string | null;
-  seller: string | null;
-  notes: string | null;
-};
+import {
+  deviceCountsTowardEntitlement,
+  formatSek,
+  formatStripeSek,
+  inventoryTypeLabel,
+  isSchemaMismatch,
+  normalizeCustomer,
+  normalizeSubscription,
+  subscriptionCountsTowardDeviceEntitlement,
+} from "./customer-detail-utils";
+import type {
+  AuditEvent,
+  CommunicationView,
+  Customer,
+  CustomerAsset,
+  CustomerDetailSection,
+  CustomerMessage,
+  CustomerOperation,
+  CustomerOperationId,
+  CustomerSubscription,
+  Device,
+  InventoryStockItem,
+  PricingPlan,
+  QuoteItem,
+  SupabaseSchemaError,
+} from "./types";
 
 const customerDetailSectionIds: CustomerDetailSection[] = [
   "overview",
@@ -227,144 +43,6 @@ const customerDetailSectionIds: CustomerDetailSection[] = [
   "devices",
   "history",
 ];
-
-const billableSubscriptionStatuses = new Set([
-  "active",
-  "paid",
-  "trialing",
-  "content_received",
-  "layout_started",
-]);
-
-const billableStripeStatuses = new Set(["paid", "trialing", "active"]);
-
-const inactiveDeviceInventoryStatuses = new Set([
-  "returned",
-  "defective",
-  "in_repair",
-  "retired",
-  "lost",
-  "cancelled",
-  "refunded",
-]);
-
-const inventoryTypeLabels: Record<string, string> = {
-  standard_fhd: "Standard FHD",
-  premium_4k: "Premium 4K",
-  spare: "Spare part",
-  other: "Other",
-};
-
-type SupabaseSchemaError = {
-  code?: string;
-  message?: string;
-};
-
-const isSchemaMismatch = (error: SupabaseSchemaError | null | undefined) =>
-  error?.code === "42703" || error?.code === "PGRST204";
-
-const normalizeCustomer = (row: Partial<Customer>): Customer => ({
-  id: row.id || "",
-  customer_number: row.customer_number ?? null,
-  requested_screen_quantity: row.requested_screen_quantity ?? null,
-  requested_quote_items: row.requested_quote_items ?? null,
-  name: row.name || "Unknown customer",
-  email: row.email ?? null,
-  phone: row.phone ?? null,
-  contact_person: row.contact_person ?? null,
-  organisation_number: row.organisation_number ?? null,
-  billing_email: row.billing_email ?? null,
-  address: row.address ?? null,
-  postal_code: row.postal_code ?? null,
-  city: row.city ?? null,
-  country: row.country ?? null,
-  business_category: row.business_category ?? null,
-  website_url: row.website_url ?? null,
-  preferred_contact_channel: row.preferred_contact_channel ?? null,
-  remote_support_consent: row.remote_support_consent ?? null,
-  analytics_consent: row.analytics_consent ?? null,
-  notes: row.notes ?? null,
-  status: row.status ?? null,
-  created_at: row.created_at ?? null,
-  updated_at: row.updated_at ?? null,
-  onboarding_token: row.onboarding_token ?? null,
-  onboarding_token_expires_at: row.onboarding_token_expires_at ?? null,
-  terms_accepted_at: row.terms_accepted_at ?? null,
-  privacy_accepted_at: row.privacy_accepted_at ?? null,
-  marketing_consent: row.marketing_consent ?? null,
-  payment_status: row.payment_status ?? null,
-  stripe_customer_id: row.stripe_customer_id ?? null,
-  stripe_subscription_id: row.stripe_subscription_id ?? null,
-  service_access_status: row.service_access_status ?? null,
-  service_access_until: row.service_access_until ?? null,
-  production_status: row.production_status ?? null,
-  layout_started_at: row.layout_started_at ?? null,
-  setup_fee_locked_at: row.setup_fee_locked_at ?? null,
-  activated_at: row.activated_at ?? null,
-  inactive_reason: row.inactive_reason ?? null,
-  cancellation_reason: row.cancellation_reason ?? null,
-  cancellation_details: row.cancellation_details ?? null,
-  cancelled_at: row.cancelled_at ?? null,
-  cancellation_source: row.cancellation_source ?? null,
-});
-
-const normalizeSubscription = (
-  row: Partial<CustomerSubscription>,
-): CustomerSubscription => ({
-  id: row.id || "",
-  order_number: row.order_number ?? null,
-  status: row.status || "pending",
-  setup_fee_sek: row.setup_fee_sek ?? null,
-  setup_fee_paid: row.setup_fee_paid ?? null,
-  hardware_fee_sek: row.hardware_fee_sek ?? null,
-  shipping_fee_sek: row.shipping_fee_sek ?? null,
-  monthly_fee_sek: row.monthly_fee_sek ?? null,
-  tax_amount_sek: row.tax_amount_sek ?? null,
-  total_amount_sek: row.total_amount_sek ?? null,
-  tax_status: row.tax_status ?? null,
-  fulfillment_status: row.fulfillment_status ?? null,
-  inventory_status: row.inventory_status ?? null,
-  stripe_checkout_session_id: row.stripe_checkout_session_id ?? null,
-  stripe_subscription_id: row.stripe_subscription_id ?? null,
-  stripe_invoice_id: row.stripe_invoice_id ?? null,
-  stripe_payment_status: row.stripe_payment_status ?? null,
-  stripe_current_period_start: row.stripe_current_period_start ?? null,
-  stripe_current_period_end: row.stripe_current_period_end ?? null,
-  cancel_at_period_end: row.cancel_at_period_end ?? false,
-  cancellation_effective_at: row.cancellation_effective_at ?? null,
-  pause_started_at: row.pause_started_at ?? null,
-  pause_resumes_at: row.pause_resumes_at ?? null,
-  pause_reason: row.pause_reason ?? null,
-  screen_quantity: row.screen_quantity ?? 1,
-  device_discount_percent: row.device_discount_percent ?? 0,
-  device_discount_months: row.device_discount_months ?? 0,
-  device_discount_amount_sek: row.device_discount_amount_sek ?? 0,
-  monthly_discount_amount_sek: row.monthly_discount_amount_sek ?? 0,
-  created_at: row.created_at || new Date().toISOString(),
-});
-
-function subscriptionCountsTowardDeviceEntitlement(
-  subscription: CustomerSubscription,
-) {
-  const status = String(subscription.status || "").toLowerCase();
-  const stripeStatus = String(subscription.stripe_payment_status || "").toLowerCase();
-
-  return (
-    billableSubscriptionStatuses.has(status) ||
-    billableStripeStatuses.has(stripeStatus)
-  );
-}
-
-function deviceCountsTowardEntitlement(device: Device) {
-  if (!device.is_active) return false;
-
-  const inventoryStatus = String(device.inventory_status || "assigned").toLowerCase();
-  return !inactiveDeviceInventoryStatuses.has(inventoryStatus);
-}
-
-function inventoryTypeLabel(value: string) {
-  return inventoryTypeLabels[value] || value.replace(/_/g, " ");
-}
 
 export default function CustomerDetailPage({
   params,
@@ -3572,25 +3250,6 @@ export default function CustomerDetailPage({
       )}
     </div>
   );
-}
-
-function formatSek(amount: number | null) {
-  if (amount === null) return "";
-
-  return `${amount.toLocaleString("sv-SE", {
-    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-    maximumFractionDigits: 2,
-  })} kr`;
-}
-
-function formatStripeSek(amount: number | null) {
-  if (amount === null) return "";
-
-  const hasOre = amount % 100 !== 0;
-  return `${(amount / 100).toLocaleString("sv-SE", {
-    minimumFractionDigits: hasOre ? 2 : 0,
-    maximumFractionDigits: 2,
-  })} kr`;
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
