@@ -3,30 +3,11 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-
-type Device = {
-  id: string;
-  name: string | null;
-  device_code: string;
-  serial_number: string | null;
-  location: string | null;
-  is_active: boolean | null;
-  customers: {
-    name: string | null;
-    status: string | null;
-  } | null;
-  playlists: { count: number }[];
-};
-
-const deviceFilters = [
-  { value: "all", label: "All" },
-  { value: "active", label: "Active" },
-  { value: "inactive", label: "Inactive" },
-  { value: "needs_playlist", label: "Needs playlist" },
-];
+import { displayFilters } from "./display-workflow";
+import type { DisplayListItem } from "./types";
 
 export default function DevicesPage() {
-  const [devices, setDevices] = useState<Device[]>([]);
+  const [devices, setDevices] = useState<DisplayListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -54,7 +35,7 @@ export default function DevicesPage() {
       console.error("Load devices error:", error);
       setDevices([]);
     } else {
-      setDevices((data || []) as unknown as Device[]);
+      setDevices((data || []) as unknown as DisplayListItem[]);
     }
 
     setLoading(false);
@@ -89,7 +70,7 @@ export default function DevicesPage() {
       {/* Page Header */}
       <div className="admin-page-header flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
-          <h1 className="admin-title">Devices</h1>
+          <h1 className="admin-title">Displays</h1>
           <p className="admin-subtitle">
             Manage customer display endpoints, screen assignment, and playlist readiness.
           </p>
@@ -100,7 +81,7 @@ export default function DevicesPage() {
         </Link>
       </div>
 
-      {/* Device List */}
+      {/* Display List */}
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Customer displays</h2>
 
@@ -113,7 +94,7 @@ export default function DevicesPage() {
           />
 
           <div className="flex flex-wrap gap-2">
-            {deviceFilters.map((item) => (
+            {displayFilters.map((item) => (
               <button
                 key={item.value}
                 onClick={() => setFilter(item.value)}
@@ -133,7 +114,7 @@ export default function DevicesPage() {
           {loading ? (
             <p className="admin-muted">Loading...</p>
           ) : filteredDevices.length === 0 ? (
-            <p className="admin-muted">No devices found.</p>
+            <p className="admin-muted">No displays found.</p>
           ) : (
             filteredDevices.map((device) => {
               const playlistCount = device.playlists?.[0]?.count || 0;
@@ -147,7 +128,7 @@ export default function DevicesPage() {
                   <div className="flex items-center justify-between gap-4">
                     <div>
                       <p className="font-semibold text-slate-950">
-                        {device.name || "Unnamed device"}
+                        {device.name || "Unnamed display"}
                       </p>
 
                       <p className="mt-1 text-sm text-slate-500">

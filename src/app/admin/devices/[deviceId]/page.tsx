@@ -5,45 +5,13 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
-
-type PlaylistItem = {
-  id: string;
-  src: string;
-  order_index: number;
-};
-
-type DeviceDetails = {
-  id: string;
-  customer_id: string;
-  name: string | null;
-  is_active: boolean | null;
-  make: string | null;
-  model: string | null;
-  serial_number: string | null;
-  purchase_cost: number | null;
-  purchase_date: string | null;
-  warranty_period_months: number | null;
-  supplier: string | null;
-  location: string | null;
-  internal_notes: string | null;
-};
-
-type DeviceSection = "overview" | "details" | "preview" | "media" | "display";
-type DeviceOperation = "status" | "delete";
-
-type DeviceOperationDraft = {
-  operation: DeviceOperation;
-  reason: string;
-  confirmed: boolean;
-};
-
-const deviceSectionIds: DeviceSection[] = [
-  "overview",
-  "details",
-  "preview",
-  "media",
-  "display",
-];
+import { displaySectionIds, displaySections } from "../display-workflow";
+import type {
+  DisplayDetails,
+  DisplayOperationDraft,
+  DisplaySection,
+  PlaylistItem,
+} from "../types";
 
 export default function AdminDevicePage({
   params,
@@ -68,12 +36,12 @@ export default function AdminDevicePage({
   const [renameReason, setRenameReason] = useState("");
   const [detailsReason, setDetailsReason] = useState("");
   const [deviceOperationDraft, setDeviceOperationDraft] =
-    useState<DeviceOperationDraft | null>(null);
+    useState<DisplayOperationDraft | null>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [renaming, setRenaming] = useState(false);
-  const [device, setDevice] = useState<DeviceDetails | null>(null);
+  const [device, setDevice] = useState<DisplayDetails | null>(null);
 
   const [editMake, setEditMake] = useState("");
   const [editModel, setEditModel] = useState("");
@@ -84,7 +52,7 @@ export default function AdminDevicePage({
   const [editWarrantyPeriod, setEditWarrantyPeriod] = useState("");
   const [editSupplier, setEditSupplier] = useState("");
   const [editInternalNotes, setEditInternalNotes] = useState("");
-  const [activeSection, setActiveSection] = useState<DeviceSection>("overview");
+  const [activeSection, setActiveSection] = useState<DisplaySection>("overview");
 
   const loadDeviceAndPlaylist = useCallback(async () => {
     setLoading(true);
@@ -112,7 +80,7 @@ export default function AdminDevicePage({
       .single();
 
     if (deviceError || !device) {
-      console.error("Device not found:", deviceError);
+      console.error("Display not found:", deviceError);
       setDeviceUuid(null);
       setPlaylist([]);
       setLoading(false);
@@ -174,13 +142,13 @@ export default function AdminDevicePage({
     if (!deviceUuid) return;
 
     if (!newDeviceName.trim()) {
-      showAdminNotification("warning", "Device name is required.");
+      showAdminNotification("warning", "Display name is required.");
       return;
     }
 
     const reason = renameReason.trim();
     if (!reason) {
-      showAdminNotification("warning", "Add a reason before renaming this device.");
+      showAdminNotification("warning", "Add a reason before renaming this display.");
       return;
     }
 
@@ -200,14 +168,14 @@ export default function AdminDevicePage({
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not rename device.",
+        result.error || "Could not rename display.",
       );
       setRenaming(false);
       return;
     }
 
     await loadDeviceAndPlaylist();
-    showAdminNotification("success", "Device renamed.");
+    showAdminNotification("success", "Display renamed.");
     setRenameReason("");
     setRenaming(false);
   };
@@ -217,7 +185,7 @@ export default function AdminDevicePage({
 
     const reason = detailsReason.trim();
     if (!reason) {
-      showAdminNotification("warning", "Add a reason before saving device details.");
+      showAdminNotification("warning", "Add a reason before saving display details.");
       return;
     }
 
@@ -247,14 +215,14 @@ export default function AdminDevicePage({
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not save device details.",
+        result.error || "Could not save display details.",
       );
       setSaving(false);
       return;
     }
 
     await loadDeviceAndPlaylist();
-    showAdminNotification("success", "Device details updated.");
+    showAdminNotification("success", "Display details updated.");
     setDetailsReason("");
     setSaving(false);
   };
@@ -272,12 +240,12 @@ export default function AdminDevicePage({
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not delete device.",
+        result.error || "Could not delete display.",
       );
       return;
     }
 
-    showAdminNotification("success", "Device deleted.");
+    showAdminNotification("success", "Display deleted.");
     window.location.href = "/admin/devices";
   };
 
@@ -299,7 +267,7 @@ export default function AdminDevicePage({
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not update device status.",
+        result.error || "Could not update display status.",
       );
       return;
     }
@@ -308,7 +276,7 @@ export default function AdminDevicePage({
     setDeviceOperationDraft(null);
     showAdminNotification(
       "success",
-      nextValue ? "Device activated." : "Device deactivated.",
+      nextValue ? "Display activated." : "Display deactivated.",
     );
   };
 
@@ -317,12 +285,12 @@ export default function AdminDevicePage({
 
     const reason = deviceOperationDraft.reason.trim();
     if (!reason) {
-      showAdminNotification("warning", "Add a reason before saving this device operation.");
+      showAdminNotification("warning", "Add a reason before saving this display operation.");
       return;
     }
 
     if (!deviceOperationDraft.confirmed) {
-      showAdminNotification("warning", "Confirm the device operation before continuing.");
+      showAdminNotification("warning", "Confirm the display operation before continuing.");
       return;
     }
 
@@ -438,12 +406,12 @@ export default function AdminDevicePage({
 
   useEffect(() => {
     const section = searchParams.get("section");
-    if (deviceSectionIds.includes(section as DeviceSection)) {
-      setActiveSection(section as DeviceSection);
+    if (displaySectionIds.includes(section as DisplaySection)) {
+      setActiveSection(section as DisplaySection);
     }
   }, [searchParams]);
 
-  const navigateToSection = (section: DeviceSection) => {
+  const navigateToSection = (section: DisplaySection) => {
     const nextParams = new URLSearchParams(searchParams.toString());
     nextParams.set("section", section);
     router.push(`/admin/devices/${deviceId}?${nextParams.toString()}`);
@@ -452,7 +420,7 @@ export default function AdminDevicePage({
   if (loading) {
     return (
       <div className="admin-card p-6">
-        <p className="admin-muted">Loading device...</p>
+        <p className="admin-muted">Loading display...</p>
       </div>
     );
   }
@@ -461,20 +429,14 @@ export default function AdminDevicePage({
     return (
       <div>
         <div className="admin-page-header">
-          <h1 className="admin-title">Device not found</h1>
-          <p className="admin-subtitle">Device code: {deviceId}</p>
+          <h1 className="admin-title">Display not found</h1>
+          <p className="admin-subtitle">Display code: {deviceId}</p>
         </div>
       </div>
     );
   }
 
-  const sections: Array<{ id: DeviceSection; label: string; count?: number }> = [
-    { id: "overview", label: "Overview" },
-    { id: "details", label: "Details" },
-    { id: "preview", label: "Preview" },
-    { id: "media", label: "Media", count: playlist.length },
-    { id: "display", label: "Display URL" },
-  ];
+  const sections = displaySections(playlist.length);
 
   return (
     <div>
@@ -484,13 +446,13 @@ export default function AdminDevicePage({
           href="/admin/devices"
           className="text-sm font-semibold text-[var(--admin-cyan)] no-underline"
         >
-          ← Back to devices
+          Back to displays
         </Link>
 
         <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <h1 className="admin-title">{deviceName}</h1>
-            <p className="admin-subtitle">Device code: {deviceId}</p>
+            <p className="admin-subtitle">Display code: {deviceId}</p>
           </div>
 
           <span
@@ -505,7 +467,7 @@ export default function AdminDevicePage({
         </div>
       </div>
 
-      <div className="admin-section-tabs" aria-label="Device sections">
+      <div className="admin-section-tabs" aria-label="Display sections">
         {sections.map((section) => (
           <button
             key={section.id}
@@ -521,10 +483,10 @@ export default function AdminDevicePage({
         ))}
       </div>
 
-      {/* Device Summary */}
+      {/* Display Summary */}
       {activeSection === "overview" && device && (
         <div className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Device summary</h2>
+          <h2 className="admin-card-title text-xl">Display summary</h2>
 
           <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
             <InfoRow label="Make" value={device.make || "Not set"} />
@@ -565,11 +527,11 @@ export default function AdminDevicePage({
           <div className="admin-operation-panel mt-5">
             <div className="admin-operation-header">
               <div>
-                <p className="admin-operation-kicker">Device operation flow</p>
+                <p className="admin-operation-kicker">Display operation flow</p>
                 <h3>Activation and deletion</h3>
                 <p>
-                  Choose a sensitive device action, add the audit reason, then
-                  confirm before changing the live device state.
+                  Choose a sensitive display action, add the audit reason, then
+                  confirm before changing the live display state.
                 </p>
               </div>
               <div className="admin-operation-summary">
@@ -596,10 +558,10 @@ export default function AdminDevicePage({
               >
                 <span>
                   <strong>
-                    {isActive ? "Deactivate device" : "Activate device"}
+                    {isActive ? "Deactivate display" : "Activate display"}
                   </strong>
                   <small>
-                    Controls whether this display device is allowed to serve
+                    Controls whether this display endpoint is allowed to serve
                     live screen content.
                   </small>
                 </span>
@@ -625,9 +587,9 @@ export default function AdminDevicePage({
                 }
               >
                 <span>
-                  <strong>Delete device</strong>
+                  <strong>Delete display</strong>
                   <small>
-                    Removes this device and its playlist. Use only for wrong or
+                    Removes this display endpoint and its playlist. Use only for wrong or
                     duplicate records.
                   </small>
                 </span>
@@ -645,14 +607,14 @@ export default function AdminDevicePage({
                   <p className="admin-operation-kicker">Audit checkpoint</p>
                   <h4>
                     {deviceOperationDraft.operation === "delete"
-                      ? "Delete this device"
+                      ? "Delete this display"
                       : isActive
-                        ? "Deactivate this device"
-                        : "Activate this device"}
+                        ? "Deactivate this display"
+                        : "Activate this display"}
                   </h4>
                   <p>
                     {deviceOperationDraft.operation === "delete"
-                      ? "This will remove the device record and its playlist."
+                      ? "This will remove the display record and its playlist."
                       : "This changes whether the display can be used operationally."}
                   </p>
                 </div>
@@ -672,7 +634,7 @@ export default function AdminDevicePage({
                           : current,
                       )
                     }
-                    placeholder="Example: Duplicate test device created during setup."
+                    placeholder="Example: Duplicate test display created during setup."
                   />
                 </label>
 
@@ -692,7 +654,7 @@ export default function AdminDevicePage({
                     }
                   />
                   <span>
-                    I checked this device and want to save this audited
+                    I checked this display and want to save this audited
                     operation.
                   </span>
                 </label>
@@ -708,10 +670,10 @@ export default function AdminDevicePage({
                     onClick={submitDeviceOperation}
                   >
                     {deviceOperationDraft.operation === "delete"
-                      ? "Delete device"
+                      ? "Delete display"
                       : isActive
-                        ? "Deactivate device"
-                        : "Activate device"}
+                        ? "Deactivate display"
+                        : "Activate display"}
                   </button>
                   <button
                     type="button"
@@ -730,7 +692,7 @@ export default function AdminDevicePage({
       {/* Rename */}
       {activeSection === "details" && (
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Rename device</h2>
+        <h2 className="admin-card-title text-xl">Rename display</h2>
 
         <div className="mt-4 flex flex-col gap-3 md:flex-row">
           <input
@@ -759,10 +721,10 @@ export default function AdminDevicePage({
       </div>
       )}
 
-      {/* Device Details Form */}
+      {/* Display Details Form */}
       {activeSection === "details" && (
       <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Device details</h2>
+        <h2 className="admin-card-title text-xl">Display details</h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <Input label="Make" value={editMake} onChange={setEditMake} />
@@ -816,7 +778,7 @@ export default function AdminDevicePage({
             value={detailsReason}
             onChange={(event) => setDetailsReason(event.target.value)}
             rows={3}
-            placeholder="Example: Serial number corrected after checking the device label."
+            placeholder="Example: Serial number corrected after checking the display label."
           />
         </label>
 
@@ -825,7 +787,7 @@ export default function AdminDevicePage({
           disabled={saving || !detailsReason.trim()}
           className="admin-button-primary mt-4 disabled:opacity-50"
         >
-          {saving ? "Saving..." : "Save device details"}
+          {saving ? "Saving..." : "Save display details"}
         </button>
       </div>
       )}
@@ -894,7 +856,7 @@ export default function AdminDevicePage({
               value={videoUploadReason}
               onChange={(event) => setVideoUploadReason(event.target.value)}
               rows={3}
-              placeholder="Example: initial menu playlist for installed device."
+              placeholder="Example: initial menu playlist for installed display."
             />
           </label>
 

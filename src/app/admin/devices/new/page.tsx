@@ -22,7 +22,7 @@ export default function NewDevicePage() {
 function NewDeviceFallback() {
   return (
     <div className="admin-card p-6">
-      <p className="admin-muted">Loading device form...</p>
+      <p className="admin-muted">Loading display form...</p>
     </div>
   );
 }
@@ -71,13 +71,13 @@ function NewDevicePageContent() {
     }
 
     if (!name.trim()) {
-      showAdminNotification("warning", "Device name is required.");
+      showAdminNotification("warning", "Display name is required.");
       return;
     }
 
     const trimmedReason = reason.trim();
     if (!trimmedReason) {
-      showAdminNotification("warning", "Add a reason before creating this customer device.");
+      showAdminNotification("warning", "Add a reason before creating this customer display.");
       return;
     }
 
@@ -106,13 +106,13 @@ function NewDevicePageContent() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not create device.",
+        result.error || "Could not create display.",
       );
       setSaving(false);
       return;
     }
 
-    showAdminNotification("success", "Customer device created successfully.");
+    showAdminNotification("success", "Customer display created successfully.");
     router.push(`/admin/devices/${result.device.device_code}`);
   };
 
@@ -124,18 +124,18 @@ function NewDevicePageContent() {
     <div>
       {/* Page Header */}
       <div className="admin-page-header">
-        <h1 className="admin-title">Add device</h1>
+        <h1 className="admin-title">Add display</h1>
         <p className="admin-subtitle">
           Create a customer display endpoint after onboarding. Physical hardware
           stock is managed in Hardware stock.
         </p>
       </div>
 
-      {/* Device Form */}
+      {/* Display Form */}
       <div className="admin-card p-6">
         <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-semibold text-slate-800">
-            Need to add a device to stock first?
+            Need to add hardware to stock first?
           </p>
           <p className="admin-muted mt-1 text-sm">
             Go to Hardware stock to register serial number, purchase, warranty, and
@@ -161,7 +161,7 @@ function NewDevicePageContent() {
           <TextInput
             id="device-name"
             name="deviceName"
-            label="Device name *"
+            label="Display name *"
             value={name}
             onChange={setName}
             placeholder="Menu screen, price list, special offers..."
@@ -257,7 +257,7 @@ function NewDevicePageContent() {
             name="createReason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Example: Paid customer needs a registered display device for installation."
+            placeholder="Example: Paid customer needs a registered display endpoint for installation."
             className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
             rows={3}
           />
@@ -268,7 +268,7 @@ function NewDevicePageContent() {
           disabled={saving || !reason.trim()}
           className="admin-button-primary mt-6 disabled:opacity-50"
         >
-          {saving ? "Creating..." : "Create customer device"}
+          {saving ? "Creating..." : "Create customer display"}
         </button>
       </div>
     </div>
