@@ -27,6 +27,13 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function isOverdue(request: DataSubjectRequest) {
   return (
     !["completed", "rejected"].includes(request.status) &&
@@ -49,6 +56,46 @@ export default function AdminDataSubjectRequestsPage() {
     () => requests.filter((item) => isOverdue(item)).length,
     [requests],
   );
+  const inProgressCount = useMemo(
+    () =>
+      requests.filter((item) =>
+        ["in_progress", "waiting_for_customer"].includes(item.status),
+      ).length,
+    [requests],
+  );
+  const closedCount = useMemo(
+    () =>
+      requests.filter((item) =>
+        ["completed", "rejected"].includes(item.status),
+      ).length,
+    [requests],
+  );
+  const privacyWorkflow = [
+    {
+      stage: "1",
+      label: "Receive request",
+      value: requests.length,
+      description: "Record the customer request and GDPR request type.",
+    },
+    {
+      stage: "2",
+      label: "Check deadline",
+      value: overdueCount,
+      description: "Watch legal due dates and overdue requests first.",
+    },
+    {
+      stage: "3",
+      label: "Handle case",
+      value: inProgressCount,
+      description: "Work the request or wait for customer clarification.",
+    },
+    {
+      stage: "4",
+      label: "Close with evidence",
+      value: closedCount,
+      description: "Complete or reject only with internal outcome notes.",
+    },
+  ];
 
   const loadRequests = async () => {
     setLoading(true);
@@ -153,7 +200,19 @@ export default function AdminDataSubjectRequestsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Data subject request register</h2>
+        <h2 className="admin-card-title text-xl">Privacy request workflow</h2>
+        <div className="admin-privacy-workflow" aria-label="Privacy request workflow">
+          {privacyWorkflow.map((item) => (
+            <div key={item.stage} className="admin-privacy-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -177,8 +236,8 @@ export default function AdminDataSubjectRequestsPage() {
                       <br />
                       <small>{customer?.email || customer?.customer_number || "-"}</small>
                     </td>
-                    <td>{request.request_type}</td>
-                    <td>{request.status}</td>
+                    <td>{formatChoice(request.request_type)}</td>
+                    <td>{formatChoice(request.status)}</td>
                     <td>{formatDate(request.due_at)}</td>
                     <td>{request.description}</td>
                     <td>
