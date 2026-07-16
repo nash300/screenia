@@ -1436,6 +1436,28 @@ export default function CustomerDetailPage({
       description: "Legal and troubleshooting evidence",
     },
   ];
+  const communicationWorkflows: Array<{
+    id: CommunicationView;
+    stage: string;
+    label: string;
+    count: number;
+    description: string;
+  }> = [
+    {
+      id: "messages",
+      stage: "1",
+      label: "Support inbox",
+      count: messages.length,
+      description: "Customer questions, replies, and troubleshooting notes",
+    },
+    {
+      id: "uploads",
+      stage: "2",
+      label: "Material review",
+      count: assets.length,
+      description: "Uploaded logos, images, videos, and display content",
+    },
+  ];
   const paidDeviceQuantity = subscriptions
     .filter(subscriptionCountsTowardDeviceEntitlement)
     .reduce(
@@ -2259,7 +2281,7 @@ export default function CustomerDetailPage({
               <tr>
                 <td>Cancellation</td>
                 <td>
-                  {formatInactiveReason(customer.inactive_reason)} ·{" "}
+                  {formatInactiveReason(customer.inactive_reason)} |{" "}
                   {formatCancellationSource(customer.cancellation_source)}
                 </td>
                 <td>{formatDateTime(customer.cancelled_at)}</td>
@@ -2463,22 +2485,26 @@ export default function CustomerDetailPage({
                 and uploaded screen material for this customer.
               </p>
             </div>
-            <div className="admin-communication-tabs">
+          </div>
+
+          <div className="admin-communication-workflow">
+            {communicationWorkflows.map((item) => (
               <button
+                key={item.id}
                 type="button"
-                onClick={() => navigateCommunicationView("messages")}
-                className={communicationView === "messages" ? "is-active" : ""}
+                onClick={() => navigateCommunicationView(item.id)}
+                className={`admin-communication-workflow-step ${
+                  communicationView === item.id ? "is-active" : ""
+                }`}
               >
-                Conversations ({messages.length})
+                <span>{item.stage}</span>
+                <strong>
+                  {item.label}
+                  <em>{item.count}</em>
+                </strong>
+                <small>{item.description}</small>
               </button>
-              <button
-                type="button"
-                onClick={() => navigateCommunicationView("uploads")}
-                className={communicationView === "uploads" ? "is-active" : ""}
-              >
-                Uploaded media ({assets.length})
-              </button>
-            </div>
+            ))}
           </div>
         </div>
       )}
@@ -2505,14 +2531,14 @@ export default function CustomerDetailPage({
                       {item.subject || "Message"}
                     </p>
                     <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                      {item.ticketNumber || "No ticket"} ·{" "}
-                      {item.requestType.replace(/_/g, " ")} · {item.priority}
+                      {item.ticketNumber || "No ticket"} |{" "}
+                      {item.requestType.replace(/_/g, " ")} | {item.priority}
                       {item.relatedTicketNumber
-                        ? ` · Reply to ${item.relatedTicketNumber}`
+                        ? ` | Reply to ${item.relatedTicketNumber}`
                         : ""}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {new Date(item.createdAt).toLocaleString("sv-SE")} ·{" "}
+                      {new Date(item.createdAt).toLocaleString("sv-SE")} |{" "}
                       {item.status}
                     </p>
                   </div>
@@ -2694,8 +2720,8 @@ export default function CustomerDetailPage({
                       {asset.fileName || "Text material"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {new Date(asset.createdAt).toLocaleString("sv-SE")} ·{" "}
-                      {asset.category} · {asset.source} · {asset.status}
+                      {new Date(asset.createdAt).toLocaleString("sv-SE")} |{" "}
+                      {asset.category} | {asset.source} | {asset.status}
                     </p>
                   </div>
                   {asset.downloadUrl && (
@@ -2939,9 +2965,9 @@ export default function CustomerDetailPage({
                       {event.event_type.replace(/_/g, " ")}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                      {new Date(event.created_at).toLocaleString("sv-SE")} ·{" "}
+                      {new Date(event.created_at).toLocaleString("sv-SE")} |{" "}
                       {event.actor_type}
-                      {event.actor_id ? ` · ${event.actor_id}` : ""}
+                      {event.actor_id ? ` | ${event.actor_id}` : ""}
                     </p>
                   </div>
                 </div>
@@ -3094,7 +3120,7 @@ export default function CustomerDetailPage({
                         {item.item_code}
                       </p>
                       <p className="mt-1 text-sm text-slate-500">
-                        {inventoryTypeLabel(item.item_type)} ·{" "}
+                        {inventoryTypeLabel(item.item_type)} |{" "}
                         {item.model || "Model missing"}
                       </p>
                     </div>
