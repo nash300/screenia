@@ -4,193 +4,24 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
-
-type InventoryItem = {
-  id: string;
-  item_code: string;
-  item_type: string;
-  status: string;
-  condition: string;
-  make: string | null;
-  model: string | null;
-  serial_number: string | null;
-  seller: string | null;
-  invoice_number: string | null;
-  purchase_cost: number | null;
-  purchase_currency: string | null;
-  purchase_date: string | null;
-  warranty_period_months: number | null;
-  warranty_until: string | null;
-  customer_id: string | null;
-  device_id: string | null;
-  assigned_at: string | null;
-  shipped_at: string | null;
-  returned_at: string | null;
-  last_checked_at: string | null;
-  defect_description: string | null;
-  return_notes: string | null;
-  notes: string | null;
-  created_at: string;
-  updated_at: string | null;
-  customers: {
-    id: string;
-    name: string | null;
-    email: string | null;
-  } | null;
-  devices: {
-    device_code: string;
-    name: string | null;
-  } | null;
-};
-
-type InventoryEvent = {
-  id: string;
-  inventory_item_id: string;
-  event_type: string;
-  from_status: string | null;
-  to_status: string | null;
-  notes: string | null;
-  created_at: string;
-};
-
-type InventoryForm = {
-  item_type: string;
-  status: string;
-  condition: string;
-  make: string;
-  model: string;
-  serial_number: string;
-  seller: string;
-  invoice_number: string;
-  purchase_cost: string;
-  purchase_date: string;
-  warranty_period_months: string;
-  warranty_until: string;
-  defect_description: string;
-  return_notes: string;
-  notes: string;
-  reason: string;
-};
-
-type InventoryOperationId =
-  | "shipped"
-  | "returned"
-  | "defective"
-  | "in_repair"
-  | "in_stock"
-  | "retired";
-
-type InventoryOperationDraft = {
-  operation: InventoryOperationId;
-  reason: string;
-  confirmed: boolean;
-};
-
-const itemTypes = [
-  { value: "standard_fhd", label: "Standard FHD" },
-  { value: "premium_4k", label: "Premium 4K" },
-  { value: "spare", label: "Spare part" },
-  { value: "other", label: "Other" },
-];
-
-const statuses = [
-  { value: "in_stock", label: "In stock" },
-  { value: "reserved", label: "Reserved" },
-  { value: "assigned", label: "Assigned" },
-  { value: "shipped", label: "Shipped" },
-  { value: "returned", label: "Returned" },
-  { value: "defective", label: "Defective" },
-  { value: "in_repair", label: "In repair" },
-  { value: "retired", label: "Retired" },
-  { value: "lost", label: "Lost" },
-];
-
-const conditions = [
-  { value: "new", label: "New" },
-  { value: "tested", label: "Tested" },
-  { value: "used", label: "Used" },
-  { value: "returned", label: "Returned" },
-  { value: "defective", label: "Defective" },
-  { value: "repaired", label: "Repaired" },
-];
-
-function createEmptyForm(): InventoryForm {
-  return {
-    item_type: "standard_fhd",
-    status: "in_stock",
-    condition: "new",
-    make: "Xiaomi",
-    model: "",
-    serial_number: "",
-    seller: "",
-    invoice_number: "",
-    purchase_cost: "",
-    purchase_date: new Date().toISOString().slice(0, 10),
-    warranty_period_months: "",
-    warranty_until: "",
-    defect_description: "",
-    return_notes: "",
-    notes: "",
-    reason: "",
-  };
-}
-
-const inventoryOperations: Array<{
-  id: InventoryOperationId;
-  label: string;
-  description: string;
-  status: string;
-  condition: string;
-  tone?: "warning" | "danger" | "success";
-}> = [
-  {
-    id: "shipped",
-    label: "Mark shipped",
-    description: "Use when the box leaves Screenia for the customer.",
-    status: "shipped",
-    condition: "tested",
-    tone: "success",
-  },
-  {
-    id: "returned",
-    label: "Mark returned",
-    description: "Clear the customer assignment and record a customer return.",
-    status: "returned",
-    condition: "returned",
-    tone: "warning",
-  },
-  {
-    id: "defective",
-    label: "Mark defective",
-    description: "Flag the box as needing diagnosis before it can be reused.",
-    status: "defective",
-    condition: "defective",
-    tone: "danger",
-  },
-  {
-    id: "in_repair",
-    label: "Send to repair",
-    description: "Move the box into a repair workflow.",
-    status: "in_repair",
-    condition: "defective",
-  },
-  {
-    id: "in_stock",
-    label: "Back to stock",
-    description: "Return the repaired box to available stock.",
-    status: "in_stock",
-    condition: "repaired",
-    tone: "success",
-  },
-  {
-    id: "retired",
-    label: "Retire",
-    description: "Remove the box from active operational stock.",
-    status: "retired",
-    condition: "used",
-    tone: "warning",
-  },
-];
+import {
+  conditions,
+  conditionLabel,
+  createEmptyForm,
+  formatDate,
+  inventoryOperations,
+  itemTypeLabel,
+  itemTypes,
+  statusLabel,
+  statuses,
+} from "./inventory-utils";
+import type {
+  InventoryEvent,
+  InventoryForm,
+  InventoryItem,
+  InventoryOperationDraft,
+  InventorySelectOption,
+} from "./types";
 
 export default function AdminInventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
@@ -566,7 +397,7 @@ export default function AdminInventoryPage() {
     <div className="admin-inventory-page">
       <div className="admin-page-header admin-inventory-header">
         <div>
-          <h1 className="admin-title">Inventory</h1>
+          <h1 className="admin-title">Hardware stock</h1>
           <p className="admin-subtitle">
             Add physical hardware to stock, track serial numbers, warranty,
             seller details, returns, defects, repair, and retirement.
@@ -577,7 +408,7 @@ export default function AdminInventoryPage() {
             Add stock item
           </button>
           <Link href="/admin/devices" className="admin-button-secondary">
-            Device manager
+            Displays
           </Link>
         </div>
       </div>
@@ -1153,7 +984,7 @@ function SelectValue({
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: Array<{ value: string; label: string }>;
+  options: InventorySelectOption[];
 }) {
   return (
     <label className="admin-inventory-field">
@@ -1167,21 +998,4 @@ function SelectValue({
       </select>
     </label>
   );
-}
-
-function itemTypeLabel(value: string) {
-  return itemTypes.find((item) => item.value === value)?.label || value;
-}
-
-function statusLabel(value: string) {
-  return statuses.find((status) => status.value === value)?.label || value;
-}
-
-function conditionLabel(value: string) {
-  return conditions.find((condition) => condition.value === value)?.label || value;
-}
-
-function formatDate(value: string | null) {
-  if (!value) return "Not set";
-  return new Date(value).toLocaleDateString("sv-SE");
 }
