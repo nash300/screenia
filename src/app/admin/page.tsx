@@ -305,6 +305,51 @@ export default function AdminHomePage() {
         />
       </div>
 
+      <section className="admin-card admin-dashboard-panel p-6">
+        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+          <div>
+            <p className="admin-operation-kicker">Admin map</p>
+            <h2 className="admin-card-title text-xl">Use the right workspace</h2>
+            <p className="admin-muted mt-2">
+              Screenia admin is organized by business workflow, not database
+              tables.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <WorkspaceLink
+            href="/admin/customers"
+            title="Customer work"
+            description="Requests, onboarding links, customer details, account setup, messages, and uploads."
+          />
+          <WorkspaceLink
+            href="/admin/orders"
+            title="Orders & billing"
+            description="Quotes, Stripe status, VAT evidence, refunds, cancellation, and accounting exports."
+          />
+          <WorkspaceLink
+            href="/admin/devices"
+            title="Displays"
+            description="Customer display endpoints, playlists, screen URLs, and content readiness."
+          />
+          <WorkspaceLink
+            href="/admin/inventory"
+            title="Hardware stock"
+            description="Physical boxes, serial numbers, purchase data, warranty, returns, repair, and retirement."
+          />
+          <WorkspaceLink
+            href="/admin/email-events"
+            title="Email log"
+            description="Transactional email delivery, failures, bounces, and customer communication evidence."
+          />
+          <WorkspaceLink
+            href="/admin/launch-readiness"
+            title="Launch readiness"
+            description="Operational gates before live payments and public launch."
+          />
+        </div>
+      </section>
+
       <div className="admin-dashboard-grid">
         <section className="admin-card admin-dashboard-panel p-6">
           <h2 className="admin-card-title text-xl">Account health</h2>
@@ -504,6 +549,26 @@ function StatCard({
   }
 
   return <div className="admin-card admin-stat-card">{content}</div>;
+}
+
+function WorkspaceLink({
+  href,
+  title,
+  description,
+}: {
+  href: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="rounded-2xl border border-slate-200 bg-white/70 p-4 text-sm no-underline transition hover:bg-white hover:shadow-md"
+    >
+      <strong className="block text-slate-950">{title}</strong>
+      <span className="mt-2 block text-slate-600">{description}</span>
+    </Link>
+  );
 }
 
 function notificationCustomerName(notification: AdminNotification) {

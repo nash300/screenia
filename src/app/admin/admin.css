@@ -179,6 +179,20 @@
 /* =========================================
    SIDEBAR NAV LINKS
 ========================================= */
+.admin-nav-group {
+  margin-bottom: 0.85rem;
+}
+
+.admin-nav-group-title {
+  margin: 0 0 0.35rem;
+  padding: 0 0.35rem;
+  color: #395171;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .admin-nav-link {
   display: flex;
   align-items: center;

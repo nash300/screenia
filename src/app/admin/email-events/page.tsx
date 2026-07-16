@@ -57,10 +57,10 @@ export default function AdminEmailEventsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Email events</h1>
+          <h1 className="admin-title">Email log</h1>
           <p className="admin-subtitle">
-            Review Resend delivery, bounce, complaint, and suppression webhook
-            events for customer communication follow-up.
+            Review transactional email delivery, bounces, complaints, and
+            failures for customer communication follow-up.
           </p>
         </div>
         <div className="admin-dashboard-header-actions">

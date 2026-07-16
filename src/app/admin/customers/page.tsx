@@ -369,9 +369,10 @@ function CustomersContent() {
   return (
     <div className="admin-customers-page">
       <div className="admin-page-header">
-        <h1 className="admin-title">Customers</h1>
+        <h1 className="admin-title">Customer work</h1>
         <p className="admin-subtitle">
-          Create customer drafts, search records, and open customer profiles.
+          Manage requests, onboarding, account setup, communication, and the
+          full customer profile.
         </p>
       </div>
 

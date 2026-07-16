@@ -505,9 +505,10 @@ function AdminOrdersContent() {
   return (
     <div>
       <div className="admin-page-header">
-        <h1 className="admin-title">Orders</h1>
+        <h1 className="admin-title">Orders & billing</h1>
         <p className="admin-subtitle">
-          Follow quote, payment, inventory, shipping, and order updates in one place.
+          Follow quotes, Stripe payment state, VAT evidence, refunds,
+          inventory status, shipping, and order updates in one place.
         </p>
         <a
           href="/api/admin/accounting-export"

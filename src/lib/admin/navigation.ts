@@ -1,13 +1,28 @@
 export const adminNavItems = [
   { href: "/admin", label: "Dashboard", icon: "D" },
-  { href: "/admin/customers", label: "Customers", icon: "C" },
-  { href: "/admin/orders", label: "Orders", icon: "O" },
-  { href: "/admin/inventory", label: "Inventory", icon: "I" },
-  { href: "/admin/devices", label: "Device Manager", icon: "M" },
+  { href: "/admin/customers", label: "Customer work", icon: "C" },
+  { href: "/admin/orders", label: "Orders & billing", icon: "O" },
+  { href: "/admin/devices", label: "Displays", icon: "M" },
+  { href: "/admin/inventory", label: "Hardware stock", icon: "I" },
+  { href: "/admin/email-events", label: "Email log", icon: "E" },
   { href: "/admin/pricing", label: "Pricing", icon: "$" },
-  { href: "/admin/email-events", label: "Email Events", icon: "E" },
+  { href: "/admin/launch-readiness", label: "Launch readiness", icon: "!" },
   { href: "/admin/compliance", label: "Compliance", icon: "K" },
-  { href: "/admin/launch-readiness", label: "Readiness", icon: "!" },
+];
+
+export const adminNavGroups = [
+  {
+    title: "Daily work",
+    hrefs: ["/admin", "/admin/customers", "/admin/orders"],
+  },
+  {
+    title: "Service delivery",
+    hrefs: ["/admin/devices", "/admin/inventory", "/admin/email-events"],
+  },
+  {
+    title: "Business control",
+    hrefs: ["/admin/pricing", "/admin/launch-readiness", "/admin/compliance"],
+  },
 ];
 
 export const complianceNavItems = [

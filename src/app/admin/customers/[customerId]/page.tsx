@@ -1716,15 +1716,15 @@ export default function CustomerDetailPage({
     count?: number;
   }> = [
     { id: "overview", label: "Overview" },
-    { id: "onboarding", label: "Onboarding" },
+    { id: "onboarding", label: "Request & onboarding" },
+    { id: "orders", label: "Orders & billing", count: subscriptions.length },
+    { id: "devices", label: "Displays & hardware", count: devices.length },
     {
       id: "communication",
       label: "Communication",
       count: messages.length + assets.length,
     },
-    { id: "orders", label: "Orders", count: subscriptions.length },
-    { id: "devices", label: "Devices", count: devices.length },
-    { id: "history", label: "History", count: auditEvents.length },
+    { id: "history", label: "Audit trail", count: auditEvents.length },
   ];
   const paidDeviceQuantity = subscriptions
     .filter(subscriptionCountsTowardDeviceEntitlement)

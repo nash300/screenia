@@ -29,7 +29,7 @@ export default function AdminLayout({
           <div className="mt-5">
             <p className="admin-sidebar-kicker">Admin Panel</p>
             <p className="admin-sidebar-description">
-              Manage customers, screens, and content.
+              Run customer setup, billing, displays, hardware, and launch checks.
             </p>
           </div>
         </div>
