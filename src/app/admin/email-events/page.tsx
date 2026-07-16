@@ -16,6 +16,32 @@ type EmailEvent = {
   processed_at: string | null;
 };
 
+type EmailEventFilter = "all" | "needs_follow_up" | "healthy";
+
+const healthyEmailStatuses = [
+  "received",
+  "processed",
+  "delivered",
+  "opened",
+  "clicked",
+];
+
+const followUpEmailStatuses = [
+  "action_required",
+  "bounced",
+  "complained",
+  "failed",
+];
+
+const emailEventFilters: Array<{
+  id: EmailEventFilter;
+  label: string;
+}> = [
+  { id: "all", label: "All evidence" },
+  { id: "needs_follow_up", label: "Needs follow-up" },
+  { id: "healthy", label: "Healthy delivery" },
+];
+
 function formatDateTime(value: string | null) {
   if (!value) return "-";
   return new Date(value).toLocaleString("sv-SE");
@@ -35,28 +61,58 @@ function formatEventStatus(value: string) {
 export default function AdminEmailEventsPage() {
   const [events, setEvents] = useState<EmailEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<EmailEventFilter>("all");
+  const [query, setQuery] = useState("");
   const actionRequiredCount = useMemo(
     () => events.filter((event) => event.event_status === "action_required").length,
     [events],
   );
   const deliveredCount = useMemo(
     () =>
-      events.filter((event) =>
-        ["received", "processed", "delivered", "opened", "clicked"].includes(
-          event.event_status,
-        ),
-      ).length,
+      events.filter((event) => healthyEmailStatuses.includes(event.event_status))
+        .length,
     [events],
   );
   const failedCount = useMemo(
     () =>
-      events.filter((event) =>
-        ["action_required", "bounced", "complained", "failed"].includes(
-          event.event_status,
-        ),
-      ).length,
+      events.filter((event) => followUpEmailStatuses.includes(event.event_status))
+        .length,
     [events],
   );
+  const filteredEvents = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+
+    return events.filter((event) => {
+      const matchesFilter =
+        activeFilter === "all" ||
+        (activeFilter === "needs_follow_up" &&
+          followUpEmailStatuses.includes(event.event_status)) ||
+        (activeFilter === "healthy" &&
+          healthyEmailStatuses.includes(event.event_status));
+
+      if (!matchesFilter) return false;
+      if (!normalizedQuery) return true;
+
+      const haystack = [
+        event.event_type,
+        event.event_status,
+        event.recipient_email,
+        event.subject,
+        event.resend_email_id,
+        event.svix_id,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return haystack.includes(normalizedQuery);
+    });
+  }, [activeFilter, events, query]);
+  const filterCounts: Record<EmailEventFilter, number> = {
+    all: events.length,
+    needs_follow_up: failedCount,
+    healthy: deliveredCount,
+  };
 
   const loadEvents = async () => {
     setLoading(true);
@@ -122,7 +178,36 @@ export default function AdminEmailEventsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Delivery event register</h2>
+        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+          <div>
+            <h2 className="admin-card-title text-xl">Delivery evidence</h2>
+            <p className="admin-muted mt-2 text-sm">
+              Start with messages that need follow-up, then use provider IDs
+              only when troubleshooting delivery with Resend or webhook logs.
+            </p>
+          </div>
+        </div>
+
+        <div className="admin-email-toolbar">
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search recipient, subject, event, Resend ID, or Svix ID..."
+          />
+          <div className="admin-email-filter-row">
+            {emailEventFilters.map((filter) => (
+              <button
+                key={filter.id}
+                type="button"
+                onClick={() => setActiveFilter(filter.id)}
+                className={activeFilter === filter.id ? "is-active" : ""}
+              >
+                {filter.label} ({filterCounts[filter.id]})
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -136,7 +221,7 @@ export default function AdminEmailEventsPage() {
               </tr>
             </thead>
             <tbody>
-              {events.map((event) => (
+              {filteredEvents.map((event) => (
                 <tr key={event.id}>
                   <td>
                     <strong>{formatEventType(event.event_type)}</strong>
@@ -168,9 +253,13 @@ export default function AdminEmailEventsPage() {
                   </td>
                 </tr>
               ))}
-              {!loading && events.length === 0 && (
+              {!loading && filteredEvents.length === 0 && (
                 <tr>
-                  <td colSpan={6}>No email delivery events recorded.</td>
+                  <td colSpan={6}>
+                    {events.length === 0
+                      ? "No email delivery events recorded."
+                      : "No email delivery events match this view."}
+                  </td>
                 </tr>
               )}
             </tbody>
