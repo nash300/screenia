@@ -319,7 +319,7 @@ export default function PricingPage() {
         <p>
           Edit live package prices, then sync matching Stripe products and
           prices for tracking. Amounts are customer-pay totals including Swedish
-          VAT; Checkout keeps the same totals and reports the included VAT.
+          moms; Checkout keeps the same totals and reports included tax.
         </p>
       </div>
 
@@ -515,7 +515,7 @@ export default function PricingPage() {
                     disabled={saving || syncing}
                     onClick={() => openPricingOperation(plan, "save")}
                   >
-                    Edit pricing flow
+                    Save price changes
                   </button>
                   <button
                     type="button"
@@ -523,7 +523,7 @@ export default function PricingPage() {
                     disabled={saving || syncing}
                     onClick={() => openPricingOperation(plan, "sync")}
                   >
-                    Stripe sync flow
+                    Sync with Stripe
                   </button>
                 </div>
 
@@ -532,7 +532,7 @@ export default function PricingPage() {
                     <div className="admin-operation-header">
                       <div>
                         <p className="admin-operation-kicker">
-                          Selected pricing action
+                          Pricing control action
                         </p>
                         <h3>
                           {operationDraft.operation === "save"
