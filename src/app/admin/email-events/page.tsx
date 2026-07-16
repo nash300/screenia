@@ -21,11 +21,40 @@ function formatDateTime(value: string | null) {
   return new Date(value).toLocaleString("sv-SE");
 }
 
+function formatEventType(value: string) {
+  return value
+    .replace(/[._]/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function formatEventStatus(value: string) {
+  if (value === "action_required") return "Needs action";
+  return formatEventType(value);
+}
+
 export default function AdminEmailEventsPage() {
   const [events, setEvents] = useState<EmailEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const actionRequiredCount = useMemo(
     () => events.filter((event) => event.event_status === "action_required").length,
+    [events],
+  );
+  const deliveredCount = useMemo(
+    () =>
+      events.filter((event) =>
+        ["received", "processed", "delivered", "opened", "clicked"].includes(
+          event.event_status,
+        ),
+      ).length,
+    [events],
+  );
+  const failedCount = useMemo(
+    () =>
+      events.filter((event) =>
+        ["action_required", "bounced", "complained", "failed"].includes(
+          event.event_status,
+        ),
+      ).length,
     [events],
   );
 
@@ -74,6 +103,24 @@ export default function AdminEmailEventsPage() {
         </div>
       </div>
 
+      <section className="admin-email-summary">
+        <div>
+          <span>Total events</span>
+          <strong>{events.length}</strong>
+          <small>Latest transactional email evidence</small>
+        </div>
+        <div>
+          <span>Healthy delivery</span>
+          <strong>{deliveredCount}</strong>
+          <small>Received, processed, delivered, opened, or clicked</small>
+        </div>
+        <div>
+          <span>Needs follow-up</span>
+          <strong>{failedCount}</strong>
+          <small>Bounces, complaints, failures, or action required</small>
+        </div>
+      </section>
+
       <section className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Delivery event register</h2>
         <div className="admin-table-wrap mt-4">
@@ -85,22 +132,40 @@ export default function AdminEmailEventsPage() {
                 <th>Subject</th>
                 <th>Status</th>
                 <th>Received</th>
-                <th>Resend ID</th>
+                <th>Support details</th>
               </tr>
             </thead>
             <tbody>
               {events.map((event) => (
                 <tr key={event.id}>
                   <td>
-                    <strong>{event.event_type}</strong>
-                    <br />
-                    <small>{event.svix_id}</small>
+                    <strong>{formatEventType(event.event_type)}</strong>
                   </td>
                   <td>{event.recipient_email || "-"}</td>
                   <td>{event.subject || "-"}</td>
-                  <td>{event.event_status}</td>
+                  <td>
+                    <span
+                      className={`admin-email-status admin-email-status-${event.event_status}`}
+                    >
+                      {formatEventStatus(event.event_status)}
+                    </span>
+                  </td>
                   <td>{formatDateTime(event.received_at)}</td>
-                  <td>{event.resend_email_id || "-"}</td>
+                  <td>
+                    <details className="admin-email-support-details">
+                      <summary>IDs and processing</summary>
+                      <p>
+                        <strong>Resend:</strong> {event.resend_email_id || "-"}
+                      </p>
+                      <p>
+                        <strong>Svix:</strong> {event.svix_id || "-"}
+                      </p>
+                      <p>
+                        <strong>Processed:</strong>{" "}
+                        {formatDateTime(event.processed_at)}
+                      </p>
+                    </details>
+                  </td>
                 </tr>
               ))}
               {!loading && events.length === 0 && (
