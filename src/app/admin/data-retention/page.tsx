@@ -36,6 +36,13 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function reviewToForm(
   review: DataRetentionReview,
   status = review.review_status,
@@ -68,6 +75,53 @@ export default function AdminDataRetentionPage() {
       reviews.filter((review) => review.review_status !== "completed").length,
     [reviews],
   );
+  const retainCount = useMemo(
+    () =>
+      reviews.filter(
+        (review) =>
+          review.review_status === "retain" ||
+          review.recommended_action === "retain",
+      ).length,
+    [reviews],
+  );
+  const reduceCount = useMemo(
+    () =>
+      reviews.filter((review) =>
+        ["anonymize", "delete"].includes(review.recommended_action),
+      ).length,
+    [reviews],
+  );
+  const completedCount = useMemo(
+    () =>
+      reviews.filter((review) => review.review_status === "completed").length,
+    [reviews],
+  );
+  const retentionWorkflow = [
+    {
+      stage: "1",
+      label: "Identify record",
+      value: reviews.length,
+      description: "Choose the customer, billing, support, content, or audit area.",
+    },
+    {
+      stage: "2",
+      label: "Decide basis",
+      value: retainCount,
+      description: "Record the legal/accounting reason for keeping the data.",
+    },
+    {
+      stage: "3",
+      label: "Reduce data",
+      value: reduceCount,
+      description: "Mark records that should be anonymized or deleted.",
+    },
+    {
+      stage: "4",
+      label: "Close review",
+      value: completedCount,
+      description: "Finish the review with a timestamped admin reason.",
+    },
+  ];
 
   const loadReviews = async () => {
     setLoading(true);
@@ -184,6 +238,18 @@ export default function AdminDataRetentionPage() {
 
       <section className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Record retention review</h2>
+        <div className="admin-retention-workflow" aria-label="Data retention workflow">
+          {retentionWorkflow.map((item) => (
+            <div key={item.stage} className="admin-retention-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Record area</span>
@@ -239,21 +305,23 @@ export default function AdminDataRetentionPage() {
             />
           </label>
           <label className="admin-field">
-            <span>Customer ID</span>
+            <span>Customer reference</span>
             <input
               value={form.related_customer_id}
               onChange={(event) =>
                 updateForm("related_customer_id", event.target.value)
               }
+              placeholder="Optional customer reference or internal customer id"
             />
           </label>
           <label className="admin-field">
-            <span>Related record ID</span>
+            <span>Evidence reference</span>
             <input
               value={form.related_record_id}
               onChange={(event) =>
                 updateForm("related_record_id", event.target.value)
               }
+              placeholder="Optional order, message, asset, or audit reference"
             />
           </label>
           <label className="admin-field lg:col-span-2">
@@ -304,7 +372,7 @@ export default function AdminDataRetentionPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Data retention register</h2>
+        <h2 className="admin-card-title text-xl">Retention decisions</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -321,14 +389,17 @@ export default function AdminDataRetentionPage() {
               {reviews.map((review) => (
                 <tr key={review.id}>
                   <td>
-                    <strong>{review.record_area}</strong>
-                    <br />
-                    <small>{review.related_customer_id || "No customer link"}</small>
-                    {review.related_record_id && (
-                      <>
-                        <br />
-                        <small>{review.related_record_id}</small>
-                      </>
+                    <strong>{formatChoice(review.record_area)}</strong>
+                    {(review.related_customer_id || review.related_record_id) && (
+                      <details className="admin-retention-support-details">
+                        <summary>Evidence references</summary>
+                        {review.related_customer_id && (
+                          <small>Customer: {review.related_customer_id}</small>
+                        )}
+                        {review.related_record_id && (
+                          <small>Record: {review.related_record_id}</small>
+                        )}
+                      </details>
                     )}
                   </td>
                   <td>
@@ -336,9 +407,9 @@ export default function AdminDataRetentionPage() {
                     <br />
                     <small>{review.retention_reason}</small>
                   </td>
-                  <td>{review.review_status}</td>
+                  <td>{formatChoice(review.review_status)}</td>
                   <td>{formatDate(review.retention_until)}</td>
-                  <td>{review.recommended_action}</td>
+                  <td>{formatChoice(review.recommended_action)}</td>
                   <td>
                     {review.review_status === "completed" ? (
                       <span className="admin-muted">Completed</span>
