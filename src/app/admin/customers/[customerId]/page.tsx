@@ -1392,17 +1392,49 @@ export default function CustomerDetailPage({
     id: CustomerDetailSection;
     label: string;
     count?: number;
+    stage: string;
+    description: string;
   }> = [
-    { id: "overview", label: "Overview" },
-    { id: "onboarding", label: "Request & onboarding" },
-    { id: "orders", label: "Orders & billing", count: subscriptions.length },
-    { id: "devices", label: "Displays & hardware", count: devices.length },
+    {
+      id: "overview",
+      label: "Overview",
+      stage: "1",
+      description: "Customer facts and consent",
+    },
+    {
+      id: "onboarding",
+      label: "Request & onboarding",
+      stage: "2",
+      description: "Quote, setup link, and production start",
+    },
+    {
+      id: "orders",
+      label: "Orders & billing",
+      count: subscriptions.length,
+      stage: "3",
+      description: "Stripe, invoices, refunds, and subscriptions",
+    },
+    {
+      id: "devices",
+      label: "Displays & hardware",
+      count: devices.length,
+      stage: "4",
+      description: "Display endpoints and stock assignment",
+    },
     {
       id: "communication",
       label: "Communication",
       count: messages.length + assets.length,
+      stage: "5",
+      description: "Messages, uploads, and customer material",
     },
-    { id: "history", label: "Audit trail", count: auditEvents.length },
+    {
+      id: "history",
+      label: "Audit trail",
+      count: auditEvents.length,
+      stage: "6",
+      description: "Legal and troubleshooting evidence",
+    },
   ];
   const paidDeviceQuantity = subscriptions
     .filter(subscriptionCountsTowardDeviceEntitlement)
@@ -1685,14 +1717,14 @@ export default function CustomerDetailPage({
           href="/admin/customers"
           className="text-sm font-semibold text-[rgb(8,184,238)] no-underline"
         >
-          ← Back to customers
+          Back to customers
         </Link>
 
         <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <h1 className="admin-title">{customer.name}</h1>
             <p className="admin-subtitle">
-              Manage this customer’s onboarding and display screens.
+              Manage this customer&apos;s onboarding, billing, displays, and audit trail.
             </p>
           </div>
 
@@ -1706,21 +1738,25 @@ export default function CustomerDetailPage({
         </div>
       </div>
 
-      <div className="admin-section-tabs" aria-label="Customer detail sections">
+      <section className="admin-customer-workflow admin-card" aria-label="Customer workflow">
         {detailSections.map((section) => (
           <button
             key={section.id}
             type="button"
             onClick={() => navigateToSection(section.id)}
-            className={`admin-section-tab ${
+            className={`admin-customer-workflow-step ${
               activeSection === section.id ? "is-active" : ""
             }`}
           >
-            {section.label}
-            {typeof section.count === "number" ? ` (${section.count})` : ""}
+            <span>{section.stage}</span>
+            <strong>
+              {section.label}
+              {typeof section.count === "number" ? <em>{section.count}</em> : null}
+            </strong>
+            <small>{section.description}</small>
           </button>
         ))}
-      </div>
+      </section>
 
       {schemaNotice && (
         <div className="mb-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm font-semibold text-yellow-800">
