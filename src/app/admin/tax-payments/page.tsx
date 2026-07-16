@@ -95,7 +95,7 @@ export default function AdminTaxPaymentsPage() {
       stage: "1",
       label: "Prepare period",
       value: records.length,
-      description: "Record the taxable sales and VAT for the filing period.",
+      description: "Record taxable sales and moms/VAT for the filing period.",
     },
     {
       stage: "2",
@@ -105,7 +105,7 @@ export default function AdminTaxPaymentsPage() {
     },
     {
       stage: "3",
-      label: "Pay VAT",
+      label: "Pay moms/VAT",
       value: paidCount,
       description: "Record payment date and payment reference.",
     },
@@ -127,7 +127,7 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not load VAT filing periods.",
+        result.error || "Could not load moms/VAT filing periods.",
       );
       setRecords([]);
     } else {
@@ -170,12 +170,12 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not save VAT filing period.",
+        result.error || "Could not save moms/VAT filing period.",
       );
     } else {
       setForm(defaultForm);
       await loadRecords();
-      showAdminNotification("success", "VAT filing period saved.");
+      showAdminNotification("success", "Moms/VAT filing period saved.");
     }
 
     setSaving(false);
@@ -214,7 +214,7 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not update VAT filing period.",
+        result.error || "Could not update moms/VAT filing period.",
       );
     } else {
       setActionDrafts((current) => {
@@ -223,7 +223,7 @@ export default function AdminTaxPaymentsPage() {
         return next;
       });
       await loadRecords();
-      showAdminNotification("success", "VAT filing period updated.");
+      showAdminNotification("success", "Moms/VAT filing period updated.");
     }
 
     setUpdatingId(null);
@@ -233,16 +233,16 @@ export default function AdminTaxPaymentsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">VAT filing</h1>
+          <h1 className="admin-title">Moms/VAT filing</h1>
           <p className="admin-subtitle">
-            Prepare VAT/moms periods, submission status, payment evidence, and audit
+            Prepare moms/VAT periods, submission status, payment evidence, and audit
             history.
           </p>
           <a
             href="/api/admin/vat-summary?format=csv"
             className="admin-button-secondary"
           >
-            Export VAT summary
+            Export moms/VAT summary
           </a>
         </div>
 
@@ -260,7 +260,7 @@ export default function AdminTaxPaymentsPage() {
       <section className="admin-dashboard-kpis">
         <div className="admin-card admin-stat-card">
           <span className="admin-stat-icon admin-stat-neutral" />
-          <p className="admin-stat-label">Paid VAT recorded</p>
+          <p className="admin-stat-label">Paid moms/VAT recorded</p>
           <p className="admin-stat-value">{formatSekOre(totalVatOre)}</p>
           <p className="admin-stat-meta">All paid periods</p>
         </div>
@@ -283,8 +283,8 @@ export default function AdminTaxPaymentsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">VAT filing workflow</h2>
-        <div className="admin-tax-workflow" aria-label="VAT filing workflow">
+        <h2 className="admin-card-title text-xl">Moms/VAT filing workflow</h2>
+        <div className="admin-tax-workflow" aria-label="Moms/VAT filing workflow">
           {vatWorkflow.map((item) => (
             <div key={item.stage} className="admin-tax-workflow-step">
               <span>{item.stage}</span>
@@ -328,7 +328,7 @@ export default function AdminTaxPaymentsPage() {
             />
           </label>
           <label className="admin-field">
-            <span>VAT amount, SEK</span>
+            <span>Moms/VAT amount, SEK</span>
             <input
               inputMode="decimal"
               value={form.tax_amount_sek}
@@ -389,14 +389,14 @@ export default function AdminTaxPaymentsPage() {
               className="admin-button-primary"
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save VAT period"}
+              {saving ? "Saving..." : "Save moms/VAT period"}
             </button>
           </div>
         </form>
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">VAT filing periods</h2>
+        <h2 className="admin-card-title text-xl">Moms/VAT filing periods</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -404,7 +404,7 @@ export default function AdminTaxPaymentsPage() {
                 <th>Period</th>
                 <th>Status</th>
                 <th>Taxable</th>
-                <th>VAT</th>
+                <th>Moms/VAT</th>
                 <th>Paid at</th>
                 <th>Reference</th>
                 <th>Actions</th>
@@ -539,7 +539,7 @@ export default function AdminTaxPaymentsPage() {
               ))}
               {!loading && records.length === 0 && (
                 <tr>
-                  <td colSpan={7}>No VAT filing periods yet.</td>
+                  <td colSpan={7}>No moms/VAT filing periods yet.</td>
                 </tr>
               )}
             </tbody>

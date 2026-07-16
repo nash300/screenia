@@ -39,7 +39,7 @@ export const adminNavItems = [
     href: "/admin/pricing",
     label: "Pricing",
     icon: "PR",
-    description: "Packages, included VAT, setup fees, device prices, shipping, and Stripe sync.",
+    description: "Packages, included moms, setup fees, device prices, shipping, and Stripe sync.",
   },
   {
     href: "/admin/launch-readiness",
@@ -51,7 +51,7 @@ export const adminNavItems = [
     href: "/admin/compliance",
     label: "Compliance",
     icon: "CO",
-    description: "VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence.",
+    description: "Moms/VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence.",
   },
 ];
 
@@ -73,9 +73,9 @@ export const adminNavGroups = [
 export const complianceNavItems = [
   {
     href: "/admin/tax-payments",
-    label: "VAT filing",
+    label: "Moms/VAT filing",
     icon: "VA",
-    description: "VAT/moms filing periods, payment status, and audit evidence",
+    description: "Moms/VAT filing periods, payment status, and audit evidence",
   },
   {
     href: "/admin/legal-change-notices",

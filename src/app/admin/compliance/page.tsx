@@ -4,7 +4,7 @@ import { complianceNavItems } from "@/lib/admin/navigation";
 const groups = [
   {
     title: "Accounting and policy records",
-    description: "VAT filing evidence, legal-change notices, and retention reviews.",
+    description: "Moms/VAT filing evidence, legal-change notices, and retention reviews.",
     hrefs: [
       "/admin/tax-payments",
       "/admin/legal-change-notices",
@@ -33,7 +33,7 @@ export default function AdminCompliancePage() {
       <div className="admin-page-header">
         <h1 className="admin-title">Compliance</h1>
         <p className="admin-subtitle">
-          Business-control workflows for VAT, legal changes, privacy, security,
+          Business-control workflows for moms/VAT, legal changes, privacy, security,
           vendors, and recovery evidence.
         </p>
       </div>

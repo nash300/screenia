@@ -14,7 +14,7 @@ const labels: Record<string, string> = {
   subscriptions: "Subscriptions",
   "email-events": "Email Evidence",
   "launch-readiness": "Readiness",
-  "tax-payments": "VAT Filing",
+  "tax-payments": "Moms/VAT Filing",
   "legal-change-notices": "Legal Notices",
   "access-reviews": "Admin Access",
   "backup-drills": "Recovery Readiness",
