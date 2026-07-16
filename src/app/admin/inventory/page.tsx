@@ -220,6 +220,7 @@ export default function AdminInventoryPage() {
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [modelFilter, setModelFilter] = useState("all");
   const [form, setForm] = useState<InventoryForm>(() => createEmptyForm());
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -402,10 +403,24 @@ export default function AdminInventoryPage() {
 
       const matchesStatus = statusFilter === "all" || item.status === statusFilter;
       const matchesType = typeFilter === "all" || item.item_type === typeFilter;
+      const matchesModel = modelFilter === "all" || (item.model || "") === modelFilter;
 
-      return matchesStatus && matchesType && (!normalizedQuery || haystack.includes(normalizedQuery));
+      return (
+        matchesStatus &&
+        matchesType &&
+        matchesModel &&
+        (!normalizedQuery || haystack.includes(normalizedQuery))
+      );
     });
-  }, [items, query, statusFilter, typeFilter]);
+  }, [items, modelFilter, query, statusFilter, typeFilter]);
+
+  const modelOptions = useMemo(
+    () =>
+      Array.from(
+        new Set(items.map((item) => (item.model || "").trim()).filter(Boolean)),
+      ).sort((a, b) => a.localeCompare(b)),
+    [items],
+  );
 
   const stockSummary = {
     ready: items.filter((item) => item.status === "in_stock").length,
@@ -796,6 +811,18 @@ export default function AdminInventoryPage() {
               value={typeFilter}
               onChange={setTypeFilter}
               options={[{ value: "all", label: "All types" }, ...itemTypes]}
+            />
+            <SelectValue
+              label="Model filter"
+              value={modelFilter}
+              onChange={setModelFilter}
+              options={[
+                { value: "all", label: "All models" },
+                ...modelOptions.map((model) => ({
+                  value: model,
+                  label: model,
+                })),
+              ]}
             />
           </div>
         </div>

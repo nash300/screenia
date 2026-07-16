@@ -33,9 +33,15 @@ function NewDevicePageContent() {
   const preselectedCustomerId = searchParams.get("customerId") || "";
 
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [entryMode, setEntryMode] = useState<"stock" | "customer">(
+    preselectedCustomerId ? "customer" : "stock",
+  );
   const [customerId, setCustomerId] = useState(preselectedCustomerId);
 
   const [name, setName] = useState("");
+  const [itemType, setItemType] = useState(
+    searchParams.get("itemType") || "standard_fhd",
+  );
   const [location, setLocation] = useState("");
   const [make, setMake] = useState("Xiaomi");
   const [model, setModel] = useState("");
@@ -65,41 +71,65 @@ function NewDevicePageContent() {
   };
 
   const createDevice = async () => {
-    if (!customerId) {
+    if (entryMode === "customer" && !customerId) {
       showAdminNotification("warning", "Please select a customer.");
       return;
     }
 
-    if (!name.trim()) {
+    if (entryMode === "customer" && !name.trim()) {
       showAdminNotification("warning", "Device name is required.");
+      return;
+    }
+
+    if (entryMode === "stock" && !serialNumber.trim()) {
+      showAdminNotification("warning", "Serial number is required for stock.");
       return;
     }
 
     const trimmedReason = reason.trim();
     if (!trimmedReason) {
-      showAdminNotification("warning", "Add a reason before creating this display device.");
+      showAdminNotification("warning", "Add a reason before saving this device record.");
       return;
     }
 
     setSaving(true);
 
-    const response = await fetch("/api/admin/devices", {
+    const response = await fetch(
+      entryMode === "stock" ? "/api/admin/inventory" : "/api/admin/devices",
+      {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customer_id: customerId,
-        name,
-        location,
-        make,
-        model,
-        serial_number: serialNumber,
-        purchase_cost: purchaseCost,
-        purchase_date: purchaseDate,
-        warranty_period_months: warrantyPeriod,
-        supplier,
-        internal_notes: internalNotes,
-        reason: trimmedReason,
-      }),
+      body: JSON.stringify(
+        entryMode === "stock"
+          ? {
+              item_type: itemType,
+              status: "in_stock",
+              condition: "new",
+              make,
+              model,
+              serial_number: serialNumber,
+              seller: supplier,
+              purchase_cost: purchaseCost,
+              purchase_date: purchaseDate,
+              warranty_period_months: warrantyPeriod,
+              notes: internalNotes,
+              reason: trimmedReason,
+            }
+          : {
+              customer_id: customerId,
+              name,
+              location,
+              make,
+              model,
+              serial_number: serialNumber,
+              purchase_cost: purchaseCost,
+              purchase_date: purchaseDate,
+              warranty_period_months: warrantyPeriod,
+              supplier,
+              internal_notes: internalNotes,
+              reason: trimmedReason,
+            },
+      ),
     });
     const result = await response.json().catch(() => ({}));
 
@@ -112,7 +142,13 @@ function NewDevicePageContent() {
       return;
     }
 
-    showAdminNotification("success", "Device created successfully.");
+    if (entryMode === "stock") {
+      showAdminNotification("success", "Stock device added successfully.");
+      router.push("/admin/inventory");
+      return;
+    }
+
+    showAdminNotification("success", "Customer device created successfully.");
     router.push(`/admin/devices/${result.device.device_code}`);
   };
 
@@ -126,45 +162,94 @@ function NewDevicePageContent() {
       <div className="admin-page-header">
         <h1 className="admin-title">Add device</h1>
         <p className="admin-subtitle">
-          Register a physical device and assign it to a customer.
+          Add hardware to stock or create a customer device after onboarding.
         </p>
       </div>
 
       {/* Device Form */}
       <div className="admin-card p-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <SelectInput
-            id="device-customer"
-            name="customerId"
-            label="Customer *"
-            value={customerId}
-            onChange={setCustomerId}
+        <div className="mb-5 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setEntryMode("stock")}
+            className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
+              entryMode === "stock"
+                ? "border-blue-500 bg-white text-blue-950 shadow-sm"
+                : "border-transparent text-slate-600"
+            }`}
           >
-            <option value="">Select customer</option>
-            {customers.map((customer) => (
-              <option key={customer.id} value={customer.id}>
-                {customer.name} ({customer.status || "draft"})
-              </option>
-            ))}
-          </SelectInput>
+            Add to stock
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Register hardware without assigning it to a customer.
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setEntryMode("customer")}
+            className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold ${
+              entryMode === "customer"
+                ? "border-blue-500 bg-white text-blue-950 shadow-sm"
+                : "border-transparent text-slate-600"
+            }`}
+          >
+            Add for customer
+            <span className="mt-1 block text-xs font-normal text-slate-500">
+              Create an active display device for a paid customer.
+            </span>
+          </button>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {entryMode === "customer" ? (
+            <SelectInput
+              id="device-customer"
+              name="customerId"
+              label="Customer *"
+              value={customerId}
+              onChange={setCustomerId}
+            >
+              <option value="">Select customer</option>
+              {customers.map((customer) => (
+                <option key={customer.id} value={customer.id}>
+                  {customer.name} ({customer.status || "draft"})
+                </option>
+              ))}
+            </SelectInput>
+          ) : (
+            <SelectInput
+              id="device-item-type"
+              name="itemType"
+              label="Stock type *"
+              value={itemType}
+              onChange={setItemType}
+            >
+              <option value="standard_fhd">Standard FHD</option>
+              <option value="premium_4k">Premium 4K</option>
+              <option value="spare">Spare part</option>
+              <option value="other">Other</option>
+            </SelectInput>
+          )}
 
-          <TextInput
-            id="device-name"
-            name="deviceName"
-            label="Device name *"
-            value={name}
-            onChange={setName}
-            placeholder="Menu screen, price list, special offers..."
-          />
+          {entryMode === "customer" ? (
+            <TextInput
+              id="device-name"
+              name="deviceName"
+              label="Device name *"
+              value={name}
+              onChange={setName}
+              placeholder="Menu screen, price list, special offers..."
+            />
+          ) : null}
 
-          <TextInput
-            id="device-location"
-            name="location"
-            label="Location"
-            value={location}
-            onChange={setLocation}
-            placeholder="Reception, entrance, waiting area..."
-          />
+          {entryMode === "customer" ? (
+            <TextInput
+              id="device-location"
+              name="location"
+              label="Location"
+              value={location}
+              onChange={setLocation}
+              placeholder="Reception, entrance, waiting area..."
+            />
+          ) : null}
 
           <TextInput id="device-make" name="make" label="Make" value={make} onChange={setMake} />
 
@@ -180,7 +265,7 @@ function NewDevicePageContent() {
           <TextInput
             id="device-serial-number"
             name="serialNumber"
-            label="Serial number"
+            label={entryMode === "stock" ? "Serial number *" : "Serial number"}
             value={serialNumber}
             onChange={setSerialNumber}
           />
@@ -217,7 +302,7 @@ function NewDevicePageContent() {
           <TextInput
             id="device-supplier"
             name="supplier"
-            label="Supplier"
+            label={entryMode === "stock" ? "Seller / supplier" : "Supplier"}
             value={supplier}
             onChange={setSupplier}
             placeholder="Elgiganten, Amazon, etc."
@@ -247,7 +332,11 @@ function NewDevicePageContent() {
             name="createReason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Example: Paid customer needs a registered display device for installation."
+            placeholder={
+              entryMode === "stock"
+                ? "Example: New hardware purchased for stock before customer allocation."
+                : "Example: Paid customer needs a registered display device for installation."
+            }
             className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
             rows={3}
           />
@@ -258,7 +347,11 @@ function NewDevicePageContent() {
           disabled={saving || !reason.trim()}
           className="admin-button-primary mt-6 disabled:opacity-50"
         >
-          {saving ? "Creating..." : "Create device"}
+          {saving
+            ? "Saving..."
+            : entryMode === "stock"
+              ? "Add stock device"
+              : "Create customer device"}
         </button>
       </div>
     </div>

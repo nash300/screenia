@@ -58,6 +58,11 @@ type Device = {
   id: string;
   name: string | null;
   device_code: string;
+  is_active: boolean | null;
+  inventory_status: string | null;
+  make: string | null;
+  model: string | null;
+  serial_number: string | null;
 };
 
 type CustomerSubscription = {
@@ -201,6 +206,19 @@ type CustomerOperation = {
   requiresConfirmation?: boolean;
 };
 
+type InventoryStockItem = {
+  id: string;
+  item_code: string;
+  item_type: string;
+  status: string;
+  condition: string;
+  make: string | null;
+  model: string | null;
+  serial_number: string | null;
+  seller: string | null;
+  notes: string | null;
+};
+
 const customerDetailSectionIds: CustomerDetailSection[] = [
   "overview",
   "onboarding",
@@ -209,6 +227,33 @@ const customerDetailSectionIds: CustomerDetailSection[] = [
   "devices",
   "history",
 ];
+
+const billableSubscriptionStatuses = new Set([
+  "active",
+  "paid",
+  "trialing",
+  "content_received",
+  "layout_started",
+]);
+
+const billableStripeStatuses = new Set(["paid", "trialing", "active"]);
+
+const inactiveDeviceInventoryStatuses = new Set([
+  "returned",
+  "defective",
+  "in_repair",
+  "retired",
+  "lost",
+  "cancelled",
+  "refunded",
+]);
+
+const inventoryTypeLabels: Record<string, string> = {
+  standard_fhd: "Standard FHD",
+  premium_4k: "Premium 4K",
+  spare: "Spare part",
+  other: "Other",
+};
 
 type SupabaseSchemaError = {
   code?: string;
@@ -298,6 +343,29 @@ const normalizeSubscription = (
   created_at: row.created_at || new Date().toISOString(),
 });
 
+function subscriptionCountsTowardDeviceEntitlement(
+  subscription: CustomerSubscription,
+) {
+  const status = String(subscription.status || "").toLowerCase();
+  const stripeStatus = String(subscription.stripe_payment_status || "").toLowerCase();
+
+  return (
+    billableSubscriptionStatuses.has(status) ||
+    billableStripeStatuses.has(stripeStatus)
+  );
+}
+
+function deviceCountsTowardEntitlement(device: Device) {
+  if (!device.is_active) return false;
+
+  const inventoryStatus = String(device.inventory_status || "assigned").toLowerCase();
+  return !inactiveDeviceInventoryStatuses.has(inventoryStatus);
+}
+
+function inventoryTypeLabel(value: string) {
+  return inventoryTypeLabels[value] || value.replace(/_/g, " ");
+}
+
 export default function CustomerDetailPage({
   params,
 }: {
@@ -309,6 +377,7 @@ export default function CustomerDetailPage({
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
+  const [stockItems, setStockItems] = useState<InventoryStockItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
@@ -350,6 +419,13 @@ export default function CustomerDetailPage({
     useState<CustomerDetailSection>("overview");
   const [communicationView, setCommunicationView] =
     useState<CommunicationView>("messages");
+  const [stockTypeFilter, setStockTypeFilter] = useState("all");
+  const [stockModelFilter, setStockModelFilter] = useState("all");
+  const [stockAllocationLocation, setStockAllocationLocation] = useState("");
+  const [stockAllocationReason, setStockAllocationReason] = useState("");
+  const [allocatingStockItemId, setAllocatingStockItemId] = useState<string | null>(
+    null,
+  );
   const [quotePlanCode, setQuotePlanCode] = useState("");
   const [quoteNotes, setQuoteNotes] = useState("");
   const [quoteReason, setQuoteReason] = useState("");
@@ -565,6 +641,7 @@ export default function CustomerDetailPage({
       console.error("Customer error:", customerError);
       setCustomer(null);
       setDevices([]);
+      setStockItems([]);
       setSubscriptions([]);
       setMessages([]);
       setAssets([]);
@@ -610,7 +687,7 @@ export default function CustomerDetailPage({
 
     const { data: devicesData, error: devicesError } = await supabase
       .from("devices")
-      .select("id, name, device_code")
+      .select("id, name, device_code, is_active, inventory_status, make, model, serial_number")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -618,7 +695,25 @@ export default function CustomerDetailPage({
       console.error("Devices error:", devicesError);
       setDevices([]);
     } else {
-      setDevices(devicesData || []);
+      setDevices((devicesData || []) as Device[]);
+    }
+
+    const { data: stockData, error: stockError } = await supabase
+      .from("inventory_items")
+      .select(
+        "id, item_code, item_type, status, condition, make, model, serial_number, seller, notes",
+      )
+      .eq("status", "in_stock")
+      .is("device_id", null)
+      .order("created_at", { ascending: false });
+
+    if (stockError) {
+      if (!isSchemaMismatch(stockError)) {
+        console.error("Inventory stock error:", stockError);
+      }
+      setStockItems([]);
+    } else {
+      setStockItems((stockData || []) as InventoryStockItem[]);
     }
 
     const subscriptionSelects = [
@@ -1546,6 +1641,50 @@ export default function CustomerDetailPage({
     router.push(`/admin/customers/${customerId}?${nextParams.toString()}`);
   };
 
+  const allocateStockItemToCustomer = async (item: InventoryStockItem) => {
+    const reason = stockAllocationReason.trim();
+
+    if (!reason) {
+      showAdminNotification("warning", "Add a reason before allocating stock.");
+      return;
+    }
+
+    setSaving(true);
+    setAllocatingStockItemId(item.id);
+
+    const response = await fetch(`/api/admin/inventory/${item.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "allocate_new_device",
+        customer_id: customerId,
+        location: stockAllocationLocation,
+        reason,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not allocate this stock item.",
+      );
+      setSaving(false);
+      setAllocatingStockItemId(null);
+      return;
+    }
+
+    showAdminNotification(
+      "success",
+      `Allocated stock item to device ${result.device?.device_code || "created device"}.`,
+    );
+    setStockAllocationReason("");
+    setStockAllocationLocation("");
+    await loadData();
+    setSaving(false);
+    setAllocatingStockItemId(null);
+  };
+
   if (loading) {
     return (
       <div className="admin-card p-6">
@@ -1587,6 +1726,30 @@ export default function CustomerDetailPage({
     { id: "devices", label: "Devices", count: devices.length },
     { id: "history", label: "History", count: auditEvents.length },
   ];
+  const paidDeviceQuantity = subscriptions
+    .filter(subscriptionCountsTowardDeviceEntitlement)
+    .reduce(
+      (total, subscription) =>
+        total + Math.max(0, Number(subscription.screen_quantity) || 0),
+      0,
+    );
+  const activeDeviceCount = devices.filter(deviceCountsTowardEntitlement).length;
+  const remainingDeviceSlots = Math.max(0, paidDeviceQuantity - activeDeviceCount);
+  const stockModelOptions = Array.from(
+    new Set(
+      stockItems
+        .map((item) => (item.model || "").trim())
+        .filter(Boolean),
+    ),
+  ).sort((a, b) => a.localeCompare(b));
+  const filteredStockItems = stockItems.filter((item) => {
+    const matchesType =
+      stockTypeFilter === "all" || item.item_type === stockTypeFilter;
+    const matchesModel =
+      stockModelFilter === "all" || (item.model || "") === stockModelFilter;
+
+    return matchesType && matchesModel;
+  });
   const quoteLines = quoteItems
     .map((item) => {
       const plan =
@@ -3095,16 +3258,173 @@ export default function CustomerDetailPage({
         <h2 className="admin-card-title text-xl">Device management</h2>
 
         <p className="admin-muted mt-2 text-sm">
-          Add a device through Device Management so inventory, warranty, and
-          assignment records are stored correctly.
+          Add a new customer device after onboarding or allocate an available
+          stock item. Screenia blocks allocations above the paid device quantity.
         </p>
 
-        <Link
-          href={`/admin/devices/new?customerId=${customer.id}`}
-          className="admin-button-primary mt-4"
-        >
-          Add device for this customer
-        </Link>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <InfoTile
+            label="Paid devices"
+            value={paidDeviceQuantity ? String(paidDeviceQuantity) : "None"}
+          />
+          <InfoTile label="Active devices" value={String(activeDeviceCount)} />
+          <InfoTile
+            label="Available slots"
+            value={String(remainingDeviceSlots)}
+          />
+        </div>
+
+        {remainingDeviceSlots < 1 ? (
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+            This customer already has the paid number of active devices. Return
+            or deactivate a faulty device before assigning a replacement, or
+            update the subscription quantity first.
+          </div>
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Link
+            href={`/admin/devices/new?customerId=${customer.id}`}
+            className="admin-button-primary"
+          >
+            Add new customer device
+          </Link>
+          <Link href="/admin/devices/new" className="admin-button-secondary">
+            Add hardware to stock
+          </Link>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 className="text-base font-black text-slate-950">
+                Allocate existing stock
+              </h3>
+              <p className="admin-muted mt-1 text-sm">
+                Filter available stock by package type or device model, then
+                allocate it to this customer.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <label className="text-sm font-semibold text-slate-700">
+              Package type
+              <select
+                value={stockTypeFilter}
+                onChange={(event) => setStockTypeFilter(event.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              >
+                <option value="all">All package types</option>
+                <option value="standard_fhd">Standard FHD</option>
+                <option value="premium_4k">Premium 4K</option>
+                <option value="spare">Spare part</option>
+                <option value="other">Other</option>
+              </select>
+            </label>
+
+            <label className="text-sm font-semibold text-slate-700">
+              Device model
+              <select
+                value={stockModelFilter}
+                onChange={(event) => setStockModelFilter(event.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              >
+                <option value="all">All models</option>
+                {stockModelOptions.map((model) => (
+                  <option key={model} value={model}>
+                    {model}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <label className="text-sm font-semibold text-slate-700">
+              Customer screen location
+              <input
+                value={stockAllocationLocation}
+                onChange={(event) => setStockAllocationLocation(event.target.value)}
+                placeholder="Reception, entrance, menu board..."
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Allocation reason
+              <textarea
+                value={stockAllocationReason}
+                onChange={(event) => setStockAllocationReason(event.target.value)}
+                placeholder="Example: Customer paid for Premium 4K and this unit is prepared for installation."
+                rows={3}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              />
+            </label>
+          </div>
+
+          {filteredStockItems.length === 0 ? (
+            <p className="admin-muted mt-4 text-sm">
+              No available stock matches this filter.
+            </p>
+          ) : (
+            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+              {filteredStockItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="font-black text-slate-950">
+                        {item.item_code}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-500">
+                        {inventoryTypeLabel(item.item_type)} ·{" "}
+                        {item.model || "Model missing"}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase text-emerald-700">
+                      In stock
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                    <div>
+                      <dt className="font-bold text-slate-900">Serial</dt>
+                      <dd>{item.serial_number || "Missing"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-bold text-slate-900">Condition</dt>
+                      <dd>{item.condition}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-bold text-slate-900">Make</dt>
+                      <dd>{item.make || "Not set"}</dd>
+                    </div>
+                    <div>
+                      <dt className="font-bold text-slate-900">Seller</dt>
+                      <dd>{item.seller || "Not set"}</dd>
+                    </div>
+                  </dl>
+                  <button
+                    type="button"
+                    onClick={() => allocateStockItemToCustomer(item)}
+                    disabled={
+                      saving ||
+                      allocatingStockItemId === item.id ||
+                      remainingDeviceSlots < 1 ||
+                      !stockAllocationReason.trim()
+                    }
+                    className="admin-button-primary mt-4 disabled:opacity-50"
+                  >
+                    {allocatingStockItemId === item.id
+                      ? "Allocating..."
+                      : "Allocate to this customer"}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* ==============================
@@ -3277,6 +3597,17 @@ function InfoRow({ label, value }: { label: string; value: string }) {
     <div className="admin-customer-detail-row">
       <span>{label}</span>
       <strong>{value}</strong>
+    </div>
+  );
+}
+
+function InfoTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white/80 p-4">
+      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-black text-slate-950">{value}</p>
     </div>
   );
 }

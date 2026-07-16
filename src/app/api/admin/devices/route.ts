@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { assertCustomerCanReceiveDevice } from "@/lib/server/device-entitlements";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -119,6 +120,25 @@ export async function POST(request: Request) {
 
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 400 });
+  }
+
+  const entitlement = await assertCustomerCanReceiveDevice(
+    supabaseAdmin,
+    result.payload.customer_id,
+  ).catch((error) => ({
+    ok: false as const,
+    entitlement: null,
+    error:
+      error instanceof Error
+        ? error.message
+        : "Could not verify paid device entitlement.",
+  }));
+
+  if (!entitlement.ok) {
+    return NextResponse.json(
+      { error: entitlement.error, entitlement: entitlement.entitlement },
+      { status: 400 },
+    );
   }
 
   const { data, error } = await supabaseAdmin

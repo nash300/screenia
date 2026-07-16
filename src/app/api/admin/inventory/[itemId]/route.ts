@@ -4,6 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { assertCustomerCanReceiveDevice } from "@/lib/server/device-entitlements";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -662,6 +663,25 @@ export async function PATCH(
     if (existing.device_id) {
       return NextResponse.json(
         { error: "This inventory item is already linked to a device." },
+        { status: 400 },
+      );
+    }
+
+    const entitlement = await assertCustomerCanReceiveDevice(
+      supabaseAdmin,
+      customerId,
+    ).catch((error) => ({
+      ok: false as const,
+      entitlement: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not verify paid device entitlement.",
+    }));
+
+    if (!entitlement.ok) {
+      return NextResponse.json(
+        { error: entitlement.error, entitlement: entitlement.entitlement },
         { status: 400 },
       );
     }
