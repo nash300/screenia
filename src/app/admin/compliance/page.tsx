@@ -3,8 +3,8 @@ import { complianceNavItems } from "@/lib/admin/navigation";
 
 const groups = [
   {
-    title: "Business records",
-    description: "Periodic VAT filing evidence, legal changes, and retention.",
+    title: "Accounting and policy records",
+    description: "VAT filing evidence, legal-change notices, and retention reviews.",
     hrefs: [
       "/admin/tax-payments",
       "/admin/legal-change-notices",
@@ -12,8 +12,8 @@ const groups = [
     ],
   },
   {
-    title: "Privacy and security",
-    description: "GDPR requests, incidents, and admin access checks.",
+    title: "Privacy and access control",
+    description: "GDPR requests, incident response, and admin access reviews.",
     hrefs: [
       "/admin/data-subject-requests",
       "/admin/privacy-incidents",
@@ -21,8 +21,8 @@ const groups = [
     ],
   },
   {
-    title: "Infrastructure controls",
-    description: "Vendor reviews and recovery evidence for launch readiness.",
+    title: "Vendor and recovery control",
+    description: "Processor reviews and recovery evidence for launch readiness.",
     hrefs: ["/admin/processor-reviews", "/admin/backup-drills"],
   },
 ];
@@ -68,10 +68,12 @@ export default function AdminCompliancePage() {
                     href={item.href}
                     className="admin-compliance-link"
                   >
-                    <span className="admin-nav-icon">{item.icon}</span>
+                    <span className="admin-nav-icon" aria-hidden="true">
+                      {item.icon}
+                    </span>
                     <span>
                       <strong>{item.label}</strong>
-                      <small>{describeComplianceItem(item.href)}</small>
+                      <small>{item.description}</small>
                     </span>
                   </Link>
                 ))}
@@ -81,27 +83,4 @@ export default function AdminCompliancePage() {
       </div>
     </div>
   );
-}
-
-function describeComplianceItem(href: string) {
-  switch (href) {
-    case "/admin/tax-payments":
-      return "VAT/moms filing periods, payment status, and audit evidence";
-    case "/admin/legal-change-notices":
-      return "Policy notice workflow and customer re-acceptance tracking";
-    case "/admin/data-retention":
-      return "Retention, anonymization, and deletion review workflow";
-    case "/admin/data-subject-requests":
-      return "GDPR access, deletion, export, or correction requests";
-    case "/admin/privacy-incidents":
-      return "Security/privacy incident response workflow";
-    case "/admin/access-reviews":
-      return "Admin access, MFA, and removal review workflow";
-    case "/admin/processor-reviews":
-      return "Vendor approval, DPA, ownership, and security evidence";
-    case "/admin/backup-drills":
-      return "Backup coverage, restore tests, and recovery evidence";
-    default:
-      return "Compliance workflow";
-  }
 }
