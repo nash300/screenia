@@ -437,21 +437,27 @@ export default function AdminDevicePage({
         </div>
       </div>
 
-      <div className="admin-section-tabs" aria-label="Display sections">
+      <section className="admin-display-workflow admin-card" aria-label="Display workflow">
         {sections.map((section) => (
           <button
             key={section.id}
             type="button"
             onClick={() => navigateToSection(section.id)}
-            className={`admin-section-tab ${
+            className={`admin-display-workflow-step ${
               activeSection === section.id ? "is-active" : ""
             }`}
           >
-            {section.label}
-            {typeof section.count === "number" ? ` (${section.count})` : ""}
+            <span>{section.stage}</span>
+            <strong>
+              {section.label}
+              {typeof section.count === "number" ? (
+                <em>{section.count}</em>
+              ) : null}
+            </strong>
+            <small>{section.description}</small>
           </button>
         ))}
-      </div>
+      </section>
 
       {/* Display Summary */}
       {activeSection === "overview" && device && (
@@ -726,7 +732,12 @@ export default function AdminDevicePage({
       {activeSection === "preview" && (
       <div className="rounded-3xl border border-slate-800 bg-black p-3 shadow-xl">
         <div className="mb-3 flex items-center justify-between text-white">
-          <p className="text-sm font-semibold">Live screen preview</p>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+              Live display check
+            </p>
+            <h2 className="text-sm font-semibold">Screen preview</h2>
+          </div>
 
           <a
             href={`/display/${deviceId}`}
