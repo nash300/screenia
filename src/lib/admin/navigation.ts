@@ -19,7 +19,7 @@ export const adminNavItems = [
   },
   {
     href: "/admin/email-events",
-    label: "Email log",
+    label: "Email evidence",
     icon: "EM",
     description: "Transactional email delivery, failures, bounces, and customer communication evidence.",
   },

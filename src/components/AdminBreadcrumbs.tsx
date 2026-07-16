@@ -12,7 +12,7 @@ const labels: Record<string, string> = {
   devices: "Displays",
   pricing: "Pricing",
   subscriptions: "Subscriptions",
-  "email-events": "Email Events",
+  "email-events": "Email Evidence",
   "launch-readiness": "Readiness",
   "tax-payments": "VAT Filing",
   "legal-change-notices": "Legal Notices",

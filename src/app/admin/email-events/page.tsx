@@ -142,16 +142,20 @@ export default function AdminEmailEventsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Email log</h1>
+          <h1 className="admin-title">Email evidence</h1>
           <p className="admin-subtitle">
-            Review transactional email delivery, bounces, complaints, and
-            failures for customer communication follow-up.
+            Review customer email delivery evidence, bounces, complaints, and
+            failures for communication follow-up.
           </p>
         </div>
         <div className="admin-dashboard-header-actions">
           <div className="admin-status-chip admin-status-chip-system">
             <span className="admin-status-dot admin-status-warning" />
-            {loading ? "Syncing" : `${actionRequiredCount} need action`}
+            {loading
+              ? "Syncing"
+              : `${actionRequiredCount} ${
+                  actionRequiredCount === 1 ? "needs" : "need"
+                } action`}
           </div>
           <button onClick={loadEvents} className="admin-button-primary">
             Refresh

@@ -12,7 +12,7 @@ const titles: Record<string, string> = {
   "/admin/devices/new": "Create Customer Display",
   "/admin/orders": "Orders & Billing",
   "/admin/pricing": "Pricing",
-  "/admin/email-events": "Email Log",
+  "/admin/email-events": "Email Evidence",
   "/admin/launch-readiness": "Launch Readiness",
   "/admin/tax-payments": "VAT Filing",
   "/admin/legal-change-notices": "Legal Notices",
