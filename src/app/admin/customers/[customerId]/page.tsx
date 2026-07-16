@@ -2884,7 +2884,7 @@ export default function CustomerDetailPage({
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">History</h2>
         <p className="admin-muted mt-2 text-sm">
-          A searchable change trail for customer data, orders, devices,
+          A searchable change trail for customer data, orders, displays,
           uploaded material, payment events, and admin actions.
         </p>
 
@@ -2928,12 +2928,12 @@ export default function CustomerDetailPage({
       )}
 
       {/* ==============================
-          Device Management
+          Displays & hardware
       ============================== */}
       {activeSection === "devices" && (
       <>
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Device management</h2>
+        <h2 className="admin-card-title text-xl">Displays & hardware</h2>
 
         <p className="admin-muted mt-2 text-sm">
           Create customer display endpoints and assign physical stock after
@@ -2943,10 +2943,10 @@ export default function CustomerDetailPage({
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
           <InfoTile
-            label="Paid devices"
+            label="Paid display slots"
             value={paidDeviceQuantity ? String(paidDeviceQuantity) : "None"}
           />
-          <InfoTile label="Active devices" value={String(activeDeviceCount)} />
+          <InfoTile label="Active displays" value={String(activeDeviceCount)} />
           <InfoTile
             label="Available slots"
             value={String(remainingDeviceSlots)}
@@ -2955,8 +2955,8 @@ export default function CustomerDetailPage({
 
         {remainingDeviceSlots < 1 ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-            This customer already has the paid number of active devices. Return
-            or deactivate a faulty device before assigning a replacement, or
+            This customer already has the paid number of active displays. Return
+            or deactivate a faulty display before assigning a replacement, or
             update the subscription quantity first.
           </div>
         ) : null}
@@ -2980,7 +2980,7 @@ export default function CustomerDetailPage({
                 Allocate existing stock
               </h3>
               <p className="admin-muted mt-1 text-sm">
-                Filter the hardware bank by package type or device model, then
+                Filter the hardware bank by package type or hardware model, then
                 allocate a physical unit to this customer.
               </p>
             </div>
@@ -3107,13 +3107,13 @@ export default function CustomerDetailPage({
       </div>
 
       {/* ==============================
-          Devices
+          Displays
       ============================== */}
       <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Devices</h2>
+        <h2 className="admin-card-title text-xl">Displays</h2>
 
         {devices.length === 0 ? (
-          <p className="admin-muted mt-4">No devices yet.</p>
+          <p className="admin-muted mt-4">No displays yet.</p>
         ) : (
           <div className="mt-4 space-y-3">
             {devices.map((device) => (
@@ -3122,11 +3122,11 @@ export default function CustomerDetailPage({
                 className="rounded-2xl border border-slate-200 bg-white/70 p-4"
               >
                 <p className="font-semibold text-slate-950">
-                  {device.name || "Unnamed device"}
+                  {device.name || "Unnamed display"}
                 </p>
 
                 <p className="mt-1 text-sm text-slate-500">
-                  Device code: {device.device_code}
+                  Display code: {device.device_code}
                 </p>
 
                 <p className="text-sm text-slate-500">

@@ -505,7 +505,7 @@ function CustomersContent() {
                     <th>Status</th>
                     <th>Latest order</th>
                     <th>Billing</th>
-                    <th>Devices</th>
+                    <th>Displays</th>
                     <th>Created</th>
                     <th>Updated</th>
                   </tr>
