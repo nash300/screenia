@@ -5,23 +5,6 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 
-type CustomerOption = {
-  id: string;
-  name: string;
-  email: string | null;
-};
-
-type DeviceOption = {
-  id: string;
-  device_code: string;
-  name: string | null;
-  customer_id: string;
-  serial_number: string | null;
-  customers: {
-    name: string | null;
-  } | null;
-};
-
 type InventoryItem = {
   id: string;
   item_code: string;
@@ -211,8 +194,6 @@ const inventoryOperations: Array<{
 
 export default function AdminInventoryPage() {
   const [items, setItems] = useState<InventoryItem[]>([]);
-  const [customers, setCustomers] = useState<CustomerOption[]>([]);
-  const [devices, setDevices] = useState<DeviceOption[]>([]);
   const [events, setEvents] = useState<InventoryEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -225,34 +206,19 @@ export default function AdminInventoryPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [allocationCustomerId, setAllocationCustomerId] = useState("");
-  const [allocationLocation, setAllocationLocation] = useState("");
-  const [allocationReason, setAllocationReason] = useState("");
-  const [existingDeviceId, setExistingDeviceId] = useState("");
-  const [existingDeviceReason, setExistingDeviceReason] = useState("");
   const [operationDraft, setOperationDraft] =
     useState<InventoryOperationDraft | null>(null);
   const [nowMs] = useState(() => Date.now());
 
   const selectedItem = items.find((item) => item.id === selectedId) || null;
-  const selectedItemCanBeAllocated =
-    Boolean(selectedItem) &&
-    selectedItem?.status === "in_stock" &&
-    !selectedItem?.device_id;
 
   const loadInventory = useCallback(async () => {
     setLoading(true);
 
-    const [
-      { data: itemData, error: itemError },
-      { data: customerData, error: customerError },
-      { data: deviceData, error: deviceError },
-    ] =
-      await Promise.all([
-        supabase
-          .from("inventory_items")
-          .select(
-            `
+    const { data: itemData, error: itemError } = await supabase
+      .from("inventory_items")
+      .select(
+        `
             id,
             item_code,
             item_type,
@@ -282,17 +248,8 @@ export default function AdminInventoryPage() {
             customers(id, name, email),
             devices(device_code, name)
           `,
-          )
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("customers")
-          .select("id, name, email")
-          .order("name", { ascending: true }),
-        supabase
-          .from("devices")
-          .select("id, device_code, name, customer_id, serial_number, customers(name)")
-          .order("created_at", { ascending: false }),
-      ]);
+      )
+      .order("created_at", { ascending: false });
 
     if (itemError) {
       if (itemError.code === "PGRST205") {
@@ -311,20 +268,6 @@ export default function AdminInventoryPage() {
       if (!selectedId && nextItems[0]) {
         setSelectedId(nextItems[0].id);
       }
-    }
-
-    if (customerError) {
-      console.error("Load customers error:", customerError);
-      setCustomers([]);
-    } else {
-      setCustomers((customerData || []) as CustomerOption[]);
-    }
-
-    if (deviceError) {
-      console.error("Load devices error:", deviceError);
-      setDevices([]);
-    } else {
-      setDevices((deviceData || []) as unknown as DeviceOption[]);
     }
 
     setLoading(false);
@@ -361,14 +304,6 @@ export default function AdminInventoryPage() {
   useEffect(() => {
     loadEvents(selectedId);
   }, [loadEvents, selectedId]);
-
-  useEffect(() => {
-    if (selectedItem) {
-      setAllocationCustomerId(selectedItem.customer_id || "");
-      setAllocationLocation("");
-      setExistingDeviceId("");
-    }
-  }, [selectedItem]);
 
   const counts = useMemo(() => {
     return statuses.reduce<Record<string, number>>(
@@ -432,16 +367,6 @@ export default function AdminInventoryPage() {
       return diff > 0 && diff <= 1000 * 60 * 60 * 24 * 60;
     }).length,
   };
-
-  const linkableDevices = useMemo(() => {
-    const linkedDeviceIds = new Set(
-      items
-        .filter((item) => item.device_id && item.id !== selectedItem?.id)
-        .map((item) => item.device_id),
-    );
-
-    return devices.filter((device) => !linkedDeviceIds.has(device.id));
-  }, [devices, items, selectedItem?.id]);
 
   const updateForm = (field: keyof InventoryForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
@@ -637,122 +562,14 @@ export default function AdminInventoryPage() {
     );
   };
 
-  const allocateSelectedItem = async () => {
-    if (!selectedItem) return;
-    if (selectedItem.status !== "in_stock") {
-      showAdminNotification(
-        "warning",
-        "Only in-stock hardware can be allocated. Inspect or repair the item first.",
-      );
-      return;
-    }
-    if (!allocationCustomerId) {
-      showAdminNotification("warning", "Select a customer before allocation.");
-      return;
-    }
-    if (selectedItem.device_id) {
-      showAdminNotification("warning", "This stock item is already linked to a device.");
-      return;
-    }
-
-    const reason = allocationReason.trim();
-    if (!reason) {
-      showAdminNotification("warning", "Add a reason before allocating this stock item.");
-      return;
-    }
-
-    setSaving(true);
-
-    const response = await fetch(`/api/admin/inventory/${selectedItem.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "allocate_new_device",
-        customer_id: allocationCustomerId,
-        location: allocationLocation,
-        reason,
-      }),
-    });
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      showAdminNotification(
-        "error",
-        result.error || "Could not allocate this inventory item.",
-      );
-      setSaving(false);
-      return;
-    }
-
-    showAdminNotification("success", `Allocated to device ${result.device?.device_code || "created device"}.`);
-    setAllocationReason("");
-    await loadInventory();
-    await loadEvents(selectedItem.id);
-    setSaving(false);
-  };
-
-  const linkExistingDevice = async () => {
-    if (!selectedItem) return;
-    if (selectedItem.status !== "in_stock") {
-      showAdminNotification(
-        "warning",
-        "Only in-stock hardware can be linked to a device.",
-      );
-      return;
-    }
-    if (!existingDeviceId) {
-      showAdminNotification("warning", "Select an existing device to link.");
-      return;
-    }
-
-    const device = devices.find((item) => item.id === existingDeviceId);
-    if (!device) {
-      showAdminNotification("warning", "Selected device was not found.");
-      return;
-    }
-
-    const reason = existingDeviceReason.trim();
-    if (!reason) {
-      showAdminNotification("warning", "Add a reason before linking this stock item.");
-      return;
-    }
-
-    setSaving(true);
-
-    const response = await fetch(`/api/admin/inventory/${selectedItem.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "link_existing_device",
-        device_id: device.id,
-        reason,
-      }),
-    });
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      showAdminNotification(
-        "error",
-        result.error || "Could not link existing device.",
-      );
-    } else {
-      showAdminNotification("success", `Linked to existing device ${device.device_code}.`);
-      setExistingDeviceReason("");
-    }
-
-    await loadInventory();
-    await loadEvents(selectedItem.id);
-    setSaving(false);
-  };
-
   return (
     <div className="admin-inventory-page">
       <div className="admin-page-header admin-inventory-header">
         <div>
           <h1 className="admin-title">Inventory</h1>
           <p className="admin-subtitle">
-            Add Android boxes to stock, track warranty and seller details,
-            allocate hardware to customers, and manage returns or defects.
+            Add physical hardware to stock, track serial numbers, warranty,
+            seller details, returns, defects, repair, and retirement.
           </p>
         </div>
         <div className="admin-inventory-header-actions">
@@ -833,7 +650,10 @@ export default function AdminInventoryPage() {
           <div className="admin-inventory-panel-title">
             <div>
               <h2 className="admin-card-title text-xl">Stock items</h2>
-              <p className="admin-muted">Select a box to allocate, update, or inspect history.</p>
+              <p className="admin-muted">
+                Select a box to update physical status or inspect hardware history.
+                Assign stock from the customer profile after onboarding.
+              </p>
             </div>
             <span>{filteredItems.length} shown</span>
           </div>
@@ -915,100 +735,25 @@ export default function AdminInventoryPage() {
               </div>
 
               <div className="admin-inventory-allocation">
-                <h3>Allocate box to customer</h3>
+                <h3>Inventory ownership</h3>
                 <p>
-                  Use this after the customer has paid and you are configuring
-                  the physical box. The system creates the matching Device
-                  Manager record automatically.
+                  Inventory is the hardware bank: purchase details, serial
+                  numbers, warranty, condition, returns, repair, and retirement.
+                  Customer assignment is handled from the customer profile so
+                  Screenia can compare the device count with the paid subscription.
                 </p>
-                {selectedItem.status !== "in_stock" && (
+                {selectedItem.customer_id ? (
+                  <a
+                    href={`/admin/customers/${selectedItem.customer_id}?section=devices`}
+                    className="admin-button-secondary"
+                  >
+                    Open customer devices
+                  </a>
+                ) : (
                   <p className="admin-muted">
-                    Move this item back to In stock after inspection before
-                    assigning it to a customer.
+                    To assign this stock item, open the customer profile after
+                    onboarding and use the Devices tab.
                   </p>
-                )}
-                <SelectValue
-                  label="Customer"
-                  value={allocationCustomerId}
-                  onChange={setAllocationCustomerId}
-                  options={[
-                    { value: "", label: "Select customer" },
-                    ...customers.map((customer) => ({
-                      value: customer.id,
-                      label: customer.email
-                        ? `${customer.name} (${customer.email})`
-                        : customer.name,
-                    })),
-                  ]}
-                />
-                <TextValue
-                  label="Customer screen location"
-                  value={allocationLocation}
-                  onChange={setAllocationLocation}
-                  placeholder="Reception, entrance, menu board..."
-                />
-                <TextAreaValue
-                  label="Allocation reason"
-                  value={allocationReason}
-                  onChange={setAllocationReason}
-                  placeholder="Example: Customer paid and this serial number is being prepared for installation."
-                />
-                <button
-                  type="button"
-                  className="admin-button-primary"
-                  disabled={
-                    saving ||
-                    !selectedItemCanBeAllocated ||
-                    !allocationReason.trim()
-                  }
-                  onClick={allocateSelectedItem}
-                >
-                  {selectedItem.device_id
-                    ? "Already allocated"
-                    : selectedItem.status !== "in_stock"
-                      ? "Not available for allocation"
-                      : "Allocate and create device"}
-                </button>
-
-                {selectedItemCanBeAllocated && (
-                  <div className="admin-inventory-existing-device">
-                    <p>
-                      Already configured the screen in Device Manager? Link this
-                      inventory item to that existing device instead.
-                    </p>
-                    <SelectValue
-                      label="Existing device"
-                      value={existingDeviceId}
-                      onChange={setExistingDeviceId}
-                      options={[
-                        { value: "", label: "Select existing device" },
-                        ...linkableDevices.map((device) => ({
-                          value: device.id,
-                          label: `${device.device_code} - ${
-                            device.name || device.customers?.name || "Unnamed device"
-                          }`,
-                        })),
-                      ]}
-                    />
-                    <TextAreaValue
-                      label="Link reason"
-                      value={existingDeviceReason}
-                      onChange={setExistingDeviceReason}
-                      placeholder="Example: Device was created during setup and this stock item is the matching hardware."
-                    />
-                    <button
-                      type="button"
-                      className="admin-button-secondary"
-                      disabled={
-                        saving ||
-                        !existingDeviceId ||
-                        !existingDeviceReason.trim()
-                      }
-                      onClick={linkExistingDevice}
-                    >
-                      Link existing device
-                    </button>
-                  </div>
                 )}
               </div>
 

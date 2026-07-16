@@ -91,18 +91,18 @@ export default function DevicesPage() {
         <div>
           <h1 className="admin-title">Devices</h1>
           <p className="admin-subtitle">
-            Manage device inventory, assignments, and playlist readiness.
+            Manage customer display endpoints, screen assignment, and playlist readiness.
           </p>
         </div>
 
         <Link href="/admin/devices/new" className="admin-button-primary">
-          Add device
+          Create customer display
         </Link>
       </div>
 
       {/* Device List */}
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Your devices</h2>
+        <h2 className="admin-card-title text-xl">Customer displays</h2>
 
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <input

@@ -3258,8 +3258,9 @@ export default function CustomerDetailPage({
         <h2 className="admin-card-title text-xl">Device management</h2>
 
         <p className="admin-muted mt-2 text-sm">
-          Add a new customer device after onboarding or allocate an available
-          stock item. Screenia blocks allocations above the paid device quantity.
+          Create customer display endpoints and assign physical stock after
+          onboarding. Hardware stock, warranty, returns, and repairs stay in
+          Inventory.
         </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -3287,10 +3288,10 @@ export default function CustomerDetailPage({
             href={`/admin/devices/new?customerId=${customer.id}`}
             className="admin-button-primary"
           >
-            Add new customer device
+            Create new customer display
           </Link>
-          <Link href="/admin/devices/new" className="admin-button-secondary">
-            Add hardware to stock
+          <Link href="/admin/inventory" className="admin-button-secondary">
+            Open hardware inventory
           </Link>
         </div>
 
@@ -3301,8 +3302,8 @@ export default function CustomerDetailPage({
                 Allocate existing stock
               </h3>
               <p className="admin-muted mt-1 text-sm">
-                Filter available stock by package type or device model, then
-                allocate it to this customer.
+                Filter the hardware bank by package type or device model, then
+                allocate a physical unit to this customer.
               </p>
             </div>
           </div>

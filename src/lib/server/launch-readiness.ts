@@ -2751,6 +2751,10 @@ export async function hasInventoryOperationsWorkflow(
     projectFilePath("src/app/admin/inventory/page.tsx"),
     "utf8",
   );
+  const customerDetailPageSource = readFileSync(
+    projectFilePath("src/app/admin/customers/[customerId]/page.tsx"),
+    "utf8",
+  );
   const inventoryMigrationSource = readFileSync(
     projectFilePath("supabase/migrations/202606070000_inventory_management.sql"),
     "utf8",
@@ -2847,9 +2851,17 @@ export async function hasInventoryOperationsWorkflow(
       ? "inventory migration does not preserve item event history"
       : null,
     !inventoryPageSource.includes("/api/admin/inventory") ||
-    !inventoryPageSource.includes("allocate_new_device") ||
-    !inventoryPageSource.includes("link_existing_device")
-      ? "admin inventory page does not route stock operations through server APIs"
+    !inventoryPageSource.includes("Inventory is the hardware bank") ||
+    !inventoryPageSource.includes("Assign stock from the customer profile")
+      ? "admin inventory page does not keep stock operations focused on physical hardware lifecycle"
+      : null,
+    !customerDetailPageSource.includes("allocate_new_device") ||
+    !customerDetailPageSource.includes("Allocate existing stock") ||
+    !customerDetailPageSource.includes("stockTypeFilter") ||
+    !customerDetailPageSource.includes("stockModelFilter") ||
+    !customerDetailPageSource.includes("paidDeviceQuantity") ||
+    !customerDetailPageSource.includes("remainingDeviceSlots")
+      ? "admin customer device tab does not own stock allocation with type/model filtering and paid quantity visibility"
       : null,
   ].filter(Boolean);
 
