@@ -64,7 +64,7 @@ export const orderSections: Array<{
   {
     id: "shipping",
     label: "Shipping",
-    description: "Ready to ship, shipped, and tracking",
+    description: "Allocated, ready to ship, and tracking",
     stage: "3",
   },
   {
@@ -94,8 +94,8 @@ export const orderOperations: Array<{
   },
   {
     id: "hardware_status",
-    label: "Hardware stock",
-    description: "Reserve, assign, ship, or return the physical screen hardware.",
+    label: "Device allocation",
+    description: "Reserve or assign the screen for this customer order.",
     tone: "warning",
   },
   {

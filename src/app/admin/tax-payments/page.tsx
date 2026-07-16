@@ -238,6 +238,12 @@ export default function AdminTaxPaymentsPage() {
             Prepare VAT/moms periods, submission status, payment evidence, and audit
             history.
           </p>
+          <a
+            href="/api/admin/vat-summary?format=csv"
+            className="admin-button-secondary"
+          >
+            Export VAT summary
+          </a>
         </div>
 
         <div className="admin-dashboard-header-actions">

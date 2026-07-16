@@ -360,20 +360,14 @@ function AdminOrdersContent() {
       <div className="admin-page-header">
         <h1 className="admin-title">Orders & billing</h1>
         <p className="admin-subtitle">
-          Follow quotes, Stripe payment state, VAT evidence, refunds,
-          hardware stock state, shipping, and order updates in one place.
+          Follow quotes, Stripe payment state, refunds, customer device allocation,
+          shipping, and order updates in one place.
         </p>
         <a
           href="/api/admin/accounting-export"
           className="admin-button-secondary"
         >
           Export accounting CSV
-        </a>
-        <a
-          href="/api/admin/vat-summary?format=csv"
-          className="admin-button-secondary"
-        >
-          Export VAT summary
         </a>
       </div>
 
@@ -463,7 +457,7 @@ function AdminOrdersContent() {
                     </strong>
                   </div>
                   <div>
-                    <span>Hardware stock</span>
+                    <span>Device allocation</span>
                     <strong>
                       {formatStatusLabel(order.hardware_status || "not_reserved")}
                     </strong>
@@ -597,7 +591,7 @@ function AdminOrdersContent() {
                         {operationDraft.operation === "hardware_status" && (
                           <div className="admin-operation-fields admin-order-single-field">
                             <label>
-                              Hardware stock status
+                              Device allocation status
                               <select
                                 value={operationDraft.hardware_status}
                                 disabled={savingId === order.id}
@@ -708,7 +702,7 @@ function AdminOrdersContent() {
 
                 <div className="admin-order-money">
                   <span>Setup {formatSek(order.setup_fee_sek)}</span>
-                  <span>Hardware {formatSek(order.hardware_fee_sek)}</span>
+                  <span>Device {formatSek(order.hardware_fee_sek)}</span>
                   <span>Shipping {formatSek(order.shipping_fee_sek)}</span>
                   <span>Monthly {formatSek(order.monthly_fee_sek)}</span>
                   <strong>Total {formatStripeSek(order.total_amount_sek)}</strong>
