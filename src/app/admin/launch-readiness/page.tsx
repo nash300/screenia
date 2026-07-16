@@ -44,7 +44,7 @@ const categoryDefinitions = [
   },
   {
     label: "Billing and subscriptions",
-    description: "Stripe, checkout, VAT exports, refunds, and entitlement logic.",
+    description: "Stripe, checkout, moms/VAT exports, refunds, and entitlement logic.",
     match: (check: ReadinessCheck) =>
       /stripe|payment|billing|vat|tax|subscription|refund/u.test(check.key),
   },
@@ -56,7 +56,7 @@ const categoryDefinitions = [
   },
   {
     label: "Customer operations",
-    description: "Requests, onboarding, content, displays, hardware stock, and support.",
+    description: "Requests, onboarding, material, displays, hardware stock, and support.",
     match: (check: ReadinessCheck) =>
       /customer|request|display|device|inventory|fulfillment|preview|consent/u.test(
         check.key,
@@ -180,10 +180,10 @@ export default function LaunchReadinessPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Operational readiness</h1>
+          <h1 className="admin-title">Launch readiness</h1>
           <p className="admin-subtitle">
-            Permanent safety checks for launch, payments, email, legal status,
-            migrations, security, and production operations.
+            Business and technical gates for launch, live payments, customer
+            email, legal status, migrations, security, and production changes.
           </p>
         </div>
 
@@ -227,7 +227,7 @@ export default function LaunchReadinessPage() {
 
       <section className="admin-card p-6">
         <h2 className="admin-card-title text-xl">
-          Live payment and operations decision
+          Live payment decision
         </h2>
         <p className="admin-muted mt-2">
           {data?.readyForLivePayments
