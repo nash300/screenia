@@ -33,5 +33,5 @@ export const complianceNavItems = [
   { href: "/admin/data-retention", label: "Data retention", icon: "R" },
   { href: "/admin/processor-reviews", label: "Processors", icon: "P" },
   { href: "/admin/data-subject-requests", label: "Privacy requests", icon: "R" },
-  { href: "/admin/privacy-incidents", label: "Incident register", icon: "!" },
+  { href: "/admin/privacy-incidents", label: "Incident response", icon: "!" },
 ];

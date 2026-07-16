@@ -21,7 +21,7 @@ const titles: Record<string, string> = {
   "/admin/data-retention": "Data Retention",
   "/admin/processor-reviews": "Processors",
   "/admin/data-subject-requests": "Privacy Requests",
-  "/admin/privacy-incidents": "Incident Register",
+  "/admin/privacy-incidents": "Incident Response",
 };
 
 const sectionTitles: Record<string, string> = {

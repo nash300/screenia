@@ -38,6 +38,13 @@ function formatDateTime(value: string | null) {
   return new Date(value).toLocaleString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function incidentToForm(incident: PrivacyIncident, status = incident.status) {
   return {
     title: incident.title,
@@ -66,6 +73,52 @@ export default function AdminPrivacyIncidentsPage() {
     () => incidents.filter((incident) => incident.status !== "resolved").length,
     [incidents],
   );
+  const notifyDecisionCount = useMemo(
+    () =>
+      incidents.filter(
+        (incident) =>
+          incident.authority_notification_required ||
+          incident.customer_notification_required,
+      ).length,
+    [incidents],
+  );
+  const containedCount = useMemo(
+    () =>
+      incidents.filter((incident) =>
+        ["contained", "resolved"].includes(incident.status),
+      ).length,
+    [incidents],
+  );
+  const resolvedCount = useMemo(
+    () => incidents.filter((incident) => incident.status === "resolved").length,
+    [incidents],
+  );
+  const incidentWorkflow = [
+    {
+      stage: "1",
+      label: "Detect incident",
+      value: incidents.length,
+      description: "Record what happened, severity, and affected data.",
+    },
+    {
+      stage: "2",
+      label: "Decide notification",
+      value: notifyDecisionCount,
+      description: "Decide whether authority or customer notice is required.",
+    },
+    {
+      stage: "3",
+      label: "Contain risk",
+      value: containedCount,
+      description: "Document containment before closing the incident.",
+    },
+    {
+      stage: "4",
+      label: "Resolve with evidence",
+      value: resolvedCount,
+      description: "Close the incident with an audited admin reason.",
+    },
+  ];
 
   const loadIncidents = async () => {
     setLoading(true);
@@ -175,7 +228,19 @@ export default function AdminPrivacyIncidentsPage() {
       </div>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record incident</h2>
+        <h2 className="admin-card-title text-xl">Incident response workflow</h2>
+        <div className="admin-incident-workflow" aria-label="Privacy incident response workflow">
+          {incidentWorkflow.map((item) => (
+            <div key={item.stage} className="admin-incident-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitIncident}>
           <label className="admin-field">
             <span>Title</span>
@@ -265,7 +330,7 @@ export default function AdminPrivacyIncidentsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Incident register</h2>
+        <h2 className="admin-card-title text-xl">Incident response cases</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -286,13 +351,13 @@ export default function AdminPrivacyIncidentsPage() {
                     <br />
                     <small>{incident.description}</small>
                   </td>
-                  <td>{incident.severity}</td>
-                  <td>{incident.status}</td>
+                  <td>{formatChoice(incident.severity)}</td>
+                  <td>{formatChoice(incident.status)}</td>
                   <td>{formatDateTime(incident.detected_at)}</td>
                   <td>
-                    Authority: {incident.authority_notification_required ? "yes" : "no"}
+                    Authority: {incident.authority_notification_required ? "Yes" : "No"}
                     <br />
-                    Customer: {incident.customer_notification_required ? "yes" : "no"}
+                    Customer: {incident.customer_notification_required ? "Yes" : "No"}
                   </td>
                   <td>
                     <div className="flex flex-wrap gap-2">

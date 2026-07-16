@@ -21,7 +21,7 @@ const labels: Record<string, string> = {
   "data-retention": "Data Retention",
   "processor-reviews": "Processors",
   "data-subject-requests": "Privacy Requests",
-  "privacy-incidents": "Incident Register",
+  "privacy-incidents": "Incident Response",
   new: "New",
 };
 
