@@ -253,7 +253,11 @@ export default function LaunchReadinessPage() {
 
       {categoryGroups.length > 0 && (
         <section className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Grouped readiness map</h2>
+          <h2 className="admin-card-title text-xl">Readiness work areas</h2>
+          <p className="admin-muted mt-2">
+            Use these groups to decide what needs work before live payments,
+            customer onboarding, or production changes.
+          </p>
           <div className="mt-4 grid gap-4">
             {categoryGroups.map((group) => {
               const groupSummary = {
@@ -287,14 +291,27 @@ export default function LaunchReadinessPage() {
       )}
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Checks</h2>
-        <div className="mt-4 grid gap-3">
-          {(data?.checks || []).map((check) => (
-            <ReadinessCheckCard key={check.key} check={check} />
-          ))}
+        <details className="admin-readiness-support-details">
+          <summary>
+            <span>
+              <strong>Complete technical checklist</strong>
+              <small>
+                Full source-level readiness evidence for debugging, launch
+                review, or developer support.
+              </small>
+            </span>
+            <span className="admin-readiness-group-counts">
+              {(data?.checks || []).length} checks
+            </span>
+          </summary>
+          <div className="admin-readiness-group-body">
+            {(data?.checks || []).map((check) => (
+              <ReadinessCheckCard key={check.key} check={check} />
+            ))}
 
-          {loading && <p className="admin-muted">Loading readiness checks...</p>}
-        </div>
+            {loading && <p className="admin-muted">Loading readiness checks...</p>}
+          </div>
+        </details>
       </section>
 
       {(blockedChecks.length > 0 || warningChecks.length > 0) && (
