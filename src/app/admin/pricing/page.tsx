@@ -495,7 +495,7 @@ export default function PricingPage() {
                     {shortStripeId(plan.stripe_setup_price_id)}
                   </p>
                   <p>
-                    <strong>Hardware:</strong>{" "}
+                    <strong>Device:</strong>{" "}
                     {shortStripeId(plan.stripe_hardware_price_id)}
                   </p>
                   <p>

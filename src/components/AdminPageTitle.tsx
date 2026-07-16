@@ -31,7 +31,7 @@ const sectionTitles: Record<string, string> = {
   messages: "Messages",
   uploads: "Uploads",
   orders: "Orders & Billing",
-  devices: "Displays & Hardware",
+  devices: "Device Allocation",
   history: "Audit Trail",
   details: "Details",
   preview: "Preview",

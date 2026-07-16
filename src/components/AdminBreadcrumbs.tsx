@@ -32,7 +32,7 @@ const sectionLabels: Record<string, string> = {
   messages: "Messages",
   uploads: "Uploads",
   orders: "Orders",
-  devices: "Displays & hardware",
+  devices: "Device allocation",
   history: "History",
   details: "Details",
   preview: "Preview",

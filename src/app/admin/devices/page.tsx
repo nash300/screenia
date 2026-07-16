@@ -70,7 +70,7 @@ export default function DevicesPage() {
         <div>
           <h1 className="admin-title">Displays</h1>
           <p className="admin-subtitle">
-            Manage customer display endpoints, screen assignment, and playlist readiness.
+            Manage customer display endpoints, installation locations, and playlist readiness.
           </p>
         </div>
 
@@ -82,6 +82,18 @@ export default function DevicesPage() {
       {/* Display List */}
       <div className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Customer displays</h2>
+        <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+          <p className="font-semibold text-slate-950">Displays are live customer endpoints.</p>
+          <p className="admin-muted mt-1">
+            Use this page for display URLs, activation, location, preview, and
+            playlist content. Use{" "}
+            <Link href="/admin/inventory" className="font-semibold text-[rgb(8,184,238)] no-underline">
+              Hardware stock
+            </Link>{" "}
+            for serial numbers, purchase records, warranty, repairs, returns,
+            and retired boxes.
+          </p>
+        </div>
 
         <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <input

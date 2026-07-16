@@ -1416,10 +1416,10 @@ export default function CustomerDetailPage({
     },
     {
       id: "devices",
-      label: "Displays & hardware",
+      label: "Device allocation",
       count: devices.length,
       stage: "4",
-      description: "Display endpoints and stock assignment",
+      description: "Customer screens and stock assignment",
     },
     {
       id: "communication",
@@ -1746,7 +1746,8 @@ export default function CustomerDetailPage({
           <div>
             <h1 className="admin-title">{customer.name}</h1>
             <p className="admin-subtitle">
-              Manage this customer&apos;s onboarding, billing, displays, and audit trail.
+              Manage this customer&apos;s onboarding, billing, device allocation,
+              communication, and audit trail.
             </p>
           </div>
 
@@ -2081,7 +2082,7 @@ export default function CustomerDetailPage({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
-                  Hardware discount %
+                  Device discount %
                   <input
                     type="number"
                     min="0"
@@ -2120,7 +2121,7 @@ export default function CustomerDetailPage({
               </div>
 
               <p className="rounded-2xl bg-blue-50 p-3 text-xs font-semibold text-blue-800">
-                Discounts are applied to hardware charges only. The setup
+                Discounts are applied to device charges only. The setup
                 fee is never discounted.
               </p>
 
@@ -2180,7 +2181,7 @@ export default function CustomerDetailPage({
                         <strong>x {line.quantity}</strong>
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
-                        <span>Hardware</span>
+                        <span>Device</span>
                         <strong>{formatSek(line.deviceSubtotal)}</strong>
                   </div>
                   <div className="mt-1 flex justify-between gap-3 text-xs">
@@ -2194,7 +2195,7 @@ export default function CustomerDetailPage({
                     <strong>{formatSek(primaryQuotePlan.setup_fee_sek)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Hardware discount</span>
+                    <span>Device discount</span>
                     <strong>-{formatSek(quoteDeviceDiscountAmount)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -2860,7 +2861,7 @@ export default function CustomerDetailPage({
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
                       Status: {subscription.status} | Fulfillment:{" "}
-                      {subscription.fulfillment_status || "pending"} | Hardware stock:{" "}
+                      {subscription.fulfillment_status || "pending"} | Stock allocation:{" "}
                       {subscription.inventory_status || "not reserved"}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
@@ -2901,10 +2902,10 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Hardware: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
+                      Device: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
                     </p>
                     <p>
-                      Hardware discount:{" "}
+                      Device discount:{" "}
                       {subscription.device_discount_percent || 0}%{" "}
                       ({formatSek(subscription.device_discount_amount_sek || 0)})
                     </p>
@@ -2990,17 +2991,17 @@ export default function CustomerDetailPage({
       )}
 
       {/* ==============================
-          Displays & hardware
+          Device allocation
       ============================== */}
       {activeSection === "devices" && (
       <>
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Displays & hardware</h2>
+        <h2 className="admin-card-title text-xl">Device allocation</h2>
 
         <p className="admin-muted mt-2 text-sm">
-          Create customer display endpoints and assign physical stock after
-          onboarding. Stock purchase records, warranty, returns, and repairs stay
-          in Hardware stock.
+          Assign available stock to this customer&apos;s paid device entitlement and
+          create display endpoints after onboarding. Stock purchase records,
+          warranty, returns, and repairs stay in Hardware stock.
         </p>
 
         <div className="mt-4 grid gap-3 md:grid-cols-3">
@@ -3028,10 +3029,10 @@ export default function CustomerDetailPage({
             href={`/admin/devices/new?customerId=${customer.id}`}
             className="admin-button-primary"
           >
-            Create new customer display
+            Create customer display endpoint
           </Link>
           <Link href="/admin/inventory" className="admin-button-secondary">
-            Open hardware inventory
+            Open Hardware stock
           </Link>
         </div>
 
@@ -3042,7 +3043,7 @@ export default function CustomerDetailPage({
                 Allocate existing stock
               </h3>
               <p className="admin-muted mt-1 text-sm">
-                Filter the hardware bank by package type or hardware model, then
+                Filter available stock by package type or hardware model, then
                 allocate a physical unit to this customer.
               </p>
             </div>

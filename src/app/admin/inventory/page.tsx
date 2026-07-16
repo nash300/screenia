@@ -213,7 +213,7 @@ export default function AdminInventoryPage() {
     },
     {
       stage: "3",
-      label: "Assign from customer",
+      label: "Allocate from customer",
       value: stockSummary.allocated,
       description: "Reserve hardware from the customer profile after onboarding.",
     },
@@ -606,22 +606,22 @@ export default function AdminInventoryPage() {
               <div className="admin-inventory-allocation">
                 <h3>Hardware stock ownership</h3>
                 <p>
-                  Hardware stock is the hardware bank: purchase details, serial
+                  Hardware stock is the physical stock ledger: purchase details, serial
                   numbers, warranty, condition, returns, repair, and retirement.
                   Customer assignment is handled from the customer profile so
-                  Screenia can compare the display count with the paid subscription.
+                  Screenia can compare allocated devices with the paid subscription.
                 </p>
                 {selectedItem.customer_id ? (
                   <a
                     href={`/admin/customers/${selectedItem.customer_id}?section=devices`}
                     className="admin-button-secondary"
                   >
-                    Open customer displays
+                    Open customer device allocation
                   </a>
                 ) : (
                   <p className="admin-muted">
                     To assign this stock item, open the customer profile after
-                    onboarding and use the Displays & hardware tab.
+                    onboarding and use the Device allocation tab.
                   </p>
                 )}
               </div>
