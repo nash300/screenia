@@ -348,6 +348,12 @@ function AdminOrdersContent() {
     active: orders.filter((order) => order.status === "active").length,
     payment_failed: orders.filter((order) => order.status === "payment_failed").length,
   };
+  const sectionCounts = Object.fromEntries(
+    orderSections.map((section) => [
+      section.id,
+      orders.filter((order) => matchesOrderSection(order, section.id)).length,
+    ]),
+  ) as Record<OrderSection, number>;
 
   return (
     <div>
@@ -373,17 +379,21 @@ function AdminOrdersContent() {
 
       <section className="admin-card p-6">
         <div className="admin-order-toolbar">
-          <div className="admin-section-tabs" aria-label="Order sections">
+          <div className="admin-order-workflow" aria-label="Order workflow">
             {orderSections.map((section) => (
               <button
                 key={section.id}
                 type="button"
                 onClick={() => navigateSection(section.id)}
-                className={`admin-section-tab ${
+                className={`admin-order-workflow-step ${
                   activeSection === section.id ? "is-active" : ""
                 }`}
               >
-                <span>{section.label}</span>
+                <span>{section.stage}</span>
+                <strong>
+                  {section.label}
+                  <em>{sectionCounts[section.id]}</em>
+                </strong>
                 <small>{section.description}</small>
               </button>
             ))}
@@ -401,7 +411,7 @@ function AdminOrdersContent() {
                 onClick={() => setStatusFilter(key)}
                 className={statusFilter === key ? "is-active" : ""}
               >
-                {key.replace(/_/g, " ")} ({count})
+                {formatStatusLabel(key)} ({count})
               </button>
             ))}
           </div>

@@ -41,24 +41,38 @@ export const orderSections: Array<{
   id: OrderSection;
   label: string;
   description: string;
+  stage: string;
 }> = [
-  { id: "all", label: "All orders", description: "Everything in one list" },
+  {
+    id: "all",
+    label: "All orders",
+    description: "Full commercial record",
+    stage: "All",
+  },
   {
     id: "pipeline",
     label: "Pipeline",
     description: "Quote, content, and production",
+    stage: "1",
   },
   {
     id: "payment",
     label: "Payment",
     description: "Checkout and failed payments",
+    stage: "2",
   },
   {
     id: "shipping",
     label: "Shipping",
     description: "Ready to ship, shipped, and tracking",
+    stage: "3",
   },
-  { id: "cancelled", label: "Cancelled", description: "Cancelled orders" },
+  {
+    id: "cancelled",
+    label: "Cancelled",
+    description: "Cancelled and closed orders",
+    stage: "4",
+  },
 ];
 
 export const orderOperations: Array<{
@@ -151,7 +165,9 @@ export function formatStripeSek(amount: number | null) {
 }
 
 export function formatStatusLabel(value: string) {
-  return value.replace(/_/g, " ");
+  return value
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 export const isSchemaMismatch = (
