@@ -38,6 +38,13 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function reviewToForm(review: ProcessorReview, status = review.review_status) {
   return {
     provider: review.provider,
@@ -74,6 +81,59 @@ export default function AdminProcessorReviewsPage() {
       ).length,
     [reviews],
   );
+  const purposeCount = useMemo(
+    () =>
+      reviews.filter((review) => review.processing_purpose.trim().length > 0)
+        .length,
+    [reviews],
+  );
+  const controlsCount = useMemo(
+    () =>
+      reviews.filter(
+        (review) =>
+          review.dpa_verified &&
+          review.security_reviewed &&
+          review.account_owner_verified,
+      ).length,
+    [reviews],
+  );
+  const approvedCount = useMemo(
+    () =>
+      reviews.filter(
+        (review) =>
+          review.review_status === "approved" &&
+          review.dpa_verified &&
+          review.security_reviewed &&
+          review.account_owner_verified,
+      ).length,
+    [reviews],
+  );
+  const processorWorkflow = [
+    {
+      stage: "1",
+      label: "Identify vendor",
+      value: reviews.length,
+      description: "List every service that handles customer or business data.",
+    },
+    {
+      stage: "2",
+      label: "Define purpose",
+      value: purposeCount,
+      description: "Record why the vendor is used and where data is processed.",
+    },
+    {
+      stage: "3",
+      label: "Verify controls",
+      value: controlsCount,
+      description: "Check DPA, security, and account ownership evidence.",
+    },
+    {
+      stage: "4",
+      label: "Approve review",
+      value: approvedCount,
+      description: "Approve only vendors with all required evidence in place.",
+    },
+  ];
 
   const loadReviews = async () => {
     setLoading(true);
@@ -116,12 +176,12 @@ export default function AdminProcessorReviewsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not save processor review.",
+        result.error || "Could not save vendor review.",
       );
     } else {
       setForm(defaultForm);
       await loadReviews();
-      showAdminNotification("success", "Processor review saved.");
+      showAdminNotification("success", "Vendor review saved.");
     }
 
     setSaving(false);
@@ -155,7 +215,7 @@ export default function AdminProcessorReviewsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not update processor review.",
+        result.error || "Could not update vendor review.",
       );
     } else {
       setActionDrafts((current) => {
@@ -164,7 +224,7 @@ export default function AdminProcessorReviewsPage() {
         return next;
       });
       await loadReviews();
-      showAdminNotification("success", "Processor review updated.");
+      showAdminNotification("success", "Vendor review updated.");
     }
 
     setUpdatingId(null);
@@ -174,10 +234,10 @@ export default function AdminProcessorReviewsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Processor reviews</h1>
+          <h1 className="admin-title">Vendor reviews</h1>
           <p className="admin-subtitle">
             Track DPA, account ownership, region, and security evidence for
-            providers that process Screenia customer data.
+            vendors that process Screenia customer data.
           </p>
         </div>
         <div className="admin-dashboard-header-actions">
@@ -192,7 +252,19 @@ export default function AdminProcessorReviewsPage() {
       </div>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record processor evidence</h2>
+        <h2 className="admin-card-title text-xl">Vendor approval workflow</h2>
+        <div className="admin-processor-workflow" aria-label="Processor vendor approval workflow">
+          {processorWorkflow.map((item) => (
+            <div key={item.stage} className="admin-processor-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Provider</span>
@@ -313,14 +385,14 @@ export default function AdminProcessorReviewsPage() {
               className="admin-button-primary"
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save processor review"}
+              {saving ? "Saving..." : "Save vendor review"}
             </button>
           </div>
         </form>
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Processor review register</h2>
+        <h2 className="admin-card-title text-xl">Vendor review cases</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -345,12 +417,12 @@ export default function AdminProcessorReviewsPage() {
                     {review.processing_purpose}
                     <br />
                     <small>
-                      DPA: {review.dpa_verified ? "yes" : "no"} | Security:{" "}
-                      {review.security_reviewed ? "yes" : "no"} | Owner:{" "}
-                      {review.account_owner_verified ? "yes" : "no"}
+                      DPA: {review.dpa_verified ? "Yes" : "No"} | Security:{" "}
+                      {review.security_reviewed ? "Yes" : "No"} | Owner:{" "}
+                      {review.account_owner_verified ? "Yes" : "No"}
                     </small>
                   </td>
-                  <td>{review.review_status}</td>
+                  <td>{formatChoice(review.review_status)}</td>
                   <td>{review.evidence_reference || "-"}</td>
                   <td>{formatDate(review.next_review_due)}</td>
                   <td>
@@ -469,7 +541,7 @@ export default function AdminProcessorReviewsPage() {
               ))}
               {!loading && reviews.length === 0 && (
                 <tr>
-                  <td colSpan={6}>No processor reviews recorded.</td>
+                  <td colSpan={6}>No vendor review cases yet.</td>
                 </tr>
               )}
             </tbody>

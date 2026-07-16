@@ -31,7 +31,7 @@ export const complianceNavItems = [
   { href: "/admin/access-reviews", label: "Admin access", icon: "A" },
   { href: "/admin/backup-drills", label: "Backup drills", icon: "B" },
   { href: "/admin/data-retention", label: "Data retention", icon: "R" },
-  { href: "/admin/processor-reviews", label: "Processors", icon: "P" },
+  { href: "/admin/processor-reviews", label: "Vendor reviews", icon: "V" },
   { href: "/admin/data-subject-requests", label: "Privacy requests", icon: "R" },
   { href: "/admin/privacy-incidents", label: "Incident response", icon: "!" },
 ];

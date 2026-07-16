@@ -22,7 +22,7 @@ const groups = [
   },
   {
     title: "Infrastructure controls",
-    description: "Processors and backup/restore evidence for launch readiness.",
+    description: "Vendor reviews and backup/restore evidence for launch readiness.",
     hrefs: ["/admin/processor-reviews", "/admin/backup-drills"],
   },
 ];
@@ -99,7 +99,7 @@ function describeComplianceItem(href: string) {
     case "/admin/access-reviews":
       return "Admin access and MFA review evidence";
     case "/admin/processor-reviews":
-      return "Supplier processor and DPA review evidence";
+      return "Vendor approval, DPA, ownership, and security evidence";
     case "/admin/backup-drills":
       return "Backup verification and restore drill records";
     default:

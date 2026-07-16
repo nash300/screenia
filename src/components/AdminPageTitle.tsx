@@ -19,7 +19,7 @@ const titles: Record<string, string> = {
   "/admin/access-reviews": "Admin Access",
   "/admin/backup-drills": "Backup Drills",
   "/admin/data-retention": "Data Retention",
-  "/admin/processor-reviews": "Processors",
+  "/admin/processor-reviews": "Vendor Reviews",
   "/admin/data-subject-requests": "Privacy Requests",
   "/admin/privacy-incidents": "Incident Response",
 };

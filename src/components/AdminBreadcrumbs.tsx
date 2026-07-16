@@ -19,7 +19,7 @@ const labels: Record<string, string> = {
   "access-reviews": "Admin Access",
   "backup-drills": "Backup Drills",
   "data-retention": "Data Retention",
-  "processor-reviews": "Processors",
+  "processor-reviews": "Vendor Reviews",
   "data-subject-requests": "Privacy Requests",
   "privacy-incidents": "Incident Response",
   new: "New",
