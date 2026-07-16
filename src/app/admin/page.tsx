@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
+import { adminNavItems } from "@/lib/admin/navigation";
 
 type AdminCustomer = {
   id: string;
@@ -317,46 +318,16 @@ export default function AdminHomePage() {
           </div>
         </div>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          <WorkspaceLink
-            href="/admin/customers"
-            title="Customer work"
-            description="Requests, onboarding links, customer details, account setup, messages, and uploads."
-          />
-          <WorkspaceLink
-            href="/admin/orders"
-            title="Orders & billing"
-            description="Quotes, Stripe status, refunds, cancellation, and accounting exports."
-          />
-          <WorkspaceLink
-            href="/admin/devices"
-            title="Displays"
-            description="Customer display endpoints, playlists, screen URLs, and content readiness."
-          />
-          <WorkspaceLink
-            href="/admin/inventory"
-            title="Hardware stock"
-            description="Physical boxes, serial numbers, purchase data, warranty, returns, repair, and retirement."
-          />
-          <WorkspaceLink
-            href="/admin/email-events"
-            title="Email log"
-            description="Transactional email delivery, failures, bounces, and customer communication evidence."
-          />
-          <WorkspaceLink
-            href="/admin/launch-readiness"
-            title="Launch readiness"
-            description="Operational gates before live payments and public launch."
-          />
-          <WorkspaceLink
-            href="/admin/pricing"
-            title="Pricing"
-            description="Packages, included VAT, setup fees, device prices, shipping, and Stripe sync."
-          />
-          <WorkspaceLink
-            href="/admin/compliance"
-            title="Compliance"
-            description="VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence."
-          />
+          {adminNavItems
+            .filter((item) => item.href !== "/admin")
+            .map((item) => (
+              <WorkspaceLink
+                key={item.href}
+                href={item.href}
+                title={item.label}
+                description={item.description}
+              />
+            ))}
         </div>
       </section>
 
