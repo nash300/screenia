@@ -154,7 +154,7 @@ function NewSubscriptionPageContent() {
               {plan.name} ({plan.resolution})
             </h2>
             <p>Setup fee: {plan.setup_fee_sek.toLocaleString("sv-SE")} SEK</p>
-            <p>Device: {plan.hardware_fee_sek.toLocaleString("sv-SE")} SEK</p>
+            <p>Hardware: {plan.hardware_fee_sek.toLocaleString("sv-SE")} SEK</p>
             <p>Shipping: {plan.shipping_fee_sek.toLocaleString("sv-SE")} SEK</p>
             <p>Monthly: {plan.monthly_fee_sek.toLocaleString("sv-SE")} SEK</p>
             <p>Free trial: {plan.trial_days} days</p>

@@ -37,7 +37,7 @@ type AdminNotification = {
 
 export default function AdminHomePage() {
   const [customerCount, setCustomerCount] = useState(0);
-  const [deviceCount, setDeviceCount] = useState(0);
+  const [displayCount, setDisplayCount] = useState(0);
   const [newMaterialCount, setNewMaterialCount] = useState(0);
   const [notifications, setNotifications] = useState<AdminNotification[]>([]);
   const [customers, setCustomers] = useState<AdminCustomer[]>([]);
@@ -46,11 +46,11 @@ export default function AdminHomePage() {
   const [showMarkAllReadFlow, setShowMarkAllReadFlow] = useState(false);
   const [markAllReadReason, setMarkAllReadReason] = useState("");
 
-  const needsDeviceCount = customers.filter((customer) => {
-    const deviceCount = customer.devices?.length || 0;
+  const needsDisplayCount = customers.filter((customer) => {
+    const displayCount = customer.devices?.length || 0;
     return (
       ["content_received", "active"].includes(customer.status || "") &&
-      deviceCount === 0
+      displayCount === 0
     );
   }).length;
 
@@ -89,15 +89,15 @@ export default function AdminHomePage() {
     (notification) => !notification.read_at,
   ).length;
   const readyCustomerCount = customers.filter((customer) => {
-    const deviceCount = customer.devices?.length || 0;
-    const hasDeviceWithoutPlaylist = customer.devices?.some(
+    const displayCount = customer.devices?.length || 0;
+    const hasDisplayWithoutPlaylist = customer.devices?.some(
       (device) => (device.playlists?.[0]?.count || 0) === 0,
     );
 
     return (
       customer.status === "active" &&
-      deviceCount > 0 &&
-      !hasDeviceWithoutPlaylist
+      displayCount > 0 &&
+      !hasDisplayWithoutPlaylist
     );
   }).length;
 
@@ -110,7 +110,7 @@ export default function AdminHomePage() {
     newRequestCount +
     paidCustomerCount +
     contentPendingCount +
-    needsDeviceCount +
+    needsDisplayCount +
     needsPlaylistCount;
   const setupCompletion =
     managedCustomerCount === 0
@@ -157,7 +157,7 @@ export default function AdminHomePage() {
       setCustomers(nextCustomers);
       setCustomerCount(nextCustomers.length);
     }
-    setDeviceCount(devices || 0);
+    setDisplayCount(devices || 0);
     setNewMaterialCount(newMaterials || 0);
     if (notificationError) {
       console.warn("Load admin notifications error:", notificationError.message);
@@ -220,7 +220,7 @@ export default function AdminHomePage() {
         <div>
           <h1 className="admin-title">Dashboard</h1>
           <p className="admin-subtitle">
-            Operational overview of customers, devices, and setup status.
+            Operational overview of customers, displays, and setup status.
           </p>
         </div>
 
@@ -265,14 +265,14 @@ export default function AdminHomePage() {
           href="/admin/customers?filter=needs_device"
           title="Prepare hardware"
           description="Content received without an assigned screen."
-          count={needsDeviceCount}
+          count={needsDisplayCount}
           tone="warning"
           loading={loading}
         />
         <ActionCard
           href="/admin/customers?filter=needs_playlist"
           title="Upload playlists"
-          description="Assigned devices with no playable content."
+          description="Assigned displays with no playable content."
           count={needsPlaylistCount}
           tone="danger"
           loading={loading}
@@ -289,8 +289,8 @@ export default function AdminHomePage() {
         />
 
         <StatCard
-          label="Total devices"
-          value={deviceCount}
+          label="Total displays"
+          value={displayCount}
           loading={loading}
           tone="neutral"
           meta="Registered screens"
@@ -387,8 +387,8 @@ export default function AdminHomePage() {
           <div className="admin-status-list admin-status-list-compact">
             <StatusRow label="Ready" value={readyCustomerCount} tone="success" />
             <StatusRow
-              label="Missing devices"
-              value={needsDeviceCount}
+              label="Missing displays"
+              value={needsDisplayCount}
               tone="warning"
             />
             <StatusRow

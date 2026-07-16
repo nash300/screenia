@@ -37,13 +37,6 @@ function NewDevicePageContent() {
 
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
-  const [make, setMake] = useState("Xiaomi");
-  const [model, setModel] = useState("");
-  const [serialNumber, setSerialNumber] = useState("");
-  const [purchaseCost, setPurchaseCost] = useState("");
-  const [purchaseDate, setPurchaseDate] = useState("");
-  const [warrantyPeriod, setWarrantyPeriod] = useState("");
-  const [supplier, setSupplier] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
   const [reason, setReason] = useState("");
 
@@ -90,13 +83,6 @@ function NewDevicePageContent() {
         customer_id: customerId,
         name,
         location,
-        make,
-        model,
-        serial_number: serialNumber,
-        purchase_cost: purchaseCost,
-        purchase_date: purchaseDate,
-        warranty_period_months: warrantyPeriod,
-        supplier,
         internal_notes: internalNotes,
         reason: trimmedReason,
       }),
@@ -135,11 +121,12 @@ function NewDevicePageContent() {
       <div className="admin-card p-6">
         <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-semibold text-slate-800">
-            Need to add hardware to stock first?
+            Display manager vs Hardware stock
           </p>
           <p className="admin-muted mt-1 text-sm">
-            Go to Hardware stock to register serial number, purchase, warranty, and
-            condition. Then assign the stock item from the customer profile.
+            This page creates the customer-facing screen endpoint and display URL.
+            Register serial numbers, purchase data, warranty, condition, and returns
+            in Hardware stock, then assign stock from the customer profile.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -174,63 +161,6 @@ function NewDevicePageContent() {
             value={location}
             onChange={setLocation}
             placeholder="Reception, entrance, waiting area..."
-          />
-
-          <TextInput id="device-make" name="make" label="Make" value={make} onChange={setMake} />
-
-          <TextInput
-            id="device-model"
-            name="model"
-            label="Model"
-            value={model}
-            onChange={setModel}
-            placeholder="TV Box S 2nd Gen"
-          />
-
-          <TextInput
-            id="device-serial-number"
-            name="serialNumber"
-            label="Serial number"
-            value={serialNumber}
-            onChange={setSerialNumber}
-          />
-
-          <TextInput
-            id="device-purchase-cost"
-            name="purchaseCost"
-            label="Purchase cost"
-            type="number"
-            value={purchaseCost}
-            onChange={setPurchaseCost}
-            placeholder="599"
-          />
-
-          <TextInput
-            id="device-purchase-date"
-            name="purchaseDate"
-            label="Purchase date"
-            type="date"
-            value={purchaseDate}
-            onChange={setPurchaseDate}
-          />
-
-          <TextInput
-            id="device-warranty-period"
-            name="warrantyPeriod"
-            label="Warranty period (months)"
-            type="number"
-            value={warrantyPeriod}
-            onChange={setWarrantyPeriod}
-            placeholder="12"
-          />
-
-          <TextInput
-            id="device-supplier"
-            name="supplier"
-            label="Supplier"
-            value={supplier}
-            onChange={setSupplier}
-            placeholder="Elgiganten, Amazon, etc."
           />
         </div>
 

@@ -43,14 +43,7 @@ export default function AdminDevicePage({
   const [renaming, setRenaming] = useState(false);
   const [device, setDevice] = useState<DisplayDetails | null>(null);
 
-  const [editMake, setEditMake] = useState("");
-  const [editModel, setEditModel] = useState("");
-  const [editSerialNumber, setEditSerialNumber] = useState("");
   const [editLocation, setEditLocation] = useState("");
-  const [editPurchaseCost, setEditPurchaseCost] = useState("");
-  const [editPurchaseDate, setEditPurchaseDate] = useState("");
-  const [editWarrantyPeriod, setEditWarrantyPeriod] = useState("");
-  const [editSupplier, setEditSupplier] = useState("");
   const [editInternalNotes, setEditInternalNotes] = useState("");
   const [activeSection, setActiveSection] = useState<DisplaySection>("overview");
 
@@ -65,13 +58,6 @@ export default function AdminDevicePage({
         customer_id,
         name,
         is_active,
-        make,
-        model,
-        serial_number,
-        purchase_cost,
-        purchase_date,
-        warranty_period_months,
-        supplier,
         location,
         internal_notes
       `,
@@ -88,14 +74,7 @@ export default function AdminDevicePage({
     }
 
     setDevice(device);
-    setEditMake(device.make || "");
-    setEditModel(device.model || "");
-    setEditSerialNumber(device.serial_number || "");
     setEditLocation(device.location || "");
-    setEditPurchaseCost(device.purchase_cost?.toString() || "");
-    setEditPurchaseDate(device.purchase_date || "");
-    setEditWarrantyPeriod(device.warranty_period_months?.toString() || "");
-    setEditSupplier(device.supplier || "");
     setEditInternalNotes(device.internal_notes || "");
     setDeviceUuid(device.id);
     setDeviceName(device.name || deviceId);
@@ -196,16 +175,7 @@ export default function AdminDevicePage({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "update_details",
-        make: editMake.trim() || null,
-        model: editModel.trim() || null,
-        serial_number: editSerialNumber.trim() || null,
         location: editLocation.trim() || null,
-        purchase_cost: editPurchaseCost ? Number(editPurchaseCost) : null,
-        purchase_date: editPurchaseDate || null,
-        warranty_period_months: editWarrantyPeriod
-          ? Number(editWarrantyPeriod)
-          : null,
-        supplier: editSupplier.trim() || null,
         internal_notes: editInternalNotes.trim() || null,
         reason,
       }),
@@ -489,30 +459,14 @@ export default function AdminDevicePage({
           <h2 className="admin-card-title text-xl">Display summary</h2>
 
           <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
-            <InfoRow label="Make" value={device.make || "Not set"} />
-            <InfoRow label="Model" value={device.model || "Not set"} />
-            <InfoRow
-              label="Serial number"
-              value={device.serial_number || "Not set"}
-            />
+            <InfoRow label="Display name" value={deviceName} />
+            <InfoRow label="Display code" value={deviceId} />
             <InfoRow label="Location" value={device.location || "Not set"} />
             <InfoRow
-              label="Purchase cost"
-              value={device.purchase_cost || "Not set"}
+              label="Stock details"
+              value="Managed in Hardware stock"
             />
-            <InfoRow
-              label="Purchase date"
-              value={device.purchase_date || "Not set"}
-            />
-            <InfoRow
-              label="Warranty period"
-              value={
-                device.warranty_period_months
-                  ? `${device.warranty_period_months} months`
-                  : "Not set"
-              }
-            />
-            <InfoRow label="Supplier" value={device.supplier || "Not set"} />
+            <InfoRow label="Content items" value={playlist.length} />
           </div>
 
           <div className="mt-4 rounded-2xl bg-slate-50 p-4">
@@ -726,41 +680,17 @@ export default function AdminDevicePage({
       <div className="admin-card mt-6 p-6">
         <h2 className="admin-card-title text-xl">Display details</h2>
 
+        <p className="admin-muted mt-2">
+          Use this section for the customer-facing display endpoint. Purchase,
+          serial number, supplier, warranty, repair, and return status belong in
+          Hardware stock.
+        </p>
+
         <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <Input label="Make" value={editMake} onChange={setEditMake} />
-          <Input label="Model" value={editModel} onChange={setEditModel} />
-          <Input
-            label="Serial number"
-            value={editSerialNumber}
-            onChange={setEditSerialNumber}
-          />
           <Input
             label="Location"
             value={editLocation}
             onChange={setEditLocation}
-          />
-          <Input
-            label="Purchase cost"
-            type="number"
-            value={editPurchaseCost}
-            onChange={setEditPurchaseCost}
-          />
-          <Input
-            label="Purchase date"
-            type="date"
-            value={editPurchaseDate}
-            onChange={setEditPurchaseDate}
-          />
-          <Input
-            label="Warranty period months"
-            type="number"
-            value={editWarrantyPeriod}
-            onChange={setEditWarrantyPeriod}
-          />
-          <Input
-            label="Supplier"
-            value={editSupplier}
-            onChange={setEditSupplier}
           />
         </div>
 
@@ -778,7 +708,7 @@ export default function AdminDevicePage({
             value={detailsReason}
             onChange={(event) => setDetailsReason(event.target.value)}
             rows={3}
-            placeholder="Example: Serial number corrected after checking the display label."
+            placeholder="Example: Customer asked us to update where this display is installed."
           />
         </label>
 

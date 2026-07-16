@@ -1354,7 +1354,7 @@ export default function CustomerDetailPage({
 
     showAdminNotification(
       "success",
-      `Allocated stock item to device ${result.device?.device_code || "created device"}.`,
+      `Allocated stock item to display ${result.device?.device_code || "created display"}.`,
     );
     setStockAllocationReason("");
     setStockAllocationLocation("");
@@ -1520,7 +1520,7 @@ export default function CustomerDetailPage({
       ? {
           id: "activate_customer",
           title: "Activate customer",
-          description: "Use after payment, content, and device assignment are ready.",
+          description: "Use after payment, content, and display assignment are ready.",
           result: "Customer status becomes active and qualified displays can run.",
           tone: "success",
           requiresConfirmation: true,
@@ -2023,7 +2023,7 @@ export default function CustomerDetailPage({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
-                  Device discount %
+                  Hardware discount %
                   <input
                     type="number"
                     min="0"
@@ -2062,7 +2062,7 @@ export default function CustomerDetailPage({
               </div>
 
               <p className="rounded-2xl bg-blue-50 p-3 text-xs font-semibold text-blue-800">
-                Discounts are applied to screen/device charges only. The setup
+                Discounts are applied to hardware charges only. The setup
                 fee is never discounted.
               </p>
 
@@ -2122,7 +2122,7 @@ export default function CustomerDetailPage({
                         <strong>x {line.quantity}</strong>
                       </div>
                       <div className="mt-1 flex justify-between gap-3 text-xs">
-                        <span>Screen device</span>
+                        <span>Hardware</span>
                         <strong>{formatSek(line.deviceSubtotal)}</strong>
                   </div>
                   <div className="mt-1 flex justify-between gap-3 text-xs">
@@ -2136,7 +2136,7 @@ export default function CustomerDetailPage({
                     <strong>{formatSek(primaryQuotePlan.setup_fee_sek)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span>Device discount</span>
+                    <span>Hardware discount</span>
                     <strong>-{formatSek(quoteDeviceDiscountAmount)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
@@ -2839,10 +2839,10 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Device: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
+                      Hardware: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
                     </p>
                     <p>
-                      Device discount:{" "}
+                      Hardware discount:{" "}
                       {subscription.device_discount_percent || 0}%{" "}
                       ({formatSek(subscription.device_discount_amount_sek || 0)})
                     </p>
@@ -3003,7 +3003,7 @@ export default function CustomerDetailPage({
             </label>
 
             <label className="text-sm font-semibold text-slate-700">
-              Device model
+              Hardware model
               <select
                 value={stockModelFilter}
                 onChange={(event) => setStockModelFilter(event.target.value)}

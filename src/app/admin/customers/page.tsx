@@ -40,7 +40,7 @@ const statusFilters = [
   { value: "paid", label: "Paid" },
   { value: "content_pending", label: "Content pending" },
   { value: "content_received", label: "Content received" },
-  { value: "needs_device", label: "Needs device" },
+  { value: "needs_device", label: "Needs display" },
   { value: "needs_playlist", label: "Needs playlist" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
@@ -516,7 +516,7 @@ function CustomersContent() {
                     const subscription = latestSubscription(customer);
                     const needsSetup =
                       customer.status === "active" && deviceCount === 0
-                        ? "Needs device"
+                        ? "Needs display"
                         : customer.status === "active" && hasDeviceWithoutPlaylist(customer)
                           ? "Needs playlist"
                           : "";
@@ -530,7 +530,7 @@ function CustomersContent() {
                         </td>
                         <td>
                           <strong>{customer.email || "No email"}</strong>
-                          <span>{customer.phone || "No phone"}{customer.city ? ` · ${customer.city}` : ""}</span>
+                          <span>{customer.phone || "No phone"}{customer.city ? ` - ${customer.city}` : ""}</span>
                         </td>
                         <td>
                           <span className={`admin-table-pill ${getStatusClass(customer.status)}`}>

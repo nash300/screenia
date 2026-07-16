@@ -195,7 +195,7 @@ export default function AdminDataRetentionPage() {
               <option value="billing_accounting">Billing/accounting</option>
               <option value="support_messages">Support messages</option>
               <option value="display_material">Display material</option>
-              <option value="device_operations">Device operations</option>
+              <option value="device_operations">Display operations</option>
               <option value="audit_security">Audit/security</option>
             </select>
           </label>

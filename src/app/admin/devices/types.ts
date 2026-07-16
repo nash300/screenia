@@ -2,7 +2,6 @@ export type DisplayListItem = {
   id: string;
   name: string | null;
   device_code: string;
-  serial_number: string | null;
   location: string | null;
   is_active: boolean | null;
   customers: {
@@ -23,13 +22,6 @@ export type DisplayDetails = {
   customer_id: string;
   name: string | null;
   is_active: boolean | null;
-  make: string | null;
-  model: string | null;
-  serial_number: string | null;
-  purchase_cost: number | null;
-  purchase_date: string | null;
-  warranty_period_months: number | null;
-  supplier: string | null;
   location: string | null;
   internal_notes: string | null;
 };

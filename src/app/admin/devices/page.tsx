@@ -22,7 +22,6 @@ export default function DevicesPage() {
         id,
         name,
         device_code,
-        serial_number,
         location,
         is_active,
         customers(name, status),
@@ -52,7 +51,6 @@ export default function DevicesPage() {
     const matchesSearch =
       device.name?.toLowerCase().includes(value) ||
       device.device_code.toLowerCase().includes(value) ||
-      device.serial_number?.toLowerCase().includes(value) ||
       device.location?.toLowerCase().includes(value) ||
       device.customers?.name?.toLowerCase().includes(value);
 
@@ -89,7 +87,7 @@ export default function DevicesPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, code, customer, serial, location..."
+            placeholder="Search by display name, code, customer, or location..."
             className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100 md:max-w-md"
           />
 

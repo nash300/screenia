@@ -341,7 +341,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Screen device
+                    Hardware
                     <input
                       type="number"
                       min="0"
@@ -433,7 +433,7 @@ export default function PricingPage() {
                     {shortStripeId(plan.stripe_setup_price_id)}
                   </p>
                   <p>
-                    <strong>Device:</strong>{" "}
+                    <strong>Hardware:</strong>{" "}
                     {shortStripeId(plan.stripe_hardware_price_id)}
                   </p>
                   <p>

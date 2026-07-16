@@ -56,7 +56,7 @@ const categoryDefinitions = [
   },
   {
     label: "Customer operations",
-    description: "Requests, onboarding, content, devices, inventory, and support.",
+    description: "Requests, onboarding, content, displays, hardware stock, and support.",
     match: (check: ReadinessCheck) =>
       /customer|request|display|device|inventory|fulfillment|preview|consent/u.test(
         check.key,
@@ -241,7 +241,7 @@ export default function LaunchReadinessPage() {
           <h2 className="admin-card-title text-xl">Manual gates to finish first</h2>
           <p className="admin-muted mt-2">
             These are the business/service proofs we should complete before a long
-            real-world checkout and device test pass.
+            real-world checkout and display test pass.
           </p>
           <div className="mt-4 grid gap-3">
             {reviewFirstChecks.map((check) => (

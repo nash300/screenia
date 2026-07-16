@@ -432,7 +432,7 @@ export default function AdminInventoryPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search serial, item code, seller, customer, device code..."
+            placeholder="Search serial, item code, seller, customer, display code..."
           />
           <div className="admin-inventory-filter-row">
             <button
@@ -510,7 +510,7 @@ export default function AdminInventoryPage() {
                     </span>
                     <h3>{itemTypeLabel(item.item_type)}</h3>
                     <p>
-                      {item.make || "Make not set"} {item.model || ""} · Serial{" "}
+                      {item.make || "Make not set"} {item.model || ""} - Serial{" "}
                       {item.serial_number || "missing"}
                     </p>
                     <p>
@@ -544,7 +544,7 @@ export default function AdminInventoryPage() {
                 <div>
                   <h2 className="admin-card-title text-xl">{selectedItem.item_code}</h2>
                   <p className="admin-muted">
-                    {itemTypeLabel(selectedItem.item_type)} · {statusLabel(selectedItem.status)}
+                    {itemTypeLabel(selectedItem.item_type)} - {statusLabel(selectedItem.status)}
                   </p>
                 </div>
                 <button type="button" className="admin-button-secondary" onClick={() => editItem(selectedItem)}>
@@ -559,7 +559,7 @@ export default function AdminInventoryPage() {
                 <InfoTile label="Condition" value={conditionLabel(selectedItem.condition)} />
                 <InfoTile label="Customer" value={selectedItem.customers?.name || "Not assigned"} />
                 <InfoTile
-                  label="Device"
+                  label="Display"
                   value={selectedItem.devices?.device_code || "Not created"}
                   href={selectedItem.devices?.device_code ? `/admin/devices/${selectedItem.devices.device_code}` : undefined}
                 />
@@ -571,19 +571,19 @@ export default function AdminInventoryPage() {
                   Hardware stock is the hardware bank: purchase details, serial
                   numbers, warranty, condition, returns, repair, and retirement.
                   Customer assignment is handled from the customer profile so
-                  Screenia can compare the device count with the paid subscription.
+                  Screenia can compare the display count with the paid subscription.
                 </p>
                 {selectedItem.customer_id ? (
                   <a
                     href={`/admin/customers/${selectedItem.customer_id}?section=devices`}
                     className="admin-button-secondary"
                   >
-                    Open customer devices
+                    Open customer displays
                   </a>
                 ) : (
                   <p className="admin-muted">
                     To assign this stock item, open the customer profile after
-                    onboarding and use the Devices tab.
+                    onboarding and use the Displays & hardware tab.
                   </p>
                 )}
               </div>

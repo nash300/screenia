@@ -37,25 +37,6 @@ function cleanString(value: unknown, maxLength: number) {
   return trimmed ? trimmed.slice(0, maxLength) : null;
 }
 
-function cleanNumber(value: unknown) {
-  if (value === null || value === undefined || value === "") return null;
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) return null;
-  return Math.max(0, numericValue);
-}
-
-function cleanInteger(value: unknown) {
-  if (value === null || value === undefined || value === "") return null;
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) return null;
-  return Math.max(0, Math.round(numericValue));
-}
-
-function cleanDate(value: unknown) {
-  const date = cleanString(value, 20);
-  return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
-}
-
 function getReason(value: unknown) {
   return String(value || "").trim().slice(0, 1000);
 }
@@ -77,13 +58,6 @@ function buildDevicePayload(body: Record<string, unknown>) {
       customer_id: customerId,
       name,
       location: cleanString(body.location, 200),
-      make: cleanString(body.make, 120),
-      model: cleanString(body.model, 120),
-      serial_number: cleanString(body.serial_number, 160),
-      purchase_cost: cleanNumber(body.purchase_cost),
-      purchase_date: cleanDate(body.purchase_date),
-      warranty_period_months: cleanInteger(body.warranty_period_months),
-      supplier: cleanString(body.supplier, 160),
       internal_notes: cleanString(body.internal_notes, 1000),
       is_active: true,
     },
