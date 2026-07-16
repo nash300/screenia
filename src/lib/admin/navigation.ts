@@ -29,7 +29,7 @@ export const complianceNavItems = [
   { href: "/admin/tax-payments", label: "Tax payments", icon: "T" },
   { href: "/admin/legal-change-notices", label: "Legal notices", icon: "L" },
   { href: "/admin/access-reviews", label: "Admin access", icon: "A" },
-  { href: "/admin/backup-drills", label: "Backup drills", icon: "B" },
+  { href: "/admin/backup-drills", label: "Recovery readiness", icon: "R" },
   { href: "/admin/data-retention", label: "Data retention", icon: "R" },
   { href: "/admin/processor-reviews", label: "Vendor reviews", icon: "V" },
   { href: "/admin/data-subject-requests", label: "Privacy requests", icon: "R" },

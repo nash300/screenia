@@ -17,7 +17,7 @@ const titles: Record<string, string> = {
   "/admin/tax-payments": "Tax Payments",
   "/admin/legal-change-notices": "Legal Notices",
   "/admin/access-reviews": "Admin Access",
-  "/admin/backup-drills": "Backup Drills",
+  "/admin/backup-drills": "Recovery Readiness",
   "/admin/data-retention": "Data Retention",
   "/admin/processor-reviews": "Vendor Reviews",
   "/admin/data-subject-requests": "Privacy Requests",

@@ -31,6 +31,13 @@ function formatDateTime(value: string | null) {
   return new Date(value).toLocaleString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function drillToForm(drill: BackupDrill, status = drill.status) {
   return {
     provider: drill.provider,
@@ -60,6 +67,56 @@ export default function AdminBackupDrillsPage() {
       ).length,
     [drills],
   );
+  const scopedCount = useMemo(
+    () => drills.filter((drill) => drill.backup_scope.trim().length > 0).length,
+    [drills],
+  );
+  const backupVerifiedCount = useMemo(
+    () =>
+      drills.filter(
+        (drill) =>
+          ["backup_verified", "restore_tested"].includes(drill.status) &&
+          Boolean(drill.last_successful_backup_at),
+      ).length,
+    [drills],
+  );
+  const restoreTestedCount = useMemo(
+    () =>
+      drills.filter(
+        (drill) => drill.status === "restore_tested" && drill.restore_tested_at,
+      ).length,
+    [drills],
+  );
+  const followUpCount = useMemo(
+    () => drills.filter((drill) => drill.status === "needs_attention").length,
+    [drills],
+  );
+  const recoveryWorkflow = [
+    {
+      stage: "1",
+      label: "Define scope",
+      value: scopedCount,
+      description: "Name the system, data, or process covered by the backup.",
+    },
+    {
+      stage: "2",
+      label: "Verify backup",
+      value: backupVerifiedCount,
+      description: "Confirm a successful backup exists with evidence.",
+    },
+    {
+      stage: "3",
+      label: "Test restore",
+      value: restoreTestedCount,
+      description: "Prove the backup can be restored before launch risk grows.",
+    },
+    {
+      stage: "4",
+      label: "Track follow-up",
+      value: followUpCount,
+      description: "Keep weak or missing recovery evidence visible.",
+    },
+  ];
 
   const loadDrills = async () => {
     setLoading(true);
@@ -164,10 +221,10 @@ export default function AdminBackupDrillsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Backup restore drills</h1>
+          <h1 className="admin-title">Recovery readiness</h1>
           <p className="admin-subtitle">
-            Record backup coverage, restore tests, evidence references, and
-            follow-up risk before live customer operations.
+            Verify backup coverage, restore tests, evidence references, and
+            follow-up risks before live customer operations.
           </p>
         </div>
         <div className="admin-dashboard-header-actions">
@@ -182,7 +239,19 @@ export default function AdminBackupDrillsPage() {
       </div>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record backup evidence</h2>
+        <h2 className="admin-card-title text-xl">Recovery readiness workflow</h2>
+        <div className="admin-backup-workflow" aria-label="Recovery readiness workflow">
+          {recoveryWorkflow.map((item) => (
+            <div key={item.stage} className="admin-backup-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitDrill}>
           <label className="admin-field">
             <span>Provider</span>
@@ -277,7 +346,7 @@ export default function AdminBackupDrillsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Backup restore register</h2>
+        <h2 className="admin-card-title text-xl">Recovery test cases</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -307,7 +376,7 @@ export default function AdminBackupDrillsPage() {
                       </>
                     )}
                   </td>
-                  <td>{drill.status}</td>
+                  <td>{formatChoice(drill.status)}</td>
                   <td>{formatDateTime(drill.last_successful_backup_at)}</td>
                   <td>{formatDateTime(drill.restore_tested_at)}</td>
                   <td>
@@ -412,7 +481,7 @@ export default function AdminBackupDrillsPage() {
               ))}
               {!loading && drills.length === 0 && (
                 <tr>
-                  <td colSpan={6}>No backup restore drills recorded.</td>
+                  <td colSpan={6}>No recovery test cases yet.</td>
                 </tr>
               )}
             </tbody>

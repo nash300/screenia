@@ -17,7 +17,7 @@ const labels: Record<string, string> = {
   "tax-payments": "Tax Payments",
   "legal-change-notices": "Legal Notices",
   "access-reviews": "Admin Access",
-  "backup-drills": "Backup Drills",
+  "backup-drills": "Recovery Readiness",
   "data-retention": "Data Retention",
   "processor-reviews": "Vendor Reviews",
   "data-subject-requests": "Privacy Requests",
