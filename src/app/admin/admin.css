@@ -741,6 +741,47 @@
   gap: 0.75rem;
 }
 
+.admin-pricing-business-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-pricing-business-summary div {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(238, 245, 255, 0.86));
+  padding: 0.95rem;
+  box-shadow: 0 12px 24px rgba(7, 31, 84, 0.06);
+}
+
+.admin-pricing-business-summary span {
+  color: #52627a;
+  font-size: 0.68rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.admin-pricing-business-summary strong {
+  min-width: 0;
+  color: #061942;
+  font-size: 1.05rem;
+  font-weight: 950;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.admin-pricing-business-summary small {
+  color: #52627a;
+  font-size: 0.76rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 .admin-pricing-card {
   display: grid;
   gap: 0.75rem;
@@ -824,6 +865,13 @@
 .admin-pricing-stripe-list {
   display: grid;
   gap: 0.25rem;
+}
+
+.admin-pricing-stripe-list summary {
+  cursor: pointer;
+  color: var(--win95-text);
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .admin-pricing-stripe-list p {
@@ -2203,7 +2251,8 @@
 
   .admin-pricing-grid,
   .admin-pricing-fields,
-  .admin-pricing-summary {
+  .admin-pricing-summary,
+  .admin-pricing-business-summary {
     grid-template-columns: 1fr;
   }
 

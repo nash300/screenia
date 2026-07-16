@@ -144,6 +144,36 @@ export default function PricingPage() {
   }, [forms, plans]);
 
   const firstPaymentByPlan = Object.fromEntries(totals);
+  const pricingSummary = useMemo(() => {
+    const activePlans = plans.filter((plan) => plan.is_active);
+    const syncedPlanCount = plans.filter(
+      (plan) => stripeSyncStatus(plan) === "Synced",
+    ).length;
+    const partialPlanCount = plans.filter(
+      (plan) => stripeSyncStatus(plan) === "Partial",
+    ).length;
+
+    return {
+      activePlanCount: activePlans.length,
+      totalPlanCount: plans.length,
+      syncedPlanCount,
+      partialPlanCount,
+      firstPaymentRange: activePlans.map(
+        (plan) => firstPaymentByPlan[plan.id] || 0,
+      ),
+      monthlyRange: activePlans.map((plan) =>
+        parseInteger(forms[plan.id]?.monthlyFeeSek || String(plan.monthly_fee_sek)),
+      ),
+    };
+  }, [firstPaymentByPlan, forms, plans]);
+
+  const formatRange = (values: number[]) => {
+    if (values.length === 0) return "No active plans";
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    if (min === max) return formatSek(min);
+    return `${formatSek(min)} - ${formatSek(max)}`;
+  };
 
   const updateForm = (
     planId: string,
@@ -304,6 +334,37 @@ export default function PricingPage() {
           <p className="admin-muted">Loading pricing plans...</p>
         </section>
       ) : (
+        <>
+        <section className="admin-pricing-business-summary">
+          <div>
+            <span>Active packages</span>
+            <strong>
+              {pricingSummary.activePlanCount} / {pricingSummary.totalPlanCount}
+            </strong>
+            <small>Available for new customer quotes</small>
+          </div>
+          <div>
+            <span>First payment range</span>
+            <strong>{formatRange(pricingSummary.firstPaymentRange)}</strong>
+            <small>Setup + hardware + shipping, moms included</small>
+          </div>
+          <div>
+            <span>Monthly range</span>
+            <strong>{formatRange(pricingSummary.monthlyRange)}</strong>
+            <small>Customer monthly subscription, moms included</small>
+          </div>
+          <div>
+            <span>Stripe sync</span>
+            <strong>
+              {pricingSummary.syncedPlanCount} synced
+              {pricingSummary.partialPlanCount
+                ? ` / ${pricingSummary.partialPlanCount} partial`
+                : ""}
+            </strong>
+            <small>Sync after approved price changes</small>
+          </div>
+        </section>
+
         <div className="admin-pricing-grid">
           {plans.map((plan) => {
             const form = forms[plan.id] || toForm(plan);
@@ -427,7 +488,8 @@ export default function PricingPage() {
                   </div>
                 </div>
 
-                <div className="admin-pricing-stripe-list">
+                <details className="admin-pricing-stripe-list">
+                  <summary>Stripe references for support</summary>
                   <p>
                     <strong>Setup:</strong>{" "}
                     {shortStripeId(plan.stripe_setup_price_id)}
@@ -444,7 +506,7 @@ export default function PricingPage() {
                     <strong>Monthly:</strong>{" "}
                     {shortStripeId(plan.stripe_monthly_price_id)}
                   </p>
-                </div>
+                </details>
 
                 <div className="admin-pricing-actions">
                   <button
@@ -633,6 +695,7 @@ export default function PricingPage() {
             );
           })}
         </div>
+        </>
       )}
     </main>
   );
