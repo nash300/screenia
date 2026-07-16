@@ -221,7 +221,8 @@ export default function AdminHomePage() {
         <div>
           <h1 className="admin-title">Dashboard</h1>
           <p className="admin-subtitle">
-            Operational overview of customers, displays, and setup status.
+            Operational overview of customer intake, material, billing,
+            displays, and setup readiness.
           </p>
         </div>
 
@@ -241,14 +242,14 @@ export default function AdminHomePage() {
         <ActionCard
           href="/admin/customers?filter=new_request"
           title="New requests"
-          description="Review package requests."
+          description="Review new inquiries and package requests."
           count={newRequestCount}
           tone="warning"
           loading={loading}
         />
         <ActionCard
           href="/admin/customers?filter=invited"
-          title="Invited customers"
+          title="Setup links sent"
           description="Waiting for details or payment."
           count={invitedCustomerCount}
           tone="info"
@@ -256,24 +257,24 @@ export default function AdminHomePage() {
         />
         <ActionCard
           href="/admin/customers?filter=content_pending"
-          title="Content setup"
-          description="Paid customers who still need content."
+          title="Material pending"
+          description="Paid customers who still need screen material."
           count={paidCustomerCount + contentPendingCount}
           tone="warning"
           loading={loading}
         />
         <ActionCard
           href="/admin/customers?filter=needs_device"
-          title="Allocate devices"
-          description="Content received without a customer device allocation."
+          title="Ready for device allocation"
+          description="Material received without customer device allocation."
           count={needsDisplayCount}
           tone="warning"
           loading={loading}
         />
         <ActionCard
           href="/admin/customers?filter=needs_playlist"
-          title="Upload playlists"
-          description="Assigned displays with no playable content."
+          title="Needs playlist content"
+          description="Assigned display endpoints with no playable material."
           count={needsPlaylistCount}
           tone="danger"
           loading={loading}
@@ -339,8 +340,8 @@ export default function AdminHomePage() {
             <StatusRow label="Active" value={activeCustomerCount} tone="success" />
             <StatusRow label="New requests" value={newRequestCount} tone="warning" />
             <StatusRow label="Paid" value={paidCustomerCount} tone="info" />
-            <StatusRow label="Content pending" value={contentPendingCount} tone="warning" />
-            <StatusRow label="Content received" value={contentReceivedCount} tone="info" />
+            <StatusRow label="Material pending" value={contentPendingCount} tone="warning" />
+            <StatusRow label="Material received" value={contentReceivedCount} tone="info" />
             <StatusRow
               label="Suspended"
               value={suspendedCustomerCount}
@@ -368,12 +369,12 @@ export default function AdminHomePage() {
           <div className="admin-status-list admin-status-list-compact">
             <StatusRow label="Ready" value={readyCustomerCount} tone="success" />
             <StatusRow
-              label="Missing device allocation"
+              label="Ready for device allocation"
               value={needsDisplayCount}
               tone="warning"
             />
             <StatusRow
-              label="Missing playlists"
+              label="Needs playlist content"
               value={needsPlaylistCount}
               tone="danger"
             />
@@ -381,7 +382,7 @@ export default function AdminHomePage() {
         </section>
 
         <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Uploads</h2>
+          <h2 className="admin-card-title text-xl">Material review</h2>
           <div className="admin-status-list">
             <StatusRow label="New material" value={newMaterialCount} tone="warning" />
             <StatusRow label="Total attention" value={attentionCount + newMaterialCount} tone="info" />
