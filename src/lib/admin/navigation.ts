@@ -26,7 +26,7 @@ export const adminNavGroups = [
 ];
 
 export const complianceNavItems = [
-  { href: "/admin/tax-payments", label: "Tax payments", icon: "T" },
+  { href: "/admin/tax-payments", label: "VAT filing", icon: "V" },
   { href: "/admin/legal-change-notices", label: "Legal notices", icon: "L" },
   { href: "/admin/access-reviews", label: "Admin access", icon: "A" },
   { href: "/admin/backup-drills", label: "Recovery readiness", icon: "R" },

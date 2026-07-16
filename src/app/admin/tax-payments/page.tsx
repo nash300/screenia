@@ -42,6 +42,13 @@ function formatDate(value: string | null) {
   return new Date(value).toLocaleDateString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function toOreInput(value: string) {
   const normalized = value.trim().replace(/\s/g, "").replace(",", ".");
   const amount = Number(normalized);
@@ -64,6 +71,51 @@ export default function AdminTaxPaymentsPage() {
         .reduce((sum, record) => sum + Number(record.tax_amount_sek || 0), 0),
     [records],
   );
+  const draftCount = useMemo(
+    () => records.filter((record) => record.status === "draft").length,
+    [records],
+  );
+  const submittedCount = useMemo(
+    () => records.filter((record) => record.status === "submitted").length,
+    [records],
+  );
+  const paidCount = useMemo(
+    () => records.filter((record) => record.status === "paid").length,
+    [records],
+  );
+  const evidencedCount = useMemo(
+    () =>
+      records.filter(
+        (record) => record.status === "paid" && Boolean(record.reference),
+      ).length,
+    [records],
+  );
+  const vatWorkflow = [
+    {
+      stage: "1",
+      label: "Prepare period",
+      value: records.length,
+      description: "Record the taxable sales and VAT for the filing period.",
+    },
+    {
+      stage: "2",
+      label: "Submit return",
+      value: submittedCount + paidCount,
+      description: "Mark the period submitted after Skatteverket filing.",
+    },
+    {
+      stage: "3",
+      label: "Pay VAT",
+      value: paidCount,
+      description: "Record payment date and payment reference.",
+    },
+    {
+      stage: "4",
+      label: "Keep evidence",
+      value: evidencedCount,
+      description: "Retain references and notes for accounting/audit follow-up.",
+    },
+  ];
 
   const loadRecords = async () => {
     setLoading(true);
@@ -75,7 +127,7 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not load tax payment records.",
+        result.error || "Could not load VAT filing periods.",
       );
       setRecords([]);
     } else {
@@ -118,12 +170,12 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not save tax payment record.",
+        result.error || "Could not save VAT filing period.",
       );
     } else {
       setForm(defaultForm);
       await loadRecords();
-      showAdminNotification("success", "Tax payment record saved.");
+      showAdminNotification("success", "VAT filing period saved.");
     }
 
     setSaving(false);
@@ -162,7 +214,7 @@ export default function AdminTaxPaymentsPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not update tax payment record.",
+        result.error || "Could not update VAT filing period.",
       );
     } else {
       setActionDrafts((current) => {
@@ -171,7 +223,7 @@ export default function AdminTaxPaymentsPage() {
         return next;
       });
       await loadRecords();
-      showAdminNotification("success", "Tax payment record updated.");
+      showAdminNotification("success", "VAT filing period updated.");
     }
 
     setUpdatingId(null);
@@ -181,9 +233,9 @@ export default function AdminTaxPaymentsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Tax payments</h1>
+          <h1 className="admin-title">VAT filing</h1>
           <p className="admin-subtitle">
-            Record VAT/moms period evidence for accounting follow-up and audit
+            Prepare VAT/moms periods, submission status, payment evidence, and audit
             history.
           </p>
         </div>
@@ -191,7 +243,7 @@ export default function AdminTaxPaymentsPage() {
         <div className="admin-dashboard-header-actions">
           <div className="admin-status-chip admin-status-chip-system">
             <span className="admin-status-dot admin-status-success" />
-            {loading ? "Syncing" : `${records.length} records`}
+            {loading ? "Syncing" : `${records.length} periods`}
           </div>
           <button onClick={loadRecords} className="admin-button-primary">
             Refresh
@@ -204,13 +256,13 @@ export default function AdminTaxPaymentsPage() {
           <span className="admin-stat-icon admin-stat-neutral" />
           <p className="admin-stat-label">Paid VAT recorded</p>
           <p className="admin-stat-value">{formatSekOre(totalVatOre)}</p>
-          <p className="admin-stat-meta">All paid records</p>
+          <p className="admin-stat-meta">All paid periods</p>
         </div>
         <div className="admin-card admin-stat-card">
           <span className="admin-stat-icon admin-stat-neutral" />
           <p className="admin-stat-label">Draft periods</p>
           <p className="admin-stat-value">
-            {records.filter((record) => record.status === "draft").length}
+            {draftCount}
           </p>
           <p className="admin-stat-meta">Need review</p>
         </div>
@@ -218,14 +270,26 @@ export default function AdminTaxPaymentsPage() {
           <span className="admin-stat-icon admin-stat-neutral" />
           <p className="admin-stat-label">Submitted periods</p>
           <p className="admin-stat-value">
-            {records.filter((record) => record.status === "submitted").length}
+            {submittedCount}
           </p>
           <p className="admin-stat-meta">Awaiting payment evidence</p>
         </div>
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record VAT period</h2>
+        <h2 className="admin-card-title text-xl">VAT filing workflow</h2>
+        <div className="admin-tax-workflow" aria-label="VAT filing workflow">
+          {vatWorkflow.map((item) => (
+            <div key={item.stage} className="admin-tax-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitRecord}>
           <label className="admin-field">
             <span>Period start</span>
@@ -319,14 +383,14 @@ export default function AdminTaxPaymentsPage() {
               className="admin-button-primary"
               disabled={saving}
             >
-              {saving ? "Saving..." : "Save tax record"}
+              {saving ? "Saving..." : "Save VAT period"}
             </button>
           </div>
         </form>
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">VAT period records</h2>
+        <h2 className="admin-card-title text-xl">VAT filing periods</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -346,7 +410,7 @@ export default function AdminTaxPaymentsPage() {
                   <td>
                     {formatDate(record.period_start)} - {formatDate(record.period_end)}
                   </td>
-                  <td>{record.status}</td>
+                  <td>{formatChoice(record.status)}</td>
                   <td>{formatSekOre(record.taxable_amount_sek)}</td>
                   <td>{formatSekOre(record.tax_amount_sek)}</td>
                   <td>{formatDate(record.paid_at)}</td>
@@ -469,7 +533,7 @@ export default function AdminTaxPaymentsPage() {
               ))}
               {!loading && records.length === 0 && (
                 <tr>
-                  <td colSpan={7}>No tax payment records yet.</td>
+                  <td colSpan={7}>No VAT filing periods yet.</td>
                 </tr>
               )}
             </tbody>

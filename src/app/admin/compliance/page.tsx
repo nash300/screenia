@@ -4,7 +4,7 @@ import { complianceNavItems } from "@/lib/admin/navigation";
 const groups = [
   {
     title: "Business records",
-    description: "Periodic evidence for taxes, legal changes, and retention.",
+    description: "Periodic VAT filing evidence, legal changes, and retention.",
     hrefs: [
       "/admin/tax-payments",
       "/admin/legal-change-notices",
@@ -87,7 +87,7 @@ export default function AdminCompliancePage() {
 function describeComplianceItem(href: string) {
   switch (href) {
     case "/admin/tax-payments":
-      return "VAT/moms period evidence and payment status";
+      return "VAT/moms filing periods, payment status, and audit evidence";
     case "/admin/legal-change-notices":
       return "Policy version changes and customer notice tracking";
     case "/admin/data-retention":
