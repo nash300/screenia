@@ -543,6 +543,10 @@
   margin-top: 14px;
 }
 
+.admin-order-selected-operation {
+  max-width: 760px;
+}
+
 .admin-order-single-field {
   grid-template-columns: minmax(0, 1fr);
 }

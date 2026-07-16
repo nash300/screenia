@@ -9,8 +9,8 @@ import {
   formatSek,
   formatStatusLabel,
   formatStripeSek,
+  deviceAllocationStatuses,
   fulfillmentStatuses,
-  hardwareStatuses,
   isSchemaMismatch,
   matchesOrderSection,
   normalizeOrder,
@@ -347,6 +347,7 @@ function AdminOrdersContent() {
     checkout_started: orders.filter((order) => order.status === "checkout_started").length,
     active: orders.filter((order) => order.status === "active").length,
     payment_failed: orders.filter((order) => order.status === "payment_failed").length,
+    refunded: orders.filter((order) => order.status === "refunded").length,
   };
   const sectionCounts = Object.fromEntries(
     orderSections.map((section) => [
@@ -491,40 +492,11 @@ function AdminOrdersContent() {
 
                 {operationDraft?.orderId === order.id && (
                   <div className="admin-operation-panel admin-order-operation-panel">
-                    <div className="admin-operation-grid">
-                      <div className="admin-operation-list">
-                        {orderOperations.map((operation) => (
-                          <button
-                            key={operation.id}
-                            type="button"
-                            className={`admin-operation-card ${
-                              operation.tone
-                                ? `admin-operation-${operation.tone}`
-                                : ""
-                            } ${
-                              operationDraft.operation === operation.id
-                                ? "is-selected"
-                                : ""
-                            }`}
-                            onClick={() => openOrderOperation(order, operation.id)}
-                          >
-                            <span>
-                              <strong>{operation.label}</strong>
-                              <small>{operation.description}</small>
-                            </span>
-                            <em>
-                              {operationDraft.operation === operation.id
-                                ? "Open"
-                                : "Choose"}
-                            </em>
-                          </button>
-                        ))}
-                      </div>
-
+                    <div className="admin-order-selected-operation">
                       <div className="admin-operation-flow">
                         <div className="admin-operation-flow-header">
                           <p className="admin-operation-kicker">
-                            Order operation flow
+                            Selected order action
                           </p>
                           <h4>
                             {
@@ -535,8 +507,13 @@ function AdminOrdersContent() {
                             }
                           </h4>
                           <p>
-                            Review the current order, choose the new value, add
-                            the audit reason, then confirm the change.
+                            {
+                              orderOperations.find(
+                                (operation) =>
+                                  operation.id === operationDraft.operation,
+                              )?.description
+                            }{" "}
+                            Add the audit reason, then confirm the change.
                           </p>
                         </div>
 
@@ -602,7 +579,7 @@ function AdminOrdersContent() {
                                   })
                                 }
                               >
-                                {hardwareStatuses.map((option) => (
+                                {deviceAllocationStatuses.map((option) => (
                                   <option key={option} value={option}>
                                     {formatStatusLabel(option)}
                                   </option>

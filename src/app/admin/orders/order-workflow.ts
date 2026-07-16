@@ -7,6 +7,7 @@ export const orderStatuses = [
   "paid",
   "active",
   "payment_failed",
+  "refunded",
   "disputed",
   "cancelled",
 ];
@@ -28,7 +29,7 @@ export const fulfillmentStatuses = [
   "cancelled",
 ];
 
-export const hardwareStatuses = [
+export const deviceAllocationStatuses = [
   "not_reserved",
   "ready_to_reserve",
   "reserved",
@@ -46,25 +47,25 @@ export const orderSections: Array<{
   {
     id: "all",
     label: "All orders",
-    description: "Full commercial record",
+    description: "Every quote, payment, and delivery record",
     stage: "All",
   },
   {
     id: "pipeline",
-    label: "Pipeline",
-    description: "Quote, content, and production",
+    label: "Quote to production",
+    description: "Prepared quotes, paid orders, content, and layout work",
     stage: "1",
   },
   {
     id: "payment",
-    label: "Payment",
-    description: "Checkout and failed payments",
+    label: "Payment attention",
+    description: "Checkout started, failed, or disputed payments",
     stage: "2",
   },
   {
     id: "shipping",
-    label: "Shipping",
-    description: "Allocated, ready to ship, and tracking",
+    label: "Device and shipping",
+    description: "Allocated devices, shipment readiness, and tracking",
     stage: "3",
   },
   {
@@ -84,24 +85,24 @@ export const orderOperations: Array<{
   {
     id: "status",
     label: "Order status",
-    description: "Move the commercial order state after payment or customer events.",
+    description: "Use for quote, checkout, paid, failed payment, dispute, or cancellation state.",
   },
   {
     id: "fulfillment_status",
     label: "Fulfillment",
-    description: "Track production, shipping readiness, completion, or cancellation.",
+    description: "Use for content collection, layout/production, approval, shipping readiness, and completion.",
     tone: "success",
   },
   {
     id: "hardware_status",
     label: "Device allocation",
-    description: "Reserve or assign the screen for this customer order.",
+    description: "Use when a paid order needs stock reserved, assigned, shipped, or returned.",
     tone: "warning",
   },
   {
     id: "tracking",
     label: "Shipment tracking",
-    description: "Save carrier tracking details and mark the order shipped when appropriate.",
+    description: "Save carrier tracking details; this can move fulfillment to shipped.",
   },
 ];
 
