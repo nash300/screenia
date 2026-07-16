@@ -4316,6 +4316,9 @@
   border-radius: 7px;
   background: rgba(47, 125, 246, 0.12);
   color: var(--admin-blue);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0;
 }
 
 .admin-nav-link:hover .admin-nav-icon,
