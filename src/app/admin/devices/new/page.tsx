@@ -22,7 +22,7 @@ export default function NewDevicePage() {
 function NewDeviceFallback() {
   return (
     <div className="admin-card p-6">
-      <p className="admin-muted">Loading display form...</p>
+      <p className="admin-muted">Loading display endpoint form...</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ function NewDevicePageContent() {
 
     const trimmedReason = reason.trim();
     if (!trimmedReason) {
-      showAdminNotification("warning", "Add a reason before creating this customer display.");
+      showAdminNotification("warning", "Add a reason before creating this display endpoint.");
       return;
     }
 
@@ -98,7 +98,7 @@ function NewDevicePageContent() {
       return;
     }
 
-    showAdminNotification("success", "Customer display created successfully.");
+    showAdminNotification("success", "Display endpoint created successfully.");
     router.push(`/admin/devices/${result.device.device_code}`);
   };
 
@@ -110,10 +110,10 @@ function NewDevicePageContent() {
     <div>
       {/* Page Header */}
       <div className="admin-page-header">
-        <h1 className="admin-title">Add display</h1>
+        <h1 className="admin-title">Create display endpoint</h1>
         <p className="admin-subtitle">
-          Create a customer display endpoint after onboarding. Physical hardware
-          stock is managed in Hardware stock.
+          Create the customer screen URL and playlist target. Physical boxes,
+          serial numbers, warranty, and repairs stay in Hardware stock.
         </p>
       </div>
 
@@ -121,12 +121,14 @@ function NewDevicePageContent() {
       <div className="admin-card p-6">
         <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
           <p className="text-sm font-semibold text-slate-800">
-            Display manager vs Hardware stock
+            Where this fits in the workflow
           </p>
           <p className="admin-muted mt-1 text-sm">
-            This page creates the customer-facing screen endpoint and display URL.
-            Register serial numbers, purchase data, warranty, condition, and returns
-            in Hardware stock, then assign stock from the customer profile.
+            Use the customer profile&apos;s Device allocation tab to connect paid
+            customers to available stock. Use this page only when you need to
+            create or replace the live endpoint that serves screen content.
+            Register purchase data, serial numbers, warranty, condition, returns,
+            repairs, and retirement in Hardware stock.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
@@ -148,7 +150,7 @@ function NewDevicePageContent() {
           <TextInput
             id="device-name"
             name="deviceName"
-            label="Display name *"
+            label="Endpoint name *"
             value={name}
             onChange={setName}
             placeholder="Menu screen, price list, special offers..."
@@ -157,7 +159,7 @@ function NewDevicePageContent() {
           <TextInput
             id="device-location"
             name="location"
-            label="Location"
+            label="Screen location"
             value={location}
             onChange={setLocation}
             placeholder="Reception, entrance, waiting area..."
@@ -187,7 +189,7 @@ function NewDevicePageContent() {
             name="createReason"
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Example: Paid customer needs a registered display endpoint for installation."
+            placeholder="Example: Paid customer needs a screen URL for the entrance display."
             className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
             rows={3}
           />
@@ -198,7 +200,7 @@ function NewDevicePageContent() {
           disabled={saving || !reason.trim()}
           className="admin-button-primary mt-6 disabled:opacity-50"
         >
-          {saving ? "Creating..." : "Create customer display"}
+          {saving ? "Creating..." : "Create display endpoint"}
         </button>
       </div>
     </div>

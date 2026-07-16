@@ -3031,7 +3031,7 @@ export default function CustomerDetailPage({
             href={`/admin/devices/new?customerId=${customer.id}`}
             className="admin-button-primary"
           >
-            Create customer display endpoint
+            Create display endpoint
           </Link>
           <Link href="/admin/inventory" className="admin-button-secondary">
             Open Hardware stock

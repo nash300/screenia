@@ -9,7 +9,7 @@ const titles: Record<string, string> = {
   "/admin/compliance": "Compliance",
   "/admin/inventory": "Hardware Stock",
   "/admin/devices": "Displays",
-  "/admin/devices/new": "Create Customer Display",
+  "/admin/devices/new": "Create Display Endpoint",
   "/admin/orders": "Orders & Billing",
   "/admin/pricing": "Pricing",
   "/admin/email-events": "Email Evidence",

@@ -75,13 +75,13 @@ export default function DevicesPage() {
         </div>
 
         <Link href="/admin/devices/new" className="admin-button-primary">
-          Create customer display
+          Create display endpoint
         </Link>
       </div>
 
       {/* Display List */}
       <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Customer displays</h2>
+        <h2 className="admin-card-title text-xl">Display endpoints</h2>
         <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
           <p className="font-semibold text-slate-950">Displays are live customer endpoints.</p>
           <p className="admin-muted mt-1">
