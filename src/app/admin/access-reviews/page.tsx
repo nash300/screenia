@@ -30,6 +30,13 @@ function formatDateTime(value: string | null) {
   return new Date(value).toLocaleString("sv-SE");
 }
 
+function formatChoice(value: string) {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
 function reviewToForm(review: AccessReview, status = review.review_status) {
   return {
     admin_email: review.admin_email,
@@ -60,6 +67,50 @@ export default function AdminAccessReviewsPage() {
       ).length,
     [reviews],
   );
+  const mfaVerifiedCount = useMemo(
+    () => reviews.filter((review) => review.mfa_verified).length,
+    [reviews],
+  );
+  const accessConfirmedCount = useMemo(
+    () => reviews.filter((review) => review.access_confirmed).length,
+    [reviews],
+  );
+  const approvedCount = useMemo(
+    () =>
+      reviews.filter(
+        (review) =>
+          review.review_status === "approved" &&
+          review.mfa_verified &&
+          review.access_confirmed,
+      ).length,
+    [reviews],
+  );
+  const accessWorkflow = [
+    {
+      stage: "1",
+      label: "Identify admin",
+      value: reviews.length,
+      description: "Record who can access the Screenia admin area.",
+    },
+    {
+      stage: "2",
+      label: "Verify MFA",
+      value: mfaVerifiedCount,
+      description: "Confirm the login has multi-factor protection.",
+    },
+    {
+      stage: "3",
+      label: "Confirm need",
+      value: accessConfirmedCount,
+      description: "Keep access only when it is still required for operations.",
+    },
+    {
+      stage: "4",
+      label: "Approve or remove",
+      value: approvedCount,
+      description: "Close the review with a timestamped admin reason.",
+    },
+  ];
 
   const loadReviews = async () => {
     setLoading(true);
@@ -178,6 +229,18 @@ export default function AdminAccessReviewsPage() {
 
       <section className="admin-card p-6">
         <h2 className="admin-card-title text-xl">Record admin access</h2>
+        <div className="admin-access-workflow" aria-label="Admin access workflow">
+          {accessWorkflow.map((item) => (
+            <div key={item.stage} className="admin-access-workflow-step">
+              <span>{item.stage}</span>
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          ))}
+        </div>
         <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Admin email</span>
@@ -189,10 +252,11 @@ export default function AdminAccessReviewsPage() {
             />
           </label>
           <label className="admin-field">
-            <span>Supabase auth user ID</span>
+            <span>Login reference</span>
             <input
               value={form.auth_user_id}
               onChange={(event) => updateForm("auth_user_id", event.target.value)}
+              placeholder="Optional auth/support reference"
             />
           </label>
           <label className="admin-field">
@@ -256,7 +320,7 @@ export default function AdminAccessReviewsPage() {
       </section>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Access review register</h2>
+        <h2 className="admin-card-title text-xl">Admin access decisions</h2>
         <div className="admin-table-wrap mt-4">
           <table className="admin-table">
             <thead>
@@ -274,18 +338,19 @@ export default function AdminAccessReviewsPage() {
                 <tr key={review.id}>
                   <td>
                     <strong>{review.admin_email}</strong>
-                    <br />
-                    <small>{review.auth_user_id || "No auth ID recorded"}</small>
-                    {review.notes && (
-                      <>
-                        <br />
-                        <small>{review.notes}</small>
-                      </>
+                    {(review.auth_user_id || review.notes) && (
+                      <details className="admin-access-support-details">
+                        <summary>Support evidence</summary>
+                        {review.auth_user_id && (
+                          <small>Login reference: {review.auth_user_id}</small>
+                        )}
+                        {review.notes && <small>{review.notes}</small>}
+                      </details>
                     )}
                   </td>
-                  <td>{review.review_status}</td>
-                  <td>{review.mfa_verified ? "verified" : "missing"}</td>
-                  <td>{review.access_confirmed ? "required" : "not confirmed"}</td>
+                  <td>{formatChoice(review.review_status)}</td>
+                  <td>{review.mfa_verified ? "Verified" : "Missing"}</td>
+                  <td>{review.access_confirmed ? "Required" : "Not confirmed"}</td>
                   <td>{formatDateTime(review.reviewed_at || review.updated_at)}</td>
                   <td>
                     {review.review_status === "approved" &&
