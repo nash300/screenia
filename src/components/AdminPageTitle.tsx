@@ -26,8 +26,8 @@ const titles: Record<string, string> = {
 
 const sectionTitles: Record<string, string> = {
   overview: "Overview",
-  onboarding: "Request & Onboarding",
-  communication: "Communication",
+  onboarding: "Request & Quote",
+  communication: "Communication & Material",
   messages: "Messages",
   uploads: "Uploads",
   orders: "Orders & Billing",

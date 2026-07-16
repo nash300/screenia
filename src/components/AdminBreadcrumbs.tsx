@@ -27,8 +27,8 @@ const labels: Record<string, string> = {
 
 const sectionLabels: Record<string, string> = {
   overview: "Overview",
-  onboarding: "Onboarding",
-  communication: "Communication",
+  onboarding: "Request & quote",
+  communication: "Communication & material",
   messages: "Messages",
   uploads: "Uploads",
   orders: "Orders",

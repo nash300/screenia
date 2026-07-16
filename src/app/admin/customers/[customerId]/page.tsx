@@ -1399,34 +1399,34 @@ export default function CustomerDetailPage({
       id: "overview",
       label: "Overview",
       stage: "1",
-      description: "Customer facts and consent",
+      description: "Identity, contact, consent, and notes",
     },
     {
       id: "onboarding",
-      label: "Request & onboarding",
+      label: "Request & quote",
       stage: "2",
-      description: "Quote, setup link, and production start",
+      description: "Offer, setup link, and onboarding start",
+    },
+    {
+      id: "communication",
+      label: "Communication & material",
+      count: messages.length + assets.length,
+      stage: "3",
+      description: "Messages, uploads, and screen content",
     },
     {
       id: "orders",
       label: "Orders & billing",
       count: subscriptions.length,
-      stage: "3",
+      stage: "4",
       description: "Stripe, invoices, refunds, and subscriptions",
     },
     {
       id: "devices",
       label: "Device allocation",
       count: devices.length,
-      stage: "4",
-      description: "Customer screens and stock assignment",
-    },
-    {
-      id: "communication",
-      label: "Communication",
-      count: messages.length + assets.length,
       stage: "5",
-      description: "Messages, uploads, and customer material",
+      description: "Customer screens and stock assignment",
     },
     {
       id: "history",
@@ -1746,8 +1746,8 @@ export default function CustomerDetailPage({
           <div>
             <h1 className="admin-title">{customer.name}</h1>
             <p className="admin-subtitle">
-              Manage this customer&apos;s onboarding, billing, device allocation,
-              communication, and audit trail.
+              Manage the customer journey from request and quote to material,
+              billing, device allocation, and audit trail.
             </p>
           </div>
 
@@ -2322,10 +2322,11 @@ export default function CustomerDetailPage({
           <div className="admin-operation-header">
             <div>
               <p className="admin-operation-kicker">Customer operation flow</p>
-              <h3>Choose one business action</h3>
+              <h3>Account, billing, and production actions</h3>
               <p>
-                Subscription, production, refund, and access changes are handled
-                here so each action has a reason, impact review, and audit trail.
+                Use this panel for changes that affect service access, Stripe
+                billing, production status, refunds, or cancellation. Messages
+                and uploaded material stay in Communication & material.
               </p>
             </div>
             <div className="admin-operation-summary">
@@ -2465,8 +2466,9 @@ export default function CustomerDetailPage({
                   <p className="admin-operation-kicker">Step 1</p>
                   <h4>Select an action</h4>
                   <p>
-                    Pick one operation from the left. The next step will show
-                    the required reason, discount fields, or confirmation.
+                    Pick one business action from the left. The next step will
+                    show the required reason, Stripe fields, or impact
+                    confirmation.
                   </p>
                 </div>
               )}
