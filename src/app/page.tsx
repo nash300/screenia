@@ -561,6 +561,55 @@ export default function Home() {
     };
   }, [heroSlideCount, heroInteractionKey]);
 
+  useEffect(() => {
+    const selectors = [
+      ".landing-section",
+      ".landing-section-heading",
+      ".landing-feature",
+      ".landing-price-card",
+      ".landing-pricing-note",
+      ".landing-gallery-card",
+      ".landing-service-film-copy",
+      ".landing-film-stage",
+      ".landing-faq-item",
+      ".landing-contact",
+      ".landing-footer-company",
+      ".landing-footer-card",
+    ];
+    const elements = Array.from(
+      document.querySelectorAll<HTMLElement>(selectors.join(",")),
+    );
+
+    elements.forEach((element, index) => {
+      element.classList.add("landing-reveal-target");
+      element.style.setProperty("--reveal-index", String(index % 6));
+    });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      {
+        rootMargin: "0px 0px -12% 0px",
+        threshold: 0.12,
+      },
+    );
+
+    elements.forEach((element) => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+      elements.forEach((element) => {
+        element.classList.remove("landing-reveal-target", "is-visible");
+        element.style.removeProperty("--reveal-index");
+      });
+    };
+  }, []);
+
   const submitPlanRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!selectedPlan) return;
