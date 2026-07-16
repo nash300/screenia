@@ -70,19 +70,19 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/screenia-logo-full-white-bg.png",
-        width: 219,
-        height: 66,
-        alt: "Screenia",
+        url: "/landing/hero-slides/01/image.png",
+        width: 1200,
+        height: 675,
+        alt: "Screenia digital skyltning för lokala företag",
       },
     ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Screenia | Digital skyltning för företag i Sverige",
     description:
       "Digital signage, skärmreklam och hanterat skärminnehåll för företag i Sverige.",
-    images: ["/brand/screenia-logo-full-white-bg.png"],
+    images: ["/landing/hero-slides/01/image.png"],
   },
   icons: {
     icon: [

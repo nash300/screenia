@@ -11,12 +11,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: "weekly",
       priority: 1,
+      images: [
+        `${siteUrl}/landing/hero-slides/01/image.png`,
+        `${siteUrl}/brand/screenia-pricing-devices.png`,
+      ],
     },
     {
       url: `${siteUrl}/sa-fungerar-det`,
       lastModified,
       changeFrequency: "monthly",
-      priority: 0.75,
+      priority: 0.85,
+      images: [
+        `${siteUrl}/brand/how-it-works-sv-banner.png`,
+        `${siteUrl}/landing/hero-slides/02/image.png`,
+      ],
     },
     {
       url: `${siteUrl}/terms`,

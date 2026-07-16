@@ -693,12 +693,21 @@
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background-color: #d9ecff;
-  background-position: center right;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background:
+    radial-gradient(circle at 72% 26%, rgba(47, 125, 246, 0.34), transparent 34%),
+    radial-gradient(circle at 20% 74%, rgba(244, 122, 32, 0.18), transparent 28%),
+    linear-gradient(135deg, #061942 0%, #0b2d78 56%, #123fa8 100%);
   transform: scale(1.001);
-  transition: background-image 240ms ease;
+}
+
+.landing-hero-video-layer::before {
+  position: absolute;
+  inset: -24px;
+  background:
+    linear-gradient(90deg, rgba(6, 25, 66, 0.9), rgba(6, 25, 66, 0.18) 58%, rgba(6, 25, 66, 0.56)),
+    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.16), transparent 32%);
+  content: "";
+  opacity: 0.88;
 }
 
 .landing-hero-video-layer video,
@@ -706,7 +715,12 @@
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+}
+
+.landing-hero-background-image {
+  z-index: 1;
 }
 
 .landing-hero-copy,

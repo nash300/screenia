@@ -610,12 +610,19 @@ export default function Home() {
           <div
             className="landing-hero-video-layer"
             aria-hidden="true"
-            style={
-              currentHeroMedia
-                ? { backgroundImage: `url("${currentHeroMedia.src}")` }
-                : undefined
-            }
-          />
+          >
+            {currentHeroMedia && (
+              <Image
+                key={currentHeroMedia.id}
+                src={currentHeroMedia.src}
+                alt=""
+                fill
+                priority
+                sizes="100vw"
+                className="landing-hero-background-image"
+              />
+            )}
+          </div>
           <div className="landing-hero-copy">
             <div className="landing-hero-copy-main">
               <h1>

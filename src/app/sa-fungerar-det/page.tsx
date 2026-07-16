@@ -3,17 +3,30 @@ import Image from "next/image";
 import { LandingNav } from "@/components/LandingNav";
 import "../landing.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
+
 export const metadata: Metadata = {
-  title: "Så fungerar digital skyltning",
+  title: "Så fungerar digital skyltning för företag",
   description:
-    "Se hur Screenia hjälper lokala företag att komma igång med digital skyltning, skärminnehåll, betalning, leverans och löpande uppdateringar.",
+    "Guide till hur Screenia hjälper salonger, butiker, restauranger och lokala företag i Sverige att komma igång med digital skyltning utan tekniskt krångel.",
+  keywords: [
+    "så fungerar digital skyltning",
+    "digital skyltning företag",
+    "digital signage Sverige",
+    "skärminnehåll butik",
+    "digital menyskärm restaurang",
+    "reklamskärm salong",
+  ],
   alternates: {
     canonical: "/sa-fungerar-det",
+    languages: {
+      "sv-SE": "/sa-fungerar-det",
+    },
   },
   openGraph: {
-    title: "Så fungerar digital skyltning | Screenia",
+    title: "Så fungerar digital skyltning för företag | Screenia",
     description:
-      "En enkel guide till hur Screenia hjälper salonger, butiker och restauranger att visa professionellt innehåll på TV-skärm.",
+      "En enkel guide till hur Screenia hjälper lokala företag att visa menyer, kampanjer, prislistor och information på TV-skärm.",
     url: "/sa-fungerar-det",
     siteName: "Screenia",
     locale: "sv_SE",
@@ -26,6 +39,13 @@ export const metadata: Metadata = {
         alt: "Screenia digital skyltning för lokala företag",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Så fungerar digital skyltning för företag | Screenia",
+    description:
+      "Guide till digital skyltning för lokala företag i Sverige: paket, material, betalning, leverans och löpande uppdateringar.",
+    images: ["/brand/how-it-works-sv-banner.png"],
   },
 };
 
@@ -45,6 +65,47 @@ const reasons = [
 ] as const;
 
 export default function HowItWorksPage() {
+  const structuredData = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "@id": `${siteUrl}/sa-fungerar-det#webpage`,
+      url: `${siteUrl}/sa-fungerar-det`,
+      name: "Så fungerar digital skyltning för företag",
+      description: metadata.description,
+      inLanguage: "sv-SE",
+      isPartOf: {
+        "@type": "WebSite",
+        "@id": `${siteUrl}/#website`,
+        name: "Screenia",
+        url: siteUrl,
+      },
+      about: {
+        "@type": "Service",
+        "@id": `${siteUrl}/#digital-signage-service`,
+        name: "Digital skyltning för företag",
+      },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Startsida",
+          item: siteUrl,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Så fungerar det",
+          item: `${siteUrl}/sa-fungerar-det`,
+        },
+      ],
+    },
+  ];
+
   return (
     <div className="landing-page how-page">
       <LandingNav currentPath="/sa-fungerar-det" />
@@ -90,6 +151,11 @@ export default function HowItWorksPage() {
           </div>
         </section>
       </main>
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
     </div>
   );
 }
