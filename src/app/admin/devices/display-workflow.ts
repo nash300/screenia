@@ -26,14 +26,14 @@ export function displaySections(mediaCount: number): Array<{
     {
       id: "overview",
       stage: "1",
-      label: "Status",
-      description: "Display identity and service state",
+      label: "Endpoint status",
+      description: "Live display identity and service state",
     },
     {
       id: "details",
       stage: "2",
       label: "Placement",
-      description: "Location, notes, and customer context",
+      description: "Installation location and internal notes",
     },
     {
       id: "preview",

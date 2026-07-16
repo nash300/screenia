@@ -487,11 +487,12 @@ export default function AdminDevicePage({
           <div className="admin-operation-panel mt-5">
             <div className="admin-operation-header">
               <div>
-                <p className="admin-operation-kicker">Display operation flow</p>
-                <h3>Activation and deletion</h3>
+                <p className="admin-operation-kicker">Display endpoint action</p>
+                <h3>Service state and cleanup</h3>
                 <p>
-                  Choose a sensitive display action, add the audit reason, then
-                  confirm before changing the live display state.
+                  Use this panel for the live display endpoint only. Physical
+                  box purchase, warranty, repair, and stock status stay in
+                  Hardware stock.
                 </p>
               </div>
               <div className="admin-operation-summary">
@@ -521,8 +522,8 @@ export default function AdminDevicePage({
                     {isActive ? "Deactivate display" : "Activate display"}
                   </strong>
                   <small>
-                    Controls whether this display endpoint is allowed to serve
-                    live screen content.
+                    Controls whether this endpoint can serve the customer
+                    playlist on screen.
                   </small>
                 </span>
                 <em>
@@ -549,8 +550,9 @@ export default function AdminDevicePage({
                 <span>
                   <strong>Delete display</strong>
                   <small>
-                    Removes this display endpoint and its playlist. Use only for wrong or
-                    duplicate records.
+                    Removes this endpoint and playlist only for wrong or
+                    duplicate records. Do not use for normal customer
+                    cancellation.
                   </small>
                 </span>
                 <em>
@@ -574,8 +576,8 @@ export default function AdminDevicePage({
                   </h4>
                   <p>
                     {deviceOperationDraft.operation === "delete"
-                      ? "This will remove the display record and its playlist."
-                      : "This changes whether the display can be used operationally."}
+                      ? "This removes the display endpoint record and playlist, but does not delete hardware stock history."
+                      : "This changes whether the display endpoint can serve live customer content."}
                   </p>
                 </div>
 
