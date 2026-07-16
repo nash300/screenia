@@ -630,11 +630,12 @@ export default function AdminInventoryPage() {
                 <div className="admin-operation-panel admin-inventory-operation-panel">
                   <div className="admin-operation-header">
                     <div>
-                      <p className="admin-operation-kicker">Hardware stock operation flow</p>
-                      <h3>Update stock lifecycle</h3>
+                      <p className="admin-operation-kicker">Stock ledger action</p>
+                      <h3>Physical stock lifecycle</h3>
                       <p>
-                        Choose the next hardware state, add a reason, then
-                        confirm the audited inventory update.
+                        Use this panel only for the physical box: shipping,
+                        returns, defects, repair, and retirement. Customer
+                        assignment starts from the customer Device allocation tab.
                       </p>
                     </div>
                     <div className="admin-operation-summary">
@@ -645,6 +646,10 @@ export default function AdminInventoryPage() {
 
                   <div className="admin-operation-grid">
                     <div className="admin-operation-list">
+                      <p className="admin-operation-list-note">
+                        Choose the audited stock event that matches what has
+                        happened to the physical device.
+                      </p>
                       {inventoryOperations.map((operation) => (
                         <button
                           key={operation.id}
@@ -693,8 +698,8 @@ export default function AdminInventoryPage() {
                             }
                           </h4>
                           <p>
-                            This will update the selected stock item and write
-                            an inventory history event.
+                            This updates the stock ledger and writes an
+                            inventory history event with timestamp and reason.
                           </p>
                         </div>
 

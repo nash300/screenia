@@ -63,8 +63,8 @@ export const inventoryOperations: Array<{
 }> = [
   {
     id: "shipped",
-    label: "Mark shipped",
-    description: "Use when the box leaves Screenia for the customer.",
+    label: "Confirm shipped",
+    description: "Use after customer allocation when the physical box leaves Screenia.",
     status: "shipped",
     condition: "tested",
     tone: "success",
@@ -72,7 +72,7 @@ export const inventoryOperations: Array<{
   {
     id: "returned",
     label: "Mark returned",
-    description: "Clear the customer assignment and record a customer return.",
+    description: "Record a customer return and clear the stock item for inspection.",
     status: "returned",
     condition: "returned",
     tone: "warning",
@@ -95,7 +95,7 @@ export const inventoryOperations: Array<{
   {
     id: "in_stock",
     label: "Back to stock",
-    description: "Return the repaired box to available stock.",
+    description: "Return the repaired or inspected box to available stock.",
     status: "in_stock",
     condition: "repaired",
     tone: "success",
