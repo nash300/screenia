@@ -38,18 +38,18 @@ type Customer = {
 const statusFilters = [
   { value: "all", label: "All" },
   { value: "paid", label: "Paid" },
-  { value: "content_pending", label: "Content pending" },
-  { value: "content_received", label: "Content received" },
-  { value: "needs_device", label: "Needs device allocation" },
-  { value: "needs_playlist", label: "Needs playlist" },
+  { value: "content_pending", label: "Material pending" },
+  { value: "content_received", label: "Material received" },
+  { value: "needs_device", label: "Ready for device allocation" },
+  { value: "needs_playlist", label: "Needs playlist content" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
 ];
 
 const onboardingFilters = [
-  { value: "new_request", label: "Requests", hint: "needs review" },
-  { value: "draft", label: "Drafts", hint: "prepare quote" },
-  { value: "invited", label: "Invited", hint: "waiting details/payment" },
+  { value: "new_request", label: "New requests", hint: "review inquiry" },
+  { value: "draft", label: "Quote drafts", hint: "prepare offer" },
+  { value: "invited", label: "Setup links sent", hint: "waiting details/payment" },
 ];
 
 const isSchemaMismatch = (
@@ -378,8 +378,8 @@ function CustomersContent() {
       <div className="admin-page-header">
         <h1 className="admin-title">Customer work</h1>
         <p className="admin-subtitle">
-          Manage request review, quote/onboarding, payment follow-up, content,
-          device allocation, communication, and the full customer profile.
+          Manage the customer journey from inquiry and quote to material,
+          billing, device allocation, communication, and retained history.
         </p>
       </div>
 
@@ -430,7 +430,7 @@ function CustomersContent() {
           <h2 className="admin-card-title text-xl">Find customer work</h2>
           <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-800">
-              Onboarding queue
+              Customer intake
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {onboardingFilters.map((status) => {
@@ -456,7 +456,7 @@ function CustomersContent() {
 
           <div className="mt-4">
             <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              Operations
+              Service delivery queues
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               {statusFilters.map((status) => {
@@ -523,9 +523,9 @@ function CustomersContent() {
                     const subscription = latestSubscription(customer);
                     const needsSetup =
                       customer.status === "active" && deviceCount === 0
-                        ? "Needs device allocation"
+                        ? "Ready for device allocation"
                         : customer.status === "active" && hasDeviceWithoutPlaylist(customer)
-                          ? "Needs playlist"
+                          ? "Needs playlist content"
                           : "";
                     return (
                       <tr key={customer.id}>

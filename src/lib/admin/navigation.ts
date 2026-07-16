@@ -9,7 +9,7 @@ export const adminNavItems = [
     href: "/admin/customers",
     label: "Customer work",
     icon: "CU",
-    description: "Requests, onboarding links, customer details, account setup, messages, and uploads.",
+    description: "Inquiry, quote, setup link, material, billing handoff, communication, and customer profile.",
   },
   {
     href: "/admin/orders",
