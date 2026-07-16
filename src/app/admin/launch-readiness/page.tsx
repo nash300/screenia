@@ -85,6 +85,11 @@ function statusRank(status: ReadinessStatus) {
   return 2;
 }
 
+function actionPriority(check: ReadinessCheck) {
+  const manualPriority = manualGateKeys.has(check.key) ? 0 : 1;
+  return manualPriority * 10 + statusRank(check.status);
+}
+
 function getCategoryGroups(checks: ReadinessCheck[]) {
   const assigned = new Set<string>();
   const groups = categoryDefinitions.map((category) => {
@@ -125,13 +130,13 @@ export default function LaunchReadinessPage() {
     () => data?.checks.filter((check) => check.status === "warning") || [],
     [data],
   );
-  const reviewFirstChecks = useMemo(
+  const actionQueue = useMemo(
     () =>
       [...blockedChecks, ...warningChecks]
-        .filter((check) => manualGateKeys.has(check.key))
-        .sort((a, b) => statusRank(a.status) - statusRank(b.status)),
+        .sort((a, b) => actionPriority(a) - actionPriority(b)),
     [blockedChecks, warningChecks],
   );
+  const visibleActionQueue = actionQueue.slice(0, 8);
   const categoryGroups = useMemo(
     () => getCategoryGroups(data?.checks || []),
     [data],
@@ -236,18 +241,25 @@ export default function LaunchReadinessPage() {
         )}
       </section>
 
-      {reviewFirstChecks.length > 0 && (
+      {actionQueue.length > 0 && (
         <section className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Manual gates to finish first</h2>
+          <h2 className="admin-card-title text-xl">Launch action queue</h2>
           <p className="admin-muted mt-2">
-            These are the business/service proofs we should complete before a long
-            real-world checkout and display test pass.
+            Work from the top down. Manual business/service proofs are shown
+            first, then blocked checks, then warnings that need review before
+            live payments or production changes.
           </p>
           <div className="mt-4 grid gap-3">
-            {reviewFirstChecks.map((check) => (
-              <ReadinessCheckCard key={`manual-${check.key}`} check={check} />
+            {visibleActionQueue.map((check) => (
+              <ReadinessCheckCard key={`action-${check.key}`} check={check} />
             ))}
           </div>
+          {actionQueue.length > visibleActionQueue.length && (
+            <p className="admin-muted mt-3 text-sm">
+              {actionQueue.length - visibleActionQueue.length} more review items
+              are available in the work areas below.
+            </p>
+          )}
         </section>
       )}
 
@@ -313,25 +325,6 @@ export default function LaunchReadinessPage() {
           </div>
         </details>
       </section>
-
-      {(blockedChecks.length > 0 || warningChecks.length > 0) && (
-        <section className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Next actions</h2>
-          <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-slate-700">
-            {blockedChecks.map((check) => (
-              <li key={`blocked-${check.key}`}>
-                Resolve blocked item: <strong>{check.label}</strong>.
-              </li>
-            ))}
-            {warningChecks.map((check) => (
-              <li key={`warning-${check.key}`}>
-                Review before launch or production change:{" "}
-                <strong>{check.label}</strong>.
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
     </div>
   );
 }
