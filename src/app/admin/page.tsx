@@ -325,7 +325,7 @@ export default function AdminHomePage() {
           <WorkspaceLink
             href="/admin/orders"
             title="Orders & billing"
-            description="Quotes, Stripe status, VAT evidence, refunds, cancellation, and accounting exports."
+            description="Quotes, Stripe status, refunds, cancellation, and accounting exports."
           />
           <WorkspaceLink
             href="/admin/devices"
@@ -346,6 +346,16 @@ export default function AdminHomePage() {
             href="/admin/launch-readiness"
             title="Launch readiness"
             description="Operational gates before live payments and public launch."
+          />
+          <WorkspaceLink
+            href="/admin/pricing"
+            title="Pricing"
+            description="Packages, included VAT, setup fees, device prices, shipping, and Stripe sync."
+          />
+          <WorkspaceLink
+            href="/admin/compliance"
+            title="Compliance"
+            description="VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence."
           />
         </div>
       </section>

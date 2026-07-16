@@ -33,19 +33,18 @@ export default function AdminCompliancePage() {
       <div className="admin-page-header">
         <h1 className="admin-title">Compliance</h1>
         <p className="admin-subtitle">
-          Occasional audit, privacy, tax, and governance tools grouped away from
-          daily customer operations.
+          Business-control workflows for VAT, legal changes, privacy, security,
+          vendors, and recovery evidence.
         </p>
       </div>
 
       <section className="admin-compliance-summary admin-card p-6">
         <div>
-          <p className="admin-operation-kicker">Quiet workspace</p>
-          <h2 className="admin-card-title text-xl">Use only when needed</h2>
+          <p className="admin-operation-kicker">Business control</p>
+          <h2 className="admin-card-title text-xl">Evidence without clutter</h2>
           <p className="admin-muted">
-            These registers support launch readiness, GDPR, accounting, and
-            operational evidence. They stay available without crowding the main
-            sidebar.
+            These workflows support launch readiness, GDPR, accounting, and
+            operational evidence without crowding daily customer work.
           </p>
         </div>
       </section>
@@ -89,20 +88,20 @@ function describeComplianceItem(href: string) {
     case "/admin/tax-payments":
       return "VAT/moms filing periods, payment status, and audit evidence";
     case "/admin/legal-change-notices":
-      return "Policy version changes and customer notice tracking";
+      return "Policy notice workflow and customer re-acceptance tracking";
     case "/admin/data-retention":
-      return "Retention, anonymization, and deletion review records";
+      return "Retention, anonymization, and deletion review workflow";
     case "/admin/data-subject-requests":
       return "GDPR access, deletion, export, or correction requests";
     case "/admin/privacy-incidents":
       return "Security/privacy incident response workflow";
     case "/admin/access-reviews":
-      return "Admin access and MFA review evidence";
+      return "Admin access, MFA, and removal review workflow";
     case "/admin/processor-reviews":
       return "Vendor approval, DPA, ownership, and security evidence";
     case "/admin/backup-drills":
       return "Backup coverage, restore tests, and recovery evidence";
     default:
-      return "Compliance register";
+      return "Compliance workflow";
   }
 }
