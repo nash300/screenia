@@ -12,16 +12,16 @@ export const adminNavItems = [
     description: "Inquiry, quote, setup link, material, billing handoff, communication, and customer profile.",
   },
   {
+    href: "/admin/contact-inquiries",
+    label: "Visitor messages",
+    icon: "VM",
+    description: "Public contact questions, reply history, email delivery, and case status.",
+  },
+  {
     href: "/admin/orders",
     label: "Orders & billing",
     icon: "OR",
     description: "Quotes, Stripe status, refunds, cancellation, and accounting exports.",
-  },
-  {
-    href: "/admin/email-events",
-    label: "Email evidence",
-    icon: "EM",
-    description: "Transactional email delivery, failures, bounces, and customer communication evidence.",
   },
   {
     href: "/admin/devices",
@@ -42,10 +42,10 @@ export const adminNavItems = [
     description: "Packages, included moms, setup fees, device prices, shipping, and Stripe sync.",
   },
   {
-    href: "/admin/launch-readiness",
-    label: "Launch readiness",
-    icon: "RD",
-    description: "Operational gates before live payments and public launch.",
+    href: "/admin/training",
+    label: "Training catalog",
+    icon: "TR",
+    description: "Reserved workspace for future Screenia training material.",
   },
   {
     href: "/admin/compliance",
@@ -53,12 +53,23 @@ export const adminNavItems = [
     icon: "CO",
     description: "Moms/VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence.",
   },
+  {
+    href: "/admin/troubleshooting",
+    label: "Troubleshooting",
+    icon: "TS",
+    description: "Diagnostic tools used only when investigating technical problems.",
+  },
 ];
 
 export const adminNavGroups = [
   {
     title: "Customer operations",
-    hrefs: ["/admin", "/admin/customers", "/admin/orders", "/admin/email-events"],
+    hrefs: [
+      "/admin",
+      "/admin/customers",
+      "/admin/contact-inquiries",
+      "/admin/orders",
+    ],
   },
   {
     title: "Service delivery",
@@ -66,7 +77,11 @@ export const adminNavGroups = [
   },
   {
     title: "Business control",
-    hrefs: ["/admin/pricing", "/admin/launch-readiness", "/admin/compliance"],
+    hrefs: ["/admin/pricing", "/admin/training", "/admin/compliance"],
+  },
+  {
+    title: "System support",
+    hrefs: ["/admin/troubleshooting"],
   },
 ];
 

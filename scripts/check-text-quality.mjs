@@ -37,6 +37,10 @@ const suspiciousPatterns = [
     label: "double-encoded mojibake marker",
     pattern: /\u00C3\u0192|\u00C2[\u00A0-\u00BF]/u,
   },
+  {
+    label: "ASCII-only Swedish customer wording",
+    pattern: /Svar fran|Vanliga halsningar|pa ditt arende|Integritetsbegaran|supportarende/u,
+  },
 ];
 
 function extensionOf(path) {

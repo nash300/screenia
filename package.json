@@ -7,7 +7,17 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "text:check": "node scripts/check-text-quality.mjs"
+    "text:check": "node scripts/check-text-quality.mjs",
+    "billing:check": "node scripts/check-billing-invariants.mjs",
+    "pricing:sync-additional-setup:test": "node scripts/sync-additional-setup-price.mjs",
+    "pricing:verify-services": "node scripts/verify-pricing-services.mjs",
+    "admin-framework:check": "node scripts/check-admin-framework.mjs",
+    "stripe:replay-dispute": "node scripts/replay-stripe-dispute-event.mjs",
+    "stripe:replay-refund": "node scripts/replay-stripe-refund-event.mjs",
+    "qa:customers:seed": "node --env-file=.env.local scripts/qa-customers.mjs seed --confirm-screenia-qa",
+    "qa:customers:verify": "node --env-file=.env.local scripts/qa-customers.mjs verify",
+    "qa:customers:clean": "node --env-file=.env.local scripts/qa-customers.mjs clean --confirm-screenia-qa",
+    "release:check": "npm run lint && npm run text:check && npm run billing:check && npm run admin-framework:check && npm run build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

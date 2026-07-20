@@ -73,6 +73,21 @@ type AccountData = {
     shipping_fee_sek: number | null;
     monthly_fee_sek: number | null;
     trial_days: number | null;
+    trial_starts_at: string | null;
+    trial_ends_at: string | null;
+    screen_quantity: number | null;
+    device_discount_amount_sek: number | null;
+    monthly_discount_amount_sek: number | null;
+    device_discount_months: number | null;
+    quote_items: Array<{
+      pricingPlanCode?: string;
+      name?: string;
+      resolution?: string;
+      quantity?: number;
+      hardwareFeeSek?: number;
+      shippingFeeSek?: number;
+      monthlyFeeSek?: number;
+    }> | null;
     tax_status: string | null;
     tax_amount_sek: number | null;
     total_amount_sek: number | null;
@@ -165,6 +180,15 @@ type AccountData = {
     summary: string | null;
     pdf_url: string | null;
   }>;
+  subscriptionAdjustments: Array<{
+    id: string;
+    customer_subscription_id: string;
+    percent_off: number;
+    duration_months: number;
+    status: string;
+    created_at: string;
+    ended_at: string | null;
+  }>;
 };
 
 type MaterialUploadItem = {
@@ -173,6 +197,10 @@ type MaterialUploadItem = {
 };
 
 const formatter = new Intl.NumberFormat("sv-SE");
+const preciseCurrencyFormatter = new Intl.NumberFormat("sv-SE", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
 
 const sections: Array<{
   id: AccountSection;
@@ -220,13 +248,8 @@ function money(amount: number | null) {
   return `${formatter.format(amount)} kr`;
 }
 
-function stripeMoney(amount: number | null) {
-  if (typeof amount !== "number") return "-";
-
-  return `${(amount / 100).toLocaleString("sv-SE", {
-    minimumFractionDigits: amount % 100 === 0 ? 0 : 2,
-    maximumFractionDigits: 2,
-  })} kr`;
+function preciseMoney(amount: number) {
+  return `${preciseCurrencyFormatter.format(amount)} kr`;
 }
 
 function date(value: string | null) {
@@ -236,6 +259,33 @@ function date(value: string | null) {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+function trialStatus(subscription: AccountData["subscriptions"][number]) {
+  if (!subscription.trial_ends_at) {
+    return `${subscription.trial_days || 0} dagar`;
+  }
+
+  const trialEnd = new Date(subscription.trial_ends_at);
+  const currentPeriodStart = subscription.stripe_current_period_start
+    ? new Date(subscription.stripe_current_period_start)
+    : null;
+  const billingHasPassedTrial =
+    currentPeriodStart &&
+    !Number.isNaN(currentPeriodStart.getTime()) &&
+    currentPeriodStart.getTime() >= trialEnd.getTime();
+
+  if (billingHasPassedTrial || trialEnd.getTime() <= Date.now()) {
+    return `Avslutad ${date(subscription.trial_ends_at)}`;
+  }
+
+  const daysRemaining = Math.max(
+    0,
+    Math.ceil((trialEnd.getTime() - Date.now()) / (24 * 60 * 60 * 1000)),
+  );
+  return `${daysRemaining} dag${daysRemaining === 1 ? "" : "ar"} kvar (till ${date(
+    subscription.trial_ends_at,
+  )})`;
 }
 
 function fileSize(value: number | null) {
@@ -380,6 +430,7 @@ export default function AccountPage() {
   const [uploadingMaterial, setUploadingMaterial] = useState(false);
   const [cancellationReason, setCancellationReason] = useState("");
   const [cancellationDetails, setCancellationDetails] = useState("");
+  const [cancelConfirmationOpen, setCancelConfirmationOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   const [exportingData, setExportingData] = useState(false);
   const [savingConsents, setSavingConsents] = useState(false);
@@ -391,12 +442,45 @@ export default function AccountPage() {
   const router = useRouter();
 
   const activeSubscription = data?.subscriptions[0];
+  const activeTemporaryDiscount = data?.subscriptionAdjustments.find(
+    (adjustment) => adjustment.customer_subscription_id === activeSubscription?.id,
+  );
+  const quotedItems = activeSubscription?.quote_items || [];
+  const screenQuantity = Math.max(1, activeSubscription?.screen_quantity || 1);
+  const hardwareSubtotalSek = activeSubscription
+    ? quotedItems.length
+      ? quotedItems.reduce(
+          (sum, item) => sum + (item.hardwareFeeSek || 0) * Math.max(1, item.quantity || 1),
+          0,
+        )
+      : (activeSubscription.hardware_fee_sek || 0) * screenQuantity
+    : 0;
+  const shippingSubtotalSek = activeSubscription
+    ? quotedItems.length
+      ? quotedItems.reduce(
+          (sum, item) => sum + (item.shippingFeeSek || 0) * Math.max(1, item.quantity || 1),
+          0,
+        )
+      : (activeSubscription.shipping_fee_sek || 0) * screenQuantity
+    : 0;
+  const monthlySubtotalSek = activeSubscription
+    ? quotedItems.length
+      ? quotedItems.reduce(
+          (sum, item) => sum + (item.monthlyFeeSek || 0) * Math.max(1, item.quantity || 1),
+          0,
+        )
+      : (activeSubscription.monthly_fee_sek || 0) * screenQuantity
+    : 0;
   const initialPaymentSek = activeSubscription
     ? (activeSubscription.setup_fee_sek || 0) +
-      (activeSubscription.hardware_fee_sek || 0) +
-      (activeSubscription.shipping_fee_sek || 0)
+      hardwareSubtotalSek +
+      shippingSubtotalSek -
+      (activeSubscription.device_discount_amount_sek || 0)
     : 0;
-  const monthlyPaymentSek = activeSubscription?.monthly_fee_sek || 0;
+  const monthlyPaymentSek = monthlySubtotalSek;
+  const discountedMonthlyPaymentSek = activeTemporaryDiscount
+    ? monthlyPaymentSek * (1 - activeTemporaryDiscount.percent_off / 100)
+    : monthlyPaymentSek;
   const dashboardStats = useMemo(
     () => [
       { label: "Skärmar", value: String(data?.devices.length || 0) },
@@ -724,16 +808,18 @@ export default function AccountPage() {
     window.location.href = result.url;
   };
 
-  const cancelSubscription = async () => {
+  const requestCancellation = () => {
     if (!cancellationReason) {
       setNotice("Välj en avslutsorsak först.");
       return;
     }
 
-    const confirmed = window.confirm(
-      "Vill du avsluta ditt Screenia-abonnemang? Tjänsten fortsätter till sista dagen i den period du redan har betalat för.",
-    );
-    if (!confirmed) return;
+    setNotice("");
+    setCancelConfirmationOpen(true);
+  };
+
+  const cancelSubscription = async () => {
+    setCancelConfirmationOpen(false);
 
     setCancelling(true);
     setNotice("");
@@ -1443,16 +1529,8 @@ export default function AccountPage() {
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
                       <Fact
-                        label="Tjänsteåtkomst"
-                        value={statusLabel(data.customer.service_access_status)}
-                      />
-                      <Fact
-                        label="Åtkomst till"
-                        value={date(data.customer.service_access_until)}
-                      />
-                      <Fact
-                        label="Betald period"
-                        value={`${date(activeSubscription.stripe_current_period_start)} - ${date(activeSubscription.stripe_current_period_end)}`}
+                        label="Antal skärmar"
+                        value={String(screenQuantity)}
                       />
                       {activeSubscription.cancel_at_period_end && (
                         <Fact
@@ -1468,33 +1546,44 @@ export default function AccountPage() {
                       )}
                       <Fact label="Första betalning" value={money(initialPaymentSek)} />
                       <Fact label="Månadspris efter provperiod" value={money(monthlyPaymentSek)} />
+                      {activeTemporaryDiscount && (
+                        <>
+                          <Fact
+                            label="Aktiv tillfällig rabatt"
+                            value={`${formatter.format(activeTemporaryDiscount.percent_off)} % i ${activeTemporaryDiscount.duration_months} månader`}
+                          />
+                          <Fact
+                            label="Månadspris med rabatt"
+                            value={preciseMoney(discountedMonthlyPaymentSek)}
+                          />
+                        </>
+                      )}
+                      {(activeSubscription.monthly_discount_amount_sek || 0) > 0 &&
+                        (activeSubscription.device_discount_months || 0) > 0 && (
+                          <Fact
+                            label={`Rabatt första ${activeSubscription.device_discount_months} månader`}
+                            value={`-${money(activeSubscription.monthly_discount_amount_sek)} per månad`}
+                          />
+                        )}
                       <Fact
                         label="Senaste betalningsstatus"
                         value={statusLabel(activeSubscription.stripe_payment_status)}
                       />
-                      <Fact
-                        label="Senaste faktura"
-                        value={activeSubscription.stripe_invoice_id || "-"}
-                      />
-                      <Fact
-                        label="Senaste fakturabelopp"
-                        value={stripeMoney(activeSubscription.total_amount_sek)}
-                      />
-                      <Fact
-                        label="Senaste moms"
-                        value={stripeMoney(activeSubscription.tax_amount_sek)}
-                      />
-                      <Fact label="Provperiod" value={`${activeSubscription.trial_days || 0} dagar`} />
-                      <Fact label="Leverans" value={activeSubscription.fulfillment_status || "-"} />
-                      <Fact label="Spårningsnummer" value={activeSubscription.tracking_number || "-"} />
-                      <Fact
-                        label="Spårningslänk"
-                        value={activeSubscription.tracking_url || "-"}
-                      />
+                      <Fact label="Provperiod" value={trialStatus(activeSubscription)} />
                       <p className="account-price-note">
                         Första betalningen består av startavgift {money(activeSubscription.setup_fee_sek)},
-                        skärmenhet {money(activeSubscription.hardware_fee_sek)} och frakt {money(activeSubscription.shipping_fee_sek)}.
+                        skärmenhet {money(hardwareSubtotalSek)} och frakt {money(shippingSubtotalSek)}
+                        {(activeSubscription.device_discount_amount_sek || 0) > 0
+                          ? `, minus rabatt ${money(activeSubscription.device_discount_amount_sek)}`
+                          : ""}.
                         Alla priser visas inklusive moms.
+                        {activeTemporaryDiscount
+                          ? ` Den tillfälliga rabatten används på upp till ${activeTemporaryDiscount.duration_months} månadsfakturor. Därefter återgår priset automatiskt till ${money(monthlyPaymentSek)}.`
+                          : ""}
+                        {(activeSubscription.monthly_discount_amount_sek || 0) > 0 &&
+                        (activeSubscription.device_discount_months || 0) > 0
+                          ? " Stripe tillämpar rabatten på de första månadsfakturorna."
+                          : ""}
                       </p>
                     </div>
                   ) : (
@@ -1533,7 +1622,7 @@ export default function AccountPage() {
                   <button
                     className="landing-button landing-button-secondary"
                     disabled={cancelling}
-                    onClick={cancelSubscription}
+                    onClick={requestCancellation}
                   >
                     {cancelling ? "Avslutar..." : "Avsluta abonnemang"}
                   </button>
@@ -1665,6 +1754,67 @@ export default function AccountPage() {
           )}
         </main>
       </div>
+
+      {cancelConfirmationOpen && activeSubscription && (
+        <div className="account-dialog-backdrop" role="presentation">
+          <section
+            className="account-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-cancel-title"
+          >
+            <p className="landing-eyebrow">Bekräfta avslut</p>
+            <h2 id="account-cancel-title">Avsluta vid periodens slut?</h2>
+            <p>
+              Abonnemanget och skärmtjänsten fortsätter att fungera till den
+              redan betalda periodens slut
+              {activeSubscription.stripe_current_period_end
+                ? `, ${date(activeSubscription.stripe_current_period_end)}`
+                : ""}.
+              Därefter stoppas kommande månadsdebiteringar.
+            </p>
+            <dl className="account-dialog-summary">
+              <div>
+                <dt>Paket</dt>
+                <dd>{activeSubscription.pricing_plans?.name || "Screenia"}</dd>
+              </div>
+              <div>
+                <dt>Månadspris</dt>
+                <dd>{money(monthlyPaymentSek)}</dd>
+              </div>
+              <div>
+                <dt>Orsak</dt>
+                <dd>
+                  {cancellationReasons.find(
+                    (reason) => reason.value === cancellationReason,
+                  )?.label || cancellationReason}
+                </dd>
+              </div>
+            </dl>
+            {cancellationDetails.trim() && (
+              <p className="account-dialog-note">{cancellationDetails.trim()}</p>
+            )}
+            <div className="account-dialog-actions">
+              <button
+                type="button"
+                className="landing-button landing-button-secondary"
+                onClick={() => setCancelConfirmationOpen(false)}
+                disabled={cancelling}
+              >
+                Behåll abonnemanget
+              </button>
+              <button
+                type="button"
+                className="landing-button landing-button-primary"
+                onClick={cancelSubscription}
+                disabled={cancelling}
+              >
+                {cancelling ? "Avslutar..." : "Bekräfta avslut"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </AccountShell>
   );
 }

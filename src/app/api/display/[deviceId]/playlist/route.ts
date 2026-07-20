@@ -50,7 +50,7 @@ function noStoreJson(body: unknown, init?: ResponseInit) {
 
 export async function GET(
   _request: Request,
-  context: RouteContext<"/api/display/[deviceId]/playlist">,
+  context: { params: Promise<{ deviceId: string }> },
 ) {
   const { deviceId } = await context.params;
 

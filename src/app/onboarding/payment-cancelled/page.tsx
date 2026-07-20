@@ -2,7 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import "../../landing.css";
 
-export default function PaymentCancelledPage() {
+export default async function PaymentCancelledPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) {
+  const { token } = await searchParams;
+  const canReturnToOnboarding = Boolean(
+    token && /^[0-9a-f-]{36}$/i.test(token),
+  );
+
   return (
     <div className="landing-page flow-page flow-result-page">
       <main className="flow-shell flow-result-shell flow-result-shell-warning">
@@ -16,9 +25,18 @@ export default function PaymentCancelledPage() {
             k&auml;ndes oklart i betalningssteget.
           </p>
           <div className="flow-result-actions">
-            <Link href="/" className="landing-button landing-button-primary">
-              Till startsidan
-            </Link>
+            {canReturnToOnboarding ? (
+              <Link
+                href={`/onboarding/${token}`}
+                className="landing-button landing-button-primary"
+              >
+                Tillbaka till betalningen
+              </Link>
+            ) : (
+              <Link href="/" className="landing-button landing-button-primary">
+                Till startsidan
+              </Link>
+            )}
             <Link href="/support-service-policy" className="landing-button landing-button-secondary">
               L&auml;s om service
             </Link>

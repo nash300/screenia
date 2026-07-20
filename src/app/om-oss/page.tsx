@@ -245,7 +245,7 @@ export default function AboutPage() {
             tydliga priser, säkra flöden och ett visuellt uttryck som gör
             skillnad i vardagen.
           </p>
-          <Link href="/#contact" className="landing-button landing-button-primary">
+          <Link href="/kontakt" className="landing-button landing-button-primary">
             Kontakta Screenia
           </Link>
         </section>

@@ -5,6 +5,11 @@ import { recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
+import {
+  escapeHtml,
+  renderBrandedEmail,
+  sendTransactionalEmail,
+} from "@/lib/server/email";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -54,6 +59,21 @@ function invoiceSubscriptionId(invoice: Stripe.Invoice) {
     : invoiceWithSubscription.subscription?.id ||
         invoiceWithSubscription.parent?.subscription_details?.subscription ||
         null;
+}
+
+function formatStripeSek(amountOre: number | null | undefined) {
+  return `${((amountOre ?? 0) / 100).toLocaleString("sv-SE", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} kr`;
+}
+
+function formatInvoiceDate(timestamp: number | null | undefined) {
+  if (!timestamp) return null;
+  return new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "long",
+    timeZone: "Europe/Stockholm",
+  }).format(new Date(timestamp * 1000));
 }
 
 function fulfillmentStatusForPaidRecovery(customer: {
@@ -493,7 +513,7 @@ async function findCustomersForStripeFinancialEvent({
     const { data, error } = await supabaseAdmin
       .from("customers")
       .select(
-        "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id",
+        "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id, layout_started_at",
       )
       .eq("stripe_customer_id", stripeCustomerId);
 
@@ -529,7 +549,7 @@ async function findCustomersForStripeFinancialEvent({
   const { data, error } = await supabaseAdmin
     .from("customers")
     .select(
-      "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id",
+      "id, payment_status, inactive_reason, cancellation_reason, cancellation_details, cancellation_source, cancelled_at, stripe_subscription_id, layout_started_at",
     )
     .in("id", customerIds);
 
@@ -580,6 +600,7 @@ async function handleStripeDispute(
     paymentIntentId,
   });
   const disputeWon = dispute.status === "won";
+  const disputeLost = dispute.status === "lost";
   const shouldBlockAccess = !disputeWon;
   const disputeMetadata = {
     stripeEventType,
@@ -740,17 +761,47 @@ async function handleStripeDispute(
 
   try {
     await Promise.all(
-      customers.map((customer) =>
-        Promise.all([
+      customers.map(async (customer) => {
+        const evidenceEventType = disputeWon
+          ? "payment_dispute_won"
+          : disputeLost
+            ? "payment_dispute_lost"
+            : "payment_disputed";
+        const { data: existingEvidence, error: existingEvidenceError } =
+          await supabaseAdmin
+            .from("audit_events")
+            .select("id")
+            .eq("customer_id", customer.id)
+            .eq("event_type", evidenceEventType)
+            .contains("metadata", {
+              disputeId: dispute.id,
+              disputeStatus: dispute.status,
+            })
+            .limit(1);
+
+        if (existingEvidenceError) throw existingEvidenceError;
+        if (existingEvidence?.length) return;
+
+        const outcomeLabel = disputeWon
+          ? "won"
+          : disputeLost
+            ? "lost"
+            : "opened or updated";
+        const evidenceDedupeKey = `stripe_dispute:${dispute.id}:${dispute.status}`;
+
+        return Promise.all([
           recordAuditEvent(
             supabaseAdmin,
             {
               customerId: customer.id,
               actorType: "stripe",
-              eventType: disputeWon ? "payment_dispute_won" : "payment_disputed",
+              eventType: evidenceEventType,
+              dedupeKey: evidenceDedupeKey,
               eventDescription: disputeWon
                 ? "Stripe reported a won payment dispute."
-                : "Stripe reported a payment dispute. Customer display access was blocked.",
+                : disputeLost
+                  ? "Stripe reported a lost payment dispute. Customer display access remains blocked."
+                  : "Stripe reported a payment dispute. Customer display access was blocked.",
               metadata: disputeMetadata,
             },
             { throwOnError: true },
@@ -759,18 +810,25 @@ async function handleStripeDispute(
             supabaseAdmin,
             {
               customerId: customer.id,
-              eventType: disputeWon ? "payment_dispute_won" : "payment_disputed",
-              title: disputeWon ? "Payment dispute won" : "Payment disputed",
+              eventType: evidenceEventType,
+              dedupeKey: evidenceDedupeKey,
+              title: disputeWon
+                ? "Payment dispute won"
+                : disputeLost
+                  ? "Payment dispute lost"
+                  : "Payment disputed",
               message: disputeWon
                 ? `Stripe marked dispute ${dispute.id} as won. Review access and records.`
-                : `Stripe opened or updated dispute ${dispute.id}. Display access was blocked.`,
+                : disputeLost
+                  ? `Stripe marked dispute ${dispute.id} as lost. Display access remains blocked.`
+                  : `Stripe ${outcomeLabel} dispute ${dispute.id}. Display access was blocked.`,
               priority: disputeWon ? "high" : "urgent",
               metadata: disputeMetadata,
             },
             { throwOnError: true },
           ),
-        ]),
-      ),
+        ]);
+      }),
     );
   } catch (evidenceError) {
     console.error("Stripe dispute evidence storage error:", evidenceError);
@@ -837,6 +895,10 @@ async function handleStripeRefund(
       const appInitiatedRefund =
         customer.cancellation_source === "admin" ||
         customer.cancellation_source === "customer";
+      const refundReason = customer.layout_started_at
+        ? "refunded_after_production"
+        : "refunded_before_production";
+
       const { error: customerUpdateError } = await supabaseAdmin
         .from("customers")
         .update({
@@ -845,10 +907,10 @@ async function handleStripeRefund(
           service_access_status: "refunded",
           service_access_until: null,
           inactive_reason: appInitiatedRefund
-            ? customer.inactive_reason || "refunded_before_production"
-            : "refunded_before_production",
+            ? customer.inactive_reason || refundReason
+            : refundReason,
           cancellation_reason: appInitiatedRefund
-            ? customer.cancellation_reason || "refunded_before_production"
+            ? customer.cancellation_reason || refundReason
             : "external_stripe_refund",
           cancellation_details: appInitiatedRefund
             ? customer.cancellation_details
@@ -876,6 +938,37 @@ async function handleStripeRefund(
           },
           customerIds: [customer.id],
         });
+      }
+
+      if (customer.stripe_subscription_id) {
+        try {
+          const stripeSubscription = await stripe.subscriptions.retrieve(
+            customer.stripe_subscription_id,
+          );
+          if (stripeSubscription.status !== "canceled") {
+            await stripe.subscriptions.cancel(customer.stripe_subscription_id, {
+              cancellation_details: {
+                comment: "Full first payment refunded; future billing stopped automatically.",
+              },
+            });
+          }
+        } catch (subscriptionCancellationError) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "stripe_refund_subscription_cancel_failed",
+            title: "Refunded subscription still needs cancellation",
+            message: `Full refund ${refund.id} succeeded, but Stripe subscription ${customer.stripe_subscription_id} could not be cancelled automatically.`,
+            metadata: {
+              ...refundMetadata,
+              customerId: customer.id,
+              stripeSubscriptionId: customer.stripe_subscription_id,
+              error:
+                subscriptionCancellationError instanceof Error
+                  ? subscriptionCancellationError.message
+                  : String(subscriptionCancellationError),
+            },
+            customerIds: [customer.id],
+          });
+        }
       }
     }
 
@@ -1564,6 +1657,7 @@ export async function POST(request: Request) {
                   customerId: customer.id,
                   actorType: "stripe",
                   eventType: "payment_failed",
+                  dedupeKey: `payment_failed:${invoice.id}`,
                   eventDescription:
                     "Stripe reported a failed payment. Customer was suspended.",
                   metadata: {
@@ -1582,6 +1676,7 @@ export async function POST(request: Request) {
                 {
                   customerId: customer.id,
                   eventType: "payment_failed",
+                  dedupeKey: `payment_failed:${invoice.id}`,
                   title: "Payment failed",
                   message: `Stripe reported a failed payment for invoice ${invoice.id}.`,
                   priority: "urgent",
@@ -1663,7 +1758,7 @@ export async function POST(request: Request) {
       const { data: customers, error: customerError } = await supabaseAdmin
         .from("customers")
         .select(
-          "id, status, payment_status, inactive_reason, production_status, layout_started_at, content_collected_at, preview_status",
+          "id, name, email, billing_email, customer_number, status, payment_status, inactive_reason, production_status, layout_started_at, content_collected_at, preview_status",
         )
         .eq("stripe_customer_id", paidStripeCustomerId);
 
@@ -1711,6 +1806,27 @@ export async function POST(request: Request) {
           metadata: {
             ...paidInvoiceMetadata,
             error: auditLookupError.message,
+          },
+          customerIds: matchedCustomers.map((customer) => customer.id),
+        });
+      }
+
+      const { data: existingEmailAudit, error: emailAuditLookupError } =
+        await supabaseAdmin
+          .from("audit_events")
+          .select("id")
+          .eq("event_type", "subscription_invoice_email_sent")
+          .contains("metadata", { invoiceId: invoice.id })
+          .limit(1);
+
+      if (emailAuditLookupError) {
+        await recordStripeWebhookFailureVisibility({
+          eventType: "stripe_invoice_email_evidence_failed",
+          title: "Invoice email evidence failed",
+          message: `Screenia could not verify email evidence for paid invoice ${invoice.id}: ${emailAuditLookupError.message}`,
+          metadata: {
+            ...paidInvoiceMetadata,
+            error: emailAuditLookupError.message,
           },
           customerIds: matchedCustomers.map((customer) => customer.id),
         });
@@ -1829,6 +1945,359 @@ export async function POST(request: Request) {
       const syncedEntitlement = entitlement as Awaited<
         ReturnType<typeof syncStripeSubscription>
       >;
+
+      if (!existingEmailAudit?.length) {
+        const invoiceNumber = invoice.number || invoice.id;
+        const invoiceUrl =
+          invoice.hosted_invoice_url ||
+          `${(process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se").replace(/\/$/, "")}/account?section=billing`;
+        const taxAmount = invoiceTaxAmountOre(invoice);
+        const servicePeriod = invoice.lines.data[0]?.period;
+        const servicePeriodLabel =
+          servicePeriod?.start && servicePeriod?.end
+            ? `${formatInvoiceDate(servicePeriod.start)} - ${formatInvoiceDate(servicePeriod.end)}`
+            : null;
+
+        for (const customer of matchedCustomers) {
+          const recipient = String(customer.billing_email || customer.email || "")
+            .trim()
+            .toLowerCase();
+          const customerName = String(customer.name || "kund").trim() || "kund";
+
+          if (!recipient) {
+            await Promise.all([
+              recordAuditEvent(
+                supabaseAdmin,
+                {
+                  customerId: customer.id,
+                  actorType: "system",
+                  eventType: "subscription_invoice_email_failed",
+                  eventDescription:
+                    "A paid subscription invoice could not be emailed because the customer has no billing or account email.",
+                  metadata: paidInvoiceMetadata,
+                },
+                { throwOnError: true },
+              ),
+              createAdminNotification(
+                supabaseAdmin,
+                {
+                  customerId: customer.id,
+                  eventType: "subscription_invoice_email_failed",
+                  title: "Paid invoice email not sent",
+                  message: `Invoice ${invoiceNumber} is paid, but the customer has no billing or account email.`,
+                  priority: "urgent",
+                  metadata: paidInvoiceMetadata,
+                },
+                { throwOnError: true },
+              ),
+            ]);
+            continue;
+          }
+
+          const { data: newDispatch, error: dispatchInsertError } =
+            await supabaseAdmin
+              .from("billing_email_dispatches")
+              .insert({
+                stripe_invoice_id: invoice.id,
+                customer_id: customer.id,
+                recipient_email: recipient,
+                status: "pending",
+              })
+              .select("stripe_invoice_id, status, attempt_count")
+              .maybeSingle();
+
+          let dispatchClaimed = Boolean(newDispatch);
+
+          if (dispatchInsertError?.code === "23505") {
+            const { data: existingDispatch, error: existingDispatchError } =
+              await supabaseAdmin
+                .from("billing_email_dispatches")
+                .select("status, attempt_count")
+                .eq("stripe_invoice_id", invoice.id)
+                .single();
+
+            if (existingDispatchError || !existingDispatch) {
+              await recordStripeWebhookFailureVisibility({
+                eventType: "stripe_invoice_email_dispatch_failed",
+                title: "Invoice email dispatch lock failed",
+                message: `Screenia could not inspect the email dispatch lock for invoice ${invoice.id}.`,
+                metadata: {
+                  ...paidInvoiceMetadata,
+                  recipient,
+                  error:
+                    existingDispatchError?.message ||
+                    "The existing dispatch lock row was not found.",
+                },
+                customerIds: [customer.id],
+              });
+            }
+
+            const lockedDispatch = existingDispatch as {
+              status: string;
+              attempt_count: number;
+            };
+
+            if (lockedDispatch.status === "failed") {
+              const { data: retryDispatch, error: retryDispatchError } =
+                await supabaseAdmin
+                  .from("billing_email_dispatches")
+                  .update({
+                    status: "pending",
+                    recipient_email: recipient,
+                    attempt_count: lockedDispatch.attempt_count + 1,
+                    last_error: null,
+                  })
+                  .eq("stripe_invoice_id", invoice.id)
+                  .eq("status", "failed")
+                  .select("stripe_invoice_id")
+                  .maybeSingle();
+
+              if (retryDispatchError) {
+                await recordStripeWebhookFailureVisibility({
+                  eventType: "stripe_invoice_email_dispatch_failed",
+                  title: "Invoice email retry lock failed",
+                  message: `Screenia could not claim the email retry for invoice ${invoice.id}.`,
+                  metadata: {
+                    ...paidInvoiceMetadata,
+                    recipient,
+                    error: retryDispatchError.message,
+                  },
+                  customerIds: [customer.id],
+                });
+              }
+
+              dispatchClaimed = Boolean(retryDispatch);
+            }
+          } else if (dispatchInsertError) {
+            await recordStripeWebhookFailureVisibility({
+              eventType: "stripe_invoice_email_dispatch_failed",
+              title: "Invoice email dispatch lock failed",
+              message: `Screenia could not claim the email dispatch for invoice ${invoice.id}.`,
+              metadata: {
+                ...paidInvoiceMetadata,
+                recipient,
+                error: dispatchInsertError.message,
+              },
+              customerIds: [customer.id],
+            });
+          }
+
+          if (!dispatchClaimed) continue;
+
+          const emailResult = await sendTransactionalEmail({
+            to: recipient,
+            subject: `Din Screenia-faktura ${invoiceNumber} är betald`,
+            text: `Hej ${customerName},
+
+Din månadsfaktura ${invoiceNumber} är betald.
+Belopp inklusive moms: ${formatStripeSek(invoice.amount_paid)}
+Varav moms: ${formatStripeSek(taxAmount)}${
+              servicePeriodLabel ? `\nPeriod: ${servicePeriodLabel}` : ""
+            }
+
+Öppna fakturan: ${invoiceUrl}
+
+Frågor? Svara på detta mejl eller kontakta service@screenia.se.
+
+Screenia`,
+            html: renderBrandedEmail({
+              eyebrow: "Månadsfaktura",
+              title: "Din faktura är betald",
+              intro: `Hej ${escapeHtml(customerName)}, här är kvittot på månadens Screenia-betalning.`,
+              showHelper: false,
+              children: `
+                <div style="border:1px solid #d8e7fb; border-radius:12px; background:#f5f9ff; padding:18px;">
+                  <p style="margin:0 0 10px;"><strong>Fakturanummer:</strong> ${escapeHtml(invoiceNumber)}</p>
+                  <p style="margin:0 0 10px;"><strong>Betalt inklusive moms:</strong> ${escapeHtml(formatStripeSek(invoice.amount_paid))}</p>
+                  <p style="margin:0 0 10px;"><strong>Varav moms:</strong> ${escapeHtml(formatStripeSek(taxAmount))}</p>
+                  ${
+                    servicePeriodLabel
+                      ? `<p style="margin:0;"><strong>Period:</strong> ${escapeHtml(servicePeriodLabel)}</p>`
+                      : ""
+                  }
+                </div>
+                <p style="margin:20px 0 0;">
+                  <a href="${escapeHtml(invoiceUrl)}" style="display:inline-block; border-radius:8px; background:#155ee8; color:#ffffff; padding:12px 18px; font-weight:700; text-decoration:none;">Öppna fakturan</a>
+                </p>
+                <p style="margin:18px 0 0; color:#526579;">Frågor om betalningen? Svara på detta mejl så hjälper vi dig.</p>
+              `,
+            }),
+          });
+
+          if (!emailResult.ok) {
+            const { error: dispatchFailureError } = await supabaseAdmin
+              .from("billing_email_dispatches")
+              .update({
+                status: "failed",
+                last_error: emailResult.error,
+              })
+              .eq("stripe_invoice_id", invoice.id);
+
+            if (dispatchFailureError) {
+              await recordStripeWebhookFailureVisibility({
+                eventType: "stripe_invoice_email_dispatch_failed",
+                title: "Invoice email failure state was not stored",
+                message: `Invoice ${invoice.id} email failed and its dispatch state could not be stored.`,
+                metadata: {
+                  ...paidInvoiceMetadata,
+                  recipient,
+                  emailError: emailResult.error,
+                  error: dispatchFailureError.message,
+                },
+                customerIds: [customer.id],
+              });
+            }
+
+            await Promise.all([
+              recordAuditEvent(
+                supabaseAdmin,
+                {
+                  customerId: customer.id,
+                  actorType: "system",
+                  eventType: "subscription_invoice_email_failed",
+                  eventDescription:
+                    "A paid subscription invoice email could not be sent.",
+                  metadata: {
+                    ...paidInvoiceMetadata,
+                    recipient,
+                    error: emailResult.error,
+                  },
+                },
+                { throwOnError: true },
+              ),
+              createAdminNotification(
+                supabaseAdmin,
+                {
+                  customerId: customer.id,
+                  eventType: "subscription_invoice_email_failed",
+                  title: "Paid invoice email failed",
+                  message: `Invoice ${invoiceNumber} is paid, but its email to ${recipient} failed.`,
+                  priority: "urgent",
+                  metadata: {
+                    ...paidInvoiceMetadata,
+                    recipient,
+                    error: emailResult.error,
+                  },
+                },
+                { throwOnError: true },
+              ),
+            ]);
+            continue;
+          }
+
+          const { error: dispatchSentError } = await supabaseAdmin
+            .from("billing_email_dispatches")
+            .update({
+              status: "sent",
+              resend_email_id: emailResult.id || null,
+              sent_at: new Date().toISOString(),
+              last_error: null,
+            })
+            .eq("stripe_invoice_id", invoice.id);
+
+          if (dispatchSentError) {
+            await recordStripeWebhookFailureVisibility({
+              eventType: "stripe_invoice_email_dispatch_failed",
+              title: "Invoice email success state was not stored",
+              message: `Invoice ${invoice.id} email was sent, but its dispatch state could not be stored.`,
+              metadata: {
+                ...paidInvoiceMetadata,
+                recipient,
+                resendEmailId: emailResult.id || null,
+                error: dispatchSentError.message,
+              },
+              customerIds: [customer.id],
+            });
+          }
+
+          if (emailResult.id) {
+            const { data: knownDeliveryEvents, error: deliveryLookupError } =
+              await supabaseAdmin
+                .from("resend_delivery_events")
+                .select("event_type, processed_at")
+                .eq("resend_email_id", emailResult.id)
+                .order("processed_at", { ascending: false });
+
+            if (deliveryLookupError) {
+              await recordStripeWebhookFailureVisibility({
+                eventType: "stripe_invoice_email_dispatch_failed",
+                title: "Invoice email delivery reconciliation failed",
+                message: `Invoice ${invoice.id} email was sent, but existing delivery events could not be reconciled.`,
+                metadata: {
+                  ...paidInvoiceMetadata,
+                  recipient,
+                  resendEmailId: emailResult.id,
+                  error: deliveryLookupError.message,
+                },
+                customerIds: [customer.id],
+              });
+            }
+
+            const deliveryEventTypes = new Set(
+              (knownDeliveryEvents || []).map((delivery) => delivery.event_type),
+            );
+            const delivered = ["email.delivered", "email.opened", "email.clicked"].some(
+              (eventType) => deliveryEventTypes.has(eventType),
+            );
+            const bounced = ["email.bounced", "email.complained"].some(
+              (eventType) => deliveryEventTypes.has(eventType),
+            );
+            const failed = deliveryEventTypes.has("email.failed");
+
+            if (delivered || bounced || failed) {
+              const reconciledStatus = delivered
+                ? "delivered"
+                : bounced
+                  ? "bounced"
+                  : "failed";
+              const { error: reconciliationError } = await supabaseAdmin
+                .from("billing_email_dispatches")
+                .update({
+                  status: reconciledStatus,
+                  delivered_at: delivered ? new Date().toISOString() : null,
+                  last_error: delivered ? null : reconciledStatus,
+                })
+                .eq("stripe_invoice_id", invoice.id);
+
+              if (reconciliationError) {
+                await recordStripeWebhookFailureVisibility({
+                  eventType: "stripe_invoice_email_dispatch_failed",
+                  title: "Invoice email delivery state was not stored",
+                  message: `Invoice ${invoice.id} delivery evidence was received, but the dispatch state could not be updated.`,
+                  metadata: {
+                    ...paidInvoiceMetadata,
+                    recipient,
+                    resendEmailId: emailResult.id,
+                    reconciledStatus,
+                    error: reconciliationError.message,
+                  },
+                  customerIds: [customer.id],
+                });
+              }
+            }
+          }
+
+          await recordAuditEvent(
+            supabaseAdmin,
+            {
+              customerId: customer.id,
+              actorType: "system",
+              eventType: "subscription_invoice_email_sent",
+              dedupeKey: `subscription_invoice_email_sent:${invoice.id}:${customer.id}`,
+              eventDescription:
+                "Screenia sent the customer a paid subscription invoice email.",
+              metadata: {
+                ...paidInvoiceMetadata,
+                invoiceNumber,
+                recipient,
+                resendEmailId: emailResult.id || null,
+              },
+            },
+            { throwOnError: true },
+          );
+        }
+      }
+
       const restoreDisplayAccess =
         syncedEntitlement.serviceAccessStatus === "active" ||
         syncedEntitlement.serviceAccessStatus === "active_until_period_end";
@@ -1842,6 +2311,7 @@ export async function POST(request: Request) {
         .map((customer) => customer.id);
 
       if (restoreDisplayAccess && paymentFailureCustomerIds.length > 0) {
+        const recoveredAt = new Date().toISOString();
         const { error: restoreError } = await supabaseAdmin
           .from("customers")
           .update({
@@ -1870,6 +2340,67 @@ export async function POST(request: Request) {
             customerIds: paymentFailureCustomerIds,
           });
         }
+
+        const { error: resolveNotificationError } = await supabaseAdmin
+          .from("admin_notifications")
+          .update({
+            resolved_at: recoveredAt,
+            resolution_event_type: "payment_recovered",
+          })
+          .eq("event_type", "payment_failed")
+          .contains("metadata", { invoiceId: invoice.id });
+
+        if (resolveNotificationError) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "stripe_invoice_paid_evidence_failed",
+            title: "Payment recovery alert resolution failed",
+            message: `Invoice ${invoice.id} was paid, but Screenia could not resolve its failed-payment alert.`,
+            metadata: {
+              ...paidInvoiceMetadata,
+              error: resolveNotificationError.message,
+            },
+            customerIds: paymentFailureCustomerIds,
+          });
+        }
+
+        try {
+          await Promise.all(
+            paymentFailureCustomerIds.map((customerId) =>
+              createAdminNotification(
+                supabaseAdmin,
+                {
+                  customerId,
+                  eventType: "payment_recovered",
+                  dedupeKey: `payment_recovered:${invoice.id}:${customerId}`,
+                  title: "Payment recovered",
+                  message: `Invoice ${invoice.id} is paid and eligible service access was restored.`,
+                  priority: "high",
+                  metadata: {
+                    ...paidInvoiceMetadata,
+                    recoveredAt,
+                    serviceAccessStatus: syncedEntitlement.serviceAccessStatus,
+                    serviceAccessUntil: syncedEntitlement.serviceAccessUntil,
+                  },
+                },
+                { throwOnError: true },
+              ),
+            ),
+          );
+        } catch (notificationError) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "stripe_invoice_paid_evidence_failed",
+            title: "Payment recovery notification failed",
+            message: `Invoice ${invoice.id} restored access, but Screenia could not create the recovery notification.`,
+            metadata: {
+              ...paidInvoiceMetadata,
+              error:
+                notificationError instanceof Error
+                  ? notificationError.message
+                  : String(notificationError),
+            },
+            customerIds: paymentFailureCustomerIds,
+          });
+        }
       }
 
       if (!existingAudit?.length) {
@@ -1884,6 +2415,7 @@ export async function POST(request: Request) {
                     customerId: customer.id,
                     actorType: "stripe",
                     eventType: "subscription_invoice_paid",
+                    dedupeKey: `subscription_invoice_paid:${invoice.id}:${customer.id}`,
                     eventDescription:
                       "Stripe reported a paid subscription invoice.",
                     metadata: {
@@ -2006,20 +2538,20 @@ export async function POST(request: Request) {
       const appInitiatedCancellation =
         customer.cancellation_source === "customer" ||
         customer.cancellation_source === "admin";
-      const refundBeforeProduction =
-        customer.payment_status === "refunded" ||
-        customer.cancellation_reason === "refunded_before_production";
+      const refundedPayment = customer.payment_status === "refunded";
 
       const { error } = await supabaseAdmin
         .from("customers")
         .update({
           status: "suspended",
-          payment_status: refundBeforeProduction ? "refunded" : "cancelled",
-          service_access_status: refundBeforeProduction ? "refunded" : "cancelled",
+          payment_status: refundedPayment ? "refunded" : "cancelled",
+          service_access_status: refundedPayment ? "refunded" : "cancelled",
           service_access_until: null,
-          inactive_reason: appInitiatedCancellation
-            ? customer.inactive_reason || "subscription_cancelled"
-            : "subscription_cancelled",
+          inactive_reason: refundedPayment
+            ? customer.inactive_reason || "refunded_before_production"
+            : appInitiatedCancellation
+              ? customer.inactive_reason || "subscription_cancelled"
+              : "subscription_cancelled",
           cancelled_at: customer.cancelled_at || cancelledAt,
           cancellation_source: appInitiatedCancellation
             ? customer.cancellation_source

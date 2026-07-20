@@ -71,6 +71,9 @@ export const normalizeCustomer = (row: Partial<Customer>): Customer => ({
   service_access_status: row.service_access_status ?? null,
   service_access_until: row.service_access_until ?? null,
   production_status: row.production_status ?? null,
+  preview_url: row.preview_url ?? null,
+  preview_status: row.preview_status ?? null,
+  preview_feedback: row.preview_feedback ?? null,
   layout_started_at: row.layout_started_at ?? null,
   setup_fee_locked_at: row.setup_fee_locked_at ?? null,
   activated_at: row.activated_at ?? null,
@@ -101,6 +104,8 @@ export const normalizeSubscription = (
   stripe_subscription_id: row.stripe_subscription_id ?? null,
   stripe_invoice_id: row.stripe_invoice_id ?? null,
   stripe_payment_status: row.stripe_payment_status ?? null,
+  trial_starts_at: row.trial_starts_at ?? null,
+  trial_ends_at: row.trial_ends_at ?? null,
   stripe_current_period_start: row.stripe_current_period_start ?? null,
   stripe_current_period_end: row.stripe_current_period_end ?? null,
   cancel_at_period_end: row.cancel_at_period_end ?? false,
@@ -113,6 +118,8 @@ export const normalizeSubscription = (
   device_discount_months: row.device_discount_months ?? 0,
   device_discount_amount_sek: row.device_discount_amount_sek ?? 0,
   monthly_discount_amount_sek: row.monthly_discount_amount_sek ?? 0,
+  quote_items: row.quote_items ?? null,
+  quote_notes: row.quote_notes ?? null,
   created_at: row.created_at || new Date().toISOString(),
 });
 

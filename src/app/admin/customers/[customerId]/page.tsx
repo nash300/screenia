@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
+import { getCustomerWorkflowAction } from "@/lib/admin/customer-workflow";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
+import { calculateSetupFeeSek } from "@/lib/pricing/setup-fee";
 import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
 import {
   deviceCountsTowardEntitlement,
@@ -27,6 +29,7 @@ import type {
   CustomerMessage,
   CustomerOperation,
   CustomerOperationId,
+  CustomerRefundCase,
   CustomerSubscription,
   Device,
   InventoryStockItem,
@@ -57,6 +60,7 @@ export default function CustomerDetailPage({
   const [devices, setDevices] = useState<Device[]>([]);
   const [stockItems, setStockItems] = useState<InventoryStockItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
+  const [refundCases, setRefundCases] = useState<CustomerRefundCase[]>([]);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
   const [messageDrafts, setMessageDrafts] = useState<
@@ -71,6 +75,7 @@ export default function CustomerDetailPage({
   >({});
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pageLoadedAt] = useState(() => Date.now());
   const [saving, setSaving] = useState(false);
   const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
   const [editName, setEditName] = useState("");
@@ -119,8 +124,11 @@ export default function CustomerDetailPage({
   const [operationReason, setOperationReason] = useState("");
   const [operationDiscountPercent, setOperationDiscountPercent] = useState("20");
   const [operationDiscountMonths, setOperationDiscountMonths] = useState("3");
+  const [operationRefundAmountSek, setOperationRefundAmountSek] = useState("100");
   const [operationConfirmed, setOperationConfirmed] = useState(false);
   const [activeDiscountCount, setActiveDiscountCount] = useState(0);
+  const [previewUrlDraft, setPreviewUrlDraft] = useState("");
+  const [previewPublishReason, setPreviewPublishReason] = useState("");
 
   const formatInactiveReason = (
     reason: string | null,
@@ -156,6 +164,34 @@ export default function CustomerDetailPage({
   const formatDateTime = (value: string | null | undefined) => {
     if (!value) return "Not recorded";
     return new Date(value).toLocaleString("sv-SE");
+  };
+
+  const formatTrialRemaining = (
+    value: string | null | undefined,
+    currentPeriodStart?: string | null,
+  ) => {
+    if (!value) return "No trial end recorded";
+    const trialEnd = new Date(value);
+    if (Number.isNaN(trialEnd.getTime())) return "Invalid trial end date";
+
+    const periodStart = currentPeriodStart ? new Date(currentPeriodStart) : null;
+    const billingHasPassedTrial =
+      periodStart &&
+      !Number.isNaN(periodStart.getTime()) &&
+      periodStart.getTime() >= trialEnd.getTime();
+
+    if (billingHasPassedTrial) {
+      return `Trial ended ${formatDateTime(value)}`;
+    }
+
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil((trialEnd.getTime() - pageLoadedAt) / (24 * 60 * 60 * 1000)),
+    );
+
+    return daysRemaining > 0
+      ? `${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining (ends ${formatDateTime(value)})`
+      : `Trial ended ${formatDateTime(value)}`;
   };
 
   const getStatusClass = (status: string | null) => {
@@ -206,6 +242,9 @@ export default function CustomerDetailPage({
         service_access_status,
         service_access_until,
         production_status,
+        preview_url,
+        preview_status,
+        preview_feedback,
         layout_started_at,
         setup_fee_locked_at,
         activated_at,
@@ -347,6 +386,7 @@ export default function CustomerDetailPage({
     );
     setEditNotes(loadedCustomer.notes || "");
     setEditReason("");
+    setPreviewUrlDraft(loadedCustomer.preview_url || "");
     if (
       Array.isArray(loadedCustomer.requested_quote_items) &&
       loadedCustomer.requested_quote_items.length > 0
@@ -365,7 +405,7 @@ export default function CustomerDetailPage({
 
     const { data: devicesData, error: devicesError } = await supabase
       .from("devices")
-      .select("id, name, device_code, is_active, inventory_status, make, model, serial_number")
+      .select("id, name, device_code, is_active, inventory_status, make, model, serial_number, playlists(count)")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -413,6 +453,8 @@ export default function CustomerDetailPage({
           stripe_subscription_id,
           stripe_invoice_id,
           stripe_payment_status,
+          trial_starts_at,
+          trial_ends_at,
           stripe_current_period_start,
           stripe_current_period_end,
           cancel_at_period_end,
@@ -425,6 +467,8 @@ export default function CustomerDetailPage({
           device_discount_months,
           device_discount_amount_sek,
           monthly_discount_amount_sek,
+          quote_items,
+          quote_notes,
           created_at
         `,
       `
@@ -433,8 +477,12 @@ export default function CustomerDetailPage({
           status,
           setup_fee_sek,
           monthly_fee_sek,
+          quote_items,
+          quote_notes,
           stripe_checkout_session_id,
           stripe_subscription_id,
+          trial_starts_at,
+          trial_ends_at,
           stripe_current_period_start,
           stripe_current_period_end,
           cancel_at_period_end,
@@ -507,6 +555,8 @@ export default function CustomerDetailPage({
           stripe_subscription_id: subscription.stripe_subscription_id,
           stripe_invoice_id: null,
           stripe_payment_status: null,
+          trial_starts_at: null,
+          trial_ends_at: null,
           stripe_current_period_start: null,
           stripe_current_period_end: null,
           cancel_at_period_end: false,
@@ -519,6 +569,8 @@ export default function CustomerDetailPage({
           device_discount_months: 0,
           device_discount_amount_sek: 0,
           monthly_discount_amount_sek: 0,
+          quote_items: null,
+          quote_notes: null,
           created_at: subscription.created_at,
         })),
       );
@@ -528,7 +580,36 @@ export default function CustomerDetailPage({
           "The database is missing the latest order columns. Some order details are hidden until migrations are applied.",
         );
       }
-      setSubscriptions((subscriptionData || []).map(normalizeSubscription));
+      const normalizedSubscriptions = (subscriptionData || []).map(
+        normalizeSubscription,
+      );
+      setSubscriptions(normalizedSubscriptions);
+
+      const latestQuotedSubscription = normalizedSubscriptions.find(
+        (subscription) =>
+          Array.isArray(subscription.quote_items) &&
+          subscription.quote_items.length > 0,
+      );
+
+      if (latestQuotedSubscription?.quote_items?.length) {
+        setQuoteItems(
+          latestQuotedSubscription.quote_items.map((item, index) => ({
+            id: `quoted-${latestQuotedSubscription.id}-${index}`,
+            pricingPlanCode: item.pricingPlanCode || "",
+            quantity: Math.min(50, Math.max(1, Number(item.quantity) || 1)),
+          })),
+        );
+        setQuotePlanCode(
+          latestQuotedSubscription.quote_items[0]?.pricingPlanCode || "",
+        );
+        setQuoteDiscountPercent(
+          Number(latestQuotedSubscription.device_discount_percent) || 0,
+        );
+        setQuoteDiscountMonths(
+          Number(latestQuotedSubscription.device_discount_months) || 0,
+        );
+        setQuoteNotes(latestQuotedSubscription.quote_notes || "");
+      }
     }
 
     const { data: activeDiscountData, error: activeDiscountError } =
@@ -543,6 +624,23 @@ export default function CustomerDetailPage({
       setActiveDiscountCount(0);
     } else {
       setActiveDiscountCount((activeDiscountData || []).length);
+    }
+
+    const { data: refundCaseData, error: refundCaseError } = await supabase
+      .from("customer_refund_cases")
+      .select(
+        "id, order_number, request_type, requested_amount_ore, approved_amount_ore, currency, customer_reason, admin_decision, admin_reason, status, stripe_payment_intent_id, stripe_refund_id, requested_at, decided_at, created_at",
+      )
+      .eq("customer_id", customerId)
+      .order("requested_at", { ascending: false });
+
+    if (refundCaseError) {
+      if (!isSchemaMismatch(refundCaseError)) {
+        console.warn("Refund cases could not be loaded.", refundCaseError);
+      }
+      setRefundCases([]);
+    } else {
+      setRefundCases((refundCaseData || []) as CustomerRefundCase[]);
     }
 
     const { data: pricingData, error: pricingError } = await supabase
@@ -968,6 +1066,49 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const publishCustomerPreview = async () => {
+    if (!customer) return;
+    if (!/^https?:\/\//i.test(previewUrlDraft.trim())) {
+      showAdminNotification("warning", "Enter a complete http or https preview URL.");
+      return;
+    }
+    if (previewPublishReason.trim().length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before publishing the preview.",
+      );
+      return;
+    }
+
+    setSaving(true);
+    const response = await fetch(`/api/admin/customers/${customer.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "publish_preview",
+        previewUrl: previewUrlDraft.trim(),
+        reason: previewPublishReason.trim(),
+      }),
+    });
+    const result = await response.json();
+
+    if (!response.ok) {
+      showAdminNotification("error", result.error || "Could not publish preview.");
+      setSaving(false);
+      return;
+    }
+
+    setPreviewPublishReason("");
+    await loadData();
+    showAdminNotification(
+      result.warning ? "warning" : "success",
+      result.warning
+        ? `Preview published, but email was not sent: ${result.warning}`
+        : "Preview published and customer email sent.",
+    );
+    setSaving(false);
+  };
+
   const refundFirstPayment = async (reason: string) => {
     if (!customer) return;
 
@@ -995,11 +1136,55 @@ export default function CustomerDetailPage({
     setSaving(false);
   };
 
+  const runRefundCaseAction = async ({
+    action,
+    reason,
+    amountSek,
+    successMessage,
+  }: {
+    action: "record_post_layout_request" | "issue_partial_refund";
+    reason: string;
+    amountSek: number;
+    successMessage: string;
+  }) => {
+    if (!customer) return false;
+
+    setSaving(true);
+    const response = await fetch(
+      `/api/admin/customers/${customer.id}/refund-case`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, reason, amountSek }),
+      },
+    );
+    const result = await response.json();
+
+    if (!response.ok) {
+      showAdminNotification(
+        "error",
+        result.error || "Could not record the refund case.",
+      );
+      setSaving(false);
+      return false;
+    }
+
+    await loadData();
+    showAdminNotification("success", successMessage);
+    setSaving(false);
+    return true;
+  };
+
   const openCustomerOperation = (operationId: CustomerOperationId) => {
     setSelectedOperationId(operationId);
     setOperationReason("");
     setOperationDiscountPercent("20");
     setOperationDiscountMonths("3");
+    setOperationRefundAmountSek(
+      operationId === "record_post_layout_refund_request"
+        ? String((subscriptions[0]?.total_amount_sek || 0) / 100)
+        : "100",
+    );
     setOperationConfirmed(false);
   };
 
@@ -1046,6 +1231,32 @@ export default function CustomerDetailPage({
     if (selectedOperationId === "refund_first_payment") {
       await refundFirstPayment(cleanedReason);
       finish();
+      return;
+    }
+
+    if (
+      selectedOperationId === "record_post_layout_refund_request" ||
+      selectedOperationId === "issue_partial_refund"
+    ) {
+      const amountSek = Number(operationRefundAmountSek);
+      if (!Number.isFinite(amountSek) || amountSek <= 0) {
+        showAdminNotification("warning", "Enter a refund amount greater than zero.");
+        return;
+      }
+
+      const success = await runRefundCaseAction({
+        action:
+          selectedOperationId === "record_post_layout_refund_request"
+            ? "record_post_layout_request"
+            : "issue_partial_refund",
+        reason: cleanedReason,
+        amountSek,
+        successMessage:
+          selectedOperationId === "record_post_layout_refund_request"
+            ? "Post-layout refund request recorded. No Stripe refund was created."
+            : "Partial refund issued and recorded. Customer service remains active.",
+      });
+      if (success) finish();
       return;
     }
 
@@ -1118,6 +1329,8 @@ export default function CustomerDetailPage({
       cancel_immediately: "Subscription cancelled immediately and access blocked.",
       start_layout: "Layout work started.",
       refund_first_payment: "First payment refunded.",
+      record_post_layout_refund_request: "Post-layout refund request recorded.",
+      issue_partial_refund: "Partial refund issued and recorded.",
     };
 
     await runSubscriptionAction({
@@ -1529,7 +1742,10 @@ export default function CustomerDetailPage({
     quoteMonthlySubtotal * (quoteDiscountPercent / 100),
   );
   const quoteStartupTotal = primaryQuotePlan
-    ? primaryQuotePlan.setup_fee_sek +
+    ? calculateSetupFeeSek(
+        quoteScreenQuantity,
+        primaryQuotePlan.setup_fee_sek,
+      ) +
       quoteDeviceSubtotal -
       quoteDeviceDiscountAmount +
       quoteShippingSubtotal
@@ -1547,6 +1763,12 @@ export default function CustomerDetailPage({
     customer.layout_started_at !== null ||
     customer.setup_fee_locked_at !== null;
   const currentSubscription = subscriptions[0] || null;
+  const hasPreparedQuote = Boolean(
+    currentSubscription &&
+      ["quote_prepared", "quote_sent", "checkout_started"].includes(
+        currentSubscription.status,
+      ),
+  );
   const setupFeeWasPaid = Boolean(
     currentSubscription?.setup_fee_paid ||
       currentSubscription?.stripe_payment_status === "paid" ||
@@ -1612,6 +1834,33 @@ export default function CustomerDetailPage({
           description: "Use only when production actually begins.",
           result: "The setup/layout fee becomes non-refundable from this point.",
           tone: "warning",
+          requiresConfirmation: true,
+        }
+      : null,
+    productionTrackingReady &&
+    Boolean(customer.setup_fee_locked_at) &&
+    customer.payment_status === "paid"
+      ? {
+          id: "record_post_layout_refund_request",
+          title: "Record post-layout refund request",
+          description: "Use when a customer asks for a full refund after production began.",
+          result: "The request and denial boundary are recorded; Stripe is not changed.",
+          tone: "warning",
+          requiresRefundAmount: true,
+          requiresConfirmation: true,
+        }
+      : null,
+    productionTrackingReady &&
+    Boolean(customer.setup_fee_locked_at) &&
+    customer.payment_status === "paid"
+      ? {
+          id: "issue_partial_refund",
+          title: "Issue partial refund",
+          description: "Use only for a specifically approved partial amount.",
+          result: "Stripe refunds only the entered amount; the customer remains paid and active.",
+          tone: "danger",
+          requiresStripe: true,
+          requiresRefundAmount: true,
           requiresConfirmation: true,
         }
       : null,
@@ -1725,9 +1974,24 @@ export default function CustomerDetailPage({
                       ? "Reason for removing this temporary discount"
                       : selectedOperationId === "start_layout"
                         ? "Reason for starting layout work"
-                        : selectedOperationId === "refund_first_payment"
+                  : selectedOperationId === "refund_first_payment"
                           ? "Reason for refunding the first payment"
-                          : "Reason for audit history";
+                          : selectedOperationId === "record_post_layout_refund_request"
+                            ? "Customer request and reason the automatic full refund is denied"
+                            : selectedOperationId === "issue_partial_refund"
+                              ? "Reason for approving this exact partial refund amount"
+                        : "Reason for audit history";
+  const recommendedAction = getCustomerWorkflowAction({
+    id: customer.id,
+    status: customer.status,
+    paymentStatus: customer.payment_status,
+    serviceAccessStatus: customer.service_access_status,
+    deviceCount: devices.length,
+    firstDeviceCode: devices[0]?.device_code,
+    firstDeviceWithoutPlaylistCode: devices.find(
+      (device) => (device.playlists?.[0]?.count || 0) === 0,
+    )?.device_code,
+  });
 
   return (
     <div>
@@ -1780,6 +2044,26 @@ export default function CustomerDetailPage({
           </button>
         ))}
       </section>
+
+      {recommendedAction && (
+        <section
+          className={`admin-customer-next-step admin-customer-next-step-${recommendedAction.priority}`}
+          aria-label="Recommended next step"
+        >
+          <div className="admin-customer-next-stage">
+            <span>Step {recommendedAction.stage} of 6</span>
+            <strong>{recommendedAction.stageLabel}</strong>
+          </div>
+          <div className="admin-customer-next-copy">
+            <p className="admin-operation-kicker">Recommended next step</p>
+            <h2>{recommendedAction.title}</h2>
+            <p>{recommendedAction.description}</p>
+          </div>
+          <Link href={recommendedAction.href} className="admin-button-primary">
+            Continue workflow
+          </Link>
+        </section>
+      )}
 
       {schemaNotice && (
         <div className="mb-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm font-semibold text-yellow-800">
@@ -2082,7 +2366,7 @@ export default function CustomerDetailPage({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="text-sm font-semibold text-slate-700">
-                  Device discount %
+                  Introductory discount %
                   <input
                     type="number"
                     min="0"
@@ -2121,8 +2405,9 @@ export default function CustomerDetailPage({
               </div>
 
               <p className="rounded-2xl bg-blue-50 p-3 text-xs font-semibold text-blue-800">
-                Discounts are applied to device charges only. The setup
-                fee is never discounted.
+                The discount reduces the device charge now and the monthly
+                service for the selected number of months. The setup fee and
+                shipping are never discounted.
               </p>
 
               <label className="text-sm font-semibold text-slate-700">
@@ -2137,12 +2422,18 @@ export default function CustomerDetailPage({
               </label>
 
               <label className="text-sm font-semibold text-slate-700">
-                Reason for preparing this quote and onboarding link *
+                {hasPreparedQuote
+                  ? "Reason for resending this offer and replacing its secure link *"
+                  : "Reason for preparing this quote and onboarding link *"}
                 <textarea
                   value={quoteReason}
                   onChange={(event) => setQuoteReason(event.target.value)}
                   rows={2}
-                  placeholder="Example: Customer requested this package and pricing has been reviewed."
+                  placeholder={
+                    hasPreparedQuote
+                      ? "Example: Customer confirmed the email was not received; address and offer were rechecked."
+                      : "Example: Customer requested this package and pricing has been reviewed."
+                  }
                   className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
                 />
               </label>
@@ -2153,8 +2444,22 @@ export default function CustomerDetailPage({
                 disabled={saving || quoteLines.length === 0 || !quoteReason.trim()}
                 className="admin-button-primary disabled:opacity-50"
               >
-                {saving ? "Preparing..." : "Prepare quote and send onboarding"}
+                {saving
+                  ? hasPreparedQuote
+                    ? "Resending..."
+                    : "Preparing..."
+                  : hasPreparedQuote
+                    ? "Resend current offer and replace link"
+                    : "Prepare quote and send onboarding"}
               </button>
+
+              {hasPreparedQuote && (
+                <p className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+                  Resending keeps the current order and prices, creates a new
+                  14-day secure link, and makes the previous link invalid.
+                  Confirm the email address before continuing.
+                </p>
+              )}
 
               {(quoteResultUrl || currentOnboardingLink) && (
                 <p className="break-all rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
@@ -2413,6 +2718,28 @@ export default function CustomerDetailPage({
                     </div>
                   )}
 
+                  {selectedOperation.requiresRefundAmount && (
+                    <div className="admin-operation-fields">
+                      <label>
+                        Amount including VAT (SEK)
+                        <input
+                          type="number"
+                          min="0.01"
+                          step="0.01"
+                          value={operationRefundAmountSek}
+                          onChange={(event) =>
+                            setOperationRefundAmountSek(event.target.value)
+                          }
+                        />
+                      </label>
+                      <p className="admin-operation-critical-note">
+                        {selectedOperationId === "issue_partial_refund"
+                          ? "This action moves money immediately. Enter only the approved partial amount; customer payment and service status remain active."
+                          : "This records the request and the post-layout denial boundary. It does not create a Stripe refund."}
+                      </p>
+                    </div>
+                  )}
+
                   <label className="admin-operation-reason">
                     {selectedOperationReasonLabel}
                     <textarea
@@ -2522,7 +2849,7 @@ export default function CustomerDetailPage({
         {messages.length === 0 ? (
           <p className="admin-muted mt-4">No customer messages yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="admin-scroll-region mt-4 space-y-3">
             {messages.map((item) => (
               <div
                 key={item.id}
@@ -2691,6 +3018,7 @@ export default function CustomerDetailPage({
             ))}
           </div>
         )}
+
       </div>
       )}
 
@@ -2708,10 +3036,75 @@ export default function CustomerDetailPage({
           </div>
         </div>
 
+        <div className="mt-5 rounded-2xl border border-cyan-200 bg-cyan-50/70 p-4">
+          <div className="flex flex-col justify-between gap-2 md:flex-row md:items-start">
+            <div>
+              <h3 className="font-semibold text-slate-950">Customer design preview</h3>
+              <p className="mt-1 text-sm text-slate-600">
+                Publish a view-only Canva or web preview. The customer can approve it or
+                request changes from the portal.
+              </p>
+            </div>
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-800">
+              {customer?.preview_status
+                ? customer.preview_status.replaceAll("_", " ")
+                : "not published"}
+            </span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-[1fr_320px]">
+            <label className="text-sm font-semibold text-slate-700">
+              View-only preview URL
+              <input
+                value={previewUrlDraft}
+                onChange={(event) => setPreviewUrlDraft(event.target.value)}
+                placeholder="https://www.canva.com/design/.../view"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              />
+            </label>
+            <label className="text-sm font-semibold text-slate-700">
+              Reason and verification *
+              <textarea
+                value={previewPublishReason}
+                onChange={(event) => setPreviewPublishReason(event.target.value)}
+                rows={2}
+                maxLength={1000}
+                placeholder="Example: View-only link checked and first draft ready for review."
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+              />
+            </label>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="max-w-2xl text-xs font-semibold text-slate-600">
+              Warning: verify that the link has no edit permission and exposes no other
+              customer data. Publishing resets earlier feedback and emails the customer.
+              Paid, active service access is required.
+            </p>
+            <button
+              type="button"
+              onClick={publishCustomerPreview}
+              disabled={
+                saving ||
+                customer?.payment_status !== "paid" ||
+                customer?.service_access_status !== "active" ||
+                !previewUrlDraft.trim() ||
+                previewPublishReason.trim().length < 5
+              }
+              className="admin-button-primary disabled:opacity-50"
+            >
+              {saving ? "Publishing..." : customer?.preview_url ? "Update preview" : "Publish preview"}
+            </button>
+          </div>
+          {customer?.preview_feedback && (
+            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+              Latest customer feedback: {customer.preview_feedback}
+            </p>
+          )}
+        </div>
+
         {assets.length === 0 ? (
           <p className="admin-muted mt-4">No display material yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="admin-scroll-region mt-4 space-y-3">
             {assets.map((asset) => (
               <div
                 key={asset.id}
@@ -2850,7 +3243,7 @@ export default function CustomerDetailPage({
         {subscriptions.length === 0 ? (
           <p className="admin-muted mt-4">No orders yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="admin-scroll-region mt-4 space-y-3">
             {subscriptions.map((subscription) => (
               <div
                 key={subscription.id}
@@ -2881,6 +3274,12 @@ export default function CustomerDetailPage({
                     <p className="mt-1 text-sm text-slate-500">
                       Paid period: {formatDateTime(subscription.stripe_current_period_start)} -{" "}
                       {formatDateTime(subscription.stripe_current_period_end)}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-blue-700">
+                      Trial: {formatTrialRemaining(
+                        subscription.trial_ends_at,
+                        subscription.stripe_current_period_start,
+                      )}
                     </p>
                     {subscription.cancel_at_period_end && (
                       <p className="mt-1 text-sm font-semibold text-amber-700">
@@ -2939,6 +3338,52 @@ export default function CustomerDetailPage({
             ))}
           </div>
         )}
+
+        <div className="mt-6 border-t border-slate-200 pt-5">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h3 className="text-base font-black text-slate-950">Refund cases</h3>
+              <p className="mt-1 text-sm text-slate-500">
+                Requests, decisions, exact amounts, and Stripe references remain separate from the order status.
+              </p>
+            </div>
+            <span className="text-xs font-bold text-slate-500">
+              {refundCases.length} recorded
+            </span>
+          </div>
+          {refundCases.length === 0 ? (
+            <p className="admin-muted mt-3">No refund request or partial refund recorded.</p>
+          ) : (
+            <div className="mt-3 overflow-x-auto">
+              <table className="admin-table min-w-[760px]">
+                <thead>
+                  <tr>
+                    <th>Requested</th>
+                    <th>Order</th>
+                    <th>Type</th>
+                    <th>Requested amount</th>
+                    <th>Decision</th>
+                    <th>Approved amount</th>
+                    <th>Stripe refund</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {refundCases.map((refundCase) => (
+                    <tr key={refundCase.id}>
+                      <td>{formatDateTime(refundCase.requested_at)}</td>
+                      <td>{refundCase.order_number || "-"}</td>
+                      <td>{refundCase.request_type}</td>
+                      <td>{formatStripeSek(refundCase.requested_amount_ore)}</td>
+                      <td>{refundCase.admin_decision.replaceAll("_", " ")}</td>
+                      <td>{formatStripeSek(refundCase.approved_amount_ore)}</td>
+                      <td>{refundCase.stripe_refund_id || "No Stripe refund"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
       )}
 
@@ -2956,7 +3401,7 @@ export default function CustomerDetailPage({
         {auditEvents.length === 0 ? (
           <p className="admin-muted mt-4">No history events yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="admin-scroll-region mt-4 space-y-3">
             {auditEvents.map((event) => (
               <div
                 key={event.id}
@@ -3020,19 +3465,29 @@ export default function CustomerDetailPage({
 
         {remainingDeviceSlots < 1 ? (
           <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-            This customer already has the paid number of active displays. Return
-            or deactivate a faulty display before assigning a replacement, or
-            update the subscription quantity first.
+            {paidDeviceQuantity < 1
+              ? "This customer has no eligible paid display entitlement. Resolve payment and service access before assigning hardware or creating a display endpoint."
+              : "This customer already has the paid number of active displays. Return or deactivate a faulty display before assigning a replacement, or update the subscription quantity first."}
           </div>
         ) : null}
 
         <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href={`/admin/devices/new?customerId=${customer.id}`}
-            className="admin-button-primary"
-          >
-            Create display endpoint
-          </Link>
+          {remainingDeviceSlots > 0 ? (
+            <Link
+              href={`/admin/devices/new?customerId=${customer.id}`}
+              className="admin-button-primary"
+            >
+              Create display endpoint
+            </Link>
+          ) : (
+            <span
+              aria-disabled="true"
+              className="admin-button-primary cursor-not-allowed opacity-50"
+              title="A paid available display slot is required."
+            >
+              Create display endpoint
+            </span>
+          )}
           <Link href="/admin/inventory" className="admin-button-secondary">
             Open Hardware stock
           </Link>
@@ -3111,7 +3566,7 @@ export default function CustomerDetailPage({
               No available stock matches this filter.
             </p>
           ) : (
-            <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="admin-scroll-region mt-4 grid gap-3 lg:grid-cols-2">
               {filteredStockItems.map((item) => (
                 <div
                   key={item.id}
@@ -3180,7 +3635,7 @@ export default function CustomerDetailPage({
         {devices.length === 0 ? (
           <p className="admin-muted mt-4">No displays yet.</p>
         ) : (
-          <div className="mt-4 space-y-3">
+          <div className="admin-scroll-region mt-4 space-y-3">
             {devices.map((device) => (
               <div
                 key={device.id}

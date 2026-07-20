@@ -2,7 +2,14 @@
 
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
+import {
+  ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
+  INCLUDED_SETUP_SCREEN_COUNT,
+  additionalSetupScreenCount,
+  calculateSetupFeeSek,
+} from "@/lib/pricing/setup-fee";
 import "./landing.css";
 
 const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
@@ -15,7 +22,7 @@ const copy = {
     hero:
       "Professionellt skärminnehåll, hanterat från en tydlig plattform.",
     lede:
-      "Screenia hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer paket, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
+      "Screenia hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer antal Full HD- och 4K-skärmar, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
     pricingCta: "Se paket",
     workflowCta: "Se fördelarna",
     stats: [
@@ -36,7 +43,7 @@ const copy = {
     workflowText:
       "Startguiden är den säkra sidan där du bekräftar uppgifter och betalar. Material samlas in först efter betalning så att förfrågan går snabbt.",
     steps: [
-      ["01", "Välj paket", "Välj Standard eller Premium och skicka en kort förfrågan med företagets uppgifter.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
+      ["01", "Välj skärmar", "Välj antal Full HD- och 4K-skärmar. Du kan kombinera båda typerna i samma förfrågan.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
       ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor och går vidare till betalning.", "Du behöver inte förbereda logotyp, meny eller bilder innan betalning."],
       ["03", "Skicka innehåll efter betalning", "Efter betalning väljer du om du vill ladda upp material, använda Screenia-mall eller skicka innehåll senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
       ["04", "Vi bygger layouten", "Screenia skapar första skärmförslaget, förbereder hårdvaran och skickar enheten när allt är klart.", "Du kan följa status i kundportalen."],
@@ -45,7 +52,7 @@ const copy = {
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "Välj Full HD för mindre skärmar och enklare innehåll, eller 4K när text, menyer och detaljer ska vara extra skarpa. Startavgift, skärmenhet och eventuell frakt betalas först. Månadsabonnemanget startar efter provperioden.",
+      "Kombinera Full HD för mindre skärmar och enklare innehåll med 4K där text, menyer och detaljer ska vara extra skarpa. Startavgiften täcker upp till tre skärmar. Månadsabonnemanget startar efter provperioden.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
     monthly: "Per månad",
@@ -67,14 +74,14 @@ const copy = {
     ],
     faqTitle: "Svar innan du väljer paket",
     faqs: [
-      ["Vad händer efter att jag valt paket", "Du skickar en kort förfrågan. När Screenia har granskat den får du en personlig startguide där du bekräftar uppgifter och betalar."],
+      ["Vad händer efter att jag valt skärmar", "Du skickar en kort förfrågan med önskad kombination. När Screenia har granskat den får du en personlig startguide där du bekräftar uppgifter och betalar."],
       ["Vilket material behöver jag skicka", "Inget material behövs före betalning. Efter betalning kan du ladda upp meny, prislista, logotyp, bilder eller välja en Screenia-mall."],
       ["Hur snabbt kan jag komma igång", "Efter betalning samlar vi in innehåll, skapar första layouten, förbereder hårdvaran och skickar enheten när den är klar."],
       ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
       ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
       ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till Screenia så hjälper vi dig att uppdatera skärmen."],
       ["Hur skickas enheten", "Vi väljer ett lämpligt leveranssätt utifrån adress, paketstorlek och ledtid. Du får tydliga instruktioner när enheten skickas."],
-      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för båda paketen och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Avgiften återbetalas inte när arbetet har startat."],
+      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för upp till tre skärmar och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Från den fjärde skärmen tillkommer 249 kr per skärm. Avgiften återbetalas inte när arbetet har startat."],
     ],
     companyTitle: "Företagsinformation",
     companyText:
@@ -82,7 +89,7 @@ const copy = {
     contactEyebrow: "Redo att komma igång",
     contactTitle: "Starta din nästa skärm med ett enklare arbetsflöde.",
     contactText:
-      "Berätta hur många skärmar du vill hantera och vilket innehåll du vill visa. Vi hjälper dig att välja rätt paket.",
+      "Berätta hur många Full HD- och 4K-skärmar du vill hantera och vilket innehåll du vill visa. Vi kontrollerar kombinationen innan du betalar.",
     contactButton: "Kontakta Screenia",
     seoIntro:
       "Screenia erbjuder digital skyltning i Sverige för salonger, butiker, restauranger och lokala serviceföretag som vill visa menyer, prislistor, kampanjer och kundinformation på TV-skärm.",
@@ -112,7 +119,7 @@ const copy = {
     eyebrow: "Digital signage for businesses",
     hero: "Professional screen content, managed from one clear platform.",
     lede:
-      "Screenia helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose a package, send your details, and get help launching without technical hassle.",
+      "Screenia helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose any mix of Full HD and 4K screens, send your details, and get help launching without technical hassle.",
     pricingCta: "See packages",
     workflowCta: "How it works",
     stats: [["24/7", "continuous screen playback"], ["3 weeks", "free subscription trial"], ["0", "months commitment"]],
@@ -129,7 +136,7 @@ const copy = {
     workflowText:
       "The setup guide is the secure page where you confirm details, send material, and continue to payment. We keep the rest simple.",
     steps: [
-      ["01", "Choose package", "Choose Standard or Premium and send a short request with your company details.", "This is not an order yet. We use the details to create your personal setup guide."],
+      ["01", "Choose screens", "Choose quantities of Full HD and 4K screens, including a mix of both.", "This is not an order yet. We use the details to create your personal setup guide."],
       ["02", "Complete details and pay", "In the setup guide, confirm details, accept terms, upload material, and continue to payment.", "Menu, price list, logo, images, or short instructions are enough."],
       ["03", "We build the layout", "After payment, we create the screen layout from your material and send the USB device within 4 working days.", "Meanwhile, you can mount or place your Smart TV."],
       ["04", "Plug in and start", "When the device arrives, connect it to HDMI, join Wi-Fi, and follow the included instructions.", "Then the screen is ready to show your content."],
@@ -137,7 +144,7 @@ const copy = {
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
     pricingText:
-      "Choose Full HD for smaller screens and simpler content, or 4K when text, menus, and details need extra sharpness. Setup, screen device, and any shipping are paid first. The monthly subscription starts after the trial.",
+      "Choose Full HD for smaller screens and simpler content, or 4K when text, menus, and details need extra sharpness. The base setup fee covers up to three screens; each additional screen adds 249 SEK. The monthly subscription starts after the trial.",
     recommended: "Recommended",
     setupFee: "Setup fee",
     monthly: "Per month",
@@ -166,7 +173,7 @@ const copy = {
       ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
       ["Can I change the content later", "Yes. Send new material or updated prices to Screenia and we help update the screen."],
       ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
-      ["What is included in the setup fee", "The setup fee covers the personal setup guide, layout work, screen content preparation, and preparing the device for dispatch."],
+      ["What is included in the setup fee", "The 1,599 SEK setup fee covers up to three screens, including the personal setup guide, layout work, and screen content preparation. Each additional screen adds 249 SEK."],
     ],
     companyTitle: "Company information",
     companyText:
@@ -207,6 +214,11 @@ const plans = [
     setupFee: "1 599 kr",
     hardwareFee: "699 kr",
     monthlyFee: "249 kr",
+    setupFeeSek: 1599,
+    hardwareFeeSek: 699,
+    shippingFeeSek: 99,
+    monthlyFeeSek: 249,
+    trialDays: 21,
     cardAccent: "blue",
     deviceLabel: "FHD HDMI Stick",
     deviceImage: "/brand/screenia-standard-device.png",
@@ -219,6 +231,11 @@ const plans = [
     setupFee: "1 599 kr",
     hardwareFee: "1 099 kr",
     monthlyFee: "349 kr",
+    setupFeeSek: 1599,
+    hardwareFeeSek: 1099,
+    shippingFeeSek: 99,
+    monthlyFeeSek: 349,
+    trialDays: 21,
     cardAccent: "gold",
     deviceLabel: "4K TV Box",
     deviceImage: "/brand/screenia-premium-device.png",
@@ -280,10 +297,18 @@ const planCopy = {
 } as const;
 
 const galleryImages = [
-  "/window_screen1.jpg",
-  "/window_screen2.jpg",
-  "/salon1.jpg",
+  "/landing/section-art/restaurant-menu-screens.jpg",
+  "/landing/section-art/digital-menu-board.jpg",
+  "/landing/section-art/salon-service-window.jpg",
   "/bbr.jpg",
+] as const;
+
+const featureIcons = ["spark", "receipt", "screen", "megaphone"] as const;
+
+const visualImages = [
+  "/landing/section-art/digital-menu-board.jpg",
+  "/landing/section-art/restaurant-menu-screens.jpg",
+  "/landing/section-art/salon-service-window.jpg",
 ] as const;
 const visualCopy = {
   sv: [
@@ -356,15 +381,28 @@ function renderHighlightedText(text: string, words: string[]) {
   });
 }
 
+function isValidOptionalPhone(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  if (!/^[+0-9().\-\s]+$/.test(trimmed)) return false;
+  const digits = trimmed.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
+
+function formatLandingSek(value: number) {
+  return `${value.toLocaleString("sv-SE")} kr`;
+}
+
 export default function Home() {
-  const [selectedPlan, setSelectedPlan] = useState<(typeof plans)[number] | null>(
-    null,
-  );
+  const [requestOpen, setRequestOpen] = useState(false);
+  const [planQuantities, setPlanQuantities] = useState<Record<(typeof plans)[number]["code"], number>>({
+    standard_fhd: 0,
+    premium_4k: 0,
+  });
   const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
-  const [screenQuantity, setScreenQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [requestStatus, setRequestStatus] = useState<
@@ -378,22 +416,22 @@ export default function Home() {
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
 
   const t = copy.sv;
+  const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se";
   const companyDetails = [
     process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME || "Screenia",
     process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER
       ? `Organisationsnummer: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
       : "",
     process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
-    process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
   ].filter(Boolean);
   const footerLinks = [
-    { label: "About Screenia", href: "/om-oss" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Cookie Policy", href: "/cookie-policy" },
-    { label: "Subscription & Billing Policy", href: "/subscription-billing-policy" },
-    { label: "Support & Service Policy", href: "/support-service-policy" },
-    { label: "Contact", href: "#contact" },
+    { label: "Om Screenia", href: "/om-oss" },
+    { label: "Användarvillkor", href: "/terms" },
+    { label: "Integritetspolicy", href: "/privacy" },
+    { label: "Cookiepolicy", href: "/cookie-policy" },
+    { label: "Abonnemang och betalning", href: "/subscription-billing-policy" },
+    { label: "Support och service", href: "/support-service-policy" },
+    { label: "Kontakt", href: "/kontakt" },
   ];
   const structuredData = [
     {
@@ -513,15 +551,61 @@ export default function Home() {
     };
   }, []);
 
-  const openPlanRequest = (plan: (typeof plans)[number]) => {
-    setSelectedPlan(plan);
+  const selectedQuoteItems = plans
+    .map((plan) => ({ plan, quantity: planQuantities[plan.code] }))
+    .filter((item) => item.quantity > 0);
+  const selectedScreenCount = selectedQuoteItems.reduce(
+    (sum, item) => sum + item.quantity,
+    0,
+  );
+  const selectedSetupFee = calculateSetupFeeSek(
+    selectedScreenCount,
+    plans[0].setupFeeSek,
+  );
+  const selectedAdditionalSetupScreens =
+    additionalSetupScreenCount(selectedScreenCount);
+  const selectedHardwareTotal = selectedQuoteItems.reduce(
+    (sum, item) => sum + item.plan.hardwareFeeSek * item.quantity,
+    0,
+  );
+  const selectedShippingTotal = selectedQuoteItems.reduce(
+    (sum, item) => sum + item.plan.shippingFeeSek * item.quantity,
+    0,
+  );
+  const selectedMonthlyTotal = selectedQuoteItems.reduce(
+    (sum, item) => sum + item.plan.monthlyFeeSek * item.quantity,
+    0,
+  );
+  const selectedFirstPayment =
+    selectedSetupFee + selectedHardwareTotal + selectedShippingTotal;
+
+  const setPlanQuantity = (
+    code: (typeof plans)[number]["code"],
+    quantity: number,
+  ) => {
+    setPlanQuantities((current) => {
+      const otherQuantity = Object.entries(current).reduce(
+        (sum, [itemCode, itemQuantity]) =>
+          itemCode === code ? sum : sum + itemQuantity,
+        0,
+      );
+      return {
+        ...current,
+        [code]: Math.min(50 - otherQuantity, Math.max(0, quantity)),
+      };
+    });
+  };
+
+  const openPlanRequest = () => {
+    if (selectedScreenCount === 0) return;
+    setRequestOpen(true);
     setRequestStatus("idle");
     setRequestMessage("");
   };
 
   const closePlanRequest = () => {
     if (requestStatus === "saving") return;
-    setSelectedPlan(null);
+    setRequestOpen(false);
   };
 
   const heroSlideCount = heroSlides.length;
@@ -636,7 +720,15 @@ export default function Home() {
 
   const submitPlanRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedPlan) return;
+    if (selectedScreenCount === 0) return;
+
+    if (!isValidOptionalPhone(phone)) {
+      setRequestStatus("error");
+      setRequestMessage(
+        "Ange ett giltigt telefonnummer med 7–15 siffror, eller lämna fältet tomt.",
+      );
+      return;
+    }
 
     setRequestStatus("saving");
     setRequestMessage("");
@@ -645,12 +737,14 @@ export default function Home() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        planCode: selectedPlan.code,
+        quoteItems: selectedQuoteItems.map(({ plan, quantity }) => ({
+          pricingPlanCode: plan.code,
+          quantity,
+        })),
         companyName,
         email,
         contactPerson,
         phone,
-        screenQuantity,
         message,
         privacyAccepted,
       }),
@@ -667,7 +761,7 @@ export default function Home() {
     setEmail("");
     setContactPerson("");
     setPhone("");
-    setScreenQuantity(1);
+    setPlanQuantities({ standard_fhd: 0, premium_4k: 0 });
     setMessage("");
     setPrivacyAccepted(false);
     setRequestStatus("success");
@@ -809,13 +903,24 @@ export default function Home() {
 
         <LandingSection id="platform" eyebrow={t.nav[0]} title={t.platformTitle} text={t.platformText}>
           <div className="landing-feature-grid">
-            {t.features.map(([title, text]) => (
-              <Feature key={title} title={title} text={text} />
+            {t.features.map(([title, text], index) => (
+              <Feature
+                key={title}
+                title={title}
+                text={text}
+                icon={featureIcons[index] || "spark"}
+              />
             ))}
           </div>
           <div className="landing-illustration-grid">
             {visualCopy.sv.map(([title, text], index) => (
-              <Illustration key={title} title={title} text={text} index={index} />
+              <Illustration
+                key={title}
+                title={title}
+                text={text}
+                index={index}
+                image={visualImages[index]}
+              />
             ))}
           </div>
         </LandingSection>
@@ -830,7 +935,24 @@ export default function Home() {
           />
         </section>
 
-        <LandingSection id="pricing" eyebrow={t.nav[2]} title={t.pricingTitle} text={t.pricingText}>
+        <LandingSection
+          id="pricing"
+          eyebrow={t.nav[2]}
+          title="Bygg din skärmlösning"
+          text="Välj fritt hur många Full HD- och 4K-skärmar du behöver. Du kan kombinera båda typerna i samma förfrågan och ser totalsumman direkt."
+        >
+          <div className="landing-pricing-visual" aria-label="Startavgiften täcker upp till tre skärmar">
+            <div className="landing-pricing-screen-art" aria-hidden="true">
+              <span><Image src="/brand/screenia-standard-device.png" alt="" width={120} height={112} /></span>
+              <span><Image src="/brand/screenia-premium-device.png" alt="" width={120} height={112} /></span>
+              <span><Image src="/brand/screenia-icon-512-transparent.png" alt="" width={120} height={120} /></span>
+            </div>
+            <div>
+              <p className="landing-eyebrow">En smidig start</p>
+              <strong>1 599 kr täcker upp till tre skärmar</strong>
+              <p>Behöver du fler tillkommer 249 kr i startkostnad per extra skärm. Du kan fortfarande blanda Full HD och 4K fritt.</p>
+            </div>
+          </div>
           <div className="landing-price-grid">
             {plans.map((plan) => {
               const planText = planCopy.sv[plan.code];
@@ -866,24 +988,115 @@ export default function Home() {
                   <ul>{planText.features.map((feature) => <li key={feature}>{feature}</li>)}</ul>
                   <div className="landing-plan-price">
                     <strong>{plan.monthlyFee}</strong>
-                    <span>{t.monthly}</span>
-                    <span>inkl. moms</span>
+                    <span>per skärm och månad, inkl. moms</span>
+                    <span>Startar efter 21 kostnadsfria dagar</span>
                   </div>
                   <div className="landing-price-mini-grid">
-                    <PriceRow label={t.setupFee} value={plan.setupFee} />
-                    <PriceRow label="Skärmenhet" value={plan.hardwareFee} />
+                    <PriceRow
+                      label="Enhet + frakt, engångsvis"
+                      value={formatLandingSek(plan.hardwareFeeSek + plan.shippingFeeSek)}
+                    />
+                    <PriceRow label="Startavgift för upp till 3 skärmar" value={plan.setupFee} />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => openPlanRequest(plan)}
-                    className="landing-button landing-button-primary"
-                  >
-                    {t.choose} {plan.name}
-                  </button>
+                  <div className="landing-plan-quantity">
+                    <div>
+                      <strong>Antal skärmar</strong>
+                      <span>Välj 0–50 av denna typ</span>
+                    </div>
+                    <div className="landing-quantity-stepper">
+                      <button
+                        type="button"
+                        onClick={() => setPlanQuantity(plan.code, planQuantities[plan.code] - 1)}
+                        disabled={planQuantities[plan.code] === 0}
+                        aria-label={`Minska antal ${plan.name} ${plan.resolution}`}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        min="0"
+                        max="50"
+                        value={planQuantities[plan.code]}
+                        onChange={(event) =>
+                          setPlanQuantity(plan.code, Number(event.target.value) || 0)
+                        }
+                        aria-label={`Antal ${plan.name} ${plan.resolution}`}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setPlanQuantity(plan.code, planQuantities[plan.code] + 1)}
+                        disabled={selectedScreenCount >= 50}
+                        aria-label={`Öka antal ${plan.name} ${plan.resolution}`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
                 </article>
               );
             })}
           </div>
+          <section className="landing-package-builder" aria-live="polite">
+            <div className="landing-package-builder-heading">
+              <div>
+                <p className="landing-eyebrow">Din kombination</p>
+                <h3>
+                  {selectedScreenCount > 0
+                    ? `${selectedScreenCount} skärm${selectedScreenCount === 1 ? "" : "ar"} vald${selectedScreenCount === 1 ? "" : "a"}`
+                    : "Välj antal i korten ovan"}
+                </h3>
+              </div>
+              <span>Alla priser inkl. moms</span>
+            </div>
+
+            {selectedScreenCount > 0 ? (
+              <>
+                <div className="landing-package-lines">
+                  {selectedQuoteItems.map(({ plan, quantity }) => (
+                    <div key={plan.code}>
+                      <span>{quantity} × {plan.name} {plan.resolution}</span>
+                      <strong>
+                        {formatLandingSek(plan.monthlyFeeSek * quantity)}/mån
+                        <small>Enheter + frakt: {formatLandingSek((plan.hardwareFeeSek + plan.shippingFeeSek) * quantity)} engångsvis</small>
+                      </strong>
+                    </div>
+                  ))}
+                </div>
+                <div className="landing-package-totals">
+                  <div className="landing-package-total-primary">
+                    <span>Löpande kostnad efter 21 kostnadsfria dagar</span>
+                    <strong>{formatLandingSek(selectedMonthlyTotal)}/mån totalt</strong>
+                    <small>Ingen bindningstid.</small>
+                  </div>
+                  <div className="landing-package-total-secondary">
+                    <span>Engångsbetalning vid start</span>
+                    <strong>{formatLandingSek(selectedFirstPayment)}</strong>
+                    <small>Startavgift, alla valda enheter och frakt.</small>
+                    <details className="landing-package-breakdown">
+                      <summary>Se exakt prisspecifikation</summary>
+                      <p>
+                        Grundstart {formatLandingSek(plans[0].setupFeeSek)} för upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar
+                        {selectedAdditionalSetupScreens > 0
+                          ? ` + ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}`
+                          : ""}. Enheter {formatLandingSek(selectedHardwareTotal)} + frakt {formatLandingSek(selectedShippingTotal)}. Total startavgift {formatLandingSek(selectedSetupFee)}.
+                      </p>
+                    </details>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={openPlanRequest}
+                  className="landing-button landing-button-primary landing-package-continue"
+                >
+                  Fortsätt med valda skärmar
+                </button>
+              </>
+            ) : (
+              <p className="landing-package-empty">
+                Lägg till Full HD, 4K eller en kombination. Startavgiften 1 599 kr täcker upp till tre skärmar.
+              </p>
+            )}
+          </section>
           <div className="landing-pricing-note">
             <h3>Vilken version passar mig?</h3>
             <p>Alla priser visas inklusive svensk moms. Stripe Checkout visar momsbeloppet utan att höja totalsumman.</p>
@@ -960,9 +1173,9 @@ export default function Home() {
             <h2>{t.contactTitle}</h2>
             <p>{t.contactText}</p>
           </div>
-          <a href="mailto:service@screenia.se" className="landing-button landing-button-primary">
+          <Link href="/kontakt" className="landing-button landing-button-primary">
             {t.contactButton}
-          </a>
+          </Link>
         </section>
       </main>
 
@@ -975,6 +1188,9 @@ export default function Home() {
             {companyDetails.map((detail) => (
               <li key={detail}>{detail}</li>
             ))}
+            <li>
+              <a href={`mailto:${companyEmail}`}>{companyEmail}</a>
+            </li>
           </ul>
         </div>
         <div className="landing-footer-card">
@@ -996,7 +1212,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {selectedPlan && (
+      {requestOpen && selectedScreenCount > 0 && (
         <div className="landing-modal-backdrop" role="presentation">
           <section className="landing-modal" role="dialog" aria-modal="true" aria-labelledby="landing-request-title">
             <button type="button" onClick={closePlanRequest} className="landing-modal-close" aria-label={t.close}>
@@ -1004,9 +1220,13 @@ export default function Home() {
             </button>
             <p className="landing-eyebrow">{t.modalEyebrow}</p>
             <h2 id="landing-request-title">
-              {t.modalTitle} {selectedPlan.name} {selectedPlan.resolution}
+              Din skärmlösning
             </h2>
-            <p>{t.modalText}</p>
+            <p>
+              {selectedQuoteItems
+                .map(({ plan, quantity }) => `${quantity} × ${plan.name} ${plan.resolution}`)
+                .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och frakt. Startavgiften täcker upp till tre skärmar; därefter tillkommer 249 kr per extra skärm.
+            </p>
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <input
                 type="text"
@@ -1019,23 +1239,12 @@ export default function Home() {
               <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
               <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
               <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} />
-              <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} />
-              <label>
-                <span>{t.screenCountLabel}</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={screenQuantity}
-                  onChange={(event) =>
-                    setScreenQuantity(
-                      Math.min(50, Math.max(1, Number(event.target.value) || 1)),
-                    )
-                  }
-                  required
-                />
-                <small>{t.screenCountHelp}</small>
-              </label>
+              <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} type="tel" />
+              <div className="landing-request-selection landing-request-form-wide">
+                {selectedQuoteItems.map(({ plan, quantity }) => (
+                  <span key={plan.code}>{quantity} × {plan.name} {plan.resolution}</span>
+                ))}
+              </div>
               <label className="landing-request-form-wide">
                 <span>{t.fields[4]}</span>
                 <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} placeholder={t.placeholders[4]} />
@@ -1104,7 +1313,10 @@ function SectionHeading({
 }) {
   return (
     <div className="landing-section-heading">
-      <p className="landing-eyebrow">{eyebrow}</p>
+      <p className="landing-eyebrow">
+        <span className="landing-heading-mark" aria-hidden="true" />
+        {eyebrow}
+      </p>
       <h2>{title}</h2>
       {text && <p>{text}</p>}
     </div>
@@ -1153,17 +1365,20 @@ function Illustration({
   title,
   text,
   index,
+  image,
 }: {
   title: string;
   text: string;
   index: number;
+  image: string;
 }) {
   return (
     <article className={`landing-illustration landing-illustration-${index + 1}`}>
       <div className="landing-illustration-art" aria-hidden="true">
-        <span />
-        <span />
-        <span />
+        <Image src={image} alt="" width={420} height={300} />
+        <span className="landing-illustration-icon">
+          <SectionIcon name={index === 0 ? "layout" : index === 1 ? "shield" : "screen"} />
+        </span>
       </div>
       <div>
         <h3>{title}</h3>
@@ -1173,13 +1388,89 @@ function Illustration({
   );
 }
 
-function Feature({ title, text }: { title: string; text: string }) {
+function Feature({
+  title,
+  text,
+  icon,
+}: {
+  title: string;
+  text: string;
+  icon: (typeof featureIcons)[number];
+}) {
   return (
     <article className="landing-feature">
-      <span />
+      <span className="landing-feature-icon" aria-hidden="true">
+        <SectionIcon name={icon} />
+      </span>
       <h3>{title}</h3>
       <p>{text}</p>
     </article>
+  );
+}
+
+function SectionIcon({
+  name,
+}: {
+  name: "spark" | "receipt" | "screen" | "megaphone" | "layout" | "shield";
+}) {
+  const common = {
+    fill: "none",
+    stroke: "currentColor",
+    strokeLinecap: "round" as const,
+    strokeLinejoin: "round" as const,
+    strokeWidth: 1.8,
+  };
+
+  if (name === "receipt") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path {...common} d="M7 4h10a1 1 0 0 1 1 1v15l-3-2-3 2-3-2-3 2V5a1 1 0 0 1 1-1Z" />
+        <path {...common} d="M9 8h6M9 12h6M9 16h3" />
+      </svg>
+    );
+  }
+
+  if (name === "screen") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect {...common} x="3" y="5" width="18" height="12" rx="2" />
+        <path {...common} d="M8 21h8M12 17v4M7 9h5M7 13h10" />
+      </svg>
+    );
+  }
+
+  if (name === "megaphone") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path {...common} d="M4 13h3l9 4V7l-9 4H4v2Z" />
+        <path {...common} d="M7 13v5a2 2 0 0 0 2 2h1M19 9.5a4 4 0 0 1 0 5" />
+      </svg>
+    );
+  }
+
+  if (name === "layout") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect {...common} x="4" y="5" width="16" height="14" rx="2" />
+        <path {...common} d="M4 10h16M10 10v9M13 14h4" />
+      </svg>
+    );
+  }
+
+  if (name === "shield") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path {...common} d="M12 3 19 6v5c0 4.5-2.8 7.7-7 10-4.2-2.3-7-5.5-7-10V6l7-3Z" />
+        <path {...common} d="m9 12 2 2 4-5" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path {...common} d="M12 3v4M12 17v4M4.2 7.2l2.8 2.8M17 17l2.8 2.8M3 12h4M17 12h4M4.2 16.8 7 14M17 7l2.8-2.8" />
+      <circle {...common} cx="12" cy="12" r="3.2" />
+    </svg>
   );
 }
 

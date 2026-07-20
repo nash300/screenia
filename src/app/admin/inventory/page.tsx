@@ -33,6 +33,7 @@ export default function AdminInventoryPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [modelFilter, setModelFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("updated_desc");
   const [form, setForm] = useState<InventoryForm>(() => createEmptyForm());
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -177,8 +178,13 @@ export default function AdminInventoryPage() {
         matchesModel &&
         (!normalizedQuery || haystack.includes(normalizedQuery))
       );
+    }).sort((left, right) => {
+      if (sortBy === "code_asc") return left.item_code.localeCompare(right.item_code, "sv");
+      if (sortBy === "model_asc") return (left.model || "").localeCompare(right.model || "", "sv");
+      if (sortBy === "status") return left.status.localeCompare(right.status, "sv");
+      return Date.parse(right.updated_at || right.created_at) - Date.parse(left.updated_at || left.created_at);
     });
-  }, [items, modelFilter, query, statusFilter, typeFilter]);
+  }, [items, modelFilter, query, sortBy, statusFilter, typeFilter]);
 
   const modelOptions = useMemo(
     () =>
@@ -472,26 +478,19 @@ export default function AdminInventoryPage() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search serial, item code, seller, customer, display code..."
           />
-          <div className="admin-inventory-filter-row">
-            <button
-              type="button"
-              onClick={() => setStatusFilter("all")}
-              className={statusFilter === "all" ? "is-active" : ""}
-            >
-              All ({counts.all})
-            </button>
-            {statuses.map((status) => (
-              <button
-                key={status.value}
-                type="button"
-                onClick={() => setStatusFilter(status.value)}
-                className={statusFilter === status.value ? "is-active" : ""}
-              >
-                {status.label} ({counts[status.value] || 0})
-              </button>
-            ))}
-          </div>
           <div className="admin-inventory-type-row">
+            <SelectValue
+              label="Status filter"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={[
+                { value: "all", label: `All (${counts.all})` },
+                ...statuses.map((status) => ({
+                  value: status.value,
+                  label: `${status.label} (${counts[status.value] || 0})`,
+                })),
+              ]}
+            />
             <SelectValue
               label="Type filter"
               value={typeFilter}
@@ -508,6 +507,17 @@ export default function AdminInventoryPage() {
                   value: model,
                   label: model,
                 })),
+              ]}
+            />
+            <SelectValue
+              label="Sort by"
+              value={sortBy}
+              onChange={setSortBy}
+              options={[
+                { value: "updated_desc", label: "Recently updated" },
+                { value: "code_asc", label: "Item code" },
+                { value: "model_asc", label: "Model" },
+                { value: "status", label: "Status" },
               ]}
             />
           </div>

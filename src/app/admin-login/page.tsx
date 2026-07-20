@@ -9,6 +9,7 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
   const [message, setMessage] = useState("");
   const router = useRouter();
 
@@ -36,6 +37,32 @@ export default function AdminLoginPage() {
 
     router.push(result.next || "/admin");
     router.refresh();
+  };
+
+  const sendResetEmail = async () => {
+    if (!email) {
+      setMessage("Skriv din e-postadress först.");
+      return;
+    }
+
+    setResetLoading(true);
+    setMessage("");
+    const response = await fetch("/api/auth/password-reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, mode: "admin" }),
+    });
+    const result = (await response.json().catch(() => ({}))) as {
+      error?: string;
+      message?: string;
+    };
+
+    setMessage(
+      response.ok
+        ? result.message || "Om e-postadressen finns skickar vi en återställningslänk."
+        : result.error || "Det gick inte att skicka återställningslänken.",
+    );
+    setResetLoading(false);
   };
 
   return (
@@ -112,6 +139,14 @@ export default function AdminLoginPage() {
           </button>
 
           <div className="mt-7 text-sm">
+            <button
+              type="button"
+              onClick={sendResetEmail}
+              disabled={resetLoading || !email}
+              className="mr-5 font-bold text-[#2f7df6] no-underline disabled:opacity-50"
+            >
+              {resetLoading ? "Skickar..." : "Glömt lösenord?"}
+            </button>
             <Link href="/login" className="font-bold text-[#2f7df6] no-underline">
               Kundinloggning
             </Link>

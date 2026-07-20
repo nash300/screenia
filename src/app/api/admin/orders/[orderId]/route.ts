@@ -226,7 +226,7 @@ export async function PATCH(
   const { data: existing, error: existingError } = await supabaseAdmin
     .from("customer_subscriptions")
     .select(
-      "id, customer_id, order_number, status, fulfillment_status, inventory_status, tracking_number, tracking_url",
+      "id, customer_id, order_number, status, fulfillment_status, inventory_status, tracking_number, tracking_url, shipped_at, delivered_at",
     )
     .eq("id", orderId)
     .single();
@@ -264,6 +264,14 @@ export async function PATCH(
     );
   }
 
+  const operationTimestamp = new Date().toISOString();
+  if (["shipped", "completed"].includes(String(nextFulfillmentStatus || ""))) {
+    updatePayload.shipped_at = existing.shipped_at || operationTimestamp;
+  }
+  if (nextFulfillmentStatus === "completed") {
+    updatePayload.delivered_at = existing.delivered_at || operationTimestamp;
+  }
+
   const fieldsChanged = changedFields(existing, updatePayload);
 
   if (fieldsChanged.length === 0) {
@@ -275,7 +283,7 @@ export async function PATCH(
     .update(updatePayload)
     .eq("id", existing.id)
     .select(
-      "id, status, fulfillment_status, inventory_status, tracking_number, tracking_url",
+      "id, status, fulfillment_status, inventory_status, tracking_number, tracking_url, shipped_at, delivered_at",
     )
     .single();
 

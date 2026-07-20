@@ -852,6 +852,21 @@ export async function POST(
       );
     }
 
+    const { data: previousActiveAdjustments, error: previousAdjustmentError } =
+      await supabaseAdmin
+        .from("subscription_adjustments")
+        .select("id, stripe_coupon_id, percent_off, duration_months")
+        .eq("customer_id", customerId)
+        .eq("stripe_subscription_id", customer.stripe_subscription_id)
+        .eq("status", "active");
+
+    if (previousAdjustmentError) {
+      return NextResponse.json(
+        { error: "Could not verify the current temporary discount." },
+        { status: 500 },
+      );
+    }
+
     const coupon = await stripe.coupons.create({
       percent_off: percentOff,
       duration: "repeating",
@@ -880,6 +895,36 @@ export async function POST(
       .select("id")
       .eq("stripe_subscription_id", customer.stripe_subscription_id)
       .maybeSingle();
+
+    const previousAdjustmentIds = (previousActiveAdjustments || []).map(
+      (adjustment) => adjustment.id,
+    );
+    if (previousAdjustmentIds.length) {
+      const { error: previousAdjustmentUpdateError } = await supabaseAdmin
+        .from("subscription_adjustments")
+        .update({ status: "inactive", ended_at: new Date().toISOString() })
+        .in("id", previousAdjustmentIds);
+
+      if (previousAdjustmentUpdateError) {
+        const evidenceFailureResponse = await recordCustomerAccessSyncFailure(
+          customerId,
+          customer.stripe_subscription_id,
+          syncContext(action),
+          previousAdjustmentUpdateError.message,
+          { operation: "retire_previous_subscription_adjustments", previousAdjustmentIds },
+        );
+
+        if (evidenceFailureResponse) return evidenceFailureResponse;
+
+        return NextResponse.json(
+          {
+            error:
+              "Stripe discount was changed, but Screenia could not retire the previous local discount record.",
+          },
+          { status: 500 },
+        );
+      }
+    }
 
     const adjustmentInsert = {
       customer_id: customerId,
@@ -929,16 +974,25 @@ export async function POST(
 
     if (customerSyncResponse) return customerSyncResponse;
 
+    const discountWasChanged = previousAdjustmentIds.length > 0;
     const auditResponse = await recordRequiredSubscriptionAudit({
       ...auditBase,
-      eventType: "subscription_discount_applied",
-      eventDescription: "Admin applied a temporary subscription discount.",
+      eventType: discountWasChanged
+        ? "subscription_discount_changed"
+        : "subscription_discount_applied",
+      eventDescription: discountWasChanged
+        ? "Admin changed an active temporary subscription discount."
+        : "Admin applied a temporary subscription discount.",
       metadata: {
         reason,
         percentOff,
         durationMonths,
         stripeCouponId: coupon.id,
         stripeSubscriptionId: customer.stripe_subscription_id,
+        previousAdjustmentIds,
+        previousStripeCoupons: (previousActiveAdjustments || []).map(
+          (adjustment) => adjustment.stripe_coupon_id,
+        ),
       },
     });
     if (auditResponse) return auditResponse;
@@ -1010,7 +1064,7 @@ export async function POST(
     if (adjustmentIds.length) {
       const { error: adjustmentUpdateError } = await supabaseAdmin
         .from("subscription_adjustments")
-        .update({ status: "inactive" })
+        .update({ status: "inactive", ended_at: new Date().toISOString() })
         .in("id", adjustmentIds);
 
       if (adjustmentUpdateError) {

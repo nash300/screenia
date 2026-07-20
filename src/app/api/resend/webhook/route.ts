@@ -40,6 +40,165 @@ function actionStatus(eventType: string) {
   return risky.includes(eventType) ? "action_required" : "received";
 }
 
+type ContactEmailAssociation = {
+  inquiryId: string | null;
+  caseNumber: string | null;
+  replyId: string | null;
+  messageRole: "visitor_confirmation" | "admin_notification" | "admin_reply" | null;
+};
+
+type BillingEmailAssociation = {
+  customerId: string | null;
+  stripeInvoiceId: string | null;
+};
+
+async function synchronizeBillingEmailState(
+  resendEmailId: string | null,
+  eventType: string,
+): Promise<BillingEmailAssociation> {
+  const noAssociation = { customerId: null, stripeInvoiceId: null };
+  if (!resendEmailId) return noAssociation;
+
+  const { data: dispatch, error: lookupError } = await supabaseAdmin
+    .from("billing_email_dispatches")
+    .select("stripe_invoice_id, customer_id, status")
+    .eq("resend_email_id", resendEmailId)
+    .maybeSingle();
+
+  if (lookupError) throw lookupError;
+  if (!dispatch) return noAssociation;
+
+  let nextStatus: "sent" | "delivered" | "failed" | "bounced" | null = null;
+  if (["email.delivered", "email.opened", "email.clicked"].includes(eventType)) {
+    nextStatus = "delivered";
+  } else if (["email.bounced", "email.complained"].includes(eventType)) {
+    nextStatus = "bounced";
+  } else if (eventType === "email.failed") {
+    nextStatus = "failed";
+  } else if (eventType === "email.sent" && dispatch.status === "pending") {
+    nextStatus = "sent";
+  }
+
+  if (nextStatus) {
+    const update: Record<string, string | null> = {
+      status: nextStatus,
+      last_error:
+        nextStatus === "failed" || nextStatus === "bounced"
+          ? eventType
+          : null,
+    };
+    if (nextStatus === "delivered") {
+      update.delivered_at = new Date().toISOString();
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("billing_email_dispatches")
+      .update(update)
+      .eq("stripe_invoice_id", dispatch.stripe_invoice_id);
+    if (updateError) throw updateError;
+  }
+
+  return {
+    customerId: dispatch.customer_id,
+    stripeInvoiceId: dispatch.stripe_invoice_id,
+  };
+}
+
+async function synchronizeContactInquiryEmailState(
+  resendEmailId: string | null,
+  eventStatus: string,
+): Promise<ContactEmailAssociation> {
+  const noAssociation: ContactEmailAssociation = {
+    inquiryId: null,
+    caseNumber: null,
+    replyId: null,
+    messageRole: null,
+  };
+
+  if (!resendEmailId || eventStatus !== "action_required") {
+    return noAssociation;
+  }
+
+  const { data: reply, error: replyLookupError } = await supabaseAdmin
+    .from("contact_inquiry_replies")
+    .select("id, inquiry_id")
+    .eq("email_id", resendEmailId)
+    .maybeSingle();
+
+  if (replyLookupError) throw replyLookupError;
+
+  if (reply) {
+    const { data: inquiry, error: inquiryLookupError } = await supabaseAdmin
+      .from("contact_inquiries")
+      .select("id, case_number")
+      .eq("id", reply.inquiry_id)
+      .single();
+
+    if (inquiryLookupError || !inquiry) {
+      throw inquiryLookupError || new Error("Linked contact inquiry was not found.");
+    }
+
+    const [{ error: replyUpdateError }, { error: inquiryUpdateError }] =
+      await Promise.all([
+        supabaseAdmin
+          .from("contact_inquiry_replies")
+          .update({ email_status: "failed" })
+          .eq("id", reply.id),
+        supabaseAdmin
+          .from("contact_inquiries")
+          .update({ status: "open", closed_at: null, closed_by: null })
+          .eq("id", inquiry.id),
+      ]);
+
+    if (replyUpdateError || inquiryUpdateError) {
+      throw replyUpdateError || inquiryUpdateError;
+    }
+
+    return {
+      inquiryId: inquiry.id,
+      caseNumber: inquiry.case_number,
+      replyId: reply.id,
+      messageRole: "admin_reply",
+    };
+  }
+
+  const { data: confirmation, error: confirmationError } = await supabaseAdmin
+    .from("contact_inquiries")
+    .update({ confirmation_email_status: "failed" })
+    .eq("confirmation_email_id", resendEmailId)
+    .select("id, case_number")
+    .maybeSingle();
+
+  if (confirmationError) throw confirmationError;
+  if (confirmation) {
+    return {
+      inquiryId: confirmation.id,
+      caseNumber: confirmation.case_number,
+      replyId: null,
+      messageRole: "visitor_confirmation",
+    };
+  }
+
+  const { data: adminNotice, error: adminNoticeError } = await supabaseAdmin
+    .from("contact_inquiries")
+    .update({ admin_notification_email_status: "failed" })
+    .eq("admin_notification_email_id", resendEmailId)
+    .select("id, case_number")
+    .maybeSingle();
+
+  if (adminNoticeError) throw adminNoticeError;
+  if (adminNotice) {
+    return {
+      inquiryId: adminNotice.id,
+      caseNumber: adminNotice.case_number,
+      replyId: null,
+      messageRole: "admin_notification",
+    };
+  }
+
+  return noAssociation;
+}
+
 export async function POST(request: Request) {
   const webhookSecret = process.env.RESEND_WEBHOOK_SECRET?.trim() || "";
 
@@ -113,6 +272,41 @@ export async function POST(request: Request) {
     );
   }
 
+  let contactAssociation: ContactEmailAssociation = {
+    inquiryId: null,
+    caseNumber: null,
+    replyId: null,
+    messageRole: null,
+  };
+  let contactSyncError: string | null = null;
+  let billingAssociation: BillingEmailAssociation = {
+    customerId: null,
+    stripeInvoiceId: null,
+  };
+  let billingSyncError: string | null = null;
+
+  try {
+    contactAssociation = await synchronizeContactInquiryEmailState(
+      event.data?.email_id || null,
+      eventStatus,
+    );
+  } catch (error) {
+    contactSyncError =
+      error instanceof Error ? error.message : "Unknown contact email sync error.";
+    console.error("Contact inquiry email state sync error:", error);
+  }
+
+  try {
+    billingAssociation = await synchronizeBillingEmailState(
+      event.data?.email_id || null,
+      eventType,
+    );
+  } catch (error) {
+    billingSyncError =
+      error instanceof Error ? error.message : "Unknown billing email sync error.";
+    console.error("Billing email state sync error:", error);
+  }
+
   await Promise.all([
     recordAuditEvent(supabaseAdmin, {
       actorType: "system",
@@ -125,6 +319,10 @@ export async function POST(request: Request) {
         resendEmailId: event.data?.email_id || null,
         recipientEmail,
         eventStatus,
+        ...contactAssociation,
+        contactSyncError,
+        ...billingAssociation,
+        billingSyncError,
       },
     }),
     eventStatus === "action_required"
@@ -139,6 +337,10 @@ export async function POST(request: Request) {
             eventType,
             recipientEmail,
             reason: event.data?.reason || event.data?.bounce?.message || null,
+            ...contactAssociation,
+            contactSyncError,
+            ...billingAssociation,
+            billingSyncError,
           },
         })
       : Promise.resolve(),

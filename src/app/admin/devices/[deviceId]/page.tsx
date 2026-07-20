@@ -836,7 +836,7 @@ export default function AdminDevicePage({
         {playlist.length === 0 ? (
           <p className="admin-muted mt-3">No videos assigned yet.</p>
         ) : (
-          <div className="mt-4 space-y-4">
+          <div className="admin-scroll-region mt-4 space-y-4">
             {playlist.map((item) => (
               <div
                 key={item.id}

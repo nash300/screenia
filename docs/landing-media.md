@@ -157,3 +157,27 @@ Use transparent PNG files when possible:
 ```
 
 The logo panel appears at the bottom of the hero text section. Its height is about one eleventh of the screen height.
+
+## Landing Section Art
+
+Supporting images for landing sections live here:
+
+```text
+public/landing/section-art/
+```
+
+Current files:
+
+```text
+digital-menu-board.jpg
+restaurant-menu-screens.jpg
+salon-service-window.jpg
+```
+
+Source notes:
+
+- `digital-menu-board.jpg`: Unsplash photo by Kevin Grieve, "Digital menu boards display salad and rice bowls", free under the Unsplash License.
+- `restaurant-menu-screens.jpg`: Unsplash photo by Ryan Collins, "Fast food counter with digital menu boards above", free under the Unsplash License.
+- `salon-service-window.jpg`: Pexels photo by RDNE Stock project from the Beauty Salon collection, free under the Pexels License.
+
+Use these images only as supporting section art or card imagery. The first hero section still uses the numbered hero slide folders above.

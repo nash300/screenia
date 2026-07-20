@@ -128,7 +128,7 @@ export function matchesOrderSection(order: OrderRow, section: OrderSection) {
     return order.status === "cancelled" || order.fulfillment_status === "cancelled";
   }
   if (section === "payment") {
-    return ["checkout_started", "payment_failed"].includes(order.status);
+    return ["checkout_started", "payment_failed", "disputed"].includes(order.status);
   }
   if (section === "shipping") {
     return (

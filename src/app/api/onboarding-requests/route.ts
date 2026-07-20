@@ -11,6 +11,12 @@ import {
   renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
+import {
+  ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
+  INCLUDED_SETUP_SCREEN_COUNT,
+  additionalSetupScreenCount,
+  calculateSetupFeeSek,
+} from "@/lib/pricing/setup-fee";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,7 +29,15 @@ const requestRateLimitMax = 5;
 
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
+const isValidOptionalPhone = (value: string) => {
+  if (!value) return true;
+  if (!/^[+0-9().\-\s]+$/.test(value)) return false;
+  const digits = value.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+};
+
 type RequestPlan = (typeof PRICING_PLANS)[number];
+type RequestQuoteItem = { plan: RequestPlan; quantity: number };
 
 function requestReceivedAt(value: string) {
   return new Intl.DateTimeFormat("sv-SE", {
@@ -36,20 +50,43 @@ async function sendRequestConfirmationEmail({
   email,
   companyName,
   contactPerson,
-  plan,
-  screenQuantity,
+  quoteItems,
   message,
   requestedAt,
 }: {
   email: string;
   companyName: string;
   contactPerson: string;
-  plan: RequestPlan;
-  screenQuantity: number;
+  quoteItems: RequestQuoteItem[];
   message: string;
   requestedAt: string;
 }) {
-  const planName = `${plan.name} ${plan.resolution}`;
+  const screenQuantity = quoteItems.reduce((sum, item) => sum + item.quantity, 0);
+  const baseSetupFeeSek = quoteItems[0]?.plan.setupFeeSek || 0;
+  const setupFeeSek = calculateSetupFeeSek(screenQuantity, baseSetupFeeSek);
+  const additionalSetupScreens = additionalSetupScreenCount(screenQuantity);
+  const hardwareTotalSek = quoteItems.reduce(
+    (sum, item) => sum + item.plan.hardwareFeeSek * item.quantity,
+    0,
+  );
+  const shippingTotalSek = quoteItems.reduce(
+    (sum, item) => sum + item.plan.shippingFeeSek * item.quantity,
+    0,
+  );
+  const monthlyTotalSek = quoteItems.reduce(
+    (sum, item) => sum + item.plan.monthlyFeeSek * item.quantity,
+    0,
+  );
+  const firstPaymentSek = setupFeeSek + hardwareTotalSek + shippingTotalSek;
+  const selectionText = quoteItems
+    .map(({ plan, quantity }) => `${quantity} x ${plan.name} ${plan.resolution}`)
+    .join(", ");
+  const selectionHtml = quoteItems
+    .map(
+      ({ plan, quantity }) =>
+        `<p><strong>${quantity} &times; ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</strong><br />Enheter och frakt: ${formatSek((plan.hardwareFeeSek + plan.shippingFeeSek) * quantity)} inkl. moms<br />Abonnemang: ${formatSek(plan.monthlyFeeSek * quantity)}/m&aring;nad inkl. moms efter provperioden</p>`,
+    )
+    .join("");
   const receivedAt = requestReceivedAt(requestedAt);
   const safeCompanyName = escapeHtml(companyName);
   const safeContactPerson = contactPerson ? escapeHtml(contactPerson) : "";
@@ -64,13 +101,14 @@ Tack för din förfrågan. Vi har tagit emot följande:
 
 Företag: ${companyName}
 ${contactPerson ? `Kontaktperson: ${contactPerson}\n` : ""}E-post: ${email}
-Paket: ${planName}
-Antal skärmar/enheter: ${screenQuantity}
-Start- och konfigurationsavgift: ${formatSek(plan.setupFeeSek)} inkl. moms
-Skärmenhet: ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet
-Frakt: ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet
-Månadsabonnemang: ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet
-Kostnadsfri provperiod: ${plan.trialDays} dagar
+Valda skärmar: ${selectionText}
+Totalt antal skärmar/enheter: ${screenQuantity}
+Första betalningen: ${formatSek(firstPaymentSek)} inkl. moms
+- Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
+- Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${INCLUDED_SETUP_SCREEN_COUNT} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)} per skärm` : ""}
+- Skärmenheter: ${formatSek(hardwareTotalSek)}
+- Frakt: ${formatSek(shippingTotalSek)}
+Efter 21 dagars kostnadsfri provperiod: ${formatSek(monthlyTotalSek)}/månad inkl. moms
 Mottaget: ${receivedAt}
 ${message ? `\nMeddelande: ${message}\n` : ""}
 Screenia granskar uppgifterna och återkommer med nästa steg. Du behöver inte skicka logotyp, meny eller bilder innan betalning.
@@ -89,13 +127,13 @@ Screenia`,
           <p><strong>Företag:</strong> ${safeCompanyName}</p>
           ${safeContactPerson ? `<p><strong>Kontaktperson:</strong> ${safeContactPerson}</p>` : ""}
           <p><strong>E-post:</strong> ${escapeHtml(email)}</p>
-          <p><strong>Paket:</strong> ${escapeHtml(planName)}</p>
-          <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
-          <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setupFeeSek)} inkl. moms</p>
-          <p><strong>Skärmenhet:</strong> ${formatSek(plan.hardwareFeeSek)} inkl. moms per enhet</p>
-          <p><strong>Frakt:</strong> ${formatSek(plan.shippingFeeSek)} inkl. moms per enhet</p>
-          <p><strong>Månadsabonnemang:</strong> ${formatSek(plan.monthlyFeeSek)} inkl. moms per enhet</p>
-          <p><strong>Kostnadsfri provperiod:</strong> ${plan.trialDays} dagar</p>
+          <p><strong>Valda sk&auml;rmar:</strong></p>
+          ${selectionHtml}
+          <p><strong>Totalt antal sk&auml;rmar/enheter:</strong> ${screenQuantity}</p>
+          <p><strong>F&ouml;rsta betalningen:</strong> ${formatSek(firstPaymentSek)} inkl. moms</p>
+          <p>Startavgift ${formatSek(setupFeeSek)} + sk&auml;rmenheter ${formatSek(hardwareTotalSek)} + frakt ${formatSek(shippingTotalSek)}</p>
+          <p>Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${INCLUDED_SETUP_SCREEN_COUNT} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}` : ""}.</p>
+          <p><strong>Efter 21 dagars kostnadsfri provperiod:</strong> ${formatSek(monthlyTotalSek)}/m&aring;nad inkl. moms</p>
           <p><strong>Mottaget:</strong> ${receivedAt}</p>
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}
         </div>
@@ -108,12 +146,12 @@ Screenia`,
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const planCode = String(body.planCode || "").trim();
+    const legacyPlanCode = String(body.planCode || "").trim();
     const companyName = String(body.companyName || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
     const contactPerson = String(body.contactPerson || "").trim();
     const phone = String(body.phone || "").trim();
-    const screenQuantity = Math.min(
+    const legacyScreenQuantity = Math.min(
       50,
       Math.max(1, Number(body.screenQuantity) || 1),
     );
@@ -144,12 +182,52 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!validPlanCodes.has(planCode)) {
+    const rawQuoteItems = Array.isArray(body.quoteItems)
+      ? body.quoteItems
+      : legacyPlanCode
+        ? [{ pricingPlanCode: legacyPlanCode, quantity: legacyScreenQuantity }]
+        : [];
+    const mergedQuantities = new Map<string, number>();
+    let invalidSelection = false;
+
+    for (const rawItem of rawQuoteItems) {
+      const code = String(rawItem?.pricingPlanCode || "").trim();
+      const quantity = Number(rawItem?.quantity);
+      if (!validPlanCodes.has(code) || !Number.isInteger(quantity) || quantity < 1) {
+        invalidSelection = true;
+        continue;
+      }
+      mergedQuantities.set(code, (mergedQuantities.get(code) || 0) + quantity);
+    }
+
+    const quoteItems: RequestQuoteItem[] = Array.from(mergedQuantities.entries())
+      .map(([code, quantity]) => ({
+        plan: PRICING_PLANS.find((plan) => plan.code === code),
+        quantity,
+      }))
+      .filter((item): item is RequestQuoteItem => Boolean(item.plan));
+    const screenQuantity = quoteItems.reduce((sum, item) => sum + item.quantity, 0);
+
+    if (invalidSelection || quoteItems.length === 0 || screenQuantity > 50) {
       return NextResponse.json(
-        { error: "Välj ett giltigt paket." },
+        { error: "Välj mellan 1 och 50 skärmar i en giltig kombination." },
         { status: 400 },
       );
     }
+
+    const planCode = quoteItems.length === 1 ? quoteItems[0].plan.code : "mixed";
+    const planName = quoteItems
+      .map(({ plan, quantity }) => `${quantity} x ${plan.name} ${plan.resolution}`)
+      .join(", ");
+    const requestedQuoteItems = quoteItems.map(({ plan, quantity }) => ({
+      pricingPlanCode: plan.code,
+      name: plan.name,
+      resolution: plan.resolution,
+      quantity,
+      hardwareFeeSek: plan.hardwareFeeSek,
+      shippingFeeSek: plan.shippingFeeSek,
+      monthlyFeeSek: plan.monthlyFeeSek,
+    }));
 
     if (!companyName) {
       return NextResponse.json(
@@ -165,6 +243,16 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!isValidOptionalPhone(phone)) {
+      return NextResponse.json(
+        {
+          error:
+            "Ange ett giltigt telefonnummer med 7–15 siffror, eller lämna fältet tomt.",
+        },
+        { status: 400 },
+      );
+    }
+
     if (!privacyAccepted) {
       return NextResponse.json(
         {
@@ -175,18 +263,81 @@ export async function POST(request: Request) {
       );
     }
 
-    const selectedPlan = PRICING_PLANS.find((plan) => plan.code === planCode);
-    if (!selectedPlan) {
+    const { data: existingCustomer, error: existingCustomerError } =
+      await supabaseAdmin
+        .from("customers")
+        .select("id, name, status")
+        .eq("email", email)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+
+    if (existingCustomerError) {
+      console.error("Check repeated landing request error:", existingCustomerError);
       return NextResponse.json(
-        { error: "Välj ett giltigt paket." },
-        { status: 400 },
+        { error: "Det gick inte att kontrollera tidigare förfrågningar." },
+        { status: 500 },
+      );
+    }
+
+    if (existingCustomer) {
+      const duplicateAt = new Date().toISOString();
+      const duplicateMetadata = {
+        submittedCompanyName: companyName,
+        submittedEmail: email,
+        existingCustomerStatus: existingCustomer.status,
+        planCode,
+        planName,
+        quoteItems: requestedQuoteItems,
+        screenQuantity,
+        submittedAt: duplicateAt,
+      };
+
+      const [auditResult, notificationResult] = await Promise.allSettled([
+        recordAuditEvent(supabaseAdmin, {
+          customerId: existingCustomer.id,
+          actorType: "customer",
+          eventType: "landing_purchase_request_duplicate_blocked",
+          eventDescription:
+            "A repeated landing request using an existing customer email was blocked.",
+          metadata: duplicateMetadata,
+          ipAddress,
+          userAgent,
+        }),
+        createAdminNotification(supabaseAdmin, {
+          customerId: existingCustomer.id,
+          eventType: "landing_purchase_request_duplicate_blocked",
+          title: "Repeated customer request needs review",
+          message: `${companyName} submitted another request using ${email}. Review the existing customer before creating another order.`,
+          priority: "high",
+          metadata: duplicateMetadata,
+        }),
+      ]);
+
+      if (auditResult.status === "rejected") {
+        console.error("Repeated request audit error:", auditResult.reason);
+      }
+      if (notificationResult.status === "rejected") {
+        console.error(
+          "Repeated request admin notification error:",
+          notificationResult.reason,
+        );
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            "Det finns redan en förfrågan eller kund med den här e-postadressen. Kontakta service@screenia.se om du vill lägga till fler skärmar eller ändra din beställning.",
+          existingRequest: true,
+        },
+        { status: 409, headers: rateLimitHeaders(rateLimit) },
       );
     }
 
     const requestedAt = new Date().toISOString();
     const notes = [
       "Landing purchase request",
-      `Requested plan: ${selectedPlan.name} ${selectedPlan.resolution} (${planCode})`,
+      `Requested screens: ${planName}`,
       `Requested screens/devices: ${screenQuantity}`,
       `Submitted at: ${requestedAt}`,
       message ? `Message: ${message}` : "",
@@ -205,14 +356,7 @@ export async function POST(request: Request) {
         country: "Sverige",
         preferred_contact_channel: "email",
         requested_screen_quantity: screenQuantity,
-        requested_quote_items: [
-          {
-            pricingPlanCode: planCode,
-            name: selectedPlan.name,
-            resolution: selectedPlan.resolution,
-            quantity: screenQuantity,
-          },
-        ],
+        requested_quote_items: requestedQuoteItems,
         status: "new_request",
         notes,
       })
@@ -268,8 +412,8 @@ export async function POST(request: Request) {
             "Customer submitted a package request from the landing page.",
           metadata: {
             planCode,
-            planName: selectedPlan.name,
-            planResolution: selectedPlan.resolution,
+            planName,
+            quoteItems: requestedQuoteItems,
             screenQuantity,
             privacyVersion: CURRENT_PRIVACY_DOCUMENT.version,
           },
@@ -298,11 +442,12 @@ export async function POST(request: Request) {
           customerId: data.id,
           eventType: "landing_purchase_request_created",
           title: "New customer request",
-          message: `${companyName} requested ${screenQuantity} screen(s) for ${selectedPlan.name}.`,
+          message: `${companyName} requested ${screenQuantity} screen(s): ${planName}.`,
           priority: "high",
           metadata: {
             planCode,
-            planName: selectedPlan.name,
+            planName,
+            quoteItems: requestedQuoteItems,
             screenQuantity,
             customerEmail: email,
           },
@@ -323,7 +468,8 @@ export async function POST(request: Request) {
           "Landing purchase request was saved, but admin notification storage failed.",
         metadata: {
           planCode,
-          planName: selectedPlan.name,
+          planName,
+          quoteItems: requestedQuoteItems,
           screenQuantity,
           customerEmail: email,
           error: notificationErrorMessage,
@@ -347,8 +493,7 @@ export async function POST(request: Request) {
       email,
       companyName,
       contactPerson,
-      plan: selectedPlan,
-      screenQuantity,
+      quoteItems,
       message,
       requestedAt,
     });
@@ -367,6 +512,7 @@ export async function POST(request: Request) {
               resendEmailId: emailResult.id || null,
               planCode,
               screenQuantity,
+              quoteItems: requestedQuoteItems,
             },
             ipAddress,
             userAgent,
@@ -393,6 +539,7 @@ export async function POST(request: Request) {
             metadata: {
               planCode,
               screenQuantity,
+              quoteItems: requestedQuoteItems,
               customerEmail: email,
               resendEmailId: emailResult.id || null,
               error: emailAuditErrorMessage,
@@ -432,6 +579,7 @@ export async function POST(request: Request) {
               error: emailResult.error,
               planCode,
               screenQuantity,
+              quoteItems: requestedQuoteItems,
             },
             ipAddress,
             userAgent,
@@ -458,6 +606,7 @@ export async function POST(request: Request) {
             metadata: {
               planCode,
               screenQuantity,
+              quoteItems: requestedQuoteItems,
               customerEmail: email,
               emailError: emailResult.error,
               auditError: emailAuditErrorMessage,
@@ -490,6 +639,7 @@ export async function POST(request: Request) {
             metadata: {
               planCode,
               screenQuantity,
+              quoteItems: requestedQuoteItems,
             },
           },
           { throwOnError: true },
@@ -515,6 +665,7 @@ export async function POST(request: Request) {
             notificationError: notificationErrorMessage,
             planCode,
             screenQuantity,
+            quoteItems: requestedQuoteItems,
           },
           ipAddress,
           userAgent,

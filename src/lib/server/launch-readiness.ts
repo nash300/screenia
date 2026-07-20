@@ -389,7 +389,8 @@ export async function hasResendDeliveryEventWorkflow(
     !adminRouteSource.includes("resend_delivery_events")
       ? "admin email event API does not expose delivery events"
       : null,
-    !adminPageSource.includes("Delivery event register")
+    !adminPageSource.includes("Delivery evidence") ||
+    !adminPageSource.includes("event_status")
       ? "admin email event page does not expose the event register"
       : null,
     !proxySource.includes("/api/resend/webhook")
@@ -1187,7 +1188,7 @@ export async function hasPricingConfigurationReadiness(
   const { data, error } = await supabaseAdmin
     .from("pricing_plans")
     .select(
-      "id, code, is_active, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, binding_months, currency, tax_behavior, stripe_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
+      "id, code, is_active, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, binding_months, currency, tax_behavior, stripe_setup_price_id, stripe_additional_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
     );
 
   if (error) {
@@ -1220,6 +1221,12 @@ export async function hasPricingConfigurationReadiness(
     if (Number(plan.setup_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: setup fee is missing`);
     }
+    if (Number(plan.setup_included_screens || 0) !== 3) {
+      planIssues.push(`${label}: setup must include exactly 3 screens`);
+    }
+    if (Number(plan.additional_setup_fee_sek || 0) !== 249) {
+      planIssues.push(`${label}: additional-screen setup fee must be 249 SEK`);
+    }
     if (Number(plan.monthly_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: monthly fee is missing`);
     }
@@ -1237,6 +1244,9 @@ export async function hasPricingConfigurationReadiness(
     }
     if (!plan.stripe_setup_price_id) {
       planIssues.push(`${label}: setup Stripe price is missing`);
+    }
+    if (!plan.stripe_additional_setup_price_id) {
+      planIssues.push(`${label}: additional-screen setup Stripe price is missing`);
     }
     if (hardwareFee > 0 && !plan.stripe_hardware_price_id) {
       planIssues.push(`${label}: hardware Stripe price is missing`);
@@ -1421,10 +1431,10 @@ export async function hasProcessorComplianceReviewWorkflow(
     !processorUpdateRouteSource.includes("validateProcessorReviewPayload")
       ? "processor review actions do not require an admin reason"
       : null,
-    !processorPageSource.includes("Processor review register") ||
-    !processorPageSource.includes("DPA verified") ||
-    !processorPageSource.includes("Security reviewed") ||
-    !processorPageSource.includes("Account owner verified")
+    !processorPageSource.includes("dpa_verified") ||
+    !processorPageSource.includes("security_reviewed") ||
+    !processorPageSource.includes("account_owner_verified") ||
+    !processorPageSource.includes("evidence_reference")
       ? "admin processor review page does not expose required evidence fields"
       : null,
     !navSource.includes("/admin/processor-reviews")
@@ -1554,10 +1564,9 @@ export async function hasLegalChangeNoticeWorkflow(
     !noticeUpdateRouteSource.includes("validateLegalChangeNoticePayload")
       ? "legal notice actions do not require an admin reason"
       : null,
-    !noticePageSource.includes("Legal change register") ||
-    !noticePageSource.includes("Customer notice required") ||
-    !noticePageSource.includes("Re-acceptance required") ||
-    !noticePageSource.includes("Evidence reference")
+    !noticePageSource.includes("notice_required") ||
+    !noticePageSource.includes("reacceptance_required") ||
+    !noticePageSource.includes("evidence_reference")
       ? "admin legal notice page does not expose required notice/reacceptance evidence fields"
       : null,
     !navSource.includes("/admin/legal-change-notices")
@@ -2851,8 +2860,8 @@ export async function hasInventoryOperationsWorkflow(
       ? "inventory migration does not preserve item event history"
       : null,
     !inventoryPageSource.includes("/api/admin/inventory") ||
-    !inventoryPageSource.includes("Hardware stock is the hardware bank") ||
-    !inventoryPageSource.includes("Assign stock from the customer profile")
+    !inventoryPageSource.includes("Physical stock lifecycle") ||
+    !inventoryPageSource.includes("customer_id")
       ? "admin inventory page does not keep stock operations focused on physical hardware lifecycle"
       : null,
     !customerDetailPageSource.includes("allocate_new_device") ||
@@ -3433,8 +3442,8 @@ export async function hasVatSummaryWorkflow(supabaseAdmin: SupabaseClient) {
     projectFilePath("src/app/api/admin/vat-summary/route.ts"),
     "utf8",
   );
-  const ordersPageSource = readFileSync(
-    projectFilePath("src/app/admin/orders/page.tsx"),
+  const taxPageSource = readFileSync(
+    projectFilePath("src/app/admin/tax-payments/page.tsx"),
     "utf8",
   );
   const sourceIssues = [
@@ -3464,8 +3473,8 @@ export async function hasVatSummaryWorkflow(supabaseAdmin: SupabaseClient) {
     !vatRouteSource.includes('.eq("tax_status", "complete")')
       ? "VAT summary does not restrict rows to active paid subscription records with complete tax evidence"
       : null,
-    !ordersPageSource.includes("/api/admin/vat-summary?format=csv")
-      ? "orders admin page does not expose the VAT summary export"
+    !taxPageSource.includes("/api/admin/vat-summary?format=csv")
+      ? "VAT filing page does not expose the VAT summary export"
       : null,
   ].filter(Boolean);
 
@@ -3595,7 +3604,7 @@ export async function hasTaxPaymentRegisterWorkflow(
     || !taxUpdateRouteSource.includes("A reason of at least 5 characters")
       ? "tax payment records do not require an admin reason"
       : null,
-    !taxPageSource.includes("Record VAT period")
+    !taxPageSource.includes("Moms/VAT filing workflow")
       ? "admin tax payment page does not expose the record form"
       : null,
     !taxPageSource.includes("Mark submitted") ||
@@ -3715,7 +3724,7 @@ export async function hasPrivacyIncidentWorkflow(supabaseAdmin: SupabaseClient) 
     !incidentRouteSource.includes("? \"urgent\"")
       ? "high/critical privacy incidents are not escalated as urgent notifications"
       : null,
-    !incidentPageSource.includes("Incident register") ||
+    !incidentPageSource.includes("Incident response workflow") ||
     !incidentPageSource.includes("Authority notification required") ||
     !incidentPageSource.includes("Customer notification required")
       ? "admin privacy incident page does not expose notification decisions"
@@ -3836,8 +3845,8 @@ export async function hasAdminAccessReviewWorkflow(
     !accessUpdateRouteSource.includes("validateAccessReviewPayload")
       ? "admin access review actions do not require an admin reason"
       : null,
-    !accessPageSource.includes("Access review register") ||
-    !accessPageSource.includes("MFA verified") ||
+    !accessPageSource.includes("mfa_verified") ||
+    !accessPageSource.includes("access_confirmed") ||
     !accessPageSource.includes("Access still required")
       ? "admin access review page does not expose required access evidence fields"
       : null,
@@ -3961,10 +3970,9 @@ export async function hasBackupRestoreDrillWorkflow(
     !drillUpdateRouteSource.includes("validateBackupDrillPayload")
       ? "backup restore drill actions do not require an admin reason"
       : null,
-    !drillPageSource.includes("Backup restore register") ||
-    !drillPageSource.includes("Last successful backup") ||
-    !drillPageSource.includes("Restore tested") ||
-    !drillPageSource.includes("Evidence reference")
+    !drillPageSource.includes("last_successful_backup_at") ||
+    !drillPageSource.includes("restore_tested_at") ||
+    !drillPageSource.includes("evidence_reference")
       ? "admin backup restore page does not expose required recovery evidence fields"
       : null,
     !navSource.includes("/admin/backup-drills")
@@ -4083,10 +4091,9 @@ export async function hasDataRetentionReviewWorkflow(
     !retentionUpdateRouteSource.includes("validateDataRetentionPayload")
       ? "data retention review actions do not require an admin reason"
       : null,
-    !retentionPageSource.includes("Data retention register") ||
-    !retentionPageSource.includes("Legal basis") ||
-    !retentionPageSource.includes("Retention reason") ||
-    !retentionPageSource.includes("Recommended action")
+    !retentionPageSource.includes("legal_basis") ||
+    !retentionPageSource.includes("retention_reason") ||
+    !retentionPageSource.includes("recommended_action")
       ? "admin data retention page does not expose required retention decision fields"
       : null,
     !navSource.includes("/admin/data-retention")
@@ -4217,13 +4224,13 @@ export async function hasDataSubjectRequestWorkflow(
     !requestUpdateRouteSource.includes("Data subject request update rollback error")
       ? "data subject request updates do not roll back when audit storage fails"
       : null,
-    !requestPageSource.includes("Data subject request register")
+    !requestPageSource.includes("Privacy request workflow")
       ? "admin data subject request page does not expose the register"
       : null,
     !requestPageSource.includes("Overdue")
       ? "admin data subject request page does not surface overdue requests"
       : null,
-    !requestPageSource.includes("Completion or rejection requires outcome notes")
+    !requestPageSource.includes("Completion or rejection requires outcome notes of at least 10 characters")
       ? "admin data subject request page does not warn about terminal outcome notes"
       : null,
     !navSource.includes("/admin/data-subject-requests")
@@ -4384,13 +4391,13 @@ export function hasRequiredSecurityHeaders() {
 }
 
 export function hasSensitiveNoStorePolicy() {
-  const launchReadinessRouteSource = readFileSync(
-    projectFilePath("src/app/api/admin/launch-readiness/route.ts"),
+  const notificationsRouteSource = readFileSync(
+    projectFilePath("src/app/api/admin/notifications/route.ts"),
     "utf8",
   );
   const protectedPaths = [
     "/api/account",
-    "/api/admin/launch-readiness",
+    "/api/admin/notifications",
     "/auth/session",
     "/account",
     "/admin",
@@ -4401,11 +4408,11 @@ export function hasSensitiveNoStorePolicy() {
   ];
   const missing = protectedPaths.filter((path) => !shouldDisableRouteCaching(path));
   const sourceIssues = [
-    !launchReadinessRouteSource.includes("\"Cache-Control\", \"no-store\"")
-      ? "launch readiness API response is missing an explicit no-store header"
+    !notificationsRouteSource.includes("response.headers.set(\"Cache-Control\", \"no-store\")")
+      ? "admin notifications API response is missing an explicit no-store header"
       : null,
-    !launchReadinessRouteSource.includes("return noStoreJson")
-      ? "launch readiness API does not use the no-store response helper"
+    !notificationsRouteSource.includes("return noStoreJson")
+      ? "admin notifications API does not use the no-store response helper"
       : null,
   ].filter(Boolean);
 
@@ -4416,7 +4423,7 @@ export function hasSensitiveNoStorePolicy() {
         ? `No-store policy missing for: ${missing.join(", ")}`
         : sourceIssues.length > 0
           ? sourceIssues.join(" | ")
-          : "Sensitive routes are covered by no-store policy, and the launch-readiness API returns explicit no-store responses.",
+          : "Sensitive routes are covered by no-store policy, and the admin notifications API returns explicit no-store responses.",
   };
 }
 

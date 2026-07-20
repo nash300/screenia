@@ -6,6 +6,7 @@ import AdminNotifications from "@/components/AdminNotifications";
 import AdminBreadcrumbs from "@/components/AdminBreadcrumbs";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 import AdminSidebarNav from "@/components/AdminSidebarNav";
+import AdminSignOutButton from "@/components/AdminSignOutButton";
 
 export default function AdminLayout({
   children,
@@ -30,7 +31,7 @@ export default function AdminLayout({
             <p className="admin-sidebar-kicker">Admin Panel</p>
             <p className="admin-sidebar-description">
               Manage the customer journey, payments, device allocation, screen
-              content, inventory, and launch controls.
+              content, inventory, and business operations.
             </p>
           </div>
         </div>
@@ -40,6 +41,7 @@ export default function AdminLayout({
         <div className="admin-sidebar-footer">
           <p className="admin-sidebar-kicker">Screenia</p>
           <p className="admin-sidebar-version">Version 0.1</p>
+          <AdminSignOutButton />
         </div>
           <Suspense fallback={null}>
             <AdminPageTitle />

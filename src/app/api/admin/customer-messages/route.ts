@@ -612,26 +612,26 @@ export async function POST(request: Request) {
       subject: `${replySubject}`,
       text: `Hej ${customer.name || ""},
 
-Screenia har svarat pa ditt arende ${ticketNumber}:
+Screenia har svarat på ditt ärende ${ticketNumber}:
 
 ${reply}
 
-Du kan se arendet och svara i kundportalen.
+Du kan se ärendet och svara i kundportalen.
 
-Vanliga halsningar,
+Vänliga hälsningar,
 Screenia`,
       html: renderBrandedEmail({
         eyebrow: "Support",
-        title: "Svar fran Screenia",
+        title: "Svar från Screenia",
         children: `
         <div style="font-family: Arial, sans-serif; color: #102033; line-height: 1.6;">
           <p>Hej ${safeCustomerName},</p>
-          <p>Screenia har svarat pa ditt arende <strong>${ticketNumber}</strong>.</p>
+          <p>Screenia har svarat på ditt ärende <strong>${escapeHtml(ticketNumber)}</strong>.</p>
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
             <p style="margin: 0;">${safeReply}</p>
           </div>
-          <p>Du kan se arendet och svara i kundportalen.</p>
-          <p>Vanliga halsningar,<br />Screenia</p>
+          <p>Du kan se ärendet och svara i kundportalen.</p>
+          <p>Vänliga hälsningar,<br />Screenia</p>
         </div>
       `,
       }),

@@ -8,6 +8,8 @@ type PricingPlan = {
   name: string;
   resolution: string;
   setup_fee_sek: number;
+  setup_included_screens: number;
+  additional_setup_fee_sek: number;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
   monthly_fee_sek: number;
@@ -17,6 +19,7 @@ type PricingPlan = {
   tax_behavior: string | null;
   is_active: boolean;
   stripe_setup_price_id: string | null;
+  stripe_additional_setup_price_id: string | null;
   stripe_hardware_price_id: string | null;
   stripe_shipping_price_id: string | null;
   stripe_monthly_price_id: string | null;
@@ -78,6 +81,7 @@ function parseInteger(value: string) {
 function stripeSyncStatus(plan: PricingPlan) {
   const ids = [
     plan.stripe_setup_price_id,
+    plan.stripe_additional_setup_price_id,
     plan.stripe_hardware_price_id,
     plan.stripe_shipping_price_id,
     plan.stripe_monthly_price_id,
@@ -346,7 +350,7 @@ export default function PricingPage() {
           <div>
             <span>First payment range</span>
             <strong>{formatRange(pricingSummary.firstPaymentRange)}</strong>
-            <small>Setup + device + shipping, moms included</small>
+            <small>One screen: base setup + device + shipping, moms included</small>
           </div>
           <div>
             <span>Monthly range</span>
@@ -391,7 +395,7 @@ export default function PricingPage() {
 
                 <div className="admin-pricing-fields">
                   <label>
-                    Setup fee
+                    Base setup fee (covers 1-3 screens)
                     <input
                       type="number"
                       min="0"
@@ -493,6 +497,10 @@ export default function PricingPage() {
                   <p>
                     <strong>Setup:</strong>{" "}
                     {shortStripeId(plan.stripe_setup_price_id)}
+                  </p>
+                  <p>
+                    <strong>Additional screen setup:</strong>{" "}
+                    {shortStripeId(plan.stripe_additional_setup_price_id)}
                   </p>
                   <p>
                     <strong>Device:</strong>{" "}

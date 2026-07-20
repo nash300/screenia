@@ -10,7 +10,9 @@ import {
 } from "@/lib/supabase/sync-browser-session";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 import {
+  adminPasswordPolicyDescription,
   passwordPolicyDescription,
+  validateAdminPasswordPolicy,
   validatePasswordPolicy,
 } from "@/lib/auth/password-policy";
 
@@ -20,10 +22,12 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
+    setAdminMode(new URLSearchParams(window.location.search).get("mode") === "admin");
 
     syncEmailLinkSession().then((result) => {
       if (cancelled) return;
@@ -42,8 +46,13 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    if (!validatePasswordPolicy(password)) {
-      setMessage(passwordPolicyDescription);
+    const passwordValid = adminMode
+      ? validateAdminPasswordPolicy(password)
+      : validatePasswordPolicy(password);
+    if (!passwordValid) {
+      setMessage(
+        adminMode ? adminPasswordPolicyDescription : passwordPolicyDescription,
+      );
       return;
     }
 
@@ -63,7 +72,7 @@ export default function ResetPasswordPage() {
     }
 
     await syncCurrentSession();
-    router.replace("/account");
+    router.replace(adminMode ? "/admin" : "/account");
     router.refresh();
   };
 
@@ -76,10 +85,10 @@ export default function ResetPasswordPage() {
             <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
           <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
-            Kundportal
+            {adminMode ? "Admin" : "Kundportal"}
           </p>
           <h1 className="mt-4 max-w-xl text-5xl font-black leading-[1.02] tracking-tight">
-            Återställ lösenordet och fortsätt till dashboarden.
+            Återställ lösenordet och fortsätt till {adminMode ? "driftpanelen" : "dashboarden"}.
           </h1>
         </section>
 
@@ -95,7 +104,7 @@ export default function ResetPasswordPage() {
               Välj nytt lösenord
             </h1>
             <p className="mt-5 text-sm font-semibold leading-6 text-[#52617d]">
-              Ange ett nytt lösenord för ditt Screenia-konto.
+              Ange ett nytt lösenord för ditt Screenia-{adminMode ? "administratörskonto" : "konto"}.
             </p>
 
             <div className="mt-6 space-y-4">
@@ -105,7 +114,11 @@ export default function ResetPasswordPage() {
                 </span>
                 <input
                   type="password"
-                  placeholder="Minst 6 tecken, bokstäver och siffror"
+                  placeholder={
+                    adminMode
+                      ? "Minst 12 tecken, bokstäver, siffror och specialtecken"
+                      : "Minst 6 tecken, bokstäver och siffror"
+                  }
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
                   className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"

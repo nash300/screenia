@@ -6,40 +6,39 @@ export default function SupportServicePolicyPage() {
     <div className="landing-page flow-page">
       <main className="flow-shell legal-shell">
         <p className="landing-eyebrow">Juridiskt dokument</p>
-        <h1>Support & Service Policy</h1>
+        <h1>Support och service</h1>
         <p>
-          Screenia provides managed onboarding, display setup, content handling,
-          and support for customer screens. This pre-launch policy defines the
-          safe operating rules used during testing and launch preparation.
+          Screenia hjälper kunden med introduktion, skärmkonfiguration,
+          innehållshantering och support. Denna förlanseringspolicy beskriver hur
+          supportärenden och kundmaterial hanteras.
         </p>
 
         <section className="flow-card">
-          <h2>Support channels</h2>
+          <h2>Kontaktvägar</h2>
           <p>
-            Customers should use Screenia support email or the customer portal
-            for questions, content updates, delivery issues, cancellation help,
-            privacy requests, and billing questions. Support events should be
-            recorded in the admin history when they affect orders, access, or
-            customer obligations.
+            Kunden kontaktar Screenia via service@screenia.se eller kundportalen
+            för frågor om innehåll, leverans, uppsägning, integritet eller
+            betalning. Åtgärder som påverkar order, åtkomst eller kundens
+            skyldigheter dokumenteras i ärendets historik.
           </p>
         </section>
 
         <section className="flow-card">
-          <h2>Remote support and content</h2>
+          <h2>Fjärrsupport och kundmaterial</h2>
           <p>
-            Remote support is provided only when requested or consented to by
-            the customer. Customer-provided logos, images, text, campaigns, and
-            display instructions are used only to deliver the Screenia service
-            and must be handled as customer business data.
+            Fjärrsupport genomförs endast när kunden har begärt eller godkänt
+            den. Logotyper, bilder, texter, kampanjer och instruktioner som kunden
+            lämnar används för att leverera Screenias tjänst och hanteras som
+            kundens verksamhetsmaterial.
           </p>
         </section>
 
         <section className="flow-card">
-          <h2>Operational safety</h2>
+          <h2>Spårbar och säker hantering</h2>
           <p>
-            Admin changes that affect production work, refunds, subscription
-            access, display entitlement, customer deletion, or billing must go
-            through server-side actions and write audit history.
+            Ändringar som påverkar produktionsarbete, återbetalning,
+            abonnemangsåtkomst, skärmvisning, kundradering eller betalning utförs
+            genom behörighetskontrollerade åtgärder och sparas i revisionshistoriken.
           </p>
         </section>
 

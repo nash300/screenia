@@ -47,12 +47,13 @@ export async function GET() {
     { data: previewDecisions },
     { data: agreements },
     { data: legalDocuments },
+    { data: subscriptionAdjustments },
   ] =
     await Promise.all([
       supabaseAdmin
         .from("customer_subscriptions")
         .select(
-          "id, order_number, status, setup_fee_paid, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, tracking_number, tracking_url, stripe_subscription_id, stripe_invoice_id, stripe_payment_status, stripe_current_period_start, stripe_current_period_end, cancel_at_period_end, cancellation_effective_at, pause_started_at, pause_resumes_at, pause_reason, created_at, updated_at, pricing_plans(name, resolution, code)",
+          "id, order_number, status, setup_fee_paid, setup_fee_sek, base_setup_fee_sek, setup_included_screens, additional_setup_fee_per_screen_sek, additional_setup_screen_count, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, trial_starts_at, trial_ends_at, screen_quantity, device_discount_amount_sek, monthly_discount_amount_sek, device_discount_months, quote_items, tax_status, tax_amount_sek, total_amount_sek, fulfillment_status, inventory_status, tracking_number, tracking_url, stripe_subscription_id, stripe_invoice_id, stripe_payment_status, stripe_current_period_start, stripe_current_period_end, cancel_at_period_end, cancellation_effective_at, pause_started_at, pause_resumes_at, pause_reason, created_at, updated_at, pricing_plans(name, resolution, code)",
         )
         .eq("customer_id", customer.id)
         .order("created_at", { ascending: false }),
@@ -93,6 +94,14 @@ export async function GET() {
         .select("id, document_type, title, version, effective_at, status, summary, pdf_url")
         .eq("status", "active")
         .order("effective_at", { ascending: false }),
+      supabaseAdmin
+        .from("subscription_adjustments")
+        .select(
+          "id, customer_subscription_id, percent_off, duration_months, status, created_at, ended_at",
+        )
+        .eq("customer_id", customer.id)
+        .eq("status", "active")
+        .order("created_at", { ascending: false }),
     ]);
 
   let messages = (messageResult.data || []) as CustomerMessageRow[];
@@ -180,5 +189,6 @@ export async function GET() {
     previewDecisions: previewDecisions || [],
     agreements: agreements || [],
     legalDocuments: legalDocuments || [],
+    subscriptionAdjustments: subscriptionAdjustments || [],
   });
 }

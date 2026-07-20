@@ -11,6 +11,12 @@ import {
 } from "@/lib/legal/documents";
 import { getLiveCheckoutBlockers } from "@/lib/server/live-checkout-readiness";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
+import {
+  ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
+  INCLUDED_SETUP_SCREEN_COUNT,
+  additionalSetupScreenCount,
+  calculateSetupFeeSek,
+} from "@/lib/pricing/setup-fee";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import {
   isValidSwedishRegistrationNumber,
@@ -486,6 +492,9 @@ export async function POST(request: Request) {
           name: fallbackPlan.name,
           resolution: fallbackPlan.resolution,
           setup_fee_sek: fallbackPlan.setupFeeSek,
+          setup_included_screens: INCLUDED_SETUP_SCREEN_COUNT,
+          additional_setup_fee_sek: ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
+          stripe_additional_setup_price_id: null,
           hardware_fee_sek: fallbackPlan.hardwareFeeSek,
           shipping_fee_sek: fallbackPlan.shippingFeeSek,
           monthly_fee_sek: fallbackPlan.monthlyFeeSek,
@@ -601,8 +610,23 @@ export async function POST(request: Request) {
       (sum, item) => sum + item.quantity,
       0,
     );
+    const baseSetupFeeSek = plan.setup_fee_sek;
+    const setupIncludedScreens =
+      plan.setup_included_screens ?? INCLUDED_SETUP_SCREEN_COUNT;
+    const additionalSetupFeeSek =
+      plan.additional_setup_fee_sek ?? ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK;
+    const additionalSetupScreens = additionalSetupScreenCount(
+      checkoutScreenQuantity,
+      setupIncludedScreens,
+    );
+    const setupFeeSek = calculateSetupFeeSek(
+      checkoutScreenQuantity,
+      baseSetupFeeSek,
+      setupIncludedScreens,
+      additionalSetupFeeSek,
+    );
     const expectedInitialPaymentSek =
-      plan.setup_fee_sek +
+      setupFeeSek +
       checkoutQuoteItems.reduce(
         (sum, item) =>
           sum +
@@ -619,7 +643,11 @@ export async function POST(request: Request) {
         pricing_plan_id: plan.id,
         status: "checkout_started",
         currency,
-        setup_fee_sek: plan.setup_fee_sek,
+        setup_fee_sek: setupFeeSek,
+        base_setup_fee_sek: baseSetupFeeSek,
+        setup_included_screens: setupIncludedScreens,
+        additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
+        additional_setup_screen_count: additionalSetupScreens,
         hardware_fee_sek: hardwareFeeSek,
         shipping_fee_sek: shippingFeeSek,
         monthly_fee_sek: plan.monthly_fee_sek,
@@ -718,6 +746,11 @@ export async function POST(request: Request) {
     const stripeCustomerPayload = {
       address: stripeAddress,
       email: stripeBillingEmail,
+      preferred_locales: ["sv"],
+      invoice_settings: {
+        footer:
+          "Screenia. Alla priser inkluderar svensk moms. Frågor om fakturan: service@screenia.se",
+      },
       metadata: {
         account_email: storedCustomerEmail,
         billing_email: stripeBillingEmail,
@@ -789,26 +822,49 @@ export async function POST(request: Request) {
     const setupLineItem =
       staticPriceLineItem({
         priceId: plan.stripe_setup_price_id,
-        expectedAmountSek: plan.setup_fee_sek,
-        actualAmountSek: plan.setup_fee_sek,
+        expectedAmountSek: baseSetupFeeSek,
+        actualAmountSek: baseSetupFeeSek,
         quantity: 1,
       }) || {
         price_data: {
           currency,
-          unit_amount: toOre(plan.setup_fee_sek),
+          unit_amount: toOre(baseSetupFeeSek),
           tax_behavior: priceTaxBehavior,
           product_data: {
-            name: `${plan.name} start- och konfigurationsavgift`,
+            name: `${plan.name} start- och konfigurationsavgift (upp till ${setupIncludedScreens} skärmar)`,
             description:
-              "Engångsavgift. Återbetalas inte när setupen har startat.",
+              "Grundavgift för start och konfiguration. Återbetalas inte när setupen har startat.",
             images: [setupImage],
           },
         },
         quantity: 1,
       };
 
+    const additionalSetupLineItem =
+      additionalSetupScreens > 0
+        ? staticPriceLineItem({
+            priceId: plan.stripe_additional_setup_price_id,
+            expectedAmountSek: additionalSetupFeeSek,
+            actualAmountSek: additionalSetupFeeSek,
+            quantity: additionalSetupScreens,
+          }) || {
+            price_data: {
+              currency,
+              unit_amount: toOre(additionalSetupFeeSek),
+              tax_behavior: priceTaxBehavior,
+              product_data: {
+                name: "Extra skärm - start och konfiguration",
+                description: `Tillägg per skärm utöver de ${setupIncludedScreens} som ingår i grundavgiften.`,
+                images: [setupImage],
+              },
+            },
+            quantity: additionalSetupScreens,
+          }
+        : null;
+
     const checkoutLineItems: CheckoutLineItem[] = [
       setupLineItem,
+      ...(additionalSetupLineItem ? [additionalSetupLineItem] : []),
       ...checkoutQuoteItems.flatMap((item) => {
         const hardwareLineItem =
           item.discountedHardwareFeeSek > 0
@@ -919,7 +975,9 @@ export async function POST(request: Request) {
         },
       },
       success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}`,
-      cancel_url: `${appUrl}/onboarding/payment-cancelled`,
+      cancel_url: `${appUrl}/onboarding/payment-cancelled?token=${encodeURIComponent(
+        customer.onboarding_token,
+      )}`,
       metadata: {
         account_email: storedCustomerEmail,
         billing_email: stripeBillingEmail,

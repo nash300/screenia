@@ -123,6 +123,7 @@ export default function RootLayout({
     <html
       lang="sv"
       translate="no"
+      data-scroll-behavior="smooth"
       className={`${plusJakarta.variable} ${geistMono.variable} ${bubblegumSans.variable} ${specialElite.variable} h-full antialiased notranslate`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

@@ -20,6 +20,8 @@ type PricingPlan = {
   name: string;
   resolution: string;
   setup_fee_sek: number;
+  setup_included_screens: number;
+  additional_setup_fee_sek: number;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
   monthly_fee_sek: number;
@@ -29,6 +31,7 @@ type PricingPlan = {
   tax_behavior: "exclusive" | "inclusive" | "unspecified" | null;
   is_active: boolean;
   stripe_setup_price_id: string | null;
+  stripe_additional_setup_price_id: string | null;
   stripe_hardware_price_id: string | null;
   stripe_shipping_price_id: string | null;
   stripe_monthly_price_id: string | null;
@@ -37,6 +40,7 @@ type PricingPlan = {
 
 type StripePriceField =
   | "stripe_setup_price_id"
+  | "stripe_additional_setup_price_id"
   | "stripe_hardware_price_id"
   | "stripe_shipping_price_id"
   | "stripe_monthly_price_id";
@@ -334,12 +338,29 @@ export async function POST(request: Request) {
   const hardwareFeeSek = plan.hardware_fee_sek ?? 0;
   const shippingFeeSek = plan.shipping_fee_sek ?? 0;
   const baseName = `Screenia ${plan.name} ${plan.resolution}`;
+  if (!plan.stripe_additional_setup_price_id) {
+    const { data: sharedSetupRule } = await supabaseAdmin
+      .from("pricing_plans")
+      .select("stripe_additional_setup_price_id")
+      .not("stripe_additional_setup_price_id", "is", null)
+      .eq("additional_setup_fee_sek", plan.additional_setup_fee_sek)
+      .limit(1)
+      .maybeSingle();
+    plan.stripe_additional_setup_price_id =
+      sharedSetupRule?.stripe_additional_setup_price_id || null;
+  }
   const specs: PriceSpec[] = [
     {
       field: "stripe_setup_price_id",
       amountSek: plan.setup_fee_sek,
-      name: `${baseName} setup`,
-      description: "One-time setup and configuration fee.",
+      name: `${baseName} - start och konfiguration (upp till ${plan.setup_included_screens} skärmar)`,
+      description: "Grundavgift för start och konfiguration.",
+    },
+    {
+      field: "stripe_additional_setup_price_id",
+      amountSek: plan.additional_setup_fee_sek,
+      name: "Screenia extra skärm - start och konfiguration",
+      description: `Engångsavgift per skärm utöver de ${plan.setup_included_screens} skärmar som ingår i grundavgiften.`,
     },
     ...(hardwareFeeSek > 0
       ? [
@@ -365,6 +386,8 @@ export async function POST(request: Request) {
 
   const stripeIds: Record<StripePriceField, string | null> = {
     stripe_setup_price_id: plan.stripe_setup_price_id || "",
+    stripe_additional_setup_price_id:
+      plan.stripe_additional_setup_price_id || "",
     stripe_hardware_price_id:
       hardwareFeeSek > 0 ? plan.stripe_hardware_price_id || "" : null,
     stripe_shipping_price_id: plan.stripe_shipping_price_id || "",
@@ -373,6 +396,28 @@ export async function POST(request: Request) {
 
   for (const spec of specs) {
     stripeIds[spec.field] = await ensurePrice({ plan, spec });
+  }
+
+  const sharedAdditionalSetupPriceId =
+    stripeIds.stripe_additional_setup_price_id;
+  if (sharedAdditionalSetupPriceId) {
+    const { error: sharedPriceError } = await supabaseAdmin
+      .from("pricing_plans")
+      .update({
+        stripe_additional_setup_price_id: sharedAdditionalSetupPriceId,
+      })
+      .eq("additional_setup_fee_sek", plan.additional_setup_fee_sek);
+
+    if (sharedPriceError) {
+      console.error("Store shared additional setup price error:", sharedPriceError);
+      return NextResponse.json(
+        {
+          error:
+            "Stripe prices were created, but the shared additional-screen reference could not be stored.",
+        },
+        { status: 500 },
+      );
+    }
   }
 
   const { data: updatedPlan, error: updateError } = await supabaseAdmin

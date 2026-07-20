@@ -6,6 +6,7 @@ type AuditEventInput = {
   actorId?: string | null;
   eventType: string;
   eventDescription: string;
+  dedupeKey?: string | null;
   metadata?: Record<string, unknown>;
   ipAddress?: string | null;
   userAgent?: string | null;
@@ -22,10 +23,15 @@ export async function recordAuditEvent(
     actor_id: event.actorId || null,
     event_type: event.eventType,
     event_description: event.eventDescription,
+    dedupe_key: event.dedupeKey || null,
     metadata: event.metadata || {},
     ip_address: event.ipAddress || null,
     user_agent: event.userAgent || null,
   });
+
+  if (error?.code === "23505" && event.dedupeKey) {
+    return;
+  }
 
   if (error) {
     console.warn("Audit event was not stored:", error.message);

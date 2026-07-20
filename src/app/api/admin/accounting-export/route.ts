@@ -22,6 +22,10 @@ type AccountingExportRow = {
   stripe_invoice_id: string | null;
   screen_quantity: number | null;
   setup_fee_sek: number | null;
+  base_setup_fee_sek: number | null;
+  setup_included_screens: number | null;
+  additional_setup_fee_per_screen_sek: number | null;
+  additional_setup_screen_count: number | null;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
   monthly_fee_sek: number | null;
@@ -140,6 +144,10 @@ const headers = [
   "inventory_status",
   "screen_quantity",
   "setup_fee_sek",
+  "base_setup_fee_sek",
+  "setup_included_screens",
+  "additional_setup_fee_per_screen_sek",
+  "additional_setup_screen_count",
   "hardware_fee_sek",
   "shipping_fee_sek",
   "monthly_fee_sek",
@@ -229,6 +237,10 @@ export async function GET(request: Request) {
         stripe_invoice_id,
         screen_quantity,
         setup_fee_sek,
+        base_setup_fee_sek,
+        setup_included_screens,
+        additional_setup_fee_per_screen_sek,
+        additional_setup_screen_count,
         hardware_fee_sek,
         shipping_fee_sek,
         monthly_fee_sek,
@@ -296,6 +308,10 @@ export async function GET(request: Request) {
         row.inventory_status,
         row.screen_quantity,
         sekValue(row.setup_fee_sek),
+        sekValue(row.base_setup_fee_sek),
+        row.setup_included_screens,
+        sekValue(row.additional_setup_fee_per_screen_sek),
+        row.additional_setup_screen_count,
         sekValue(row.hardware_fee_sek),
         sekValue(row.shipping_fee_sek),
         sekValue(row.monthly_fee_sek),

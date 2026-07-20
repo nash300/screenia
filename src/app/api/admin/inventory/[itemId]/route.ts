@@ -39,6 +39,13 @@ const conditions = new Set([
   "defective",
   "repaired",
 ]);
+const subscriptionStatusesForInventorySync = [
+  "active",
+  "paid",
+  "trialing",
+  "content_received",
+  "layout_started",
+];
 
 async function getAuthenticatedAdmin() {
   const cookieStore = await cookies();
@@ -83,6 +90,24 @@ function cleanInteger(value: unknown) {
 function cleanDate(value: unknown) {
   const date = cleanString(value, 20);
   return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
+}
+
+function resolveWarrantyUntil(
+  purchaseDate: string | null,
+  warrantyMonths: number | null,
+  explicitWarrantyUntil: string | null,
+) {
+  if (explicitWarrantyUntil) return explicitWarrantyUntil;
+  if (!purchaseDate || !warrantyMonths) return null;
+
+  const [year, month, day] = purchaseDate.split("-").map(Number);
+  const targetMonthIndex = year * 12 + (month - 1) + warrantyMonths;
+  const targetYear = Math.floor(targetMonthIndex / 12);
+  const targetMonth = targetMonthIndex % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  const targetDay = Math.min(day, lastDay);
+
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, "0")}-${String(targetDay).padStart(2, "0")}`;
 }
 
 function getReason(value: unknown) {
@@ -170,10 +195,12 @@ async function rollbackInventoryDeviceAllocation({
   existing,
   createdDeviceId,
   existingDevice,
+  subscriptionInventory,
 }: {
   existing: Record<string, unknown>;
   createdDeviceId?: string | null;
   existingDevice?: Record<string, unknown> | null;
+  subscriptionInventory?: { id: string; previousStatus: string | null } | null;
 }) {
   const rollbackResults = await Promise.allSettled([
     supabaseAdmin
@@ -193,6 +220,8 @@ async function rollbackInventoryDeviceAllocation({
       ? supabaseAdmin
           .from("devices")
           .update({
+            customer_id: existingDevice.customer_id,
+            name: existingDevice.name,
             make: existingDevice.make,
             model: existingDevice.model,
             serial_number: existingDevice.serial_number,
@@ -200,10 +229,18 @@ async function rollbackInventoryDeviceAllocation({
             purchase_date: existingDevice.purchase_date,
             warranty_period_months: existingDevice.warranty_period_months,
             supplier: existingDevice.supplier,
+            location: existingDevice.location,
             inventory_status: existingDevice.inventory_status,
             inventory_notes: existingDevice.inventory_notes,
+            is_active: existingDevice.is_active,
           })
           .eq("id", existingDevice.id)
+      : Promise.resolve({ error: null }),
+    subscriptionInventory
+      ? supabaseAdmin
+          .from("customer_subscriptions")
+          .update({ inventory_status: subscriptionInventory.previousStatus })
+          .eq("id", subscriptionInventory.id)
       : Promise.resolve({ error: null }),
   ]);
 
@@ -215,6 +252,35 @@ async function rollbackInventoryDeviceAllocation({
     .filter(Boolean) as string[];
 
   return { ok: errors.length === 0, errors };
+}
+
+async function assignCurrentSubscriptionInventory(customerId: string) {
+  const { data: subscription, error: lookupError } = await supabaseAdmin
+    .from("customer_subscriptions")
+    .select("id, inventory_status")
+    .eq("customer_id", customerId)
+    .in("status", subscriptionStatusesForInventorySync)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (lookupError) throw lookupError;
+  if (!subscription) {
+    throw new Error("No current paid subscription was found for inventory synchronization.");
+  }
+
+  const previousStatus = subscription.inventory_status;
+  if (previousStatus === "assigned") {
+    return { id: subscription.id, previousStatus };
+  }
+
+  const { error: updateError } = await supabaseAdmin
+    .from("customer_subscriptions")
+    .update({ inventory_status: "assigned" })
+    .eq("id", subscription.id);
+
+  if (updateError) throw updateError;
+  return { id: subscription.id, previousStatus };
 }
 
 async function notifyInventoryRollbackFailure({
@@ -267,6 +333,14 @@ function buildInventoryPayload(body: Record<string, unknown>) {
     return { error: "Serial number is required." };
   }
 
+  const purchaseDate = cleanDate(body.purchase_date);
+  const warrantyMonths = cleanInteger(body.warranty_period_months);
+  const warrantyUntil = resolveWarrantyUntil(
+    purchaseDate,
+    warrantyMonths,
+    cleanDate(body.warranty_until),
+  );
+
   return {
     payload: {
       item_type: itemType,
@@ -279,9 +353,9 @@ function buildInventoryPayload(body: Record<string, unknown>) {
       invoice_number: cleanString(body.invoice_number, 120),
       purchase_cost: cleanNumber(body.purchase_cost),
       purchase_currency: "sek",
-      purchase_date: cleanDate(body.purchase_date),
-      warranty_period_months: cleanInteger(body.warranty_period_months),
-      warranty_until: cleanDate(body.warranty_until),
+      purchase_date: purchaseDate,
+      warranty_period_months: warrantyMonths,
+      warranty_until: warrantyUntil,
       defect_description: cleanString(body.defect_description, 1000),
       return_notes: cleanString(body.return_notes, 1000),
       notes: cleanString(body.notes, 1000),
@@ -351,6 +425,17 @@ export async function PATCH(
 
     if (error) {
       console.error("Update inventory item error:", error);
+
+      if (error.code === "23505") {
+        return NextResponse.json(
+          {
+            error:
+              "This serial number is already registered. Search the hardware stock and update the existing item instead.",
+          },
+          { status: 409 },
+        );
+      }
+
       return NextResponse.json(
         { error: error.message || "Could not update inventory item." },
         { status: 500 },
@@ -694,26 +779,75 @@ export async function PATCH(
     const deviceName = `${String(existing.item_type || "Device").replace(/_/g, " ")} - ${
       customer?.name || "Customer screen"
     }`;
-    const { data: device, error: deviceError } = await supabaseAdmin
-      .from("devices")
-      .insert({
-        id: crypto.randomUUID(),
-        customer_id: customerId,
-        name: deviceName,
-        make: existing.make,
-        model: existing.model,
-        serial_number: existing.serial_number,
-        purchase_cost: existing.purchase_cost,
-        purchase_date: existing.purchase_date,
-        warranty_period_months: existing.warranty_period_months,
-        supplier: existing.seller,
-        location: cleanString(body.location, 200),
-        inventory_status: "assigned",
-        inventory_notes: existing.notes,
-        is_active: true,
-      })
-      .select("id, device_code")
-      .single();
+    const { data: existingSerialDevice, error: serialLookupError } =
+      await supabaseAdmin
+        .from("devices")
+        .select(
+          "id, device_code, customer_id, name, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, inventory_status, inventory_notes, is_active",
+        )
+        .eq("serial_number", existing.serial_number)
+        .maybeSingle();
+
+    if (serialLookupError) {
+      console.error("Allocate inventory serial lookup error:", serialLookupError);
+      return NextResponse.json(
+        { error: "Could not verify whether this serial already has a display endpoint." },
+        { status: 500 },
+      );
+    }
+
+    if (existingSerialDevice?.customer_id !== undefined && existingSerialDevice.customer_id !== customerId) {
+      return NextResponse.json(
+        {
+          error:
+            "This serial is linked to another customer's display. Resolve that assignment before continuing.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const deviceMutation = existingSerialDevice
+      ? await supabaseAdmin
+          .from("devices")
+          .update({
+            customer_id: customerId,
+            name: deviceName,
+            make: existing.make,
+            model: existing.model,
+            serial_number: existing.serial_number,
+            purchase_cost: existing.purchase_cost,
+            purchase_date: existing.purchase_date,
+            warranty_period_months: existing.warranty_period_months,
+            supplier: existing.seller,
+            location: cleanString(body.location, 200),
+            inventory_status: "assigned",
+            inventory_notes: existing.notes,
+            is_active: true,
+          })
+          .eq("id", existingSerialDevice.id)
+          .select("id, device_code")
+          .single()
+      : await supabaseAdmin
+          .from("devices")
+          .insert({
+            id: crypto.randomUUID(),
+            customer_id: customerId,
+            name: deviceName,
+            make: existing.make,
+            model: existing.model,
+            serial_number: existing.serial_number,
+            purchase_cost: existing.purchase_cost,
+            purchase_date: existing.purchase_date,
+            warranty_period_months: existing.warranty_period_months,
+            supplier: existing.seller,
+            location: cleanString(body.location, 200),
+            inventory_status: "assigned",
+            inventory_notes: existing.notes,
+            is_active: true,
+          })
+          .select("id, device_code")
+          .single();
+    const { data: device, error: deviceError } = deviceMutation;
 
     if (deviceError || !device) {
       console.error("Allocate inventory device error:", deviceError);
@@ -736,11 +870,37 @@ export async function PATCH(
 
     if (inventoryError) {
       console.error("Allocate inventory update error:", inventoryError);
-      await supabaseAdmin.from("devices").delete().eq("id", device.id);
+      await rollbackInventoryDeviceAllocation({
+        existing: existing as Record<string, unknown>,
+        createdDeviceId: existingSerialDevice ? null : device.id,
+        existingDevice: existingSerialDevice as Record<string, unknown> | null,
+      });
       return NextResponse.json(
         {
           error:
             "Device was created, but inventory could not be linked. Check the device manager.",
+        },
+        { status: 500 },
+      );
+    }
+
+    let subscriptionInventory: {
+      id: string;
+      previousStatus: string | null;
+    };
+    try {
+      subscriptionInventory = await assignCurrentSubscriptionInventory(customerId);
+    } catch (subscriptionError) {
+      console.error("Allocate inventory subscription sync error:", subscriptionError);
+      await rollbackInventoryDeviceAllocation({
+        existing: existing as Record<string, unknown>,
+        createdDeviceId: existingSerialDevice ? null : device.id,
+        existingDevice: existingSerialDevice as Record<string, unknown> | null,
+      });
+      return NextResponse.json(
+        {
+          error:
+            "Hardware allocation was not saved because the current order could not be synchronized.",
         },
         { status: 500 },
       );
@@ -753,13 +913,21 @@ export async function PATCH(
           customerId,
           actorType: "admin",
           actorId: user.id,
-          eventType: "admin_inventory_allocated_to_new_device",
-          eventDescription: "Admin allocated an inventory item to a new device.",
+          eventType: existingSerialDevice
+            ? "admin_inventory_reassigned_to_existing_device"
+            : "admin_inventory_allocated_to_new_device",
+          eventDescription: existingSerialDevice
+            ? "Admin reassigned an inventory item to its existing display endpoint."
+            : "Admin allocated an inventory item to a new device.",
           metadata: {
             inventoryItemId: existing.id,
             itemCode: existing.item_code,
             deviceId: device.id,
             deviceCode: device.device_code,
+            subscriptionId: subscriptionInventory.id,
+            previousSubscriptionInventoryStatus:
+              subscriptionInventory.previousStatus,
+            subscriptionInventoryStatus: "assigned",
             reason,
           },
           ipAddress: getRequestIp(request),
@@ -771,7 +939,9 @@ export async function PATCH(
     console.error("Inventory allocation audit error:", auditError);
       const rollbackResult = await rollbackInventoryDeviceAllocation({
         existing: existing as Record<string, unknown>,
-        createdDeviceId: device.id,
+        createdDeviceId: existingSerialDevice ? null : device.id,
+        existingDevice: existingSerialDevice as Record<string, unknown> | null,
+        subscriptionInventory,
       });
 
       if (!rollbackResult.ok) {
@@ -868,6 +1038,13 @@ export async function PATCH(
       );
     }
 
+    if (!device.customer_id) {
+      return NextResponse.json(
+        { error: "Assign the display to a paid customer before linking hardware." },
+        { status: 400 },
+      );
+    }
+
     const { error: inventoryError } = await supabaseAdmin
       .from("inventory_items")
       .update({
@@ -906,6 +1083,29 @@ export async function PATCH(
       console.warn("Linked inventory, but device details were not copied.", deviceUpdateError);
     }
 
+    let subscriptionInventory: {
+      id: string;
+      previousStatus: string | null;
+    };
+    try {
+      subscriptionInventory = await assignCurrentSubscriptionInventory(
+        device.customer_id,
+      );
+    } catch (subscriptionError) {
+      console.error("Link inventory subscription sync error:", subscriptionError);
+      await rollbackInventoryDeviceAllocation({
+        existing: existing as Record<string, unknown>,
+        existingDevice: device as Record<string, unknown>,
+      });
+      return NextResponse.json(
+        {
+          error:
+            "Hardware link was not saved because the current order could not be synchronized.",
+        },
+        { status: 500 },
+      );
+    }
+
     try {
       await recordAuditEvent(
         supabaseAdmin,
@@ -921,6 +1121,10 @@ export async function PATCH(
             deviceId: device.id,
             deviceCode: device.device_code,
             deviceDetailsCopied: !deviceUpdateError,
+            subscriptionId: subscriptionInventory.id,
+            previousSubscriptionInventoryStatus:
+              subscriptionInventory.previousStatus,
+            subscriptionInventoryStatus: "assigned",
             reason,
           },
           ipAddress: getRequestIp(request),
@@ -933,6 +1137,7 @@ export async function PATCH(
       const rollbackResult = await rollbackInventoryDeviceAllocation({
         existing: existing as Record<string, unknown>,
         existingDevice: device as Record<string, unknown>,
+        subscriptionInventory,
       });
 
       if (!rollbackResult.ok) {

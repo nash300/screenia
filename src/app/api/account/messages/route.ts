@@ -460,7 +460,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error:
-              "Integritetsbegaran sparades som ett supportarende, men Screenia kunde inte skapa dataskyddsregistret eller intern adminavisering. Kontakta support.",
+              "Integritetsbegäran sparades som ett supportärende, men Screenia kunde inte skapa dataskyddsregistret eller intern adminavisering. Kontakta support.",
           },
           { status: 500 },
         );
@@ -522,7 +522,7 @@ export async function POST(request: Request) {
           return NextResponse.json(
             {
               error:
-                "Integritetsbegaran sparades som ett supportarende, men Screenia kunde inte lagra dataskyddsregistret eller intern adminavisering. Kontakta support.",
+                "Integritetsbegäran sparades som ett supportärende, men Screenia kunde inte lagra dataskyddsregistret eller intern adminavisering. Kontakta support.",
             },
             { status: 500 },
           );
@@ -531,7 +531,7 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error:
-              "Integritetsbegaran sparades som ett supportarende, men dataskyddsregistret kunde inte revisionssaker lagras. Kontakta support.",
+              "Integritetsbegäran sparades som ett supportärende, men dataskyddsregistret kunde inte lagras revisionssäkert. Kontakta support.",
           },
           { status: 500 },
         );

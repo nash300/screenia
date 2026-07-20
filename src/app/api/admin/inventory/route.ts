@@ -76,6 +76,24 @@ function cleanDate(value: unknown) {
   return date && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null;
 }
 
+function resolveWarrantyUntil(
+  purchaseDate: string | null,
+  warrantyMonths: number | null,
+  explicitWarrantyUntil: string | null,
+) {
+  if (explicitWarrantyUntil) return explicitWarrantyUntil;
+  if (!purchaseDate || !warrantyMonths) return null;
+
+  const [year, month, day] = purchaseDate.split("-").map(Number);
+  const targetMonthIndex = year * 12 + (month - 1) + warrantyMonths;
+  const targetYear = Math.floor(targetMonthIndex / 12);
+  const targetMonth = targetMonthIndex % 12;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth + 1, 0)).getUTCDate();
+  const targetDay = Math.min(day, lastDay);
+
+  return `${targetYear}-${String(targetMonth + 1).padStart(2, "0")}-${String(targetDay).padStart(2, "0")}`;
+}
+
 function getReason(value: unknown) {
   return String(value || "").trim().slice(0, 1000);
 }
@@ -103,6 +121,14 @@ function buildInventoryPayload(body: Record<string, unknown>) {
     return { error: "Serial number is required." };
   }
 
+  const purchaseDate = cleanDate(body.purchase_date);
+  const warrantyMonths = cleanInteger(body.warranty_period_months);
+  const warrantyUntil = resolveWarrantyUntil(
+    purchaseDate,
+    warrantyMonths,
+    cleanDate(body.warranty_until),
+  );
+
   return {
     payload: {
       item_type: itemType,
@@ -115,9 +141,9 @@ function buildInventoryPayload(body: Record<string, unknown>) {
       invoice_number: cleanString(body.invoice_number, 120),
       purchase_cost: cleanNumber(body.purchase_cost),
       purchase_currency: "sek",
-      purchase_date: cleanDate(body.purchase_date),
-      warranty_period_months: cleanInteger(body.warranty_period_months),
-      warranty_until: cleanDate(body.warranty_until),
+      purchase_date: purchaseDate,
+      warranty_period_months: warrantyMonths,
+      warranty_until: warrantyUntil,
       defect_description: cleanString(body.defect_description, 1000),
       return_notes: cleanString(body.return_notes, 1000),
       notes: cleanString(body.notes, 1000),
@@ -166,6 +192,17 @@ export async function POST(request: Request) {
 
   if (error || !data) {
     console.error("Create inventory item error:", error);
+
+    if (error?.code === "23505") {
+      return NextResponse.json(
+        {
+          error:
+            "This serial number is already registered. Search the hardware stock and update the existing item instead.",
+        },
+        { status: 409 },
+      );
+    }
+
     return NextResponse.json(
       { error: error?.message || "Could not create inventory item." },
       { status: 500 },

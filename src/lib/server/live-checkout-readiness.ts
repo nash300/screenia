@@ -2579,14 +2579,14 @@ function serviceWorkerCacheSafetyReadiness(): CheckResult {
 }
 
 function sensitiveNoStorePolicyReadiness(): CheckResult {
-  const launchReadinessRouteSource = readFileSync(
-    projectFilePath("src/app/api/admin/launch-readiness/route.ts"),
+  const notificationsRouteSource = readFileSync(
+    projectFilePath("src/app/api/admin/notifications/route.ts"),
     "utf8",
   );
   const sensitiveRoutes = [
     "/api/account",
     "/api/admin/customers",
-    "/api/admin/launch-readiness",
+    "/api/admin/notifications",
     "/api/stripe/checkout",
     "/auth/session",
     "/account",
@@ -2600,11 +2600,11 @@ function sensitiveNoStorePolicyReadiness(): CheckResult {
     (route) => !shouldDisableRouteCaching(route),
   );
   const sourceIssues = [
-    !launchReadinessRouteSource.includes("\"Cache-Control\", \"no-store\"")
-      ? "launch readiness API response is missing an explicit no-store header"
+    !notificationsRouteSource.includes("response.headers.set(\"Cache-Control\", \"no-store\")")
+      ? "admin notifications API response is missing an explicit no-store header"
       : null,
-    !launchReadinessRouteSource.includes("return noStoreJson")
-      ? "launch readiness API does not use the no-store response helper"
+    !notificationsRouteSource.includes("return noStoreJson")
+      ? "admin notifications API does not use the no-store response helper"
       : null,
   ].filter(Boolean);
 
@@ -2615,7 +2615,7 @@ function sensitiveNoStorePolicyReadiness(): CheckResult {
         ? `Sensitive routes may be cacheable: ${missing.join(", ")}`
         : sourceIssues.length > 0
           ? sourceIssues.join(" | ")
-          : "Sensitive routes are marked no-store, and the launch-readiness API returns explicit no-store responses.",
+          : "Sensitive routes are marked no-store, and the admin notifications API returns explicit no-store responses.",
   };
 }
 
@@ -3375,7 +3375,7 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
   const { data, error } = await supabaseAdmin
     .from("pricing_plans")
     .select(
-      "id, code, is_active, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, currency, tax_behavior, stripe_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
+      "id, code, is_active, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, currency, tax_behavior, stripe_setup_price_id, stripe_additional_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
     );
 
   if (error) return { ok: false, details: error.message };
@@ -3395,11 +3395,20 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (Number(plan.setup_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: setup fee is missing`);
     }
+    if (Number(plan.setup_included_screens || 0) !== 3) {
+      planIssues.push(`${label}: setup must include exactly 3 screens`);
+    }
+    if (Number(plan.additional_setup_fee_sek || 0) !== 249) {
+      planIssues.push(`${label}: additional-screen setup fee must be 249 SEK`);
+    }
     if (Number(plan.monthly_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: monthly fee is missing`);
     }
     if (!plan.stripe_setup_price_id) {
       planIssues.push(`${label}: setup Stripe price is missing`);
+    }
+    if (!plan.stripe_additional_setup_price_id) {
+      planIssues.push(`${label}: additional-screen setup Stripe price is missing`);
     }
     if (hardwareFee > 0 && !plan.stripe_hardware_price_id) {
       planIssues.push(`${label}: hardware Stripe price is missing`);

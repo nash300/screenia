@@ -33,6 +33,9 @@ export type Customer = {
   service_access_status: string | null;
   service_access_until: string | null;
   production_status: string | null;
+  preview_url: string | null;
+  preview_status: string | null;
+  preview_feedback: string | null;
   layout_started_at: string | null;
   setup_fee_locked_at: string | null;
   activated_at: string | null;
@@ -52,6 +55,7 @@ export type Device = {
   make: string | null;
   model: string | null;
   serial_number: string | null;
+  playlists?: { count: number }[];
 };
 
 export type CustomerSubscription = {
@@ -72,6 +76,8 @@ export type CustomerSubscription = {
   stripe_subscription_id: string | null;
   stripe_invoice_id: string | null;
   stripe_payment_status: string | null;
+  trial_starts_at: string | null;
+  trial_ends_at: string | null;
   stripe_current_period_start: string | null;
   stripe_current_period_end: string | null;
   cancel_at_period_end: boolean | null;
@@ -84,6 +90,8 @@ export type CustomerSubscription = {
   device_discount_months: number | null;
   device_discount_amount_sek: number | null;
   monthly_discount_amount_sek: number | null;
+  quote_items: QuoteItemRecord[] | null;
+  quote_notes: string | null;
   created_at: string;
 };
 
@@ -182,7 +190,9 @@ export type CustomerOperationId =
   | "cancel_period_end"
   | "cancel_immediately"
   | "start_layout"
-  | "refund_first_payment";
+  | "refund_first_payment"
+  | "record_post_layout_refund_request"
+  | "issue_partial_refund";
 
 export type CustomerOperation = {
   id: CustomerOperationId;
@@ -192,7 +202,26 @@ export type CustomerOperation = {
   tone: "primary" | "warning" | "danger" | "success";
   requiresStripe?: boolean;
   requiresDiscount?: boolean;
+  requiresRefundAmount?: boolean;
   requiresConfirmation?: boolean;
+};
+
+export type CustomerRefundCase = {
+  id: string;
+  order_number: string | null;
+  request_type: "full" | "partial";
+  requested_amount_ore: number;
+  approved_amount_ore: number | null;
+  currency: string;
+  customer_reason: string;
+  admin_decision: "pending" | "denied" | "approved_partial" | "approved_full";
+  admin_reason: string | null;
+  status: "open" | "closed";
+  stripe_payment_intent_id: string | null;
+  stripe_refund_id: string | null;
+  requested_at: string;
+  decided_at: string | null;
+  created_at: string;
 };
 
 export type InventoryStockItem = {

@@ -66,8 +66,12 @@ async function notifyPasswordResetControlFailure({
 export async function POST(request: Request) {
   const ipAddress = getRequestIp(request);
   const userAgent = request.headers.get("user-agent");
-  const body = (await request.json().catch(() => ({}))) as { email?: unknown };
+  const body = (await request.json().catch(() => ({}))) as {
+    email?: unknown;
+    mode?: unknown;
+  };
   const email = String(body.email || "").trim().toLowerCase();
+  const mode = body.mode === "admin" ? "admin" : "customer";
   const emailKey = email || "missing";
 
   const ipLimit = checkRateLimit({
@@ -135,7 +139,11 @@ export async function POST(request: Request) {
     );
   }
 
-  const redirectTo = `${appOrigin(request)}/auth/callback?next=/account/reset-password`;
+  const resetPath =
+    mode === "admin"
+      ? "/account/reset-password?mode=admin"
+      : "/account/reset-password";
+  const redirectTo = `${appOrigin(request)}/auth/callback?next=${encodeURIComponent(resetPath)}`;
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   });
@@ -149,10 +157,11 @@ export async function POST(request: Request) {
           ? "password_reset_email_failed"
           : "password_reset_email_requested",
         eventDescription: error
-          ? "System could not request a customer password reset email."
-          : "Customer requested a password reset email.",
+          ? `System could not request a ${mode} password reset email.`
+          : `${mode === "admin" ? "Administrator" : "Customer"} requested a password reset email.`,
         metadata: {
           email,
+          mode,
           error: error?.message || null,
         },
         ipAddress,

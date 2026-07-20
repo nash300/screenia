@@ -6,52 +6,51 @@ export default function SubscriptionBillingPolicyPage() {
     <div className="landing-page flow-page">
       <main className="flow-shell legal-shell">
         <p className="landing-eyebrow">Juridiskt dokument</p>
-        <h1>Subscription & Billing Policy</h1>
+        <h1>Abonnemang och betalning</h1>
         <p>
-          This pre-launch policy describes how Screenia handles test-mode
-          billing, subscription access, cancellations, pauses, VAT-ready
-          records, and refunds before live launch.
+          Denna förlanseringspolicy beskriver hur Screenia hanterar priser,
+          betalning, abonnemang, uppsägning, återbetalning och momsunderlag.
         </p>
 
         <section className="flow-card">
-          <h2>Pre-launch payment boundary</h2>
+          <h2>Priser och första betalning</h2>
           <p>
-            Screenia may use real domain email and production-like customer
-            flows during testing, but live Stripe payments stay blocked until
-            business registration, F/FA-skatt, VAT decision, final legal review,
-            and launch checks are complete.
+            Angivna kundpriser inkluderar moms. Den första betalningen består av
+            start- och konfigurationsavgift, priset för vald enhet per skärm samt
+            frakt per skärm. Start- och konfigurationsavgiften är 1 599 kr för
+            upp till tre skärmar. Från den fjärde skärmen tillkommer 249 kr per
+            extra skärm. Betalningen genomförs säkert via Stripe.
           </p>
         </section>
 
         <section className="flow-card">
-          <h2>Subscriptions and display access</h2>
+          <h2>Provperiod och månadsabonnemang</h2>
           <p>
-            Stripe is the billing source of truth. Screenia stores synced
-            entitlement state so customer portals, admin actions, and display
-            devices can decide whether content may be shown. Active paid
-            customers can display content. Paused, failed-payment, refunded,
-            disputed, cancelled, expired, or inactive customers are blocked
-            from display.
+            Månadsavgiften debiteras inte vid den första betalningen. Det valda
+            månadsabonnemanget börjar debiteras när den 21 dagar långa
+            provperioden är slut. Aktuell kommande debitering och
+            abonnemangsstatus visas i kundportalen och hos Stripe.
           </p>
         </section>
 
         <section className="flow-card">
-          <h2>Cancellation and refunds</h2>
+          <h2>Uppsägning och återbetalning</h2>
           <p>
-            Customer cancellation is scheduled for the end of the paid period by
-            default, so service continues until the paid-through date. Immediate
-            cancellation is an admin exception. Setup-fee refunds are allowed
-            only before layout/production work starts unless Screenia approves a
-            manual exception.
+            Ett abonnemang avslutas normalt vid slutet av den redan betalda
+            perioden. Startavgiften kan återbetalas om beställningen avbryts
+            innan Screenia har registrerat att layout- eller produktionsarbetet
+            har startat. Därefter är startavgiften inte återbetalningsbar, om
+            inte Screenia skriftligen beslutar om ett undantag.
           </p>
         </section>
 
         <section className="flow-card">
-          <h2>VAT and records</h2>
+          <h2>Moms, kvitto och betalningsunderlag</h2>
           <p>
-            Prices, Stripe checkout totals, order records, discounts, refunds,
-            and subscription state must stay VAT-ready and auditable. Test-mode
-            payments must be clearly separated from live accounting records.
+            Stripe tillhandahåller betalnings- och fakturaunderlag. Screenia
+            sparar orderstatus, momsbelopp, betalningsreferenser, rabatter och
+            återbetalningar för bokföring, support och spårbarhet. Testbetalningar
+            hålls åtskilda från riktiga bokföringsunderlag.
           </p>
         </section>
 

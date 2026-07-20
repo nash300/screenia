@@ -34,6 +34,7 @@ export async function getCustomerForUser(
   client: SupabaseClient = supabaseAdmin,
 ) {
   if (!user?.email) return null;
+  if (user.app_metadata?.role === "admin") return null;
 
   const baseCustomerSelect =
     "id, name, email, phone, contact_person, organisation_number, address, city, country, status, payment_status, stripe_customer_id, stripe_subscription_id, auth_user_id, activated_at, cancelled_at, inactive_reason, created_at, website_url, notes, marketing_consent, analytics_consent, remote_support_consent";

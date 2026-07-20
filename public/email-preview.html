@@ -13,7 +13,7 @@
     <style>
       body {
         margin: 0;
-        background: #eef6ff;
+        background: #eaf2ff;
         color: #102033;
         font-family: Arial, sans-serif;
       }
@@ -21,36 +21,49 @@
       .shell {
         max-width: 680px;
         margin: 0 auto;
-        padding: 28px 16px;
+        padding: 32px 16px;
       }
 
       .email-card {
         overflow: hidden;
-        border: 1px solid #d9e5f7;
-        border-radius: 22px;
+        border: 1px solid #cadcf5;
+        border-radius: 18px;
         background: #ffffff;
-        box-shadow: 0 18px 48px rgba(6, 25, 66, 0.12);
+        box-shadow: 0 24px 64px rgba(6, 25, 66, 0.14);
       }
 
       .email-header {
         background: #061942;
-        padding: 22px 24px;
+        border-top: 5px solid #0f63f4;
+        padding: 22px 26px;
       }
 
       .email-header img {
         display: block;
-        width: 180px;
-        max-width: 60%;
-        height: auto;
+        width: 44px;
+        height: 44px;
+      }
+
+      .email-brand {
+        align-items: center;
+        color: #ffffff;
+        display: flex;
+        font-size: 24px;
+        font-weight: 800;
+        gap: 12px;
+      }
+
+      .email-brand span span {
+        color: #4ea3ff;
       }
 
       .email-body {
-        padding: 26px 24px 8px;
+        padding: 30px 28px 8px;
       }
 
       .eyebrow {
         margin: 0 0 10px;
-        color: #f47a20;
+        color: #155ee8;
         font-size: 12px;
         font-weight: 800;
         letter-spacing: 0.16em;
@@ -59,7 +72,7 @@
 
       h1 {
         margin: 0;
-        color: #09244a;
+        color: #061942;
         font-family: "Special Elite", Georgia, serif;
         font-size: 34px;
         font-weight: 400;
@@ -74,27 +87,29 @@
       }
 
       .helper {
-        padding: 12px 24px 0;
+        padding: 18px 28px 0;
         text-align: center;
       }
 
       .helper img {
         display: inline-block;
-        width: 220px;
-        max-width: 68%;
+        width: 136px;
+        max-width: 48%;
         height: auto;
-        border-radius: 16px;
-        background: #0f63f4;
+        border: 12px solid #f3f8ff;
+        border-bottom: 0;
+        border-radius: 16px 16px 0 0;
+        background: #f3f8ff;
       }
 
       .content {
-        padding: 12px 24px 26px;
+        padding: 18px 28px 30px;
       }
 
       .summary {
         border: 1px solid #d9e5f7;
-        border-radius: 16px;
-        background: #f7fbff;
+        border-radius: 12px;
+        background: #f3f8ff;
         padding: 18px;
         line-height: 1.6;
       }
@@ -102,8 +117,8 @@
       .button {
         display: inline-block;
         margin-top: 18px;
-        border-radius: 10px;
-        background: #2878f0;
+        border-radius: 8px;
+        background: #155ee8;
         color: #ffffff;
         font-weight: 700;
         padding: 12px 18px;
@@ -112,8 +127,8 @@
 
       .footer {
         border-top: 1px solid #e5eef8;
-        background: #f8fbff;
-        padding: 18px 24px;
+        background: #f4f8fe;
+        padding: 18px 28px;
         color: #65788d;
         font-size: 13px;
       }
@@ -123,37 +138,44 @@
     <main class="shell">
       <section class="email-card" aria-label="Screenia email preview">
         <header class="email-header">
-          <img src="/brand/screenia-logo-full-dark-bg.png" alt="Screenia" />
+          <div class="email-brand">
+            <img src="/brand/screenia-icon-512-transparent.png" alt="" />
+            <span>screenia<span>.se</span></span>
+          </div>
         </header>
         <div class="email-body">
           <p class="eyebrow">E-posttest</p>
           <h1>Screenia offert och startguide</h1>
           <p class="intro">
-            Detta ar ett test av den nya branded email-stilen for
+            Detta är ett test av Screenias e-postlayout för
             kundkommunikation.
           </p>
         </div>
         <div class="helper">
           <img
             src="/brand/screenia-helper.png"
-            alt="Screenia hjalper dig med skarmen"
+            alt="Screenia hjälper dig med skärmen"
           />
         </div>
         <div class="content">
           <div class="summary">
             <p><strong>Ordernummer:</strong> TEST-EMAIL-20260628</p>
             <p><strong>Paket:</strong> Standard FHD</p>
-            <p><strong>Startavgift:</strong> 1 599 kr</p>
-            <p><strong>Skarm/enhet:</strong> 699 kr</p>
+            <p><strong>Startavgift:</strong> 1 599 kr för upp till tre skärmar. Därefter 249 kr per extra skärm.</p>
+            <p><strong>Skärm/enhet:</strong> 699 kr</p>
             <p><strong>Frakt:</strong> 99 kr</p>
-            <p><strong>Manadsabonnemang:</strong> 249 kr</p>
+            <p><strong>Månadsabonnemang:</strong> 249 kr</p>
           </div>
-          <a class="button" href="/onboarding/test">Oppna startguiden</a>
+          <a class="button" href="/onboarding/test">Öppna startguiden</a>
           <p class="intro">
-            Lanken i detta test ar inte en riktig onboardinglank.
+            Länken i detta test är inte en riktig onboardinglänk.
           </p>
         </div>
-        <footer class="footer">Screenia</footer>
+        <footer class="footer">
+          <strong style="color: #061942">Screenia</strong><br />
+          Digital skyltning, tydligt hanterad.<br />
+          <a href="mailto:service@screenia.se">service@screenia.se</a>
+        </footer>
       </section>
     </main>
   </body>

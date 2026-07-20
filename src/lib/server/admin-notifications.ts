@@ -5,6 +5,7 @@ type AdminNotificationInput = {
   eventType: string;
   title: string;
   message: string;
+  dedupeKey?: string | null;
   priority?: "low" | "normal" | "high" | "urgent";
   metadata?: Record<string, unknown>;
 };
@@ -19,9 +20,14 @@ export async function createAdminNotification(
     event_type: notification.eventType,
     title: notification.title,
     message: notification.message,
+    dedupe_key: notification.dedupeKey || null,
     priority: notification.priority || "normal",
     metadata: notification.metadata || {},
   });
+
+  if (error?.code === "23505" && notification.dedupeKey) {
+    return;
+  }
 
   if (error) {
     if (error.code === "42P01" || error.code === "PGRST205") {

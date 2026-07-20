@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { resolveStripeFirstPayment } from "@/lib/server/stripe-first-payment";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
@@ -110,7 +111,7 @@ export async function POST(
   const { data: subscription, error: subscriptionError } = await supabaseAdmin
     .from("customer_subscriptions")
     .select(
-      "id, order_number, stripe_customer_id, stripe_payment_intent_id, stripe_subscription_id, total_amount_sek, status",
+      "id, order_number, stripe_customer_id, stripe_checkout_session_id, stripe_payment_intent_id, stripe_subscription_id, total_amount_sek, status",
     )
     .eq("customer_id", customer.id)
     .in("status", ["paid", "active", "checkout_started", "refunded"])
@@ -133,17 +134,45 @@ export async function POST(
     );
   }
 
-  const stripeCustomerId =
-    subscription.stripe_customer_id || customer.stripe_customer_id;
   let refundResult: {
     id: string;
     status: string | null;
     amount: number | null;
   };
 
-  if (subscription.stripe_payment_intent_id) {
+  // This legacy column name is retained for compatibility, but Stripe totals are stored in ore.
+  const expectedAmount = Math.round(subscription.total_amount_sek || 0);
+  let firstPaymentIntentId: string;
+  let firstPaymentCharge: Stripe.Charge;
+  try {
+    const resolvedFirstPayment = await resolveStripeFirstPayment({
+      stripe,
+      checkoutSessionId: subscription.stripe_checkout_session_id,
+      storedPaymentIntentId: subscription.stripe_payment_intent_id,
+      expectedAmountOre: expectedAmount,
+    });
+    firstPaymentIntentId = resolvedFirstPayment.paymentIntentId;
+    firstPaymentCharge = resolvedFirstPayment.charge;
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: `${error instanceof Error ? error.message : "The first payment could not be verified."} No refund was created.`,
+      },
+      { status: 409 },
+    );
+  }
+
+  if (
+    firstPaymentCharge.amount_refunded >= firstPaymentCharge.amount
+  ) {
+    refundResult = {
+      id: `existing_refund_for_${firstPaymentCharge.id}`,
+      status: "succeeded",
+      amount: firstPaymentCharge.amount_refunded,
+    };
+  } else {
     const refund = await stripe.refunds.create({
-      payment_intent: subscription.stripe_payment_intent_id,
+      payment_intent: firstPaymentIntentId,
       metadata: {
         customer_id: customer.id,
         customer_subscription_id: subscription.id,
@@ -157,53 +186,6 @@ export async function POST(
       status: refund.status,
       amount: refund.amount,
     };
-  } else if (stripeCustomerId) {
-    const charges = await stripe.charges.list({
-      customer: stripeCustomerId,
-      limit: 10,
-    });
-    const refundableCharge = charges.data.find(
-      (charge) => charge.status === "succeeded" && !charge.refunded,
-    );
-    const alreadyRefundedCharge = charges.data.find(
-      (charge) => charge.status === "succeeded" && charge.refunded,
-    );
-
-    if (!refundableCharge) {
-      if (!alreadyRefundedCharge || subscription.status !== "refunded") {
-        return NextResponse.json(
-          { error: "No refundable Stripe charge was found for this customer." },
-          { status: 404 },
-        );
-      }
-
-      refundResult = {
-        id: `existing_refund_for_${alreadyRefundedCharge.id}`,
-        status: "succeeded",
-        amount: alreadyRefundedCharge.amount_refunded,
-      };
-    } else {
-      const refund = await stripe.refunds.create({
-        charge: refundableCharge.id,
-        metadata: {
-          customer_id: customer.id,
-          customer_subscription_id: subscription.id,
-          order_number: subscription.order_number || "",
-          reason: "admin_refund_before_layout_started",
-          admin_reason: adminReason,
-        },
-      });
-      refundResult = {
-        id: refund.id,
-        status: refund.status,
-        amount: refund.amount,
-      };
-    }
-  } else {
-    return NextResponse.json(
-      { error: "No Stripe customer or payment reference is connected." },
-      { status: 400 },
-    );
   }
 
   let subscriptionCancellationStatus: string | null = null;
@@ -248,6 +230,7 @@ export async function POST(
     .from("customer_subscriptions")
     .update({
       status: "refunded",
+      stripe_payment_intent_id: firstPaymentIntentId,
       stripe_payment_status: "refunded",
       fulfillment_status: "cancelled",
       inventory_status: "cancelled",
@@ -322,6 +305,7 @@ export async function POST(
       refundId: refundResult.id,
       refundStatus: refundResult.status,
       amount: refundResult.amount,
+      stripePaymentIntentId: firstPaymentIntentId,
       adminReason,
       stripeSubscriptionId: subscription.stripe_subscription_id,
       subscriptionCancellationStatus,
@@ -341,6 +325,7 @@ export async function POST(
       refundId: refundResult.id,
       refundStatus: refundResult.status,
       amount: refundResult.amount,
+      stripePaymentIntentId: firstPaymentIntentId,
       adminReason,
       stripeSubscriptionId: subscription.stripe_subscription_id,
       subscriptionCancellationStatus,

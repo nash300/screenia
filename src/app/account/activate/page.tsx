@@ -20,14 +20,27 @@ export default function ActivateAccountPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [linkInvalid, setLinkInvalid] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
     let cancelled = false;
 
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    if (hashParams.get("error")) {
+      setLinkInvalid(true);
+      setMessage(
+        "Kontolänken är ogiltig, har redan använts eller har gått ut. Begär en ny säker länk för att fortsätta.",
+      );
+      return () => {
+        cancelled = true;
+      };
+    }
+
     syncEmailLinkSession().then((result) => {
       if (cancelled) return;
       setSessionReady(result.ready);
+      setLinkInvalid(!result.ready && Boolean(result.error));
       setMessage(result.error || "");
     });
 
@@ -75,26 +88,40 @@ export default function ActivateAccountPage() {
         lösenord för att aktivera kundportalen.
       </p>
 
-      <PasswordFields
-        password={password}
-        confirmPassword={confirmPassword}
-        onPassword={setPassword}
-        onConfirmPassword={setConfirmPassword}
-        onEnter={() => {
-          if (!loading && password && confirmPassword) activate();
-        }}
-      />
+      {linkInvalid ? (
+        <>
+          {message && <Alert>{message}</Alert>}
+          <Link
+            href="/login"
+            className="screenia-auth-button mt-7 inline-flex min-h-12 items-center justify-center px-7 py-3 text-center text-sm font-black text-white no-underline transition"
+          >
+            Begär en ny kontolänk
+          </Link>
+        </>
+      ) : (
+        <>
+          <PasswordFields
+            password={password}
+            confirmPassword={confirmPassword}
+            onPassword={setPassword}
+            onConfirmPassword={setConfirmPassword}
+            onEnter={() => {
+              if (!loading && password && confirmPassword) activate();
+            }}
+          />
 
-      {message && <Alert>{message}</Alert>}
+          {message && <Alert>{message}</Alert>}
 
-      <button
-        type="button"
-        onClick={activate}
-        disabled={loading || !sessionReady || !password || !confirmPassword}
-        className="screenia-auth-button mt-7 inline-flex min-h-12 min-w-44 items-center justify-center px-7 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
-      >
-        {loading ? "Aktiverar..." : "Aktivera konto"}
-      </button>
+          <button
+            type="button"
+            onClick={activate}
+            disabled={loading || !sessionReady || !password || !confirmPassword}
+            className="screenia-auth-button mt-7 inline-flex min-h-12 min-w-44 items-center justify-center px-7 py-3 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
+          >
+            {loading ? "Aktiverar..." : "Aktivera konto"}
+          </button>
+        </>
+      )}
     </AuthShell>
   );
 }

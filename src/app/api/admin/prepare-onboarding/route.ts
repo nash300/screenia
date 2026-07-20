@@ -5,6 +5,12 @@ import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
+import {
+  ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
+  INCLUDED_SETUP_SCREEN_COUNT,
+  additionalSetupScreenCount,
+  calculateSetupFeeSek,
+} from "@/lib/pricing/setup-fee";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
@@ -143,7 +149,7 @@ export async function POST(request: Request) {
   const { data: plan, error: planError } = await supabaseAdmin
     .from("pricing_plans")
     .select(
-      "id, code, name, resolution, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days",
+      "id, code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days",
     )
     .eq("code", primaryPlanCode)
     .eq("is_active", true)
@@ -172,7 +178,7 @@ export async function POST(request: Request) {
   );
   const { data: quotePlans } = await supabaseAdmin
     .from("pricing_plans")
-    .select("code, name, resolution, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days")
+    .select("code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days")
     .in("code", planCodes);
   const quotePlanRows = quotePlans || [];
   const quoteItemDetails = quoteItems.map((item) => {
@@ -217,8 +223,22 @@ export async function POST(request: Request) {
     (sum, item) => sum + item.shippingFeeSek * item.quantity,
     0,
   );
+  const baseSetupFeeSek = plan.setup_fee_sek;
+  const setupIncludedScreens = plan.setup_included_screens ?? INCLUDED_SETUP_SCREEN_COUNT;
+  const additionalSetupFeeSek =
+    plan.additional_setup_fee_sek ?? ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK;
+  const setupFeeSek = calculateSetupFeeSek(
+    screenQuantity,
+    baseSetupFeeSek,
+    setupIncludedScreens,
+    additionalSetupFeeSek,
+  );
+  const additionalSetupScreens = additionalSetupScreenCount(
+    screenQuantity,
+    setupIncludedScreens,
+  );
   const firstPaymentGrossSek =
-    plan.setup_fee_sek +
+    setupFeeSek +
     deviceSubtotalSek +
     shippingSubtotalSek -
     deviceDiscountAmountSek;
@@ -241,7 +261,11 @@ export async function POST(request: Request) {
     pricing_plan_id: plan.id,
     status: "quote_prepared",
     currency,
-    setup_fee_sek: plan.setup_fee_sek,
+    setup_fee_sek: setupFeeSek,
+    base_setup_fee_sek: baseSetupFeeSek,
+    setup_included_screens: setupIncludedScreens,
+    additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
+    additional_setup_screen_count: additionalSetupScreens,
     hardware_fee_sek: hardwareFeeSek,
     shipping_fee_sek: shippingFeeSek,
     monthly_fee_sek: plan.monthly_fee_sek,
@@ -435,7 +459,8 @@ export async function POST(request: Request) {
 Här är din Screenia-offert.
 
 Paket: ${plan.name} ${plan.resolution}
-Start- och konfigurationsavgift: ${formatSek(plan.setup_fee_sek)}
+Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
+Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${setupIncludedScreens} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(additionalSetupFeeSek)} per skärm` : ""}.
 Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
 Frakt: ${formatSek(shippingSubtotalSek)} inkl. moms
 Screens/devices: ${screenQuantity}
@@ -464,7 +489,8 @@ Screenia`,
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
-            <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(plan.setup_fee_sek)}</p>
+            <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(setupFeeSek)}</p>
+            <p>Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${setupIncludedScreens} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(additionalSetupFeeSek)}` : ""}.</p>
             <p><strong>Skärmenhet:</strong> ${formatSek(deviceSubtotalSek)} inkl. moms</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>

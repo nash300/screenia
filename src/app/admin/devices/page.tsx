@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { displayFilters } from "./display-workflow";
 import type { DisplayListItem } from "./types";
@@ -11,6 +11,7 @@ export default function DevicesPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("customer_asc");
 
   const loadDevices = async () => {
     setLoading(true);
@@ -44,9 +45,9 @@ export default function DevicesPage() {
     loadDevices();
   }, []);
 
-  const filteredDevices = devices.filter((device) => {
-    const value = search.toLowerCase();
-    const playlistCount = device.playlists?.[0]?.count || 0;
+  const filteredDevices = useMemo(() => devices.filter((device) => {
+      const value = search.toLowerCase();
+      const playlistCount = device.playlists?.[0]?.count || 0;
 
     const matchesSearch =
       device.name?.toLowerCase().includes(value) ||
@@ -60,8 +61,13 @@ export default function DevicesPage() {
       (filter === "inactive" && !device.is_active) ||
       (filter === "needs_playlist" && playlistCount === 0);
 
-    return matchesSearch && matchesFilter;
-  });
+      return matchesSearch && matchesFilter;
+    }).sort((left, right) => {
+      if (sortBy === "code_asc") return left.device_code.localeCompare(right.device_code, "sv");
+      if (sortBy === "name_asc") return (left.name || "").localeCompare(right.name || "", "sv");
+      if (sortBy === "status") return Number(right.is_active) - Number(left.is_active);
+      return (left.customers?.name || "").localeCompare(right.customers?.name || "", "sv");
+    }), [devices, filter, search, sortBy]);
 
   return (
     <div>
@@ -103,24 +109,30 @@ export default function DevicesPage() {
             className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100 md:max-w-md"
           />
 
-          <div className="flex flex-wrap gap-2">
-            {displayFilters.map((item) => (
-              <button
-                key={item.value}
-                onClick={() => setFilter(item.value)}
-                className={`rounded-full px-3 py-1 text-sm font-semibold transition ${
-                  filter === item.value
-                    ? "bg-slate-950 text-white"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="admin-list-selects">
+            <select
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              aria-label="Filter displays"
+            >
+              {displayFilters.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+              aria-label="Sort displays"
+            >
+              <option value="customer_asc">Sort: Customer A-Z</option>
+              <option value="name_asc">Sort: Display name</option>
+              <option value="code_asc">Sort: Display code</option>
+              <option value="status">Sort: Active first</option>
+            </select>
           </div>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="admin-scroll-region mt-4 space-y-3">
           {loading ? (
             <p className="admin-muted">Loading...</p>
           ) : filteredDevices.length === 0 ? (

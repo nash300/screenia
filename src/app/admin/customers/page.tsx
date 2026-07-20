@@ -44,7 +44,11 @@ const statusFilters = [
   { value: "needs_playlist", label: "Needs playlist content" },
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
+  { value: "billing_issue", label: "Billing issues" },
+  { value: "closed", label: "Cancelled or refunded" },
 ];
+
+const PAGE_SIZE = 25;
 
 const onboardingFilters = [
   { value: "new_request", label: "New requests", hint: "review inquiry" },
@@ -84,14 +88,13 @@ function CustomersContent() {
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("filter") || "all",
   );
-  const [hasSelectedFilter, setHasSelectedFilter] = useState(
-    true,
-  );
+  const [sortBy, setSortBy] = useState("updated_desc");
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [createReason, setCreateReason] = useState("");
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
 
   const loadCustomers = async () => {
     setLoading(true);
@@ -234,7 +237,6 @@ function CustomersContent() {
   useEffect(() => {
     const filter = searchParams.get("filter");
     setStatusFilter(filter || "all");
-    setHasSelectedFilter(true);
   }, [searchParams]);
 
   useEffect(() => {
@@ -304,6 +306,14 @@ function CustomersContent() {
   const matchesCustomerFilter = (customer: Customer, filter: string) => {
     const deviceCount = getDeviceCount(customer);
     if (filter === "all") return true;
+    if (filter === "setup_pending") {
+      return ["invited", "accepted_terms", "completed_profile"].includes(
+        customer.status || "",
+      );
+    }
+    if (filter === "material_pending") {
+      return ["paid", "content_pending"].includes(customer.status || "");
+    }
     if (filter === "needs_device") {
       return ["content_received", "active"].includes(customer.status || "") && deviceCount === 0;
     }
@@ -312,6 +322,12 @@ function CustomersContent() {
         ["content_received", "active"].includes(customer.status || "") &&
         hasDeviceWithoutPlaylist(customer)
       );
+    }
+    if (filter === "billing_issue") {
+      return ["failed", "disputed"].includes(customer.payment_status || "");
+    }
+    if (filter === "closed") {
+      return ["cancelled", "refunded"].includes(customer.status || "");
     }
     return customer.status === filter;
   };
@@ -358,35 +374,118 @@ function CustomersContent() {
     router.push(`/admin/customers${nextParams.toString() ? `?${nextParams.toString()}` : ""}`);
   };
 
-  const filteredCustomers = customers.filter((customer) => {
-    const value = search.trim().toLowerCase();
-    const subscription = latestSubscription(customer);
-    return (
-      matchesCustomerFilter(customer, statusFilter) &&
-      (!value ||
-        customer.name.toLowerCase().includes(value) ||
-        customer.customer_number?.toLowerCase().includes(value) ||
-        customer.email?.toLowerCase().includes(value) ||
-        customer.phone?.toLowerCase().includes(value) ||
-        customer.city?.toLowerCase().includes(value) ||
-        subscription?.order_number?.toLowerCase().includes(value))
-    );
-  });
+  const filteredCustomers = customers
+    .filter((customer) => {
+      const value = search.trim().toLowerCase();
+      const subscription = latestSubscription(customer);
+      return (
+        matchesCustomerFilter(customer, statusFilter) &&
+        (!value ||
+          customer.name.toLowerCase().includes(value) ||
+          customer.customer_number?.toLowerCase().includes(value) ||
+          customer.email?.toLowerCase().includes(value) ||
+          customer.phone?.toLowerCase().includes(value) ||
+          customer.city?.toLowerCase().includes(value) ||
+          subscription?.order_number?.toLowerCase().includes(value))
+      );
+    })
+    .sort((left, right) => {
+      if (sortBy === "created_desc") {
+        return new Date(right.created_at || 0).getTime() - new Date(left.created_at || 0).getTime();
+      }
+      if (sortBy === "name_asc") return left.name.localeCompare(right.name, "sv");
+      if (sortBy === "status_asc") {
+        return (left.status || "").localeCompare(right.status || "", "sv");
+      }
+      return new Date(right.updated_at || 0).getTime() - new Date(left.updated_at || 0).getTime();
+    });
+  const pageCount = Math.max(1, Math.ceil(filteredCustomers.length / PAGE_SIZE));
+  const visiblePage = Math.min(page, pageCount);
+  const paginatedCustomers = filteredCustomers.slice(
+    (visiblePage - 1) * PAGE_SIZE,
+    visiblePage * PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, sortBy, statusFilter]);
 
   return (
     <div className="admin-customers-page">
       <div className="admin-page-header">
         <h1 className="admin-title">Customer work</h1>
         <p className="admin-subtitle">
-          Manage the customer journey from inquiry and quote to material,
-          billing, device allocation, communication, and retained history.
+          Find customers, review their current stage, and continue the next task.
         </p>
       </div>
 
-      <div className="admin-customers-controls">
-        <section className="admin-card admin-customers-create p-6">
-          <h2 className="admin-card-title text-xl">Manual customer draft</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <section className="admin-card admin-customers-toolbar">
+        <div className="admin-customers-toolbar-heading">
+          <div>
+            <h2 className="admin-card-title text-xl">Find customer work</h2>
+            <p className="admin-muted">Search directly or open a common queue.</p>
+          </div>
+          <span className="admin-customers-total">
+            {filteredCustomers.length} shown
+          </span>
+        </div>
+
+        <div className="admin-customers-search-row">
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search name, email, phone, city, or order number"
+            aria-label="Search customers"
+          />
+          <select
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              navigateFilter(event.target.value);
+            }}
+            aria-label="Detailed customer queue"
+          >
+            <option value="all">All queues</option>
+            <optgroup label="Customer intake">
+              {onboardingFilters.map((status) => (
+                <option key={status.value} value={status.value}>
+                  {status.label} ({getFilterCount(status.value)})
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label="Service delivery">
+              <option value="setup_pending">
+                Setup pending ({getFilterCount("setup_pending")})
+              </option>
+              {statusFilters
+                .filter((status) => status.value !== "all")
+                .map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label} ({getFilterCount(status.value)})
+                  </option>
+                ))}
+            </optgroup>
+          </select>
+          <select
+            value={sortBy}
+            onChange={(event) => setSortBy(event.target.value)}
+            aria-label="Sort customers"
+          >
+            <option value="updated_desc">Sort: Recently updated</option>
+            <option value="created_desc">Sort: Newest request</option>
+            <option value="name_asc">Sort: Company A-Z</option>
+            <option value="status_asc">Sort: Customer status</option>
+          </select>
+        </div>
+      </section>
+
+      <details className="admin-card admin-customers-create">
+        <summary>Create a manual customer draft</summary>
+        <div className="admin-customers-create-body">
+          <p className="admin-muted">
+            Use this only when a customer contacted Screenia outside the website.
+          </p>
+          <div className="admin-customers-create-grid">
             <label className="text-sm font-semibold text-slate-700">
               Company name *
               <input
@@ -407,8 +506,8 @@ function CustomersContent() {
               />
             </label>
           </div>
-          <label className="mt-4 block text-sm font-semibold text-slate-700">
-            Reason for manually creating this customer draft *
+          <label className="text-sm font-semibold text-slate-700">
+            Reason for creating the draft *
             <textarea
               value={createReason}
               onChange={(event) => setCreateReason(event.target.value)}
@@ -424,81 +523,15 @@ function CustomersContent() {
           >
             {saving ? "Creating..." : "Create customer draft"}
           </button>
-        </section>
+        </div>
+      </details>
 
-        <section className="admin-card admin-customers-search p-6">
-          <h2 className="admin-card-title text-xl">Find customer work</h2>
-          <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-3">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-800">
-              Customer intake
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {onboardingFilters.map((status) => {
-                const count = getFilterCount(status.value);
-                const isActive = hasSelectedFilter && statusFilter === status.value;
-                return (
-                  <button
-                    key={status.value}
-                    onClick={() => {
-                      setStatusFilter(status.value);
-                      setHasSelectedFilter(true);
-                      navigateFilter(status.value);
-                    }}
-                    className={isActive ? "is-active" : ""}
-                  >
-                    <span>{status.label} ({count})</span>
-                    <small>{status.hint}</small>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
-              Service delivery queues
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {statusFilters.map((status) => {
-                const count = getFilterCount(status.value);
-                const isActive = hasSelectedFilter && statusFilter === status.value;
-                return (
-                  <button
-                    key={status.value}
-                    onClick={() => {
-                      setStatusFilter(status.value);
-                      setHasSelectedFilter(true);
-                      navigateFilter(status.value);
-                    }}
-                    className={isActive ? "is-active" : ""}
-                  >
-                    {status.label} ({count})
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setHasSelectedFilter(event.target.value.trim().length > 0);
-            }}
-            placeholder="Search by name, email, phone, city, or order number..."
-            className="mt-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
-          />
-        </section>
-      </div>
-
-      <section
-        className={`admin-card admin-customers-list-panel p-6 ${
-          hasSelectedFilter ? "" : "admin-customers-list-panel-empty"
-        }`}
-      >
-        <h2 className="admin-card-title text-xl">Customer queue</h2>
-        {hasSelectedFilter ? (
-          <div className="admin-customer-table-wrap mt-4">
+      <section className="admin-card admin-customers-list-panel">
+        <div className="admin-customers-list-heading">
+          <h2 className="admin-card-title text-xl">Customer queue</h2>
+          <span>{loading ? "Loading" : `${filteredCustomers.length} records`}</span>
+        </div>
+        <div className="admin-customer-table-wrap">
             {loading ? (
               <p className="admin-muted">Loading...</p>
             ) : filteredCustomers.length === 0 ? (
@@ -518,7 +551,7 @@ function CustomersContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredCustomers.map((customer) => {
+                  {paginatedCustomers.map((customer) => {
                     const deviceCount = getDeviceCount(customer);
                     const subscription = latestSubscription(customer);
                     const needsSetup =
@@ -574,11 +607,31 @@ function CustomersContent() {
                 </tbody>
               </table>
             )}
-          </div>
-        ) : (
-          <div className="admin-customers-empty-message">
-            Select a queue above to load matching customers.
-          </div>
+        </div>
+        {!loading && filteredCustomers.length > PAGE_SIZE && (
+          <nav className="admin-queue-pagination" aria-label="Customer queue pages">
+            <span>
+              Page {visiblePage} of {pageCount} - {filteredCustomers.length} records
+            </span>
+            <div>
+              <button
+                type="button"
+                className="admin-button-secondary"
+                disabled={visiblePage === 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                className="admin-button-secondary"
+                disabled={visiblePage === pageCount}
+                onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+              >
+                Next
+              </button>
+            </div>
+          </nav>
         )}
       </section>
     </div>

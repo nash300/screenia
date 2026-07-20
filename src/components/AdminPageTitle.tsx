@@ -6,6 +6,7 @@ import { useEffect } from "react";
 const titles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/customers": "Customer Work",
+  "/admin/contact-inquiries": "Visitor Messages",
   "/admin/compliance": "Compliance",
   "/admin/inventory": "Hardware Stock",
   "/admin/devices": "Displays",
@@ -13,7 +14,8 @@ const titles: Record<string, string> = {
   "/admin/orders": "Orders & Billing",
   "/admin/pricing": "Pricing",
   "/admin/email-events": "Email Evidence",
-  "/admin/launch-readiness": "Launch Readiness",
+  "/admin/training": "Training Catalog",
+  "/admin/troubleshooting": "Troubleshooting",
   "/admin/tax-payments": "Moms/VAT Filing",
   "/admin/legal-change-notices": "Legal Notices",
   "/admin/access-reviews": "Admin Access",

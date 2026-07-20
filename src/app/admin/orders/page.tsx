@@ -27,6 +27,8 @@ import type {
   SupabaseSchemaError,
 } from "./types";
 
+const PAGE_SIZE = 20;
+
 export default function AdminOrdersPage() {
   return (
     <Suspense
@@ -48,8 +50,10 @@ function AdminOrdersContent() {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("updated_desc");
   const [savingId, setSavingId] = useState("");
   const [activeSection, setActiveSection] = useState<OrderSection>("all");
+  const [page, setPage] = useState(1);
   const [operationDraft, setOperationDraft] =
     useState<OrderOperationDraft | null>(null);
   const [trackingDrafts, setTrackingDrafts] = useState<
@@ -174,30 +178,55 @@ function AdminOrdersContent() {
   const filteredOrders = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
 
-    return orders.filter((order) => {
-      const matchesStatus =
-        statusFilter === "all" || order.status === statusFilter;
-      const matchesSection = matchesOrderSection(order, activeSection);
-      const haystack = [
-        order.order_number,
-        order.customers?.name,
-        order.customers?.customer_number,
-        order.customers?.email,
-        order.customers?.city,
-        order.pricing_plans?.name,
-        order.pricing_plans?.resolution,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+    return orders
+      .filter((order) => {
+        const matchesStatus =
+          statusFilter === "all" || order.status === statusFilter;
+        const matchesSection = matchesOrderSection(order, activeSection);
+        const haystack = [
+          order.order_number,
+          order.customers?.name,
+          order.customers?.customer_number,
+          order.customers?.email,
+          order.customers?.city,
+          order.pricing_plans?.name,
+          order.pricing_plans?.resolution,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
 
-      return (
-        matchesStatus &&
-        matchesSection &&
-        (!normalizedQuery || haystack.includes(normalizedQuery))
-      );
-    });
-  }, [orders, query, statusFilter, activeSection]);
+        return (
+          matchesStatus &&
+          matchesSection &&
+          (!normalizedQuery || haystack.includes(normalizedQuery))
+        );
+      })
+      .sort((left, right) => {
+        if (sortBy === "created_desc") {
+          return new Date(right.created_at).getTime() - new Date(left.created_at).getTime();
+        }
+        if (sortBy === "customer_asc") {
+          return (left.customers?.name || "").localeCompare(right.customers?.name || "", "sv");
+        }
+        if (sortBy === "order_asc") {
+          return (left.order_number || "").localeCompare(right.order_number || "", "sv");
+        }
+        return new Date(right.updated_at || right.created_at).getTime() -
+          new Date(left.updated_at || left.created_at).getTime();
+      });
+  }, [orders, query, sortBy, statusFilter, activeSection]);
+
+  const pageCount = Math.max(1, Math.ceil(filteredOrders.length / PAGE_SIZE));
+  const visiblePage = Math.min(page, pageCount);
+  const paginatedOrders = filteredOrders.slice(
+    (visiblePage - 1) * PAGE_SIZE,
+    visiblePage * PAGE_SIZE,
+  );
+
+  useEffect(() => {
+    setPage(1);
+  }, [query, sortBy, statusFilter, activeSection]);
 
   const navigateSection = (section: OrderSection) => {
     const nextParams = new URLSearchParams(searchParams.toString());
@@ -341,14 +370,13 @@ function AdminOrdersContent() {
     setSavingId("");
   };
 
-  const counts = {
-    all: orders.length,
-    quote_sent: orders.filter((order) => order.status === "quote_sent").length,
-    checkout_started: orders.filter((order) => order.status === "checkout_started").length,
-    active: orders.filter((order) => order.status === "active").length,
-    payment_failed: orders.filter((order) => order.status === "payment_failed").length,
-    refunded: orders.filter((order) => order.status === "refunded").length,
-  };
+  const counts: Record<string, number> = Object.fromEntries([
+    ["all", orders.length],
+    ...orderStatuses.map((status) => [
+      status,
+      orders.filter((order) => order.status === status).length,
+    ]),
+  ]);
   const sectionCounts = Object.fromEntries(
     orderSections.map((section) => [
       section.id,
@@ -357,13 +385,14 @@ function AdminOrdersContent() {
   ) as Record<OrderSection, number>;
 
   return (
-    <div>
-      <div className="admin-page-header">
-        <h1 className="admin-title">Orders & billing</h1>
-        <p className="admin-subtitle">
-          Follow quote, Stripe payment, material review, layout production,
-          device allocation, shipping, refunds, and order evidence in one place.
-        </p>
+    <div className="admin-orders-page">
+      <div className="admin-page-header admin-orders-header">
+        <div>
+          <h1 className="admin-title">Orders & billing</h1>
+          <p className="admin-subtitle">
+            Review payments, production, device allocation, and delivery.
+          </p>
+        </div>
         <a
           href="/api/admin/accounting-export"
           className="admin-button-secondary"
@@ -372,57 +401,73 @@ function AdminOrdersContent() {
         </a>
       </div>
 
-      <section className="admin-card p-6">
+      <section className="admin-card admin-orders-toolbar-panel">
         <div className="admin-order-toolbar">
-          <div className="admin-order-workflow" aria-label="Order workflow">
-            {orderSections.map((section) => (
-              <button
-                key={section.id}
-                type="button"
-                onClick={() => navigateSection(section.id)}
-                className={`admin-order-workflow-step ${
-                  activeSection === section.id ? "is-active" : ""
-                }`}
-              >
-                <span>{section.stage}</span>
-                <strong>
-                  {section.label}
-                  <em>{sectionCounts[section.id]}</em>
-                </strong>
-                <small>{section.description}</small>
-              </button>
-            ))}
+          <div className="admin-orders-toolbar-heading">
+            <div>
+              <h2 className="admin-card-title">Find order work</h2>
+              <p className="admin-muted">Search directly or open a workflow queue.</p>
+            </div>
+            <span>{filteredOrders.length} shown</span>
           </div>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search order number, customer, email, city..."
-          />
-          <div className="admin-order-filter-row">
-            {Object.entries(counts).map(([key, count]) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setStatusFilter(key)}
-                className={statusFilter === key ? "is-active" : ""}
-              >
-                {formatStatusLabel(key)} ({count})
-              </button>
-            ))}
+
+          <div className="admin-orders-search-row">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search order, customer, email, or city"
+              aria-label="Search orders"
+            />
+            <select
+              value={activeSection}
+              onChange={(event) => navigateSection(event.target.value as OrderSection)}
+              aria-label="Order workflow"
+            >
+              {orderSections.map((section) => (
+                <option key={section.id} value={section.id}>
+                  {section.label} ({sectionCounts[section.id]})
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+              aria-label="Order status"
+            >
+              {Object.entries(counts).map(([key, count]) => (
+                <option key={key} value={key}>
+                  {formatStatusLabel(key)} ({count})
+                </option>
+              ))}
+            </select>
+            <select
+              value={sortBy}
+              onChange={(event) => setSortBy(event.target.value)}
+              aria-label="Sort orders"
+            >
+              <option value="updated_desc">Sort: Recently updated</option>
+              <option value="created_desc">Sort: Newest order</option>
+              <option value="customer_asc">Sort: Customer A-Z</option>
+              <option value="order_asc">Sort: Order number</option>
+            </select>
           </div>
         </div>
       </section>
 
-      <section className="admin-card mt-6 p-6">
+      <section className="admin-card admin-orders-list-panel">
+        <div className="admin-orders-list-heading">
+          <h2 className="admin-card-title">Order queue</h2>
+          <span>{loading ? "Loading" : `${filteredOrders.length} records`}</span>
+        </div>
         {loading ? (
           <p className="admin-muted">Loading orders...</p>
         ) : filteredOrders.length === 0 ? (
           <p className="admin-muted">No orders found.</p>
         ) : (
           <div className="admin-order-list">
-            {filteredOrders.map((order) => (
-              <article key={order.id} className="admin-order-card">
-                <div className="admin-order-card-main">
+            {paginatedOrders.map((order) => (
+              <details key={order.id} className="admin-order-card">
+                <summary className="admin-order-card-main">
                   <div>
                     <p className="admin-order-number">{order.order_number}</p>
                     <h2>{order.customers?.name || "Unknown customer"}</h2>
@@ -436,15 +481,25 @@ function AdminOrdersContent() {
                       {new Date(order.created_at).toLocaleDateString("sv-SE")}
                     </p>
                   </div>
-                  {order.customers?.id && (
-                    <Link
-                      href={`/admin/customers/${order.customers.id}?section=orders`}
-                      className="admin-button-primary"
-                    >
-                      Open customer
-                    </Link>
-                  )}
-                </div>
+                  <div className="admin-order-summary-statuses">
+                    <span>{formatStatusLabel(order.status)}</span>
+                    <span>{formatStatusLabel(order.fulfillment_status || "pending")}</span>
+                    <span>{formatStatusLabel(order.hardware_status || "not_reserved")}</span>
+                  </div>
+                </summary>
+
+                <div className="admin-order-card-body">
+                  <div className="admin-order-card-commands">
+                    <p className="admin-muted">Review the full order state before applying an audited update.</p>
+                    {order.customers?.id && (
+                      <Link
+                        href={`/admin/customers/${order.customers.id}?section=orders`}
+                        className="admin-button-primary"
+                      >
+                        Open customer
+                      </Link>
+                    )}
+                  </div>
 
                 <div className="admin-order-state-grid">
                   <div>
@@ -471,24 +526,35 @@ function AdminOrdersContent() {
                   </div>
                 </div>
 
-                <div className="admin-order-action-row">
-                  {orderOperations.map((operation) => (
-                    <button
-                      key={operation.id}
-                      type="button"
-                      disabled={savingId === order.id}
-                      onClick={() => openOrderOperation(order, operation.id)}
-                      className={`admin-button-secondary ${
-                        operationDraft?.orderId === order.id &&
-                        operationDraft.operation === operation.id
-                          ? "is-active"
+                <details className="admin-order-actions-disclosure">
+                  <summary>Update order</summary>
+                  <label className="admin-order-operation-picker">
+                    Action
+                    <select
+                      value={
+                        operationDraft?.orderId === order.id
+                          ? operationDraft.operation
                           : ""
-                      }`}
+                      }
+                      disabled={savingId === order.id}
+                      onChange={(event) => {
+                        if (event.target.value) {
+                          openOrderOperation(
+                            order,
+                            event.target.value as OrderOperationId,
+                          );
+                        }
+                      }}
                     >
-                      {operation.label}
-                    </button>
-                  ))}
-                </div>
+                      <option value="">Choose an order update</option>
+                      {orderOperations.map((operation) => (
+                        <option key={operation.id} value={operation.id}>
+                          {operation.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </details>
 
                 {operationDraft?.orderId === order.id && (
                   <div className="admin-operation-panel admin-order-operation-panel">
@@ -688,9 +754,35 @@ function AdminOrdersContent() {
                 {order.quote_notes && (
                   <p className="admin-order-note">{order.quote_notes}</p>
                 )}
-              </article>
+                </div>
+              </details>
             ))}
           </div>
+        )}
+        {!loading && filteredOrders.length > PAGE_SIZE && (
+          <nav className="admin-queue-pagination" aria-label="Order queue pages">
+            <span>
+              Page {visiblePage} of {pageCount} - {filteredOrders.length} records
+            </span>
+            <div>
+              <button
+                type="button"
+                className="admin-button-secondary"
+                disabled={visiblePage === 1}
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                className="admin-button-secondary"
+                disabled={visiblePage === pageCount}
+                onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+              >
+                Next
+              </button>
+            </div>
+          </nav>
         )}
       </section>
     </div>

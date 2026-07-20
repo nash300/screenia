@@ -6,6 +6,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 const labels: Record<string, string> = {
   admin: "Admin",
   customers: "Customers",
+  "contact-inquiries": "Visitor messages",
   compliance: "Compliance",
   orders: "Orders & billing",
   inventory: "Hardware stock",
@@ -13,7 +14,8 @@ const labels: Record<string, string> = {
   pricing: "Pricing",
   subscriptions: "Subscriptions",
   "email-events": "Email Evidence",
-  "launch-readiness": "Readiness",
+  training: "Training Catalog",
+  troubleshooting: "Troubleshooting",
   "tax-payments": "Moms/VAT Filing",
   "legal-change-notices": "Legal Notices",
   "access-reviews": "Admin Access",

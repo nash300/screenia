@@ -14,7 +14,7 @@ const navItems = [
 ] as const;
 
 type LandingNavProps = {
-  currentPath?: "/" | "/sa-fungerar-det" | "/om-oss" | "/account";
+  currentPath?: "/" | "/sa-fungerar-det" | "/om-oss" | "/kontakt" | "/account";
   accountMode?: boolean;
   onSignOut?: () => void;
 };
@@ -78,7 +78,7 @@ export function LandingNav({
         <div className="landing-nav-actions">
           <Link
             className="landing-nav-cta"
-            href={isHome ? "#contact" : "/#contact"}
+            href="/kontakt"
             onClick={() => setMenuOpen(false)}
           >
             <span className="landing-nav-action-icon" aria-hidden="true">

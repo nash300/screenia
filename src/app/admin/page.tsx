@@ -4,15 +4,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
-import { adminNavItems } from "@/lib/admin/navigation";
+import {
+  getCustomerWorkflowAction,
+  type CustomerWorkflowAction,
+} from "@/lib/admin/customer-workflow";
 
 type AdminCustomer = {
   id: string;
   name: string;
   email: string | null;
   status: string | null;
+  payment_status: string | null;
+  service_access_status: string | null;
+  created_at: string | null;
   devices?: {
     id: string;
+    device_code: string;
     playlists?: { count: number }[];
   }[];
 };
@@ -25,7 +32,10 @@ type AdminNotification = {
   message: string;
   priority: string;
   read_at: string | null;
+  resolved_at: string | null;
+  resolution_event_type: string | null;
   created_at: string;
+  metadata?: Record<string, unknown> | null;
   customers?:
     | {
     name: string | null;
@@ -79,15 +89,17 @@ export default function AdminHomePage() {
   const contentReceivedCount = customers.filter(
     (customer) => customer.status === "content_received",
   ).length;
-  const invitedCustomerCount = customers.filter(
+  const setupPendingCustomerCount = customers.filter(
     (customer) =>
-      customer.status === "invited" || customer.status === "accepted_terms",
+      customer.status === "invited" ||
+      customer.status === "accepted_terms" ||
+      customer.status === "completed_profile",
   ).length;
   const suspendedCustomerCount = customers.filter(
     (customer) => customer.status === "suspended",
   ).length;
   const unreadNotificationCount = notifications.filter(
-    (notification) => !notification.read_at,
+    (notification) => !notification.read_at && !notification.resolved_at,
   ).length;
   const readyCustomerCount = customers.filter((customer) => {
     const displayCount = customer.devices?.length || 0;
@@ -117,6 +129,36 @@ export default function AdminHomePage() {
     managedCustomerCount === 0
       ? 0
       : Math.round((readyCustomerCount / managedCustomerCount) * 100);
+  const customerWorkQueue = customers
+    .map((customer) => {
+      const firstDeviceWithoutPlaylist = customer.devices?.find(
+        (device) => (device.playlists?.[0]?.count || 0) === 0,
+      );
+      const action = getCustomerWorkflowAction({
+        id: customer.id,
+        status: customer.status,
+        paymentStatus: customer.payment_status,
+        serviceAccessStatus: customer.service_access_status,
+        deviceCount: customer.devices?.length || 0,
+        firstDeviceCode: customer.devices?.[0]?.device_code,
+        firstDeviceWithoutPlaylistCode: firstDeviceWithoutPlaylist?.device_code,
+      });
+
+      return action ? { customer, action } : null;
+    })
+    .filter(
+      (item): item is { customer: AdminCustomer; action: CustomerWorkflowAction } =>
+        Boolean(item),
+    )
+    .sort((left, right) => {
+      const priority = { urgent: 0, high: 1, normal: 2 };
+      const priorityDifference =
+        priority[left.action.priority] - priority[right.action.priority];
+      if (priorityDifference !== 0) return priorityDifference;
+
+      return dateValue(left.customer.created_at) - dateValue(right.customer.created_at);
+    })
+    .slice(0, 8);
 
   const loadStats = async () => {
     setLoading(true);
@@ -133,7 +175,7 @@ export default function AdminHomePage() {
     const { data: notificationData, error: notificationError } = await supabase
       .from("admin_notifications")
       .select(
-        "id, customer_id, event_type, title, message, priority, read_at, created_at, customers(name)",
+        "id, customer_id, event_type, title, message, priority, read_at, resolved_at, resolution_event_type, created_at, metadata, customers(name)",
       )
       .order("created_at", { ascending: false })
       .limit(5);
@@ -143,8 +185,12 @@ export default function AdminHomePage() {
       name,
       email,
       status,
+      payment_status,
+      service_access_status,
+      created_at,
       devices(
         id,
+        device_code,
         playlists(count)
       )
     `);
@@ -238,6 +284,64 @@ export default function AdminHomePage() {
         </div>
       </div>
 
+      <section className="admin-card admin-work-queue">
+        <div className="admin-work-queue-header">
+          <div>
+            <p className="admin-operation-kicker">Next best action</p>
+            <h2 className="admin-card-title">Today&apos;s customer work</h2>
+            <p className="admin-muted">
+              Prioritized by customer impact. Open a row to continue at the correct step.
+            </p>
+          </div>
+          <div className="admin-work-queue-commands">
+            <Link href="/admin/contact-inquiries" className="admin-button-secondary">
+              Visitor messages
+            </Link>
+            <Link href="/admin/orders" className="admin-button-secondary">
+              Orders &amp; billing
+            </Link>
+            <Link href="/admin/customers" className="admin-button-primary">
+              Customer work
+            </Link>
+          </div>
+        </div>
+
+        {loading ? (
+          <p className="admin-muted admin-work-queue-empty">Loading work queue...</p>
+        ) : customerWorkQueue.length ? (
+          <div className="admin-work-queue-list">
+            {customerWorkQueue.map(({ customer, action }) => (
+              <article key={customer.id} className="admin-work-queue-item">
+                <div className={`admin-work-priority admin-work-priority-${action.priority}`}>
+                  {action.priority === "urgent" ? "Urgent" : action.priority === "high" ? "Next" : "Follow up"}
+                </div>
+                <div className="admin-work-customer">
+                  <strong>{customer.name}</strong>
+                  <span>{customer.email || "No contact email"}</span>
+                </div>
+                <div className="admin-work-action-copy">
+                  <span>Step {action.stage} - {action.stageLabel}</span>
+                  <strong>{action.title}</strong>
+                  <small>{action.description}</small>
+                </div>
+                <div className="admin-work-age">
+                  <span>Waiting</span>
+                  <strong>{formatWaitingTime(customer.created_at)}</strong>
+                </div>
+                <Link href={action.href} className="admin-button-primary">
+                  Open next step
+                </Link>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="admin-work-queue-empty">
+            <strong>No active customer tasks</strong>
+            <span>New requests and delivery exceptions will appear here.</span>
+          </div>
+        )}
+      </section>
+
       <section className="admin-action-grid">
         <ActionCard
           href="/admin/customers?filter=new_request"
@@ -248,15 +352,15 @@ export default function AdminHomePage() {
           loading={loading}
         />
         <ActionCard
-          href="/admin/customers?filter=invited"
+          href="/admin/customers?filter=setup_pending"
           title="Setup links sent"
           description="Waiting for details or payment."
-          count={invitedCustomerCount}
+          count={setupPendingCustomerCount}
           tone="info"
           loading={loading}
         />
         <ActionCard
-          href="/admin/customers?filter=content_pending"
+          href="/admin/customers?filter=material_pending"
           title="Material pending"
           description="Paid customers who still need screen material."
           count={paidCustomerCount + contentPendingCount}
@@ -306,31 +410,6 @@ export default function AdminHomePage() {
           meta={`${readyCustomerCount} active of ${managedCustomerCount} paid customers`}
         />
       </div>
-
-      <section className="admin-card admin-dashboard-panel p-6">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-          <div>
-            <p className="admin-operation-kicker">Admin map</p>
-            <h2 className="admin-card-title text-xl">Use the right workspace</h2>
-            <p className="admin-muted mt-2">
-              Screenia admin is organized by business workflow, not database
-              tables.
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {adminNavItems
-            .filter((item) => item.href !== "/admin")
-            .map((item) => (
-              <WorkspaceLink
-                key={item.href}
-                href={item.href}
-                title={item.label}
-                description={item.description}
-              />
-            ))}
-        </div>
-      </section>
 
       <div className="admin-dashboard-grid">
         <section className="admin-card admin-dashboard-panel p-6">
@@ -444,17 +523,15 @@ export default function AdminHomePage() {
                 <div
                   key={notification.id}
                   className={`rounded-2xl border p-3 text-sm ${
-                    notification.read_at
+                    notification.resolved_at
+                      ? "border-emerald-200 bg-emerald-50/70"
+                      : notification.read_at
                       ? "border-slate-200 bg-white/60"
                       : "border-amber-200 bg-amber-50/70"
                   }`}
                 >
                   <Link
-                    href={
-                      notification.customer_id
-                        ? `/admin/customers/${notification.customer_id}`
-                        : "/admin/customers"
-                    }
+                    href={notificationHref(notification)}
                     className="block text-sm no-underline"
                   >
                     <strong className="block text-slate-950">
@@ -467,10 +544,11 @@ export default function AdminHomePage() {
                       {notification.message}
                     </span>
                     <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
-                      {notification.priority} |{" "}
-                      {notification.read_at
+                      {notification.resolved_at
+                        ? `Resolved ${new Date(notification.resolved_at).toLocaleString("sv-SE")}`
+                        : `${notification.priority} | ${notification.read_at
                         ? `Read ${new Date(notification.read_at).toLocaleString("sv-SE")}`
-                        : "Unread"}
+                        : "Unread"}`}
                     </span>
                   </Link>
                   <button
@@ -533,32 +611,51 @@ function StatCard({
   return <div className="admin-card admin-stat-card">{content}</div>;
 }
 
-function WorkspaceLink({
-  href,
-  title,
-  description,
-}: {
-  href: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="rounded-2xl border border-slate-200 bg-white/70 p-4 text-sm no-underline transition hover:bg-white hover:shadow-md"
-    >
-      <strong className="block text-slate-950">{title}</strong>
-      <span className="mt-2 block text-slate-600">{description}</span>
-    </Link>
-  );
-}
-
 function notificationCustomerName(notification: AdminNotification) {
   const customer = Array.isArray(notification.customers)
     ? notification.customers[0]
     : notification.customers;
 
   return customer?.name || "";
+}
+
+function notificationHref(notification: AdminNotification) {
+  if (notification.event_type.startsWith("visitor_contact_")) {
+    return "/admin/contact-inquiries";
+  }
+  if (notification.event_type.includes("email")) {
+    return "/admin/email-events";
+  }
+  if (
+    notification.event_type.includes("payment") ||
+    notification.event_type.includes("invoice") ||
+    notification.event_type.includes("subscription") ||
+    notification.event_type.includes("refund")
+  ) {
+    return notification.customer_id
+      ? `/admin/customers/${notification.customer_id}?section=orders`
+      : "/admin/orders";
+  }
+  if (notification.customer_id) {
+    return `/admin/customers/${notification.customer_id}`;
+  }
+  return "/admin";
+}
+
+function dateValue(value: string | null) {
+  if (!value) return Number.MAX_SAFE_INTEGER;
+  const parsed = new Date(value).getTime();
+  return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+}
+
+function formatWaitingTime(value: string | null) {
+  if (!value) return "Unknown";
+  const elapsedMs = Date.now() - new Date(value).getTime();
+  if (!Number.isFinite(elapsedMs) || elapsedMs < 0) return "Today";
+  const hours = Math.floor(elapsedMs / (60 * 60 * 1000));
+  if (hours < 24) return hours <= 1 ? "1 hour" : `${hours} hours`;
+  const days = Math.floor(hours / 24);
+  return days === 1 ? "1 day" : `${days} days`;
 }
 
 function StatusRow({

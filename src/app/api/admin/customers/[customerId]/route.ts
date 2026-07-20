@@ -5,6 +5,11 @@ import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import {
+  escapeHtml,
+  renderBrandedEmail,
+  sendTransactionalEmail,
+} from "@/lib/server/email";
+import {
   isValidSwedishRegistrationNumber,
   normalizeSwedishRegistrationNumber,
 } from "@/lib/business/sweden";
@@ -245,13 +250,202 @@ export async function PATCH(
 
   const { customerId } = await params;
   const body = await request.json().catch(() => ({}));
+  const action = String(body.action || "").trim();
+  const reason = cleanAdminReason(body.reason);
+
+  if (action === "publish_preview") {
+    if (!adminReasonIsValid(reason)) {
+      return NextResponse.json(
+        { error: "A reason of at least 5 characters is required before publishing a preview." },
+        { status: 400 },
+      );
+    }
+
+    const previewUrl = String(body.previewUrl || "").trim();
+    let parsedPreviewUrl: URL;
+    try {
+      parsedPreviewUrl = new URL(previewUrl);
+    } catch {
+      return NextResponse.json(
+        { error: "Enter a valid preview URL." },
+        { status: 400 },
+      );
+    }
+
+    if (
+      !["http:", "https:"].includes(parsedPreviewUrl.protocol) ||
+      previewUrl.length > 2000
+    ) {
+      return NextResponse.json(
+        { error: "Preview links must use http or https and be shorter than 2,000 characters." },
+        { status: 400 },
+      );
+    }
+
+    const { data: existingPreview, error: previewLookupError } = await supabaseAdmin
+      .from("customers")
+      .select(
+        "id, name, email, payment_status, service_access_status, preview_url, preview_status, preview_feedback, production_status",
+      )
+      .eq("id", customerId)
+      .single();
+
+    if (previewLookupError || !existingPreview) {
+      return NextResponse.json({ error: "Customer was not found." }, { status: 404 });
+    }
+
+    if (
+      existingPreview.payment_status !== "paid" ||
+      existingPreview.service_access_status !== "active"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Publish previews only for customers with paid, active service access. Resolve the billing or access issue first.",
+        },
+        { status: 409 },
+      );
+    }
+
+    const now = new Date().toISOString();
+    const previewUpdate = {
+      preview_url: previewUrl,
+      preview_status: "ready_for_review",
+      preview_feedback: null,
+      production_status: "ready_for_preview",
+      updated_at: now,
+    };
+    const { error: previewUpdateError } = await supabaseAdmin
+      .from("customers")
+      .update(previewUpdate)
+      .eq("id", existingPreview.id);
+
+    if (previewUpdateError) {
+      console.error("Publish customer preview error:", previewUpdateError);
+      return NextResponse.json(
+        { error: "Could not publish the customer preview." },
+        { status: 500 },
+      );
+    }
+
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: existingPreview.id,
+          actorType: "admin",
+          actorId: user.id,
+          eventType: "customer_preview_published",
+          eventDescription: "Admin published a customer design preview for review.",
+          metadata: {
+            previousPreviewUrl: existingPreview.preview_url,
+            previousPreviewStatus: existingPreview.preview_status,
+            previousPreviewFeedback: existingPreview.preview_feedback,
+            previousProductionStatus: existingPreview.production_status,
+            previewUrl,
+            reason,
+          },
+          ipAddress: getRequestIp(request),
+          userAgent: request.headers.get("user-agent"),
+        },
+        { throwOnError: true },
+      );
+    } catch (auditError) {
+      console.error("Publish customer preview audit error:", auditError);
+      const { error: rollbackError } = await supabaseAdmin
+        .from("customers")
+        .update({
+          preview_url: existingPreview.preview_url,
+          preview_status: existingPreview.preview_status,
+          preview_feedback: existingPreview.preview_feedback,
+          production_status: existingPreview.production_status,
+        })
+        .eq("id", existingPreview.id);
+
+      if (rollbackError) {
+        await createAdminNotification(supabaseAdmin, {
+          customerId: existingPreview.id,
+          eventType: "customer_preview_publish_rollback_failed",
+          title: "Preview publish rollback failed",
+          message:
+            "A customer preview audit failed and the previous preview state could not be restored.",
+          priority: "urgent",
+          metadata: {
+            previewUrl,
+            reason,
+            auditError:
+              auditError instanceof Error ? auditError.message : String(auditError),
+            rollbackError: rollbackError.message,
+          },
+        });
+      }
+
+      return NextResponse.json(
+        {
+          error: rollbackError
+            ? "Preview audit and rollback failed. Stop and investigate before publishing again."
+            : "Preview was not published because audit evidence could not be stored.",
+        },
+        { status: 500 },
+      );
+    }
+
+    let warning: string | null = null;
+    let resendEmailId: string | null = null;
+    if (existingPreview.email) {
+      const accountUrl = `${new URL(request.url).origin}/account?section=content`;
+      const safeName = escapeHtml(existingPreview.name || "kund");
+      const safeAccountUrl = escapeHtml(accountUrl);
+      const emailResult = await sendTransactionalEmail({
+        to: existingPreview.email,
+        subject: "Din Screenia-förhandsvisning är klar",
+        text: `Hej ${existingPreview.name || "kund"},\n\nDin första förhandsvisning är klar. Logga in på ${accountUrl} för att godkänna den eller begära ändringar.\n\nScreenia`,
+        html: renderBrandedEmail({
+          eyebrow: "Förhandsvisning",
+          title: "Din första design är klar",
+          intro: `Hej ${safeName}. Granska förslaget i kundportalen och godkänn eller beskriv önskade ändringar.`,
+          children: `<p style="margin:0 0 18px;color:#526579;">Öppna kundportalen för att se den aktuella förhandsvisningen. Kontrollera text, priser, bilder och helhetsintryck innan du godkänner.</p><a href="${safeAccountUrl}" style="display:inline-block;padding:12px 18px;border-radius:10px;background:#155ee8;color:#ffffff;text-decoration:none;font-weight:700;">Granska förhandsvisningen</a>`,
+        }),
+      });
+
+      if (emailResult.ok) {
+        resendEmailId = emailResult.id || null;
+      } else {
+        warning = emailResult.error;
+        await createAdminNotification(supabaseAdmin, {
+          customerId: existingPreview.id,
+          eventType: "customer_preview_email_failed",
+          title: "Preview email was not sent",
+          message: `The preview was published for ${existingPreview.name}, but the email notification failed.`,
+          priority: "high",
+          metadata: { previewUrl, reason, error: emailResult.error },
+        });
+      }
+    } else {
+      warning = "The preview was published, but this customer has no email address.";
+    }
+
+    await recordAuditEvent(supabaseAdmin, {
+      customerId: existingPreview.id,
+      actorType: "system",
+      eventType: warning
+        ? "customer_preview_email_failed"
+        : "customer_preview_email_sent",
+      eventDescription: warning
+        ? "Customer preview email notification was not sent."
+        : "Customer preview email notification was sent.",
+      metadata: { previewUrl, warning, resendEmailId },
+    });
+
+    return NextResponse.json({ success: true, warning, resendEmailId });
+  }
+
   const name = String(body.name || "").trim();
   const organisationNumber = normalizeOptionalString(body.organisation_number);
   const billingEmail = normalizeOptionalString(body.billing_email)?.toLowerCase() || null;
   const postalCode = normalizeOptionalString(body.postal_code)?.replace(/\s/g, "") || null;
   const preferredContactChannel =
     normalizeOptionalString(body.preferred_contact_channel) || "email";
-  const reason = cleanAdminReason(body.reason);
 
   if (!adminReasonIsValid(reason)) {
     return NextResponse.json(

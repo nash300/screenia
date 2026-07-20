@@ -23,6 +23,16 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+The Training catalog is reserved for future learning material. Email delivery
+evidence is available through the admin Troubleshooting page and is intentionally
+kept outside the daily workflow navigation. Internal operating and readiness
+references are stored in `docs/admin-operations-guide.md` and
+`docs/deployment-readiness.md`. Before a reviewed deployment, run:
+
+```bash
+npm run release:check
+```
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 ## Email Sending
@@ -74,8 +84,10 @@ history in production.
 Before accepting real customers, confirm these production items:
 
 - Run every SQL file in `supabase/migrations/` in timestamp order.
-- Fill `stripe_setup_price_id` and `stripe_monthly_price_id` in `pricing_plans`
-  for both active packages.
+- Fill `stripe_setup_price_id`, `stripe_hardware_price_id`,
+  `stripe_shipping_price_id`, and `stripe_monthly_price_id` in `pricing_plans`
+  for both active packages, and verify every Stripe Price uses SEK and inclusive
+  tax behavior.
 - Configure the Stripe webhook endpoint to call `/api/stripe/webhook` and set
   `STRIPE_WEBHOOK_SECRET`.
 - Keep `STRIPE_AUTOMATIC_TAX_ENABLED=false` until Stripe Tax is configured in
