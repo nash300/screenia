@@ -7942,3 +7942,415 @@
     width: 100%;
   }
 }
+
+/* =========================================
+   LANDING TYPOGRAPHY AND DARK GLASS SECTIONS
+========================================= */
+.landing-page {
+  --landing-font-body: "Manrope", var(--font-plus-jakarta), Arial, Helvetica, sans-serif;
+  --landing-font-ui: "Manrope", var(--font-plus-jakarta), Arial, Helvetica, sans-serif;
+  font-family: var(--landing-font-body);
+  font-weight: 500;
+}
+
+.landing-page :is(button, input, textarea, select) {
+  font-family: var(--landing-font-body);
+  letter-spacing: 0;
+}
+
+.landing-page :is(p, li, summary, label, dt, dd) {
+  letter-spacing: 0;
+}
+
+.landing-page :is(p, li) {
+  line-height: 1.68;
+}
+
+.landing-page :is(h1, h2, h3, h4, h5, h6),
+.landing-page .landing-section-heading h2,
+.landing-page .landing-contact h2,
+.landing-page .landing-service-film-copy h2 {
+  font-family: var(--landing-font-display) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+
+.landing-page .landing-nav,
+.landing-page .landing-button,
+.landing-page .landing-plan-badge,
+.landing-page .landing-plan-badge-placeholder,
+.landing-page .landing-price-row,
+.landing-page .landing-package-builder,
+.landing-page .landing-faq-item,
+.landing-page .landing-footer {
+  font-family: var(--landing-font-body);
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: calc(100svh - 76px);
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2)) !important;
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+)::before,
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+)::after {
+  display: none !important;
+}
+
+.landing-page main > .landing-platform {
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(8, 40, 91, 0.76)),
+    url("/landing/section-art/digital-menu-board.jpg") !important;
+}
+
+.landing-page main > .landing-workflow {
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.9), rgba(9, 45, 102, 0.74)),
+    url("/landing/hero-slides/02/image.png") !important;
+}
+
+.landing-page main > .landing-pricing {
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.91), rgba(12, 52, 108, 0.75)),
+    url("/landing/section-art/salon-service-window.jpg") !important;
+}
+
+.landing-page main > .landing-examples {
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.91), rgba(8, 42, 96, 0.74)),
+    url("/landing/section-art/restaurant-menu-screens.jpg") !important;
+}
+
+.landing-page main > .landing-service-film {
+  display: flex;
+  align-items: center;
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(11, 46, 103, 0.73)),
+    url("/landing/hero-slides/03/image.png") !important;
+}
+
+.landing-page main > .landing-faq {
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(10, 44, 98, 0.76)),
+    url("/window_screen1.jpg") !important;
+}
+
+.landing-page main > .landing-contact {
+  display: flex;
+  align-items: center;
+  box-shadow: none;
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.93), rgba(13, 55, 115, 0.76)),
+    url("/salon4.jpg") !important;
+}
+
+.landing-section-panel,
+.landing-contact-panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  border: 1px solid rgba(191, 219, 254, 0.28);
+  border-radius: 20px;
+  background:
+    linear-gradient(145deg, rgba(8, 32, 78, 0.76), rgba(4, 16, 42, 0.58)),
+    rgba(4, 16, 42, 0.52);
+  padding: clamp(24px, 4vw, 48px);
+  box-shadow:
+    0 32px 84px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(22px) saturate(128%);
+  -webkit-backdrop-filter: blur(22px) saturate(128%);
+}
+
+.landing-section-panel > .landing-section-heading h2,
+.landing-service-film-panel h2,
+.landing-contact-panel h2 {
+  color: #ffffff !important;
+  text-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+}
+
+.landing-section-panel > .landing-section-heading > p,
+.landing-service-film-panel p,
+.landing-contact-panel p {
+  color: rgba(238, 245, 255, 0.86) !important;
+}
+
+.landing-workflow-panel {
+  padding: clamp(26px, 4vw, 48px);
+}
+
+.landing-workflow-heading {
+  display: grid;
+  gap: 12px;
+  max-width: 780px;
+}
+
+.landing-workflow-heading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(2rem, 4.4vw, 4.2rem);
+  line-height: 1.04;
+}
+
+.landing-workflow-heading p {
+  margin: 0;
+  color: rgba(238, 245, 255, 0.84);
+  font-size: clamp(1rem, 1.4vw, 1.12rem);
+}
+
+.landing-workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: clamp(28px, 4vw, 44px);
+}
+
+.landing-workflow-step {
+  display: flex;
+  min-width: 0;
+  min-height: 310px;
+  flex-direction: column;
+  border: 1px solid rgba(191, 219, 254, 0.22);
+  border-radius: 8px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)),
+    rgba(4, 16, 42, 0.34);
+  padding: 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.landing-workflow-step > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #2f7df6, #0a3eaa);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 800;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+.landing-workflow-step h3 {
+  margin: 22px 0 10px;
+  color: #ffffff;
+  font-size: clamp(1.25rem, 1.8vw, 1.65rem);
+  line-height: 1.12;
+}
+
+.landing-workflow-step p {
+  margin: 0;
+  color: rgba(238, 245, 255, 0.88);
+  font-size: 0.9rem;
+  line-height: 1.62;
+}
+
+.landing-workflow-step small {
+  margin-top: auto;
+  border-top: 1px solid rgba(191, 219, 254, 0.18);
+  padding-top: 16px;
+  color: rgba(213, 226, 246, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.landing-service-film-panel {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+}
+
+.landing-contact-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.landing-contact-panel > div {
+  max-width: 760px;
+}
+
+.landing-page .landing-feature,
+.landing-page .landing-illustration,
+.landing-page .landing-price-card,
+.landing-page .landing-package-builder,
+.landing-page .landing-pricing-note,
+.landing-page .landing-gallery-card,
+.landing-page .landing-faq-item {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.landing-footer {
+  margin-top: 0 !important;
+  background-image:
+    linear-gradient(115deg, rgba(3, 14, 38, 0.96), rgba(8, 39, 88, 0.9)),
+    url("/landing/section-art/digital-menu-board.jpg") !important;
+  background-position: center !important;
+  background-size: cover !important;
+}
+
+.landing-footer-company,
+.landing-footer-card {
+  border-color: rgba(191, 219, 254, 0.24) !important;
+  background: rgba(5, 23, 57, 0.7) !important;
+  color: rgba(238, 245, 255, 0.82) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.landing-footer :is(h2, strong, span),
+.landing-footer .landing-company-details,
+.landing-footer p {
+  color: #ffffff !important;
+}
+
+.landing-footer a,
+.landing-footer .landing-company-details a {
+  color: #9fc8ff !important;
+}
+
+.landing-modal-close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(89, 126, 180, 0.28) !important;
+  border-radius: 50% !important;
+  background: rgba(239, 246, 255, 0.92) !important;
+  color: #061942 !important;
+  padding: 0 !important;
+  box-shadow:
+    0 12px 28px rgba(6, 25, 66, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.landing-modal-close::before {
+  content: none !important;
+}
+
+.landing-modal-close span {
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.7rem;
+  font-weight: 400;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+.landing-modal-close:hover {
+  border-color: rgba(21, 94, 232, 0.48) !important;
+  background: #ffffff !important;
+  box-shadow: 0 16px 34px rgba(6, 25, 66, 0.24);
+  transform: translateY(-2px);
+}
+
+.landing-modal-close:active {
+  transform: translateY(0);
+}
+
+.landing-modal-close:focus-visible {
+  outline: 3px solid rgba(47, 125, 246, 0.28);
+  outline-offset: 3px;
+}
+
+@media (max-width: 840px) {
+  .landing-workflow-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing-service-film-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-contact-panel {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .landing-contact-panel .landing-button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .landing-page main > :is(
+    .landing-platform,
+    .landing-workflow,
+    .landing-pricing,
+    .landing-examples,
+    .landing-service-film,
+    .landing-faq,
+    .landing-contact
+  ) {
+    min-height: auto;
+    padding: 28px 14px !important;
+  }
+
+  .landing-section-panel,
+  .landing-contact-panel {
+    border-radius: 14px;
+    padding: 22px 16px;
+  }
+
+  .landing-workflow-panel {
+    padding: 22px 16px;
+  }
+
+  .landing-workflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-workflow-step {
+    min-height: 0;
+  }
+
+  .landing-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+  }
+}

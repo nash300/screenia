@@ -22,7 +22,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.85,
       images: [
-        `${siteUrl}/brand/how-it-works-sv-banner.png`,
         `${siteUrl}/landing/hero-slides/02/image.png`,
       ],
     },

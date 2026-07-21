@@ -937,13 +937,22 @@ export default function Home() {
         </LandingSection>
 
         <section id="workflow" className="landing-section landing-workflow">
-          <Image
-            className="landing-workflow-banner"
-            src="/brand/how-it-works-sv-banner.png"
-            alt="Screenia process: välj paket, slutför uppsättning, få hårdvara, anslut och begär uppdateringar"
-            width={1983}
-            height={793}
-          />
+          <div className="landing-section-panel landing-workflow-panel">
+            <div className="landing-workflow-heading">
+              <h2>{t.workflowTitle}</h2>
+              <p>{t.workflowText}</p>
+            </div>
+            <div className="landing-workflow-grid">
+              {t.steps.map(([number, title, text, note]) => (
+                <article key={number} className="landing-workflow-step">
+                  <span>{number}</span>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                  <small>{note}</small>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
         <LandingSection
@@ -1167,26 +1176,28 @@ export default function Home() {
         </LandingSection>
 
         <section className="landing-section landing-service-film" aria-label="Screenia servicefilm">
-          <div className="landing-service-film-copy">
-            <p className="landing-eyebrow">20 sekunder</p>
-            <h2>Från idé till levande skärm, utan tekniskt krångel.</h2>
-            <p>
-              En snabb överblick över hur Screenia hjälper svenska företag att
-              välja paket, skicka material, få hårdvara och hålla skärmen
-              uppdaterad över tid.
-            </p>
-          </div>
-          <div className="landing-film-stage" role="img" aria-label="Animerad film om Screenias arbetsflöde">
-            <div className="landing-film-screen">
-              <Image
-                src="/brand/screenia-pricing-devices.png"
-                alt="Screenia digital signage devices"
-                width={1400}
-                height={900}
-                priority={false}
-              />
+          <div className="landing-section-panel landing-service-film-panel">
+            <div className="landing-service-film-copy">
+              <p className="landing-eyebrow">20 sekunder</p>
+              <h2>Från idé till levande skärm, utan tekniskt krångel.</h2>
+              <p>
+                En snabb överblick över hur Screenia hjälper svenska företag att
+                välja paket, skicka material, få hårdvara och hålla skärmen
+                uppdaterad över tid.
+              </p>
             </div>
-            <div className="landing-film-progress" aria-hidden="true" />
+            <div className="landing-film-stage" role="img" aria-label="Animerad film om Screenias arbetsflöde">
+              <div className="landing-film-screen">
+                <Image
+                  src="/brand/screenia-pricing-devices.png"
+                  alt="Screenia digital signage devices"
+                  width={1400}
+                  height={900}
+                  priority={false}
+                />
+              </div>
+              <div className="landing-film-progress" aria-hidden="true" />
+            </div>
           </div>
         </section>
 
@@ -1204,14 +1215,16 @@ export default function Home() {
         </LandingSection>
 
         <section id="contact" className="landing-contact">
-          <div>
-            <p className="landing-eyebrow">{t.contactEyebrow}</p>
-            <h2>{t.contactTitle}</h2>
-            <p>{t.contactText}</p>
+          <div className="landing-contact-panel">
+            <div>
+              <p className="landing-eyebrow">{t.contactEyebrow}</p>
+              <h2>{t.contactTitle}</h2>
+              <p>{t.contactText}</p>
+            </div>
+            <Link href="/kontakt" className="landing-button landing-button-primary">
+              {t.contactButton}
+            </Link>
           </div>
-          <Link href="/kontakt" className="landing-button landing-button-primary">
-            {t.contactButton}
-          </Link>
         </section>
       </main>
 
@@ -1251,8 +1264,14 @@ export default function Home() {
       {requestOpen && selectedScreenCount > 0 && (
         <div className="landing-modal-backdrop" role="presentation">
           <section className="landing-modal" role="dialog" aria-modal="true" aria-labelledby="landing-request-title">
-            <button type="button" onClick={closePlanRequest} className="landing-modal-close" aria-label={t.close}>
-              {t.close}
+            <button
+              type="button"
+              onClick={closePlanRequest}
+              className="landing-modal-close"
+              aria-label={t.close}
+              title={t.close}
+            >
+              <span aria-hidden="true">×</span>
             </button>
             <p className="landing-eyebrow">{t.modalEyebrow}</p>
             <h2 id="landing-request-title">
@@ -1330,8 +1349,10 @@ function LandingSection({
 }) {
   return (
     <section id={id} className={`landing-section landing-${id}`}>
-      <SectionHeading title={title} text={text} />
-      {children}
+      <div className="landing-section-panel">
+        <SectionHeading title={title} text={text} />
+        {children}
+      </div>
     </section>
   );
 }

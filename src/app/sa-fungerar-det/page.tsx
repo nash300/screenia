@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/how-it-works-sv-banner.png",
+        url: "/landing/hero-slides/02/image.png",
         width: 1200,
         height: 630,
         alt: "Screenia digital skyltning för lokala företag",
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     title: "Så fungerar digital skyltning för företag | Screenia",
     description:
       "Guide till digital skyltning för lokala företag i Sverige: paket, material, betalning, leverans och löpande uppdateringar.",
-    images: ["/brand/how-it-works-sv-banner.png"],
+    images: ["/landing/hero-slides/02/image.png"],
   },
 };
 
