@@ -7082,6 +7082,191 @@
   }
 }
 
+/* Keep the four customer promises visible as a dedicated hero value strip. */
+.landing-hero-benefits {
+  position: absolute;
+  right: auto;
+  bottom: clamp(24px, 3.5svh, 40px);
+  left: 50%;
+  z-index: 3;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(8px, 1vw, 14px);
+  width: min(1120px, calc(100% - max(44px, 10vw)));
+  margin: 0;
+  transform: translateX(-50%);
+}
+
+.landing-hero-benefit {
+  min-height: 70px;
+  grid-template-columns: 32px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border-color: rgba(191, 219, 254, 0.34);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, rgba(30, 93, 190, 0.48), rgba(4, 16, 42, 0.52)),
+    rgba(4, 16, 42, 0.58);
+  padding: 11px 14px;
+  box-shadow:
+    0 18px 42px rgba(2, 12, 32, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(18px) saturate(135%);
+}
+
+.landing-hero-benefit::before {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  left: 16px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, #63dcff, #4b8dff, transparent);
+  content: "";
+  opacity: 0.48;
+  animation: benefit-accent-pulse 6.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.landing-hero-benefit::after {
+  animation-duration: 7.2s;
+}
+
+.landing-hero-benefit:nth-child(2)::before,
+.landing-hero-benefit:nth-child(2)::after,
+.landing-hero-benefit:nth-child(2) .landing-hero-benefit-icon {
+  animation-delay: 0.9s;
+}
+
+.landing-hero-benefit:nth-child(3)::before,
+.landing-hero-benefit:nth-child(3)::after,
+.landing-hero-benefit:nth-child(3) .landing-hero-benefit-icon {
+  animation-delay: 1.8s;
+}
+
+.landing-hero-benefit:nth-child(4)::before,
+.landing-hero-benefit:nth-child(4)::after,
+.landing-hero-benefit:nth-child(4) .landing-hero-benefit-icon {
+  animation-delay: 2.7s;
+}
+
+.landing-hero-benefit-icon {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(145deg, #42c8ff, #246ff0 68%);
+  box-shadow:
+    0 10px 24px rgba(32, 126, 255, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  animation: benefit-icon-attention 6.4s ease-in-out infinite;
+}
+
+.landing-hero-benefit strong {
+  font-size: 0.82rem;
+  line-height: 1.25;
+}
+
+.landing-hero-benefit small {
+  margin-top: 3px;
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+
+.landing-hero-controls {
+  bottom: clamp(112px, 13.5svh, 146px);
+}
+
+@keyframes benefit-accent-pulse {
+  0%,
+  64%,
+  100% {
+    opacity: 0.38;
+    transform: scaleX(0.72);
+  }
+
+  76% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes benefit-icon-attention {
+  0%,
+  64%,
+  100% {
+    box-shadow:
+      0 10px 24px rgba(32, 126, 255, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    transform: scale(1);
+  }
+
+  76% {
+    box-shadow:
+      0 12px 30px rgba(66, 200, 255, 0.62),
+      0 0 0 5px rgba(66, 200, 255, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.52);
+    transform: scale(1.1);
+  }
+
+  84% {
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 900px) {
+  .landing-hero-benefits {
+    width: calc(100% - 36px);
+  }
+
+  .landing-hero-benefit {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .landing-hero {
+    padding-bottom: 216px;
+  }
+
+  .landing-hero-benefits {
+    bottom: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: calc(100% - 36px);
+  }
+
+  .landing-hero-benefit {
+    min-height: 66px;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .landing-hero-benefit-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .landing-hero-benefit strong {
+    font-size: 0.7rem;
+  }
+
+  .landing-hero-benefit small {
+    font-size: 0.62rem;
+  }
+
+  .landing-hero-controls {
+    right: 18px;
+    bottom: 166px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-benefit::before,
+  .landing-hero-benefit-icon {
+    animation: none;
+  }
+}
+
 .landing-examples {
   overflow: hidden;
   background:

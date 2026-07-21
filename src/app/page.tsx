@@ -832,28 +832,28 @@ export default function Home() {
               </div>
               <p className="landing-seo-copy">{t.seoIntro}</p>
             </div>
-            <div
-              key={`hero-benefits-${heroSlideMotionKey}`}
-              className={`landing-hero-benefits ${heroSlideMotionClass}`}
-              aria-label="Screenia benefits"
-            >
-              {heroBenefits.map(([title, text, highlight]) => (
-                <div key={title} className="landing-hero-benefit">
-                  <span className="landing-hero-benefit-icon" aria-hidden="true" />
-                  <span>
-                    <strong>{title}</strong>
-                    {highlight ? (
-                      <small>
-                        <span className="landing-benefit-old">{text}</span>
-                        <span className="landing-benefit-new">{highlight}</span>
-                      </small>
-                    ) : (
-                      <small>{text}</small>
-                    )}
-                  </span>
-                </div>
-              ))}
-            </div>
+          </div>
+          <div
+            key={`hero-benefits-${heroSlideMotionKey}`}
+            className={`landing-hero-benefits ${heroSlideMotionClass}`}
+            aria-label="Screenia benefits"
+          >
+            {heroBenefits.map(([title, text, highlight]) => (
+              <div key={title} className="landing-hero-benefit">
+                <span className="landing-hero-benefit-icon" aria-hidden="true" />
+                <span>
+                  <strong>{title}</strong>
+                  {highlight ? (
+                    <small>
+                      <span className="landing-benefit-old">{text}</span>
+                      <span className="landing-benefit-new">{highlight}</span>
+                    </small>
+                  ) : (
+                    <small>{text}</small>
+                  )}
+                </span>
+              </div>
+            ))}
           </div>
           {heroSlideCount > 1 && (
             <div className="landing-hero-controls" aria-label="Bildspel">
