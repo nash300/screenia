@@ -800,8 +800,7 @@
   min-height: 0;
 }
 
-.landing-hero-copy-main.landing-hero-slide-motion > *,
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit {
+.landing-hero-copy-main.landing-hero-slide-motion > * {
   animation-duration: 920ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
@@ -830,22 +829,6 @@
 
 .landing-hero-copy-main.landing-hero-slide-motion > :nth-child(5) {
   animation-delay: 260ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(1) {
-  animation-delay: 210ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(2) {
-  animation-delay: 270ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(3) {
-  animation-delay: 330ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(4) {
-  animation-delay: 390ms;
 }
 
 .landing-hero-slide-motion-next-0 > *,
@@ -967,52 +950,6 @@
   transform: translateX(-120%);
   animation: benefit-sheen 8s ease-in-out infinite;
   pointer-events: none;
-}
-
-.landing-hero-benefit:nth-child(2) {
-  animation-delay: 0.45s;
-}
-
-.landing-hero-benefit:nth-child(3) {
-  animation-delay: 0.9s;
-}
-
-.landing-hero-benefit:nth-child(4) {
-  animation-delay: 1.35s;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion-next-0 > .landing-hero-benefit,
-.landing-hero-benefits.landing-hero-slide-motion-next-1 > .landing-hero-benefit,
-.landing-hero-benefits.landing-hero-slide-motion-next-2 > .landing-hero-benefit {
-  animation-name: hero-card-in-next;
-  animation-duration: 860ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  animation-fill-mode: both;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion-previous-0 > .landing-hero-benefit,
-.landing-hero-benefits.landing-hero-slide-motion-previous-1 > .landing-hero-benefit,
-.landing-hero-benefits.landing-hero-slide-motion-previous-2 > .landing-hero-benefit {
-  animation-name: hero-card-in-previous;
-  animation-duration: 860ms;
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
-  animation-fill-mode: both;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(1) {
-  animation-delay: 210ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(2) {
-  animation-delay: 270ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(3) {
-  animation-delay: 330ms;
-}
-
-.landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit:nth-child(4) {
-  animation-delay: 390ms;
 }
 
 .landing-hero-benefit-icon {
@@ -1180,44 +1117,6 @@
   }
 }
 
-@keyframes hero-card-in-next {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: translateX(22px) translateY(18px) scale(0.96);
-  }
-
-  62% {
-    opacity: 1;
-    transform: translateX(0) translateY(-2px) scale(1.01);
-  }
-
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateX(0) translateY(0) scale(1);
-  }
-}
-
-@keyframes hero-card-in-previous {
-  from {
-    opacity: 0;
-    filter: blur(6px);
-    transform: translateX(-22px) translateY(18px) scale(0.96);
-  }
-
-  62% {
-    opacity: 1;
-    transform: translateX(0) translateY(-2px) scale(1.01);
-  }
-
-  to {
-    opacity: 1;
-    filter: blur(0);
-    transform: translateX(0) translateY(0) scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .landing-hero-benefit::after {
     animation: none;
@@ -1227,8 +1126,7 @@
     animation-duration: 44s;
   }
 
-  .landing-hero-copy-main.landing-hero-slide-motion > *,
-  .landing-hero-benefits.landing-hero-slide-motion > .landing-hero-benefit {
+  .landing-hero-copy-main.landing-hero-slide-motion > * {
     animation-duration: 760ms;
     filter: none;
   }
@@ -7093,11 +6991,12 @@
   gap: clamp(8px, 1vw, 14px);
   width: min(1120px, calc(100% - max(44px, 10vw)));
   margin: 0;
+  perspective: 1200px;
   transform: translateX(-50%);
 }
 
 .landing-hero-benefit {
-  min-height: 70px;
+  min-height: 80px;
   grid-template-columns: 32px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
@@ -7111,6 +7010,22 @@
     0 18px 42px rgba(2, 12, 32, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(18px) saturate(135%);
+  transform-origin: center bottom;
+  transform-style: preserve-3d;
+  animation: hero-benefit-card-pack 12s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform, box-shadow, border-color;
+}
+
+.landing-hero-benefit:nth-child(2) {
+  animation-delay: -9s;
+}
+
+.landing-hero-benefit:nth-child(3) {
+  animation-delay: -6s;
+}
+
+.landing-hero-benefit:nth-child(4) {
+  animation-delay: -3s;
 }
 
 .landing-hero-benefit::before {
@@ -7160,18 +7075,48 @@
 }
 
 .landing-hero-benefit strong {
-  font-size: 0.82rem;
+  font-size: 0.96rem;
   line-height: 1.25;
 }
 
 .landing-hero-benefit small {
-  margin-top: 3px;
-  font-size: 0.7rem;
+  margin-top: 4px;
+  font-size: 0.78rem;
   line-height: 1.35;
 }
 
 .landing-hero-controls {
-  bottom: clamp(112px, 13.5svh, 146px);
+  bottom: clamp(122px, 14.5svh, 156px);
+}
+
+@keyframes hero-benefit-card-pack {
+  0%,
+  14%,
+  100% {
+    border-color: rgba(191, 219, 254, 0.34);
+    box-shadow:
+      0 18px 42px rgba(2, 12, 32, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    transform: translateY(0) rotateY(0) scale(1);
+  }
+
+  3% {
+    border-color: rgba(99, 220, 255, 0.72);
+    box-shadow:
+      0 25px 54px rgba(2, 12, 32, 0.38),
+      0 0 0 1px rgba(99, 220, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    transform: translateY(-7px) rotateY(-7deg) scale(1.025);
+  }
+
+  6% {
+    transform: translateY(-7px) rotateY(6deg) scale(1.025);
+  }
+
+  9% {
+    border-color: rgba(99, 220, 255, 0.5);
+    transform: translateY(-3px) rotateY(-2deg) scale(1.012);
+  }
 }
 
 @keyframes benefit-accent-pulse {
@@ -7224,7 +7169,7 @@
 
 @media (max-width: 760px) {
   .landing-hero {
-    padding-bottom: 216px;
+    padding-bottom: 228px;
   }
 
   .landing-hero-benefits {
@@ -7235,32 +7180,33 @@
   }
 
   .landing-hero-benefit {
-    min-height: 66px;
-    grid-template-columns: 24px minmax(0, 1fr);
+    min-height: 74px;
+    grid-template-columns: 26px minmax(0, 1fr);
     gap: 8px;
     padding: 9px 10px;
   }
 
   .landing-hero-benefit-icon {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
   }
 
   .landing-hero-benefit strong {
-    font-size: 0.7rem;
+    font-size: 0.78rem;
   }
 
   .landing-hero-benefit small {
-    font-size: 0.62rem;
+    font-size: 0.68rem;
   }
 
   .landing-hero-controls {
     right: 18px;
-    bottom: 166px;
+    bottom: 208px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .landing-hero-benefit,
   .landing-hero-benefit::before,
   .landing-hero-benefit-icon {
     animation: none;

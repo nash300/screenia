@@ -834,8 +834,7 @@ export default function Home() {
             </div>
           </div>
           <div
-            key={`hero-benefits-${heroSlideMotionKey}`}
-            className={`landing-hero-benefits ${heroSlideMotionClass}`}
+            className="landing-hero-benefits"
             aria-label="Screenia benefits"
           >
             {heroBenefits.map(([title, text, highlight]) => (
