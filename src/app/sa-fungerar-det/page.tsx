@@ -52,17 +52,17 @@ export const metadata: Metadata = {
 
 const reasons = [
   ["01", "Byggt för småföretag", "En enkel helhetslösning för restauranger, salonger, butiker och andra lokala verksamheter.", "/window_screen2.jpg"],
-  ["02", "Ingen tekniker behövs", "Vi förbereder flödet och enheten. Du behöver varken installera ett avancerat system eller lära dig ny teknik.", "/landing/hero-slides/02/image.png"],
+  ["02", "Ingen tekniker behövs", "Screenia förbereder flödet och enheten. Installation av avancerade system eller utbildning i ny teknik behövs inte.", "/landing/hero-slides/02/image.png"],
   ["03", "Professionellt uttryck", "Genomtänkt skärminnehåll ger lokalen ett modernare och mer förtroendeingivande uttryck.", "/salon1.jpg"],
   ["04", "Snabbare start", "Ett tydligt steg-för-steg-flöde gör att verksamheten kan komma igång utan långa installationsprojekt.", "/window_screen1.jpg"],
-  ["05", "Tydliga kostnader", "Paket, provperiod, startavgift och löpande pris presenteras innan du godkänner och betalar.", "/landing/hero-slides/01/image.png"],
+  ["05", "Tydliga kostnader", "Paket, provperiod, startavgift och löpande pris presenteras före godkännande och betalning.", "/landing/hero-slides/01/image.png"],
   ["06", "Mer synliga erbjudanden", "Kampanjer, menyer och aktuella priser får en tydlig plats där kunderna faktiskt ser dem.", "/bbr.jpg"],
   ["07", "Bättre läsbarhet", "Välj Full HD för enklare innehåll eller 4K när menyer, text och detaljer ska vara extra skarpa.", "/landing/hero-slides/03/image.png"],
   ["08", "Uppdateringar vid behov", "Skicka nya bilder, priser och kampanjer via kundportalen när verksamhetens innehåll förändras.", "/salon2.jpg"],
   ["09", "Trygg betalning", "Uppgifter, villkor och betalning hanteras i ett sammanhållet flöde med tydlig bekräftelse.", "/m.jpg"],
-  ["10", "Enhet förberedd av oss", "Screenia förbereder skärmenheten så att du kan fokusera på verksamheten i stället för tekniken.", "/brand/screenia-helper.png"],
+  ["10", "Enhet förberedd av oss", "Screenia förbereder skärmenheten så att verksamheten kan fokusera på sitt innehåll i stället för tekniken.", "/brand/screenia-helper.png"],
   ["11", "Skalbart över tid", "Lägg till fler skärmar eller platser när behovet växer, utan att byta arbetssätt.", "/salon3.jpg"],
-  ["12", "Personlig hjälp", "Du får rådgivning och support kring innehåll, skärmvisning och löpande uppdateringar.", "/salon4.jpg"],
+  ["12", "Personlig hjälp", "Personlig rådgivning och support ingår för innehåll, skärmvisning och löpande uppdateringar.", "/salon4.jpg"],
 ] as const;
 
 export default function HowItWorksPage() {
@@ -118,8 +118,8 @@ export default function HowItWorksPage() {
           <h1>Mer synlighet för företaget, utan mer tekniskt arbete.</h1>
           <p>
             Screenia samlar uppstart, betalning, innehåll och support i ett
-            tydligt flöde. Du får en professionell skärmlösning utan att bygga
-            ett eget tekniskt system.
+            tydligt flöde. Resultatet är en professionell skärmlösning utan
+            behov av ett eget tekniskt system.
           </p>
         </section>
 

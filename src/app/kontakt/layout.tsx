@@ -4,7 +4,7 @@ import "../landing.css";
 export const metadata: Metadata = {
   title: "Kontakta oss",
   description:
-    "Kontakta Screenia om digital skyltning, paket, skärminnehåll eller support. Du får ett ärendenummer och svar via e-post.",
+    "Kontakta Screenia om digital skyltning, paket, skärminnehåll eller support. Varje ärende får ett ärendenummer och besvaras via e-post.",
   alternates: { canonical: "/kontakt" },
 };
 

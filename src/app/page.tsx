@@ -29,7 +29,7 @@ const copy = {
     hero:
       "Professionellt skärminnehåll, hanterat från en tydlig plattform.",
     lede:
-      "Screenia hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Du väljer antal Full HD- och 4K-skärmar, skickar in dina uppgifter och får hjälp att komma igång utan tekniskt krångel.",
+      "Screenia hjälper salonger, butiker och serviceföretag att visa kampanjer, prislistor och information på skärm. Full HD- och 4K-enheter kan kombineras efter verksamhetens behov, med stöd genom hela uppstarten.",
     pricingCta: "Se paket",
     workflowCta: "Se fördelarna",
     stats: [
@@ -39,22 +39,22 @@ const copy = {
     ],
     platformTitle: "En enklare väg till professionell skärmvisning",
     platformText:
-      "Du behöver inte bygga ett eget system eller hantera tekniska inställningar. Screenia hjälper dig från första förfrågan till en skärm som visar rätt innehåll i din verksamhet.",
+      "Ett eget tekniskt system eller komplicerade inställningar behövs inte. Screenia hanterar processen från första förfrågan till en skärm med rätt innehåll för verksamheten.",
     features: [
-      ["Smidig start", "Du väljer paket och får en personlig startguide där allt fortsätter på ett tydligt sätt."],
-      ["Tydlig kostnad", "Du ser startavgift, enhetspris, månadskostnad, provperiod och bindningstid innan du går vidare."],
+      ["Smidig start", "Vald skärmlösning följs av en personlig startguide med tydliga nästa steg."],
+      ["Tydlig kostnad", "Startavgift, enhetspris, månadskostnad, provperiod och bindningstid redovisas innan beställningen slutförs."],
       ["Hjälp med skärmen", "Efter betalning samlar vi in material, gör layouten och skickar enheten med instruktioner."],
-      ["Innehåll som syns", "Du kan visa erbjudanden, prislistor, nyheter eller annan information som passar din lokal."],
+      ["Innehåll som syns", "Lösningen kan visa erbjudanden, prislistor, nyheter och annan information som passar lokalen."],
     ],
     workflowTitle: "Från paketval till fungerande skärm",
     workflowText:
-      "Startguiden är den säkra sidan där du bekräftar uppgifter och betalar. Material samlas in först efter betalning så att förfrågan går snabbt.",
+      "Startguiden är en säker sida för bekräftelse av uppgifter, villkor och betalning. Material samlas in efter betalningen för att hålla den inledande förfrågan enkel.",
     steps: [
-      ["01", "Välj skärmar", "Välj antal Full HD- och 4K-skärmar. Du kan kombinera båda typerna i samma förfrågan.", "Det är inte en beställning ännu. Vi använder uppgifterna för att skapa din personliga startguide."],
-      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftar du uppgifter, godkänner villkor och går vidare till betalning.", "Du behöver inte förbereda logotyp, meny eller bilder innan betalning."],
-      ["03", "Skicka innehåll efter betalning", "Efter betalning väljer du om du vill ladda upp material, använda Screenia-mall eller skicka innehåll senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner räcker fint."],
-      ["04", "Vi bygger layouten", "Screenia skapar första skärmförslaget, förbereder hårdvaran och skickar enheten när allt är klart.", "Du kan följa status i kundportalen."],
-      ["05", "Koppla in och starta", "När enheten kommer kopplar du den till TV och Wi-Fi enligt instruktionerna vi skickar med.", "Sedan börjar skärmen visa ditt innehåll."],
+      ["01", "Välj skärmar", "Ange önskat antal Full HD- och 4K-skärmar. Båda typerna kan kombineras i samma förfrågan.", "Förfrågan är inte en bindande beställning. Uppgifterna används för att skapa en personlig startguide."],
+      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftas företagsuppgifter och villkor innan betalningen genomförs.", "Logotyp, meny och bilder behöver inte förberedas före betalningen."],
+      ["03", "Skicka innehåll efter betalning", "Efter betalningen kan material laddas upp, en Screenia-mall väljas eller innehållet skickas senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner är tillräckligt som underlag."],
+      ["04", "Vi bygger layouten", "Screenia tar fram det första skärmförslaget, förbereder hårdvaran och skickar enheten när arbetet är klart.", "Aktuell status visas i kundportalen."],
+      ["05", "Koppla in och starta", "Vid leverans ansluts enheten till TV och Wi-Fi enligt medföljande instruktioner.", "Därefter börjar skärmen visa det färdigställda innehållet."],
     ],
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
@@ -66,7 +66,7 @@ const copy = {
     choose: "Välj",
     trustTitle: "Betalning och uppgifter hanteras säkert",
     trustText:
-      "Betalningen sker via en säker betalningssida med kort, Klarna och andra betalningssätt som är aktiverade för din betalning.",
+      "Betalningen genomförs på en säker betalningssida med de betalningssätt som är aktiverade för beställningen.",
     deliveryTitle: "Leveransalternativ i Sverige",
     deliveryText:
       "Vi kan skicka skärmenheten med etablerade transportörer i Sverige och väljer alternativ efter adress, paketstorlek och ledtid.",
@@ -79,45 +79,45 @@ const copy = {
       ["Salong och service", "Priser, behandlingar och aktuell information."],
       ["Produktvisning", "Tydliga bilder och budskap för butiksmiljöer."],
     ],
-    faqTitle: "Svar innan du väljer paket",
+    faqTitle: "Svar inför val av skärmlösning",
     faqs: [
-      ["Vad händer efter att jag valt skärmar", "Du skickar en kort förfrågan med önskad kombination. När Screenia har granskat den får du en personlig startguide där du bekräftar uppgifter och betalar."],
-      ["Vilket material behöver jag skicka", "Inget material behövs före betalning. Efter betalning kan du ladda upp meny, prislista, logotyp, bilder eller välja en Screenia-mall."],
-      ["Hur snabbt kan jag komma igång", "Efter betalning samlar vi in innehåll, skapar första layouten, förbereder hårdvaran och skickar enheten när den är klar."],
-      ["Behöver jag köpa en särskild TV", "Du behöver en Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi."],
-      ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
-      ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till Screenia så hjälper vi dig att uppdatera skärmen."],
-      ["Hur skickas enheten", "Vi väljer ett lämpligt leveranssätt utifrån adress, paketstorlek och ledtid. Du får tydliga instruktioner när enheten skickas."],
+      ["Vad händer efter valet av skärmar?", "En kort förfrågan skickas med önskad kombination. Efter Screenias granskning skickas en personlig startguide för bekräftelse av uppgifter, villkor och betalning."],
+      ["Vilket material behövs?", "Inget material behövs före betalningen. Därefter kan meny, prislista, logotyp och bilder laddas upp eller en Screenia-mall väljas."],
+      ["Hur lång är uppstartstiden?", "Efter betalningen samlas innehållet in. Screenia tar därefter fram den första layouten, förbereder hårdvaran och skickar enheten när arbetet är klart."],
+      ["Vilken TV eller skärm krävs?", "En Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi krävs."],
+      ["Kan kampanjer och priser visas samtidigt?", "Ja. En layout kan innehålla prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
+      ["Kan innehållet ändras senare?", "Ja. Nytt material och uppdaterade priser kan skickas till Screenia för publicering på skärmen."],
+      ["Hur levereras enheten?", "Lämpligt leveranssätt väljs utifrån adress, paketstorlek och ledtid. Leveransinformation och instruktioner skickas när enheten lämnar Screenia."],
       ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr (upp till 3 skärmar). I avgiften ingår personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen. Från den fjärde skärmen tillkommer 249 kr per skärm. Avgiften återbetalas inte efter att layout- eller produktionsarbetet har påbörjats."],
     ],
     companyTitle: "Företagsinformation",
     companyText:
       "Screenia hanterar kunduppgifter, betalning och leverans enligt våra villkor och vår integritetspolicy.",
     contactEyebrow: "Redo att komma igång",
-    contactTitle: "Starta din nästa skärm med ett enklare arbetsflöde.",
+    contactTitle: "Ett enklare arbetsflöde för nästa skärmlösning.",
     contactText:
-      "Berätta hur många Full HD- och 4K-skärmar du vill hantera och vilket innehåll du vill visa. Vi kontrollerar kombinationen innan du betalar.",
+      "Ange önskat antal Full HD- och 4K-skärmar samt planerat innehåll. Screenia kontrollerar kombinationen innan betalning kan genomföras.",
     contactButton: "Kontakta Screenia",
     seoIntro:
       "Screenia erbjuder digital skyltning i Sverige för salonger, butiker, restauranger och lokala serviceföretag som vill visa menyer, prislistor, kampanjer och kundinformation på TV-skärm.",
     modalEyebrow: "Skicka förfrågan",
     modalTitle: "Starta med",
     modalText:
-      "Skicka företagets uppgifter så kontaktar Screenia dig med en personlig startguide för uppgifter, villkor och betalning.",
+      "Efter att företagets uppgifter har skickats återkommer Screenia med en personlig startguide för uppgifter, villkor och betalning.",
     close: "Stäng",
     fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
     screenCountLabel: "Antal skärmar *",
-    screenCountHelp: "Välj hur många skärmar eller enheter du vill beställa.",
-    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Ditt namn", "+46...", "Plats, bransch eller annat vi bör känna till."],
+    screenCountHelp: "Ange önskat antal skärmar eller enheter.",
+    placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Kontaktpersonens namn", "+46...", "Plats, bransch eller annan relevant information."],
     requestPrivacy:
-      "Vi använder uppgifterna för att hantera din förfrågan och skapa en personlig startguide. Skicka inte känsliga personuppgifter i meddelandet.",
+      "Uppgifterna används för att hantera förfrågan och skapa en personlig startguide. Känsliga personuppgifter ska inte anges i meddelandet.",
     requestPrivacyConsent:
       "Jag har läst integritetspolicyn och förstår att Screenia sparar uppgifterna för att hantera min förfrågan.",
     sending: "Skickar förfrågan...",
     submit: "Skicka förfrågan",
     success:
-      "Tack. Din förfrågan är mottagen och Screenia återkommer med en personlig startguide.",
-    error: "Det gick inte att skicka din förfrågan.",
+      "Tack. Förfrågan är mottagen och Screenia återkommer med en personlig startguide.",
+    error: "Förfrågan kunde inte skickas.",
     legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
   },
   en: {
@@ -126,27 +126,28 @@ const copy = {
     eyebrow: "Digital signage for businesses",
     hero: "Professional screen content, managed from one clear platform.",
     lede:
-      "Screenia helps salons, shops, and service businesses show campaigns, price lists, and information on screens. Choose any mix of Full HD and 4K screens, send your details, and get help launching without technical hassle.",
+      "Screenia helps salons, shops, and service businesses present campaigns, price lists, and information on screen. Full HD and 4K devices can be combined according to operational needs, with support throughout the setup process.",
     pricingCta: "See packages",
     workflowCta: "How it works",
     stats: [["24/7", "continuous screen playback"], ["3 weeks", "free subscription trial"], ["0", "months commitment"]],
     platformTitle: "A simpler path to professional screen display",
     platformText:
-      "You do not need to build your own system or manage technical settings. Screenia helps you from the first request to a screen that shows the right content in your business.",
+      "No proprietary technical system or complex configuration is required. Screenia manages the process from the initial request to a screen displaying the appropriate content for the business.",
     features: [
-      ["Smooth start", "Choose a package and receive a personal setup guide where everything continues clearly."],
-      ["Clear costs", "See setup fee, device price, monthly price, trial period, and commitment before you continue."],
-      ["Screen support", "We build the layout from your material and send the device with instructions."],
-      ["Visible content", "Show offers, price lists, news, or information that fits your space."],
+      ["Smooth start", "The selected screen solution is followed by a personal setup guide with clear next steps."],
+      ["Clear costs", "The setup fee, device price, monthly price, trial period, and commitment are presented before the order is completed."],
+      ["Screen support", "Screenia creates the layout from the submitted material and sends the device with instructions."],
+      ["Visible content", "The solution can display offers, price lists, news, and other information suited to the premises."],
     ],
     workflowTitle: "From package choice to working screen",
     workflowText:
-      "The setup guide is the secure page where you confirm details, send material, and continue to payment. We keep the rest simple.",
+      "The setup guide provides a secure page for confirming details, accepting terms, and completing payment. Material is collected after payment to keep the initial request straightforward.",
     steps: [
-      ["01", "Choose screens", "Choose quantities of Full HD and 4K screens, including a mix of both.", "This is not an order yet. We use the details to create your personal setup guide."],
-      ["02", "Complete details and pay", "In the setup guide, confirm details, accept terms, upload material, and continue to payment.", "Menu, price list, logo, images, or short instructions are enough."],
-      ["03", "We build the layout", "After payment, we create the screen layout from your material and send the USB device within 4 working days.", "Meanwhile, you can mount or place your Smart TV."],
-      ["04", "Plug in and start", "When the device arrives, connect it to HDMI, join Wi-Fi, and follow the included instructions.", "Then the screen is ready to show your content."],
+      ["01", "Choose screens", "Specify the required quantities of Full HD and 4K screens. Both types can be combined in one request.", "The request is not a binding order. The information is used to create a personal setup guide."],
+      ["02", "Complete details and pay", "Company details and terms are confirmed in the setup guide before payment is completed.", "A logo, menu, and images do not need to be prepared before payment."],
+      ["03", "Submit content after payment", "After payment, material can be uploaded, a Screenia template selected, or content submitted later.", "A menu, price list, logo, images, or brief instructions provide sufficient material."],
+      ["04", "We build the layout", "Screenia creates the first screen proposal, prepares the hardware, and ships the device when the work is complete.", "Current progress is shown in the customer portal."],
+      ["05", "Connect and start", "On delivery, the device is connected to the TV and Wi-Fi according to the supplied instructions.", "The screen then begins displaying the completed content."],
     ],
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
@@ -158,7 +159,7 @@ const copy = {
     choose: "Choose",
     trustTitle: "Payment and details are handled securely",
     trustText:
-      "Payment happens through a secure checkout page with cards, Klarna, and other payment methods enabled for your payment.",
+      "Payment is completed through a secure checkout page using the payment methods enabled for the order.",
     deliveryTitle: "Delivery options in Sweden",
     deliveryText:
       "We can ship the screen device with established carriers in Sweden and choose the option by address, parcel size, and lead time.",
@@ -171,44 +172,44 @@ const copy = {
       ["Salon and service", "Prices, treatments, and current information."],
       ["Product display", "Clear imagery and messages for retail spaces."],
     ],
-    faqTitle: "Answers before you choose a package",
+    faqTitle: "Answers before selecting a screen solution",
     faqs: [
-      ["What happens after I choose a package", "You receive a personal setup guide where you check company details, send screen material, accept terms, and continue to payment."],
-      ["What material do I need to send", "You can upload a menu, price list, logo, images, or PDFs. You can also briefly describe what the screen should show."],
-      ["How quickly can I start", "After payment, we build the layout and post the USB device within 4 working days. Delivery time depends on the postal service."],
-      ["Do I need a special TV", "You need a Smart TV or screen with HDMI and access to Wi-Fi."],
-      ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
-      ["Can I change the content later", "Yes. Send new material or updated prices to Screenia and we help update the screen."],
-      ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
+      ["What happens after the screens are selected?", "A short request is submitted with the preferred combination. After Screenia reviews it, a personal setup guide is sent for confirmation of details, terms, and payment."],
+      ["What material is required?", "No material is required before payment. A menu, price list, logo, and images can then be uploaded, or a Screenia template can be selected."],
+      ["How long does setup take?", "After payment, the content is collected. Screenia then creates the first layout, prepares the hardware, and ships the device when the work is complete."],
+      ["What type of TV or screen is required?", "A Smart TV or screen with an HDMI input and Wi-Fi access is required."],
+      ["Can campaigns and prices be displayed together?", "Yes. A layout can include price lists, offers, opening hours, QR codes, and imagery in the same presentation."],
+      ["Can the content be changed later?", "Yes. New material and updated prices can be submitted to Screenia for publication on the screen."],
+      ["How is the device shipped?", "A suitable delivery option is selected according to the address, parcel size, and lead time. Delivery information and instructions are sent when the device leaves Screenia."],
       ["What is included in the setup fee", "The 1,599 SEK setup fee (up to 3 screens) includes personal planning support, layout creation, and agreed adjustments during the setup phase. Each additional screen adds 249 SEK."],
     ],
     companyTitle: "Company information",
     companyText:
       "Screenia handles customer details, payment, and delivery according to our terms and privacy policy.",
     contactEyebrow: "Ready to get started",
-    contactTitle: "Launch your next screen with a simpler workflow.",
+    contactTitle: "A simpler workflow for the next screen solution.",
     contactText:
-      "Tell us how many screens you want to manage and what content you want to show. We help you choose the right package.",
+      "Specify the required number of Full HD and 4K screens and the planned content. Screenia checks the combination before payment can be completed.",
     contactButton: "Contact Screenia",
     seoIntro:
       "Screenia provides digital signage in Sweden for salons, shops, restaurants, and local service businesses that want to show menus, price lists, campaigns, and customer information on TV screens.",
     modalEyebrow: "Send request",
     modalTitle: "Start with",
     modalText:
-      "Send your company details and Screenia will contact you with a personal setup guide for details, terms, and payment.",
+      "After the company details are submitted, Screenia provides a personal setup guide for information, terms, and payment.",
     close: "Close",
     fields: ["Company name *", "Email *", "Contact person", "Phone", "Message"],
     screenCountLabel: "Number of screens *",
-    screenCountHelp: "Choose how many screens or devices you want to order.",
-    placeholders: ["Example: Salon Bella", "name@company.com", "Your name", "+46...", "Location, industry, or anything else we should know."],
+    screenCountHelp: "Specify the required number of screens or devices.",
+    placeholders: ["Example: Salon Bella", "name@company.com", "Contact name", "+46...", "Location, industry, or other relevant information."],
     requestPrivacy:
-      "We use these details to handle your request and create a personal setup guide. Do not include sensitive personal data in the message.",
+      "The information is used to handle the request and create a personal setup guide. Sensitive personal data must not be included in the message.",
     requestPrivacyConsent:
       "I have read the privacy policy and understand that Screenia stores these details to handle my request.",
     sending: "Sending request...",
     submit: "Send request",
-    success: "Thanks. Your request has been received and Screenia will send your personal setup guide.",
-    error: "We could not send your request.",
+    success: "Thank you. The request has been received, and Screenia will provide a personal setup guide.",
+    error: "The request could not be sent.",
     legal: ["Terms", "Privacy", "All rights reserved."],
   },
 } as const;
@@ -944,8 +945,8 @@ export default function Home() {
         <LandingSection
           id="pricing"
           eyebrow={t.nav[2]}
-          title="Bygg din skärmlösning"
-          text="Välj fritt hur många Full HD- och 4K-skärmar du behöver. Du kan kombinera båda typerna i samma förfrågan och ser totalsumman direkt."
+          title="Bygg en skärmlösning"
+          text="Full HD- och 4K-enheter kan kombineras i samma förfrågan. Den beräknade kostnaden uppdateras utifrån vald kombination."
         >
           <div className="landing-price-grid">
             {plans.map((plan) => {
@@ -1032,7 +1033,7 @@ export default function Home() {
           <section className="landing-package-builder" aria-live="polite">
             <div className="landing-package-builder-heading">
               <div>
-                <p className="landing-eyebrow">Din kombination</p>
+                <p className="landing-eyebrow">Vald kombination</p>
                 <h3>
                   {selectedScreenCount > 0
                     ? `${selectedScreenCount} skärm${selectedScreenCount === 1 ? "" : "ar"} vald${selectedScreenCount === 1 ? "" : "a"}`
@@ -1120,7 +1121,7 @@ export default function Home() {
               </>
             ) : (
               <p className="landing-package-empty">
-                Lägg till Full HD, 4K eller en kombination för att se din kostnad.
+                Lägg till Full HD, 4K eller en kombination för att beräkna kostnaden.
               </p>
             )}
           </section>
@@ -1252,7 +1253,7 @@ export default function Home() {
             </button>
             <p className="landing-eyebrow">{t.modalEyebrow}</p>
             <h2 id="landing-request-title">
-              Din skärmlösning
+              Vald skärmlösning
             </h2>
             <p>
               {selectedQuoteItems

@@ -73,30 +73,30 @@ export function ContactForm() {
         <section className="contact-intro" aria-labelledby="contact-title">
           <div className="contact-intro-copy">
             <p className="landing-eyebrow">Kontakt</p>
-            <h1 id="contact-title">Vad vill du veta?</h1>
+            <h1 id="contact-title">Kontakta Screenia</h1>
             <p>
-              Berätta vad du funderar på så återkommer Screenia till den
-              e-postadress du anger. Du får en bekräftelse med din fråga och ett
-              ärendenummer direkt efter att formuläret skickats.
+              Beskriv frågan i formuläret. Screenia svarar till angiven
+              e-postadress. En bekräftelse med frågan och ett ärendenummer
+              skickas när formuläret har registrerats.
             </p>
 
-            <div className="contact-process" aria-label="Så hanteras din fråga">
+            <div className="contact-process" aria-label="Så hanteras frågan">
               <div>
                 <span>01</span>
-                <p><strong>Du skriver</strong><small>Frågan sparas säkert med tidpunkt.</small></p>
+                <p><strong>Frågan skickas</strong><small>Frågan sparas säkert med tidpunkt.</small></p>
               </div>
               <div>
                 <span>02</span>
-                <p><strong>Vi läser</strong><small>Admin får avisering och hela underlaget.</small></p>
+                <p><strong>Screenia granskar</strong><small>En administratör får en avisering och hela underlaget.</small></p>
               </div>
               <div>
                 <span>03</span>
-                <p><strong>Du får svar</strong><small>Vårt svar och din fråga visas i samma mejl.</small></p>
+                <p><strong>Svar skickas</strong><small>Screenias svar och den ursprungliga frågan visas i samma mejl.</small></p>
               </div>
             </div>
 
             <div className="contact-direct">
-              <span>Föredrar du vanlig e-post?</span>
+              <span>Kontakt via vanlig e-post</span>
               <a href="mailto:service@screenia.se">service@screenia.se</a>
             </div>
           </div>
@@ -108,12 +108,12 @@ export function ContactForm() {
                 <p className="landing-eyebrow">Meddelandet är mottaget</p>
                 <h2>Tack, vi återkommer via e-post.</h2>
                 <p>
-                  Ditt ärendenummer är <strong>{caseNumber}</strong>. Spara det om
-                  du behöver hänvisa till frågan senare.
+                  Ärendenumret är <strong>{caseNumber}</strong>. Numret kan användas
+                  vid fortsatt kontakt om ärendet.
                 </p>
                 <p className="contact-success-note">
                   {confirmationEmailSent
-                    ? "En bekräftelse med din ursprungliga fråga har skickats till din e-postadress."
+                    ? "En bekräftelse med den ursprungliga frågan har skickats till angiven e-postadress."
                     : "Ärendet är sparat, men bekräftelsemejlet kunde inte skickas. Screenia har fått en intern varning och följer upp manuellt."}
                 </p>
                 <div className="contact-success-actions">
@@ -133,7 +133,7 @@ export function ContactForm() {
               <form className="contact-form" onSubmit={submit} noValidate>
                 <div className="contact-form-heading">
                   <p className="landing-eyebrow">Skriv till oss</p>
-                  <h2>Hur kan vi hjälpa dig?</h2>
+                  <h2>Vad gäller ärendet?</h2>
                   <p>Fält markerade med * måste fyllas i.</p>
                 </div>
 
@@ -184,11 +184,11 @@ export function ContactForm() {
                     />
                   </label>
                   <label className="contact-form-wide">
-                    <span>Din fråga *</span>
+                    <span>Fråga *</span>
                     <textarea
                       value={message}
                       onChange={(event) => setMessage(event.target.value)}
-                      placeholder="Beskriv vad du vill ha hjälp med. Undvik känsliga personuppgifter."
+                      placeholder="Beskriv vilket stöd som efterfrågas. Känsliga personuppgifter ska inte anges."
                       minLength={10}
                       maxLength={4000}
                       rows={7}
@@ -221,7 +221,7 @@ export function ContactForm() {
                   {submitting ? "Skickar…" : "Skicka fråga"}
                 </button>
                 <p className="contact-form-footnote">
-                  Vi använder din e-post endast för att hantera detta ärende.
+                  Den angivna e-postadressen används endast för att hantera detta ärende.
                 </p>
               </form>
             )}
