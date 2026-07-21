@@ -17,7 +17,7 @@ Each admin must use an individual account. Admin password resets require at leas
 ## Billing invariants
 
 1. Catalog prices shown to customers are final prices including Swedish moms.
-2. First Stripe payment is `start fee + (device price x screen quantity) + (shipping x screen quantity)`.
+2. First Stripe payment is `start fee + (device price x screen quantity) + order shipping`. Order shipping is 99 SEK for up to three devices, then 29 SEK per additional device.
 3. The monthly package price is recurring and starts after the configured 21-day trial.
 4. Do not add 25% to customer totals that already include moms. For a 25% inclusive price, net is `gross / 1.25` and moms is `gross - net`.
 5. Plan configuration fields use whole SEK. Stripe API amounts and stored payment evidence such as `total_amount_sek` and `tax_amount_sek` use ore integers despite the historical column suffix.

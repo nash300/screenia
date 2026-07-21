@@ -17,7 +17,8 @@ export default function SubscriptionBillingPolicyPage() {
           <p>
             Angivna kundpriser inkluderar moms. Den första betalningen består av
             start- och konfigurationsavgift, priset för vald enhet per skärm samt
-            frakt per skärm. Start- och konfigurationsavgiften är 1 599 kr för
+            frakt på 99 kr för upp till tre enheter och därefter 29 kr per extra
+            enhet. Start- och konfigurationsavgiften är 1 599 kr för
             upp till tre skärmar. Från den fjärde skärmen tillkommer 249 kr per
             extra skärm. Betalningen genomförs säkert via Stripe.
           </p>

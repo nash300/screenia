@@ -10,6 +10,13 @@ import {
   additionalSetupScreenCount,
   calculateSetupFeeSek,
 } from "@/lib/pricing/setup-fee";
+import {
+  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
+  BASE_SHIPPING_FEE_SEK,
+  INCLUDED_SHIPPING_DEVICE_COUNT,
+  additionalShippingDeviceCount,
+  calculateShippingFeeSek,
+} from "@/lib/pricing/shipping-fee";
 import "./landing.css";
 
 const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
@@ -568,10 +575,9 @@ export default function Home() {
     (sum, item) => sum + item.plan.hardwareFeeSek * item.quantity,
     0,
   );
-  const selectedShippingTotal = selectedQuoteItems.reduce(
-    (sum, item) => sum + item.plan.shippingFeeSek * item.quantity,
-    0,
-  );
+  const selectedAdditionalShippingDevices =
+    additionalShippingDeviceCount(selectedScreenCount);
+  const selectedShippingTotal = calculateShippingFeeSek(selectedScreenCount);
   const selectedMonthlyTotal = selectedQuoteItems.reduce(
     (sum, item) => sum + item.plan.monthlyFeeSek * item.quantity,
     0,
@@ -941,18 +947,6 @@ export default function Home() {
           title="Bygg din skärmlösning"
           text="Välj fritt hur många Full HD- och 4K-skärmar du behöver. Du kan kombinera båda typerna i samma förfrågan och ser totalsumman direkt."
         >
-          <div className="landing-pricing-visual" aria-label="Startavgiften täcker upp till tre skärmar">
-            <div className="landing-pricing-screen-art" aria-hidden="true">
-              <span><Image src="/brand/screenia-standard-device.png" alt="" width={120} height={112} /></span>
-              <span><Image src="/brand/screenia-premium-device.png" alt="" width={120} height={112} /></span>
-              <span><Image src="/brand/screenia-icon-512-transparent.png" alt="" width={120} height={120} /></span>
-            </div>
-            <div>
-              <p className="landing-eyebrow">En smidig start</p>
-              <strong>1 599 kr täcker upp till tre skärmar</strong>
-              <p>Behöver du fler tillkommer 249 kr i startkostnad per extra skärm. Du kan fortfarande blanda Full HD och 4K fritt.</p>
-            </div>
-          </div>
           <div className="landing-price-grid">
             {plans.map((plan) => {
               const planText = planCopy.sv[plan.code];
@@ -993,15 +987,14 @@ export default function Home() {
                   </div>
                   <div className="landing-price-mini-grid">
                     <PriceRow
-                      label="Enhet + frakt, engångsvis"
-                      value={formatLandingSek(plan.hardwareFeeSek + plan.shippingFeeSek)}
+                      label="Skärmenhet, engångsvis"
+                      value={formatLandingSek(plan.hardwareFeeSek)}
                     />
                     <PriceRow label="Startavgift för upp till 3 skärmar" value={plan.setupFee} />
                   </div>
                   <div className="landing-plan-quantity">
                     <div>
                       <strong>Antal skärmar</strong>
-                      <span>Välj 0–50 av denna typ</span>
                     </div>
                     <div className="landing-quantity-stepper">
                       <button
@@ -1057,7 +1050,7 @@ export default function Home() {
                       <span>{quantity} × {plan.name} {plan.resolution}</span>
                       <strong>
                         {formatLandingSek(plan.monthlyFeeSek * quantity)}/mån
-                        <small>Enheter + frakt: {formatLandingSek((plan.hardwareFeeSek + plan.shippingFeeSek) * quantity)} engångsvis</small>
+                        <small>Skärmenheter: {formatLandingSek(plan.hardwareFeeSek * quantity)} engångsvis</small>
                       </strong>
                     </div>
                   ))}
@@ -1078,7 +1071,10 @@ export default function Home() {
                         Grundstart {formatLandingSek(plans[0].setupFeeSek)} för upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar
                         {selectedAdditionalSetupScreens > 0
                           ? ` + ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}`
-                          : ""}. Enheter {formatLandingSek(selectedHardwareTotal)} + frakt {formatLandingSek(selectedShippingTotal)}. Total startavgift {formatLandingSek(selectedSetupFee)}.
+                          : ""}. Enheter {formatLandingSek(selectedHardwareTotal)}. Frakt {formatLandingSek(BASE_SHIPPING_FEE_SEK)} för upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter
+                        {selectedAdditionalShippingDevices > 0
+                          ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
+                          : ""}, totalt {formatLandingSek(selectedShippingTotal)}. Total startavgift {formatLandingSek(selectedSetupFee)}.
                       </p>
                     </details>
                   </div>
@@ -1093,13 +1089,18 @@ export default function Home() {
               </>
             ) : (
               <p className="landing-package-empty">
-                Lägg till Full HD, 4K eller en kombination. Startavgiften 1 599 kr täcker upp till tre skärmar.
+                Lägg till Full HD, 4K eller en kombination för att se din kostnad.
               </p>
             )}
           </section>
           <div className="landing-pricing-note">
             <h3>Vilken version passar mig?</h3>
             <p>Alla priser visas inklusive svensk moms. Stripe Checkout visar momsbeloppet utan att höja totalsumman.</p>
+            <p>
+              Startavgiften är 1 599 kr för upp till tre skärmar. Därefter
+              tillkommer 249 kr per extra skärm. Frakten är 99 kr för upp till
+              tre enheter och därefter 29 kr per extra enhet.
+            </p>
             <p>
               För skärmar på 50 tum kan både Full HD och 4K fungera bra
               beroende på innehållet. Om skärmen visar mycket text, menyer
@@ -1225,7 +1226,7 @@ export default function Home() {
             <p>
               {selectedQuoteItems
                 .map(({ plan, quantity }) => `${quantity} × ${plan.name} ${plan.resolution}`)
-                .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och frakt. Startavgiften täcker upp till tre skärmar; därefter tillkommer 249 kr per extra skärm.
+              .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och frakt {formatLandingSek(selectedShippingTotal)}. Startavgiften täcker upp till tre skärmar och fraktpriset täcker upp till tre enheter.
             </p>
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <input

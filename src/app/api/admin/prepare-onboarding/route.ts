@@ -11,6 +11,12 @@ import {
   additionalSetupScreenCount,
   calculateSetupFeeSek,
 } from "@/lib/pricing/setup-fee";
+import {
+  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
+  INCLUDED_SHIPPING_DEVICE_COUNT,
+  additionalShippingDeviceCount,
+  calculateShippingFeeSek,
+} from "@/lib/pricing/shipping-fee";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
@@ -149,7 +155,7 @@ export async function POST(request: Request) {
   const { data: plan, error: planError } = await supabaseAdmin
     .from("pricing_plans")
     .select(
-      "id, code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days",
+      "id, code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, shipping_included_devices, additional_shipping_fee_sek, monthly_fee_sek, trial_days",
     )
     .eq("code", primaryPlanCode)
     .eq("is_active", true)
@@ -178,7 +184,7 @@ export async function POST(request: Request) {
   );
   const { data: quotePlans } = await supabaseAdmin
     .from("pricing_plans")
-    .select("code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days")
+    .select("code, name, resolution, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, shipping_included_devices, additional_shipping_fee_sek, monthly_fee_sek, trial_days")
     .in("code", planCodes);
   const quotePlanRows = quotePlans || [];
   const quoteItemDetails = quoteItems.map((item) => {
@@ -219,9 +225,19 @@ export async function POST(request: Request) {
     deviceDiscountMonths > 0
       ? Math.round(monthlySubtotalSek * (deviceDiscountPercent / 100))
       : 0;
-  const shippingSubtotalSek = quoteItemDetails.reduce(
-    (sum, item) => sum + item.shippingFeeSek * item.quantity,
-    0,
+  const shippingIncludedDevices =
+    plan.shipping_included_devices ?? INCLUDED_SHIPPING_DEVICE_COUNT;
+  const additionalShippingFeeSek =
+    plan.additional_shipping_fee_sek ?? ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK;
+  const additionalShippingDevices = additionalShippingDeviceCount(
+    screenQuantity,
+    shippingIncludedDevices,
+  );
+  const shippingSubtotalSek = calculateShippingFeeSek(
+    screenQuantity,
+    shippingFeeSek,
+    shippingIncludedDevices,
+    additionalShippingFeeSek,
   );
   const baseSetupFeeSek = plan.setup_fee_sek;
   const setupIncludedScreens = plan.setup_included_screens ?? INCLUDED_SETUP_SCREEN_COUNT;
@@ -267,7 +283,11 @@ export async function POST(request: Request) {
     additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
     additional_setup_screen_count: additionalSetupScreens,
     hardware_fee_sek: hardwareFeeSek,
-    shipping_fee_sek: shippingFeeSek,
+    shipping_fee_sek: shippingSubtotalSek,
+    base_shipping_fee_sek: shippingFeeSek,
+    shipping_included_devices: shippingIncludedDevices,
+    additional_shipping_fee_per_device_sek: additionalShippingFeeSek,
+    additional_shipping_device_count: additionalShippingDevices,
     monthly_fee_sek: plan.monthly_fee_sek,
     trial_days: plan.trial_days,
     tax_status: "not_calculated",
@@ -463,6 +483,7 @@ Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
 Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${setupIncludedScreens} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(additionalSetupFeeSek)} per skärm` : ""}.
 Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
 Frakt: ${formatSek(shippingSubtotalSek)} inkl. moms
+Fraktregel: ${formatSek(shippingFeeSek)} för upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} à ${formatSek(additionalShippingFeeSek)}` : ""}
 Screens/devices: ${screenQuantity}
 Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
 Månadsabonnemang: ${formatSek(monthlySubtotalSek)} inkl. moms per månad
@@ -495,6 +516,7 @@ Screenia`,
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>
             <p><strong>Frakt:</strong> ${formatSek(shippingSubtotalSek)} inkl. moms</p>
+            <p style="margin: 4px 0 0; color: #52657f;">${formatSek(shippingFeeSek)} f&ouml;r upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} &times; ${formatSek(additionalShippingFeeSek)}` : ""}.</p>
             <p><strong>Månadsabonnemang:</strong> ${formatSek(monthlySubtotalSek)} inkl. moms per månad</p>
             <p><strong>Månadsrabatt:</strong> ${
               deviceDiscountMonths > 0

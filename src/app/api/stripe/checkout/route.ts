@@ -17,6 +17,12 @@ import {
   additionalSetupScreenCount,
   calculateSetupFeeSek,
 } from "@/lib/pricing/setup-fee";
+import {
+  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
+  INCLUDED_SHIPPING_DEVICE_COUNT,
+  additionalShippingDeviceCount,
+  calculateShippingFeeSek,
+} from "@/lib/pricing/shipping-fee";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import {
   isValidSwedishRegistrationNumber,
@@ -28,7 +34,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 const stripeAutomaticTaxEnabled =
   process.env.STRIPE_AUTOMATIC_TAX_ENABLED === "true";
-const DEFAULT_SHIPPING_FEE_SEK = 99;
 type CheckoutLineItem =
   NonNullable<
     NonNullable<Parameters<typeof stripe.checkout.sessions.create>[0]>["line_items"]
@@ -497,6 +502,9 @@ export async function POST(request: Request) {
           stripe_additional_setup_price_id: null,
           hardware_fee_sek: fallbackPlan.hardwareFeeSek,
           shipping_fee_sek: fallbackPlan.shippingFeeSek,
+          shipping_included_devices: fallbackPlan.shippingIncludedDevices,
+          additional_shipping_fee_sek: fallbackPlan.additionalShippingFeeSek,
+          stripe_additional_shipping_price_id: null,
           monthly_fee_sek: fallbackPlan.monthlyFeeSek,
           trial_days: fallbackPlan.trialDays,
           currency: "sek",
@@ -522,7 +530,8 @@ export async function POST(request: Request) {
       plan.hardware_fee_sek ??
       configuredPlan?.hardwareFeeSek ??
       0;
-    const shippingFeeSek = plan.shipping_fee_sek ?? DEFAULT_SHIPPING_FEE_SEK;
+    const baseShippingFeeSek =
+      plan.shipping_fee_sek ?? configuredPlan?.shippingFeeSek ?? 99;
     const currency = plan.currency || "sek";
     const priceTaxBehavior =
       plan.tax_behavior === "exclusive"
@@ -550,7 +559,6 @@ export async function POST(request: Request) {
               pricingPlanCode: plan.code,
               quantity: screenQuantity,
               hardwareFeeSek,
-              shippingFeeSek,
               monthlyFeeSek: plan.monthly_fee_sek,
             },
           ];
@@ -565,7 +573,7 @@ export async function POST(request: Request) {
       supabaseAdmin
         .from("pricing_plans")
         .select(
-          "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
+          "code, name, resolution, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, stripe_hardware_price_id, stripe_monthly_price_id",
         )
         .in("code", quotePlanCodes),
       3000,
@@ -582,11 +590,6 @@ export async function POST(request: Request) {
         itemPlan.hardware_fee_sek ??
         configuredPlan?.hardwareFeeSek ??
         0;
-      const itemShippingFee =
-        item.shippingFeeSek ??
-        itemPlan.shipping_fee_sek ??
-        configuredPlan?.shippingFeeSek ??
-        DEFAULT_SHIPPING_FEE_SEK;
       const quantity = Math.min(50, Math.max(1, Number(item.quantity) || 1));
 
       return {
@@ -599,10 +602,8 @@ export async function POST(request: Request) {
           0,
           Math.round(itemHardwareFee * (1 - deviceDiscountPercent / 100)),
         ),
-        shippingFeeSek: itemShippingFee,
         monthlyFeeSek: item.monthlyFeeSek ?? itemPlan.monthly_fee_sek,
         stripeHardwarePriceId: itemPlan.stripe_hardware_price_id,
-        stripeShippingPriceId: itemPlan.stripe_shipping_price_id,
         stripeMonthlyPriceId: itemPlan.stripe_monthly_price_id,
       };
     });
@@ -625,15 +626,29 @@ export async function POST(request: Request) {
       setupIncludedScreens,
       additionalSetupFeeSek,
     );
+    const shippingIncludedDevices =
+      plan.shipping_included_devices ?? INCLUDED_SHIPPING_DEVICE_COUNT;
+    const additionalShippingFeeSek =
+      plan.additional_shipping_fee_sek ?? ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK;
+    const additionalShippingDevices = additionalShippingDeviceCount(
+      checkoutScreenQuantity,
+      shippingIncludedDevices,
+    );
+    const shippingFeeSek = calculateShippingFeeSek(
+      checkoutScreenQuantity,
+      baseShippingFeeSek,
+      shippingIncludedDevices,
+      additionalShippingFeeSek,
+    );
     const expectedInitialPaymentSek =
       setupFeeSek +
       checkoutQuoteItems.reduce(
         (sum, item) =>
           sum +
-          item.discountedHardwareFeeSek * item.quantity +
-          item.shippingFeeSek * item.quantity,
+          item.discountedHardwareFeeSek * item.quantity,
         0,
-      );
+      ) +
+      shippingFeeSek;
     const expectedInitialVatOre = toOre(
       includedVatFromGross(expectedInitialPaymentSek).vat,
     );
@@ -650,6 +665,10 @@ export async function POST(request: Request) {
         additional_setup_screen_count: additionalSetupScreens,
         hardware_fee_sek: hardwareFeeSek,
         shipping_fee_sek: shippingFeeSek,
+        base_shipping_fee_sek: baseShippingFeeSek,
+        shipping_included_devices: shippingIncludedDevices,
+        additional_shipping_fee_per_device_sek: additionalShippingFeeSek,
+        additional_shipping_device_count: additionalShippingDevices,
         monthly_fee_sek: plan.monthly_fee_sek,
         trial_days: plan.trial_days,
         tax_status: stripeAutomaticTaxEnabled ? "pending" : "not_enabled",
@@ -683,7 +702,6 @@ export async function POST(request: Request) {
           resolution: item.resolution,
           quantity: item.quantity,
           hardwareFeeSek: item.hardwareFeeSek,
-          shippingFeeSek: item.shippingFeeSek,
           monthlyFeeSek: item.monthlyFeeSek,
         })),
       };
@@ -865,6 +883,45 @@ export async function POST(request: Request) {
     const checkoutLineItems: CheckoutLineItem[] = [
       setupLineItem,
       ...(additionalSetupLineItem ? [additionalSetupLineItem] : []),
+      staticPriceLineItem({
+        priceId: plan.stripe_shipping_price_id,
+        expectedAmountSek: baseShippingFeeSek,
+        actualAmountSek: baseShippingFeeSek,
+        quantity: 1,
+      }) || {
+        price_data: {
+          currency,
+          unit_amount: toOre(baseShippingFeeSek),
+          tax_behavior: priceTaxBehavior,
+          product_data: {
+            name: `Frakt inom Sverige (upp till ${shippingIncludedDevices} enheter)`,
+            images: [subscriptionImage],
+          },
+        },
+        quantity: 1,
+      },
+      ...(additionalShippingDevices > 0
+        ? [
+            staticPriceLineItem({
+              priceId: plan.stripe_additional_shipping_price_id,
+              expectedAmountSek: additionalShippingFeeSek,
+              actualAmountSek: additionalShippingFeeSek,
+              quantity: additionalShippingDevices,
+            }) || {
+              price_data: {
+                currency,
+                unit_amount: toOre(additionalShippingFeeSek),
+                tax_behavior: priceTaxBehavior,
+                product_data: {
+                  name: "Frakt för extra enhet",
+                  description: `Tillägg per enhet utöver de ${shippingIncludedDevices} som ingår i grundfrakten.`,
+                  images: [subscriptionImage],
+                },
+              },
+              quantity: additionalShippingDevices,
+            },
+          ]
+        : []),
       ...checkoutQuoteItems.flatMap((item) => {
         const hardwareLineItem =
           item.discountedHardwareFeeSek > 0
@@ -886,25 +943,6 @@ export async function POST(request: Request) {
                 quantity: item.quantity,
               }
             : null;
-
-        const shippingLineItem =
-          staticPriceLineItem({
-            priceId: item.stripeShippingPriceId,
-            expectedAmountSek: item.shippingFeeSek,
-            actualAmountSek: item.shippingFeeSek,
-            quantity: item.quantity,
-          }) || {
-            price_data: {
-              currency,
-              unit_amount: toOre(item.shippingFeeSek),
-              tax_behavior: priceTaxBehavior,
-              product_data: {
-                name: "Frakt inom Sverige",
-                images: [subscriptionImage],
-              },
-            },
-            quantity: item.quantity,
-          };
 
         const monthlyLineItem =
           staticPriceLineItem({
@@ -928,7 +966,7 @@ export async function POST(request: Request) {
             quantity: item.quantity,
           };
 
-        return [hardwareLineItem, shippingLineItem, monthlyLineItem].filter(
+        return [hardwareLineItem, monthlyLineItem].filter(
           (lineItem): lineItem is CheckoutLineItem => Boolean(lineItem),
         );
       }),

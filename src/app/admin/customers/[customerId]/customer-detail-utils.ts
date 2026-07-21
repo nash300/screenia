@@ -94,6 +94,12 @@ export const normalizeSubscription = (
   setup_fee_paid: row.setup_fee_paid ?? null,
   hardware_fee_sek: row.hardware_fee_sek ?? null,
   shipping_fee_sek: row.shipping_fee_sek ?? null,
+  base_shipping_fee_sek: row.base_shipping_fee_sek ?? null,
+  shipping_included_devices: row.shipping_included_devices ?? null,
+  additional_shipping_fee_per_device_sek:
+    row.additional_shipping_fee_per_device_sek ?? null,
+  additional_shipping_device_count:
+    row.additional_shipping_device_count ?? null,
   monthly_fee_sek: row.monthly_fee_sek ?? null,
   tax_amount_sek: row.tax_amount_sek ?? null,
   total_amount_sek: row.total_amount_sek ?? null,

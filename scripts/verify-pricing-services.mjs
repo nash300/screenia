@@ -34,7 +34,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 const { data: plans, error } = await supabase
   .from("pricing_plans")
   .select(
-    "code,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,tax_behavior,stripe_setup_price_id,stripe_hardware_price_id,stripe_shipping_price_id,stripe_monthly_price_id,stripe_additional_setup_price_id",
+    "code,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,tax_behavior,stripe_setup_price_id,stripe_hardware_price_id,stripe_shipping_price_id,stripe_monthly_price_id,stripe_additional_setup_price_id,stripe_additional_shipping_price_id",
   )
   .eq("is_active", true)
   .order("code");
@@ -60,9 +60,40 @@ if (
   sharedAdditionalPrice.currency !== "sek" ||
   sharedAdditionalPrice.unit_amount !== 24900 ||
   sharedAdditionalPrice.tax_behavior !== "inclusive" ||
-  sharedAdditionalPrice.recurring
+  sharedAdditionalPrice.recurring ||
+  !sharedAdditionalPrice.product ||
+  typeof sharedAdditionalPrice.product === "string" ||
+  sharedAdditionalPrice.product.deleted ||
+  sharedAdditionalPrice.product.name !==
+    "Screenia extra skärm - start och konfiguration"
 ) {
   throw new Error("The shared additional-screen Stripe price is misconfigured.");
+}
+
+const additionalShippingPriceIds = new Set(
+  plans.map((plan) => plan.stripe_additional_shipping_price_id).filter(Boolean),
+);
+if (additionalShippingPriceIds.size !== 1) {
+  throw new Error("Active plans do not share exactly one additional-device shipping Stripe price.");
+}
+const sharedAdditionalShippingPriceId = [...additionalShippingPriceIds][0];
+const sharedAdditionalShippingPrice = await stripe.prices.retrieve(
+  sharedAdditionalShippingPriceId,
+  { expand: ["product"] },
+);
+if (
+  !sharedAdditionalShippingPrice.active ||
+  sharedAdditionalShippingPrice.currency !== "sek" ||
+  sharedAdditionalShippingPrice.unit_amount !== 2900 ||
+  sharedAdditionalShippingPrice.tax_behavior !== "inclusive" ||
+  sharedAdditionalShippingPrice.recurring ||
+  !sharedAdditionalShippingPrice.product ||
+  typeof sharedAdditionalShippingPrice.product === "string" ||
+  sharedAdditionalShippingPrice.product.deleted ||
+  sharedAdditionalShippingPrice.product.name !==
+    "Screenia frakt för extra enhet"
+) {
+  throw new Error("The shared additional-device shipping Stripe price is misconfigured.");
 }
 
 for (const plan of plans) {
@@ -70,6 +101,9 @@ for (const plan of plans) {
     plan.setup_fee_sek !== 1599 ||
     plan.setup_included_screens !== 3 ||
     plan.additional_setup_fee_sek !== 249 ||
+    plan.shipping_fee_sek !== 99 ||
+    plan.shipping_included_devices !== 3 ||
+    plan.additional_shipping_fee_sek !== 29 ||
     plan.tax_behavior !== "inclusive"
   ) {
     throw new Error(`Supabase pricing rule mismatch for ${plan.code}.`);
@@ -108,5 +142,5 @@ for (const plan of plans) {
 }
 
 console.log(
-  `Pricing services verified: 2 plans, shared 249 SEK additional-screen price ${sharedAdditionalPriceId}, inclusive moms, and correct one-time/monthly Stripe behavior.`,
+  `Pricing services verified: 2 plans, shared 249 SEK setup addition ${sharedAdditionalPriceId}, shared 29 SEK shipping addition ${sharedAdditionalShippingPriceId}, inclusive moms, and correct one-time/monthly Stripe behavior.`,
 );

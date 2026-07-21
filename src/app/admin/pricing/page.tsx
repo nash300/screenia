@@ -12,6 +12,8 @@ type PricingPlan = {
   additional_setup_fee_sek: number;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
+  shipping_included_devices: number;
+  additional_shipping_fee_sek: number;
   monthly_fee_sek: number;
   trial_days: number;
   binding_months: number | null;
@@ -22,6 +24,7 @@ type PricingPlan = {
   stripe_additional_setup_price_id: string | null;
   stripe_hardware_price_id: string | null;
   stripe_shipping_price_id: string | null;
+  stripe_additional_shipping_price_id: string | null;
   stripe_monthly_price_id: string | null;
   updated_at: string | null;
 };
@@ -30,6 +33,8 @@ type PricingForm = {
   setupFeeSek: string;
   hardwareFeeSek: string;
   shippingFeeSek: string;
+  shippingIncludedDevices: string;
+  additionalShippingFeeSek: string;
   monthlyFeeSek: string;
   trialDays: string;
   bindingMonths: string;
@@ -65,6 +70,8 @@ function toForm(plan: PricingPlan): PricingForm {
     setupFeeSek: String(plan.setup_fee_sek ?? 0),
     hardwareFeeSek: String(plan.hardware_fee_sek ?? 0),
     shippingFeeSek: String(plan.shipping_fee_sek ?? 0),
+    shippingIncludedDevices: String(plan.shipping_included_devices ?? 3),
+    additionalShippingFeeSek: String(plan.additional_shipping_fee_sek ?? 29),
     monthlyFeeSek: String(plan.monthly_fee_sek ?? 0),
     trialDays: String(plan.trial_days ?? 0),
     bindingMonths: String(plan.binding_months ?? 0),
@@ -84,6 +91,7 @@ function stripeSyncStatus(plan: PricingPlan) {
     plan.stripe_additional_setup_price_id,
     plan.stripe_hardware_price_id,
     plan.stripe_shipping_price_id,
+    plan.stripe_additional_shipping_price_id,
     plan.stripe_monthly_price_id,
   ];
   const syncedCount = ids.filter(Boolean).length;
@@ -228,6 +236,8 @@ export default function PricingPage() {
         setupFeeSek: parseInteger(form.setupFeeSek),
         hardwareFeeSek: parseInteger(form.hardwareFeeSek),
         shippingFeeSek: parseInteger(form.shippingFeeSek),
+        shippingIncludedDevices: parseInteger(form.shippingIncludedDevices),
+        additionalShippingFeeSek: parseInteger(form.additionalShippingFeeSek),
         monthlyFeeSek: parseInteger(form.monthlyFeeSek),
         trialDays: parseInteger(form.trialDays),
         bindingMonths: parseInteger(form.bindingMonths),
@@ -417,13 +427,35 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Shipping
+                    Base shipping (covers included devices)
                     <input
                       type="number"
                       min="0"
                       value={form.shippingFeeSek}
                       onChange={(event) =>
                         updateForm(plan.id, "shippingFeeSek", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    Devices included in base shipping
+                    <input
+                      type="number"
+                      min="1"
+                      value={form.shippingIncludedDevices}
+                      onChange={(event) =>
+                        updateForm(plan.id, "shippingIncludedDevices", event.target.value)
+                      }
+                    />
+                  </label>
+                  <label>
+                    Shipping per additional device
+                    <input
+                      type="number"
+                      min="0"
+                      value={form.additionalShippingFeeSek}
+                      onChange={(event) =>
+                        updateForm(plan.id, "additionalShippingFeeSek", event.target.value)
                       }
                     />
                   </label>
@@ -509,6 +541,10 @@ export default function PricingPage() {
                   <p>
                     <strong>Shipping:</strong>{" "}
                     {shortStripeId(plan.stripe_shipping_price_id)}
+                  </p>
+                  <p>
+                    <strong>Additional-device shipping:</strong>{" "}
+                    {shortStripeId(plan.stripe_additional_shipping_price_id)}
                   </p>
                   <p>
                     <strong>Monthly:</strong>{" "}

@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "text:check": "node scripts/check-text-quality.mjs",
     "billing:check": "node scripts/check-billing-invariants.mjs",
-    "pricing:sync-additional-setup:test": "node scripts/sync-additional-setup-price.mjs",
+    "pricing:sync-components:test": "node scripts/sync-additional-setup-price.mjs",
     "pricing:verify-services": "node scripts/verify-pricing-services.mjs",
     "admin-framework:check": "node scripts/check-admin-framework.mjs",
     "stripe:replay-dispute": "node scripts/replay-stripe-dispute-event.mjs",

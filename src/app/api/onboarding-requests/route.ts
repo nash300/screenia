@@ -17,6 +17,13 @@ import {
   additionalSetupScreenCount,
   calculateSetupFeeSek,
 } from "@/lib/pricing/setup-fee";
+import {
+  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
+  BASE_SHIPPING_FEE_SEK,
+  INCLUDED_SHIPPING_DEVICE_COUNT,
+  additionalShippingDeviceCount,
+  calculateShippingFeeSek,
+} from "@/lib/pricing/shipping-fee";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -69,10 +76,8 @@ async function sendRequestConfirmationEmail({
     (sum, item) => sum + item.plan.hardwareFeeSek * item.quantity,
     0,
   );
-  const shippingTotalSek = quoteItems.reduce(
-    (sum, item) => sum + item.plan.shippingFeeSek * item.quantity,
-    0,
-  );
+  const additionalShippingDevices = additionalShippingDeviceCount(screenQuantity);
+  const shippingTotalSek = calculateShippingFeeSek(screenQuantity);
   const monthlyTotalSek = quoteItems.reduce(
     (sum, item) => sum + item.plan.monthlyFeeSek * item.quantity,
     0,
@@ -84,7 +89,7 @@ async function sendRequestConfirmationEmail({
   const selectionHtml = quoteItems
     .map(
       ({ plan, quantity }) =>
-        `<p><strong>${quantity} &times; ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</strong><br />Enheter och frakt: ${formatSek((plan.hardwareFeeSek + plan.shippingFeeSek) * quantity)} inkl. moms<br />Abonnemang: ${formatSek(plan.monthlyFeeSek * quantity)}/m&aring;nad inkl. moms efter provperioden</p>`,
+        `<p><strong>${quantity} &times; ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</strong><br />Sk&auml;rmenheter: ${formatSek(plan.hardwareFeeSek * quantity)} inkl. moms<br />Abonnemang: ${formatSek(plan.monthlyFeeSek * quantity)}/m&aring;nad inkl. moms efter provperioden</p>`,
     )
     .join("");
   const receivedAt = requestReceivedAt(requestedAt);
@@ -107,7 +112,7 @@ Första betalningen: ${formatSek(firstPaymentSek)} inkl. moms
 - Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
 - Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${INCLUDED_SETUP_SCREEN_COUNT} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)} per skärm` : ""}
 - Skärmenheter: ${formatSek(hardwareTotalSek)}
-- Frakt: ${formatSek(shippingTotalSek)}
+- Frakt: ${formatSek(shippingTotalSek)} (${formatSek(BASE_SHIPPING_FEE_SEK)} för upp till ${INCLUDED_SHIPPING_DEVICE_COUNT} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} à ${formatSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}` : ""})
 Efter 21 dagars kostnadsfri provperiod: ${formatSek(monthlyTotalSek)}/månad inkl. moms
 Mottaget: ${receivedAt}
 ${message ? `\nMeddelande: ${message}\n` : ""}
@@ -133,6 +138,7 @@ Screenia`,
           <p><strong>F&ouml;rsta betalningen:</strong> ${formatSek(firstPaymentSek)} inkl. moms</p>
           <p>Startavgift ${formatSek(setupFeeSek)} + sk&auml;rmenheter ${formatSek(hardwareTotalSek)} + frakt ${formatSek(shippingTotalSek)}</p>
           <p>Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${INCLUDED_SETUP_SCREEN_COUNT} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}` : ""}.</p>
+          <p>Frakten ${formatSek(BASE_SHIPPING_FEE_SEK)} t&auml;cker upp till ${INCLUDED_SHIPPING_DEVICE_COUNT} enheter${additionalShippingDevices > 0 ? `; ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} &times; ${formatSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}` : ""}.</p>
           <p><strong>Efter 21 dagars kostnadsfri provperiod:</strong> ${formatSek(monthlyTotalSek)}/m&aring;nad inkl. moms</p>
           <p><strong>Mottaget:</strong> ${receivedAt}</p>
           ${safeMessage ? `<p><strong>Meddelande:</strong> ${safeMessage}</p>` : ""}

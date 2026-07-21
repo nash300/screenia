@@ -66,6 +66,10 @@ export type CustomerSubscription = {
   setup_fee_paid: boolean | null;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
+  base_shipping_fee_sek?: number | null;
+  shipping_included_devices?: number | null;
+  additional_shipping_fee_per_device_sek?: number | null;
+  additional_shipping_device_count?: number | null;
   monthly_fee_sek: number | null;
   tax_amount_sek: number | null;
   total_amount_sek: number | null;
@@ -103,6 +107,8 @@ export type PricingPlan = {
   setup_fee_sek: number;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
+  shipping_included_devices: number;
+  additional_shipping_fee_sek: number;
   monthly_fee_sek: number;
   trial_days: number;
   currency: string | null;

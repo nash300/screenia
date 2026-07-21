@@ -11,12 +11,18 @@ const accountRouteSource = read("src/app/api/account/route.ts");
 const accountPageSource = read("src/app/account/page.tsx");
 const landingRequestSource = read("src/app/api/onboarding-requests/route.ts");
 const setupFeeSource = read("src/lib/pricing/setup-fee.ts");
+const shippingFeeSource = read("src/lib/pricing/shipping-fee.ts");
 const prepareOnboardingSource = read("src/app/api/admin/prepare-onboarding/route.ts");
 const pricingMigrationSource = read("supabase/migrations/202607210000_setup_fee_quantity_rule.sql");
+const shippingMigrationSource = read("supabase/migrations/202607210100_tiered_shipping_rule.sql");
 
 const setupFeeForScreens = (screenQuantity, baseSetupFeeSek = 1599) =>
   screenQuantity > 0
     ? baseSetupFeeSek + Math.max(0, screenQuantity - 3) * 249
+    : 0;
+const shippingFeeForDevices = (deviceQuantity, baseShippingFeeSek = 99) =>
+  deviceQuantity > 0
+    ? baseShippingFeeSek + Math.max(0, deviceQuantity - 3) * 29
     : 0;
 
 const expectedPlans = [
@@ -62,7 +68,7 @@ const mixedSelection = {
   setupFeeSek: 1599,
   standardQuantity: 1,
   premiumQuantity: 2,
-  firstPaymentSek: 4793,
+  firstPaymentSek: 4595,
   monthlyFeeSek: 947,
 };
 const calculatedMixedFirstPayment =
@@ -70,8 +76,11 @@ const calculatedMixedFirstPayment =
     mixedSelection.standardQuantity + mixedSelection.premiumQuantity,
     mixedSelection.setupFeeSek,
   ) +
-  (699 + 99) * mixedSelection.standardQuantity +
-  (1099 + 99) * mixedSelection.premiumQuantity;
+  699 * mixedSelection.standardQuantity +
+  1099 * mixedSelection.premiumQuantity +
+  shippingFeeForDevices(
+    mixedSelection.standardQuantity + mixedSelection.premiumQuantity,
+  );
 const calculatedMixedMonthly =
   249 * mixedSelection.standardQuantity +
   349 * mixedSelection.premiumQuantity;
@@ -85,8 +94,8 @@ const fourScreenSelection = {
   screenQuantity: 4,
   setupFeeSek: 1848,
   hardwareFeeSek: 699 * 4,
-  shippingFeeSek: 99 * 4,
-  firstPaymentSek: 5040,
+  shippingFeeSek: 99 + 29,
+  firstPaymentSek: 4772,
 };
 const calculatedFourScreenFirstPayment =
   setupFeeForScreens(fourScreenSelection.screenQuantity) +
@@ -113,7 +122,9 @@ const checkoutMarkers = [
   ["quantity: additionalSetupScreens", "Stripe must invoice the exact additional-screen quantity"],
   ["additional_setup_screen_count: additionalSetupScreens", "Orders must store the additional-screen count"],
   ["item.discountedHardwareFeeSek * item.quantity", "First-payment calculation must include device quantity"],
-  ["item.shippingFeeSek * item.quantity", "First-payment calculation must include shipping quantity"],
+  ["calculateShippingFeeSek(", "Checkout must calculate order-wide tiered shipping"],
+  ["quantity: additionalShippingDevices", "Stripe must invoice the exact additional-shipping quantity"],
+  ["additional_shipping_device_count: additionalShippingDevices", "Orders must store the additional-shipping count"],
 ];
 
 for (const [marker, message] of checkoutMarkers) requireSource(checkoutSource, marker, message);
@@ -135,8 +146,13 @@ requireSource(landingRequestSource, "calculateSetupFeeSek(screenQuantity, baseSe
 requireSource(prepareOnboardingSource, "const setupFeeSek = calculateSetupFeeSek(", "Admin quote preparation must calculate the quantity-based setup fee");
 requireSource(setupFeeSource, "INCLUDED_SETUP_SCREEN_COUNT = 3", "Setup fee must include the first three screens");
 requireSource(setupFeeSource, "ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK = 249", "Each screen after the third must add 249 SEK");
+requireSource(shippingFeeSource, "INCLUDED_SHIPPING_DEVICE_COUNT = 3", "Base shipping must include the first three devices");
+requireSource(shippingFeeSource, "BASE_SHIPPING_FEE_SEK = 99", "Base shipping must be 99 SEK");
+requireSource(shippingFeeSource, "ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK = 29", "Each device after the third must add 29 SEK shipping");
 requireSource(pricingMigrationSource, "stripe_additional_setup_price_id text", "Supabase must store the shared additional-screen Stripe price reference");
 requireSource(pricingMigrationSource, "additional_setup_screen_count integer", "Supabase orders must store the additional-screen count");
+requireSource(shippingMigrationSource, "stripe_additional_shipping_price_id text", "Supabase must store the shared additional-shipping Stripe price reference");
+requireSource(shippingMigrationSource, "additional_shipping_device_count integer", "Supabase orders must store the additional-shipping device count");
 
 if (failures.length) {
   console.error("Billing invariant check failed:\n");

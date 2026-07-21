@@ -3375,7 +3375,7 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
   const { data, error } = await supabaseAdmin
     .from("pricing_plans")
     .select(
-      "id, code, is_active, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, currency, tax_behavior, stripe_setup_price_id, stripe_additional_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_monthly_price_id",
+      "id, code, is_active, setup_fee_sek, setup_included_screens, additional_setup_fee_sek, hardware_fee_sek, shipping_fee_sek, shipping_included_devices, additional_shipping_fee_sek, monthly_fee_sek, currency, tax_behavior, stripe_setup_price_id, stripe_additional_setup_price_id, stripe_hardware_price_id, stripe_shipping_price_id, stripe_additional_shipping_price_id, stripe_monthly_price_id",
     );
 
   if (error) return { ok: false, details: error.message };
@@ -3401,6 +3401,15 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (Number(plan.additional_setup_fee_sek || 0) !== 249) {
       planIssues.push(`${label}: additional-screen setup fee must be 249 SEK`);
     }
+    if (Number(plan.shipping_fee_sek || 0) !== 99) {
+      planIssues.push(`${label}: base shipping must be 99 SEK`);
+    }
+    if (Number(plan.shipping_included_devices || 0) !== 3) {
+      planIssues.push(`${label}: base shipping must include exactly 3 devices`);
+    }
+    if (Number(plan.additional_shipping_fee_sek || 0) !== 29) {
+      planIssues.push(`${label}: additional-device shipping must be 29 SEK`);
+    }
     if (Number(plan.monthly_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: monthly fee is missing`);
     }
@@ -3415,6 +3424,9 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     }
     if (!plan.stripe_shipping_price_id) {
       planIssues.push(`${label}: shipping Stripe price is missing`);
+    }
+    if (!plan.stripe_additional_shipping_price_id) {
+      planIssues.push(`${label}: additional-device shipping Stripe price is missing`);
     }
     if (!plan.stripe_monthly_price_id) {
       planIssues.push(`${label}: monthly Stripe price is missing`);

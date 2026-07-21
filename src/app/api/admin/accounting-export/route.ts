@@ -28,6 +28,10 @@ type AccountingExportRow = {
   additional_setup_screen_count: number | null;
   hardware_fee_sek: number | null;
   shipping_fee_sek: number | null;
+  base_shipping_fee_sek: number | null;
+  shipping_included_devices: number | null;
+  additional_shipping_fee_per_device_sek: number | null;
+  additional_shipping_device_count: number | null;
   monthly_fee_sek: number | null;
   total_amount_sek: number | null;
   tax_amount_sek: number | null;
@@ -150,6 +154,10 @@ const headers = [
   "additional_setup_screen_count",
   "hardware_fee_sek",
   "shipping_fee_sek",
+  "base_shipping_fee_sek",
+  "shipping_included_devices",
+  "additional_shipping_fee_per_device_sek",
+  "additional_shipping_device_count",
   "monthly_fee_sek",
   "total_amount_ore",
   "total_amount_sek",
@@ -243,6 +251,10 @@ export async function GET(request: Request) {
         additional_setup_screen_count,
         hardware_fee_sek,
         shipping_fee_sek,
+        base_shipping_fee_sek,
+        shipping_included_devices,
+        additional_shipping_fee_per_device_sek,
+        additional_shipping_device_count,
         monthly_fee_sek,
         total_amount_sek,
         tax_amount_sek,
@@ -314,6 +326,10 @@ export async function GET(request: Request) {
         row.additional_setup_screen_count,
         sekValue(row.hardware_fee_sek),
         sekValue(row.shipping_fee_sek),
+        sekValue(row.base_shipping_fee_sek),
+        row.shipping_included_devices,
+        sekValue(row.additional_shipping_fee_per_device_sek),
+        row.additional_shipping_device_count,
         sekValue(row.monthly_fee_sek),
         row.total_amount_sek,
         oreToSek(row.total_amount_sek),

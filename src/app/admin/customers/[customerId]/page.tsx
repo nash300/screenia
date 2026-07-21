@@ -9,6 +9,11 @@ import { getCustomerWorkflowAction } from "@/lib/admin/customer-workflow";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import { calculateSetupFeeSek } from "@/lib/pricing/setup-fee";
+import {
+  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
+  INCLUDED_SHIPPING_DEVICE_COUNT,
+  calculateShippingFeeSek,
+} from "@/lib/pricing/shipping-fee";
 import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
 import {
   deviceCountsTowardEntitlement,
@@ -443,6 +448,10 @@ export default function CustomerDetailPage({
           setup_fee_paid,
           hardware_fee_sek,
           shipping_fee_sek,
+          base_shipping_fee_sek,
+          shipping_included_devices,
+          additional_shipping_fee_per_device_sek,
+          additional_shipping_device_count,
           monthly_fee_sek,
           tax_amount_sek,
           total_amount_sek,
@@ -646,7 +655,7 @@ export default function CustomerDetailPage({
     const { data: pricingData, error: pricingError } = await supabase
       .from("pricing_plans")
       .select(
-        "id, code, name, resolution, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, monthly_fee_sek, trial_days, currency",
+        "id, code, name, resolution, setup_fee_sek, hardware_fee_sek, shipping_fee_sek, shipping_included_devices, additional_shipping_fee_sek, monthly_fee_sek, trial_days, currency",
       )
       .eq("is_active", true)
       .order("monthly_fee_sek", { ascending: true });
@@ -667,6 +676,8 @@ export default function CustomerDetailPage({
         setup_fee_sek: plan.setupFeeSek,
         hardware_fee_sek: plan.hardwareFeeSek,
         shipping_fee_sek: plan.shippingFeeSek,
+        shipping_included_devices: plan.shippingIncludedDevices,
+        additional_shipping_fee_sek: plan.additionalShippingFeeSek,
         monthly_fee_sek: plan.monthlyFeeSek,
         trial_days: plan.trialDays,
         currency: "sek",
@@ -1704,16 +1715,13 @@ export default function CustomerDetailPage({
       const quantity = Math.min(50, Math.max(1, Number(item.quantity) || 1));
       const hardwareFee =
         plan?.hardware_fee_sek ?? 0;
-      const shippingFee = plan?.shipping_fee_sek ?? 99;
 
       return {
         ...item,
         plan,
         quantity,
         hardwareFee,
-        shippingFee,
         deviceSubtotal: plan ? hardwareFee * quantity : 0,
-        shippingSubtotal: plan ? shippingFee * quantity : 0,
         monthlySubtotal: plan ? plan.monthly_fee_sek * quantity : 0,
       };
     })
@@ -1727,9 +1735,12 @@ export default function CustomerDetailPage({
     (sum, item) => sum + item.deviceSubtotal,
     0,
   );
-  const quoteShippingSubtotal = quoteLines.reduce(
-    (sum, item) => sum + item.shippingSubtotal,
-    0,
+  const quoteShippingSubtotal = calculateShippingFeeSek(
+    quoteScreenQuantity,
+    primaryQuotePlan?.shipping_fee_sek ?? 99,
+    primaryQuotePlan?.shipping_included_devices ?? INCLUDED_SHIPPING_DEVICE_COUNT,
+    primaryQuotePlan?.additional_shipping_fee_sek ??
+      ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
   );
   const quoteMonthlySubtotal = quoteLines.reduce(
     (sum, item) => sum + item.monthlySubtotal,

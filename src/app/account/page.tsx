@@ -71,6 +71,10 @@ type AccountData = {
     setup_fee_sek: number | null;
     hardware_fee_sek: number | null;
     shipping_fee_sek: number | null;
+    base_shipping_fee_sek: number | null;
+    shipping_included_devices: number | null;
+    additional_shipping_fee_per_device_sek: number | null;
+    additional_shipping_device_count: number | null;
     monthly_fee_sek: number | null;
     trial_days: number | null;
     trial_starts_at: string | null;
@@ -456,12 +460,14 @@ export default function AccountPage() {
       : (activeSubscription.hardware_fee_sek || 0) * screenQuantity
     : 0;
   const shippingSubtotalSek = activeSubscription
-    ? quotedItems.length
-      ? quotedItems.reduce(
-          (sum, item) => sum + (item.shippingFeeSek || 0) * Math.max(1, item.quantity || 1),
-          0,
-        )
-      : (activeSubscription.shipping_fee_sek || 0) * screenQuantity
+    ? activeSubscription.base_shipping_fee_sek !== null
+      ? activeSubscription.shipping_fee_sek || 0
+      : quotedItems.length
+        ? quotedItems.reduce(
+            (sum, item) => sum + (item.shippingFeeSek || 0) * Math.max(1, item.quantity || 1),
+            0,
+          )
+        : (activeSubscription.shipping_fee_sek || 0) * screenQuantity
     : 0;
   const monthlySubtotalSek = activeSubscription
     ? quotedItems.length

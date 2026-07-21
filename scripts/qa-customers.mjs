@@ -209,7 +209,7 @@ async function cleanFixtures() {
 async function loadPlans() {
   const { data, error } = await supabase
     .from("pricing_plans")
-    .select("id,code,name,resolution,setup_fee_sek,hardware_fee_sek,shipping_fee_sek,monthly_fee_sek,trial_days,is_active")
+    .select("id,code,name,resolution,setup_fee_sek,hardware_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,monthly_fee_sek,trial_days,is_active")
     .in("code", ["standard_fhd", "premium_4k"])
     .eq("is_active", true);
   if (error) throw new Error(`Could not load pricing plans: ${error.message}`);
@@ -301,10 +301,12 @@ function fixtureAmounts(fixture) {
     (sum, item) => sum + item.plan.hardware_fee_sek * item.quantity,
     0,
   );
-  const shippingSubtotal = fixture.quoteItems.reduce(
-    (sum, item) => sum + item.plan.shipping_fee_sek * item.quantity,
-    0,
-  );
+  const shippingSubtotal =
+    fixture.primaryPlan.shipping_fee_sek +
+    Math.max(
+      0,
+      screenQuantity - fixture.primaryPlan.shipping_included_devices,
+    ) * fixture.primaryPlan.additional_shipping_fee_sek;
   const monthlySubtotal = fixture.quoteItems.reduce(
     (sum, item) => sum + item.plan.monthly_fee_sek * item.quantity,
     0,
@@ -439,7 +441,15 @@ async function seedFixtures() {
         additional_setup_fee_per_screen_sek: 249,
         additional_setup_screen_count: Math.max(0, amounts.screenQuantity - 3),
         hardware_fee_sek: fixture.primaryPlan.hardware_fee_sek,
-        shipping_fee_sek: fixture.primaryPlan.shipping_fee_sek,
+        shipping_fee_sek: amounts.shippingSubtotal,
+        base_shipping_fee_sek: fixture.primaryPlan.shipping_fee_sek,
+        shipping_included_devices: fixture.primaryPlan.shipping_included_devices,
+        additional_shipping_fee_per_device_sek:
+          fixture.primaryPlan.additional_shipping_fee_sek,
+        additional_shipping_device_count: Math.max(
+          0,
+          amounts.screenQuantity - fixture.primaryPlan.shipping_included_devices,
+        ),
         monthly_fee_sek: fixture.primaryPlan.monthly_fee_sek,
         trial_days: fixture.primaryPlan.trial_days,
         screen_quantity: fixture.quantity,
@@ -766,12 +776,11 @@ async function verifyFixtures() {
       .reduce(
         (sum, item) =>
           sum +
-          ((Number(item.hardwareFeeSek) || 0) + (Number(item.shippingFeeSek) || 0)) *
-            (Number(item.quantity) || 1),
+          (Number(item.hardwareFeeSek) || 0) * (Number(item.quantity) || 1),
         0,
       );
     const expectedTotal =
-      (subscription.setup_fee_sek + itemTotal - (subscription.device_discount_amount_sek || 0)) * 100;
+      (subscription.setup_fee_sek + itemTotal + subscription.shipping_fee_sek - (subscription.device_discount_amount_sek || 0)) * 100;
     if (subscription.total_amount_sek !== expectedTotal) totalMismatches += 1;
     const expectedVat = expectedTotal - Math.round(expectedTotal / 1.25);
     if (subscription.tax_amount_sek !== expectedVat) vatMismatches += 1;
