@@ -88,7 +88,7 @@ const copy = {
       ["Kan jag visa kampanjer och priser samtidigt", "Ja. Vi kan bygga en layout med prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
       ["Kan jag ändra innehållet senare", "Ja. Skicka nytt material eller nya priser till Screenia så hjälper vi dig att uppdatera skärmen."],
       ["Hur skickas enheten", "Vi väljer ett lämpligt leveranssätt utifrån adress, paketstorlek och ledtid. Du får tydliga instruktioner när enheten skickas."],
-      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr för upp till tre skärmar och täcker personlig startguide, layoutarbete och förberedelse av skärminnehåll. Från den fjärde skärmen tillkommer 249 kr per skärm. Avgiften återbetalas inte när arbetet har startat."],
+      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr (upp till 3 skärmar). I avgiften ingår personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen. Från den fjärde skärmen tillkommer 249 kr per skärm. Avgiften återbetalas inte efter att layout- eller produktionsarbetet har påbörjats."],
     ],
     companyTitle: "Företagsinformation",
     companyText:
@@ -180,7 +180,7 @@ const copy = {
       ["Can I show campaigns and prices together", "Yes. We can build a layout with price lists, offers, opening hours, QR codes, and imagery in one screen flow."],
       ["Can I change the content later", "Yes. Send new material or updated prices to Screenia and we help update the screen."],
       ["How is the device shipped", "We choose a suitable delivery option by address, parcel size, and lead time. You receive clear instructions when the device is sent."],
-      ["What is included in the setup fee", "The 1,599 SEK setup fee covers up to three screens, including the personal setup guide, layout work, and screen content preparation. Each additional screen adds 249 SEK."],
+      ["What is included in the setup fee", "The 1,599 SEK setup fee (up to 3 screens) includes personal planning support, layout creation, and agreed adjustments during the setup phase. Each additional screen adds 249 SEK."],
     ],
     companyTitle: "Company information",
     companyText:
@@ -990,7 +990,7 @@ export default function Home() {
                       label="Skärmenhet, engångsvis"
                       value={formatLandingSek(plan.hardwareFeeSek)}
                     />
-                    <PriceRow label="Startavgift för upp till 3 skärmar" value={plan.setupFee} />
+                    <PriceRow label="Startavgift (upp till 3 skärmar)" value={plan.setupFee} />
                   </div>
                   <div className="landing-plan-quantity">
                     <div>
@@ -1067,15 +1067,46 @@ export default function Home() {
                     <small>Startavgift, alla valda enheter och frakt.</small>
                     <details className="landing-package-breakdown">
                       <summary>Se exakt prisspecifikation</summary>
-                      <p>
-                        Grundstart {formatLandingSek(plans[0].setupFeeSek)} för upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar
-                        {selectedAdditionalSetupScreens > 0
-                          ? ` + ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}`
-                          : ""}. Enheter {formatLandingSek(selectedHardwareTotal)}. Frakt {formatLandingSek(BASE_SHIPPING_FEE_SEK)} för upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter
-                        {selectedAdditionalShippingDevices > 0
-                          ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
-                          : ""}, totalt {formatLandingSek(selectedShippingTotal)}. Total startavgift {formatLandingSek(selectedSetupFee)}.
-                      </p>
+                      <dl className="landing-package-breakdown-list">
+                        <div>
+                          <dt>
+                            Start och konfiguration
+                            <small>
+                              Grundavgift {formatLandingSek(plans[0].setupFeeSek)} (upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar). Inkluderar personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen.
+                              {selectedAdditionalSetupScreens > 0
+                                ? ` ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}.`
+                                : ""}
+                            </small>
+                          </dt>
+                          <dd>{formatLandingSek(selectedSetupFee)}</dd>
+                        </div>
+                        <div>
+                          <dt>
+                            Skärmenheter
+                            <small>Samtliga valda Full HD- och 4K-enheter.</small>
+                          </dt>
+                          <dd>{formatLandingSek(selectedHardwareTotal)}</dd>
+                        </div>
+                        <div>
+                          <dt>
+                            Frakt inom Sverige
+                            <small>
+                              {formatLandingSek(BASE_SHIPPING_FEE_SEK)} (upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter)
+                              {selectedAdditionalShippingDevices > 0
+                                ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
+                                : ""}.
+                            </small>
+                          </dt>
+                          <dd>{formatLandingSek(selectedShippingTotal)}</dd>
+                        </div>
+                        <div className="landing-package-breakdown-total">
+                          <dt>
+                            Engångsbetalning vid start
+                            <small>Samtliga belopp anges inklusive moms.</small>
+                          </dt>
+                          <dd>{formatLandingSek(selectedFirstPayment)}</dd>
+                        </div>
+                      </dl>
                     </details>
                   </div>
                 </div>
@@ -1094,8 +1125,8 @@ export default function Home() {
             )}
           </section>
           <div className="landing-pricing-note">
-            <h3>Vilken version passar mig?</h3>
-            <p>Alla priser visas inklusive svensk moms. Stripe Checkout visar momsbeloppet utan att höja totalsumman.</p>
+            <h3>Välj rätt teknisk nivå</h3>
+            <p>Samtliga priser anges inklusive svensk moms. I betalningssteget redovisas momsbeloppet separat utan att totalsumman förändras.</p>
             <p>
               Startavgiften är 1 599 kr för upp till tre skärmar. Därefter
               tillkommer 249 kr per extra skärm. Frakten är 99 kr för upp till
