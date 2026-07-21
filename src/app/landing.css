@@ -7010,22 +7010,23 @@
     0 18px 42px rgba(2, 12, 32, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(18px) saturate(135%);
+  backface-visibility: hidden;
   transform-origin: center bottom;
   transform-style: preserve-3d;
-  animation: hero-benefit-card-pack 12s cubic-bezier(0.22, 1, 0.36, 1) infinite;
-  will-change: transform, box-shadow, border-color;
+  animation: hero-benefit-card-pack 16s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  will-change: transform, box-shadow, border-color, filter, opacity;
 }
 
 .landing-hero-benefit:nth-child(2) {
-  animation-delay: -9s;
+  animation-delay: -12s;
 }
 
 .landing-hero-benefit:nth-child(3) {
-  animation-delay: -6s;
+  animation-delay: -8s;
 }
 
 .landing-hero-benefit:nth-child(4) {
-  animation-delay: -3s;
+  animation-delay: -4s;
 }
 
 .landing-hero-benefit::before {
@@ -7037,31 +7038,12 @@
   border-radius: 999px;
   background: linear-gradient(90deg, transparent, #63dcff, #4b8dff, transparent);
   content: "";
-  opacity: 0.48;
-  animation: benefit-accent-pulse 6.4s ease-in-out infinite;
+  opacity: 0.58;
   pointer-events: none;
 }
 
 .landing-hero-benefit::after {
-  animation-duration: 7.2s;
-}
-
-.landing-hero-benefit:nth-child(2)::before,
-.landing-hero-benefit:nth-child(2)::after,
-.landing-hero-benefit:nth-child(2) .landing-hero-benefit-icon {
-  animation-delay: 0.9s;
-}
-
-.landing-hero-benefit:nth-child(3)::before,
-.landing-hero-benefit:nth-child(3)::after,
-.landing-hero-benefit:nth-child(3) .landing-hero-benefit-icon {
-  animation-delay: 1.8s;
-}
-
-.landing-hero-benefit:nth-child(4)::before,
-.landing-hero-benefit:nth-child(4)::after,
-.landing-hero-benefit:nth-child(4) .landing-hero-benefit-icon {
-  animation-delay: 2.7s;
+  animation: none;
 }
 
 .landing-hero-benefit-icon {
@@ -7071,7 +7053,6 @@
   box-shadow:
     0 10px 24px rgba(32, 126, 255, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.42);
-  animation: benefit-icon-attention 6.4s ease-in-out infinite;
 }
 
 .landing-hero-benefit strong {
@@ -7091,68 +7072,51 @@
 
 @keyframes hero-benefit-card-pack {
   0%,
-  14%,
+  25%,
   100% {
     border-color: rgba(191, 219, 254, 0.34);
     box-shadow:
       0 18px 42px rgba(2, 12, 32, 0.28),
       inset 0 1px 0 rgba(255, 255, 255, 0.16);
+    filter: brightness(0.86) saturate(0.9);
+    opacity: 0.82;
     transform: translateY(0) rotateY(0) scale(1);
   }
 
-  3% {
+  4% {
+    border-color: rgba(99, 220, 255, 0.82);
+    box-shadow:
+      0 28px 58px rgba(2, 12, 32, 0.42),
+      0 0 0 1px rgba(99, 220, 255, 0.3),
+      0 0 28px rgba(66, 200, 255, 0.18),
+      inset 0 1px 0 rgba(255, 255, 255, 0.26);
+    filter: brightness(1.14) saturate(1.14);
+    opacity: 1;
+    transform: translateY(-9px) rotateY(-11deg) scale(1.035);
+  }
+
+  8% {
+    transform: translateY(-9px) rotateY(9deg) scale(1.035);
+  }
+
+  12%,
+  17% {
     border-color: rgba(99, 220, 255, 0.72);
     box-shadow:
-      0 25px 54px rgba(2, 12, 32, 0.38),
-      0 0 0 1px rgba(99, 220, 255, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.22);
-    transform: translateY(-7px) rotateY(-7deg) scale(1.025);
-  }
-
-  6% {
-    transform: translateY(-7px) rotateY(6deg) scale(1.025);
-  }
-
-  9% {
-    border-color: rgba(99, 220, 255, 0.5);
-    transform: translateY(-3px) rotateY(-2deg) scale(1.012);
-  }
-}
-
-@keyframes benefit-accent-pulse {
-  0%,
-  64%,
-  100% {
-    opacity: 0.38;
-    transform: scaleX(0.72);
-  }
-
-  76% {
+      0 28px 58px rgba(2, 12, 32, 0.4),
+      0 0 0 1px rgba(99, 220, 255, 0.24),
+      0 0 24px rgba(66, 200, 255, 0.14),
+      inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    filter: brightness(1.1) saturate(1.1);
     opacity: 1;
-    transform: scaleX(1);
-  }
-}
-
-@keyframes benefit-icon-attention {
-  0%,
-  64%,
-  100% {
-    box-shadow:
-      0 10px 24px rgba(32, 126, 255, 0.34),
-      inset 0 1px 0 rgba(255, 255, 255, 0.42);
-    transform: scale(1);
+    transform: translateY(-7px) rotateY(0) scale(1.03);
   }
 
-  76% {
-    box-shadow:
-      0 12px 30px rgba(66, 200, 255, 0.62),
-      0 0 0 5px rgba(66, 200, 255, 0.12),
-      inset 0 1px 0 rgba(255, 255, 255, 0.52);
-    transform: scale(1.1);
-  }
-
-  84% {
-    transform: scale(1);
+  21% {
+    border-color: rgba(99, 220, 255, 0.48);
+    filter: brightness(1) saturate(1);
+    opacity: 0.94;
+    transform: translateY(-3px) rotateY(-4deg) scale(1.012);
   }
 }
 
@@ -7202,14 +7166,6 @@
   .landing-hero-controls {
     right: 18px;
     bottom: 208px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .landing-hero-benefit,
-  .landing-hero-benefit::before,
-  .landing-hero-benefit-icon {
-    animation: none;
   }
 }
 
