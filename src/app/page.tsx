@@ -912,7 +912,7 @@ export default function Home() {
           )}
         </section>
 
-        <LandingSection id="platform" eyebrow={t.nav[0]} title={t.platformTitle} text={t.platformText}>
+        <LandingSection id="platform" title={t.platformTitle} text={t.platformText}>
           <div className="landing-feature-grid">
             {t.features.map(([title, text], index) => (
               <Feature
@@ -948,7 +948,6 @@ export default function Home() {
 
         <LandingSection
           id="pricing"
-          eyebrow={t.nav[2]}
           title="Bygg en skärmlösning"
           text="Full HD- och 4K-enheter kan kombineras i samma förfrågan. Den beräknade kostnaden uppdateras utifrån vald kombination."
         >
@@ -1146,7 +1145,7 @@ export default function Home() {
           </div>
         </LandingSection>
 
-        <LandingSection id="examples" eyebrow={t.nav[3]} title={t.galleryTitle} text={t.galleryText}>
+        <LandingSection id="examples" title={t.galleryTitle} text={t.galleryText}>
           <div className="landing-gallery-grid">
             {t.galleryItems.map(([title, text], index) => (
               <article key={title} className="landing-gallery-card">
@@ -1191,7 +1190,7 @@ export default function Home() {
           </div>
         </section>
 
-        <LandingSection id="faq" eyebrow={t.nav[4]} title={t.faqTitle}>
+        <LandingSection id="faq" title={t.faqTitle}>
           <div className="landing-faq-layout">
             <div className="landing-faq-grid">
               {t.faqs.map(([question, answer]) => (
@@ -1320,40 +1319,32 @@ export default function Home() {
 
 function LandingSection({
   id,
-  eyebrow,
   title,
   text,
   children,
 }: {
   id: string;
-  eyebrow: string;
   title: string;
   text?: string;
   children: ReactNode;
 }) {
   return (
     <section id={id} className={`landing-section landing-${id}`}>
-      <SectionHeading eyebrow={eyebrow} title={title} text={text} />
+      <SectionHeading title={title} text={text} />
       {children}
     </section>
   );
 }
 
 function SectionHeading({
-  eyebrow,
   title,
   text,
 }: {
-  eyebrow: string;
   title: string;
   text?: string;
 }) {
   return (
     <div className="landing-section-heading">
-      <p className="landing-eyebrow">
-        <span className="landing-heading-mark" aria-hidden="true" />
-        {eyebrow}
-      </p>
       <h2>{title}</h2>
       {text && <p>{text}</p>}
     </div>
