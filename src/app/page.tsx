@@ -407,6 +407,7 @@ function formatLandingSek(value: number) {
 
 export default function Home() {
   const [requestOpen, setRequestOpen] = useState(false);
+  const [priceBreakdownOpen, setPriceBreakdownOpen] = useState(false);
   const [planQuantities, setPlanQuantities] = useState<Record<(typeof plans)[number]["code"], number>>({
     standard_fhd: 0,
     premium_4k: 0,
@@ -609,6 +610,7 @@ export default function Home() {
 
   const openPlanRequest = () => {
     if (selectedScreenCount === 0) return;
+    setPriceBreakdownOpen(false);
     setRequestOpen(true);
     setRequestStatus("idle");
     setRequestMessage("");
@@ -853,30 +855,6 @@ export default function Home() {
               ))}
             </div>
           </div>
-          {serviceLogos.length > 0 && (
-            <div className="landing-logo-rail" aria-label="Service logos">
-              <div className="landing-logo-track">
-                {[0, 1, 2].map((group) => (
-                  <div
-                    key={group}
-                    className="landing-logo-group"
-                    aria-hidden={group > 0 ? "true" : undefined}
-                  >
-                    {serviceLogos.map((logo) => (
-                      <span key={`${logo.label}-${group}`} className="landing-logo-tile">
-                        <Image
-                          src={logo.src}
-                          alt={group === 0 ? `${logo.label} logo` : ""}
-                          width={logo.width || 138}
-                          height={logo.height || 30}
-                        />
-                      </span>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
           {heroSlideCount > 1 && (
             <div className="landing-hero-controls" aria-label="Bildspel">
               <button
@@ -1078,49 +1056,13 @@ export default function Home() {
                     <span>Engångsbetalning vid start</span>
                     <strong>{formatLandingSek(selectedFirstPayment)}</strong>
                     <small>Startavgift, alla valda enheter och frakt.</small>
-                    <details className="landing-package-breakdown">
-                      <summary>Se exakt prisspecifikation</summary>
-                      <dl className="landing-package-breakdown-list">
-                        <div>
-                          <dt>
-                            Start och konfiguration
-                            <small>
-                              Grundavgift {formatLandingSek(plans[0].setupFeeSek)} (upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar). Inkluderar personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen.
-                              {selectedAdditionalSetupScreens > 0
-                                ? ` ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}.`
-                                : ""}
-                            </small>
-                          </dt>
-                          <dd>{formatLandingSek(selectedSetupFee)}</dd>
-                        </div>
-                        <div>
-                          <dt>
-                            Skärmenheter
-                            <small>Samtliga valda Full HD- och 4K-enheter.</small>
-                          </dt>
-                          <dd>{formatLandingSek(selectedHardwareTotal)}</dd>
-                        </div>
-                        <div>
-                          <dt>
-                            Frakt inom Sverige
-                            <small>
-                              {formatLandingSek(BASE_SHIPPING_FEE_SEK)} (upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter)
-                              {selectedAdditionalShippingDevices > 0
-                                ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
-                                : ""}.
-                            </small>
-                          </dt>
-                          <dd>{formatLandingSek(selectedShippingTotal)}</dd>
-                        </div>
-                        <div className="landing-package-breakdown-total">
-                          <dt>
-                            Engångsbetalning vid start
-                            <small>Samtliga belopp anges inklusive moms.</small>
-                          </dt>
-                          <dd>{formatLandingSek(selectedFirstPayment)}</dd>
-                        </div>
-                      </dl>
-                    </details>
+                    <button
+                      type="button"
+                      className="landing-package-breakdown-trigger"
+                      onClick={() => setPriceBreakdownOpen(true)}
+                    >
+                      Se exakt prisspecifikation
+                    </button>
                   </div>
                 </div>
                 <button
@@ -1152,6 +1094,30 @@ export default function Home() {
               läsbarhet.
             </p>
           </div>
+          {serviceLogos.length > 0 && (
+            <div className="landing-logo-rail landing-pricing-logo-rail" aria-label="Betalning och leverans">
+              <div className="landing-logo-track">
+                {[0, 1, 2].map((group) => (
+                  <div
+                    key={group}
+                    className="landing-logo-group"
+                    aria-hidden={group > 0 ? "true" : undefined}
+                  >
+                    {serviceLogos.map((logo) => (
+                      <span key={`${logo.label}-${group}`} className="landing-logo-tile">
+                        <Image
+                          src={logo.src}
+                          alt={group === 0 ? `${logo.label} logo` : ""}
+                          width={logo.width || 138}
+                          height={logo.height || 30}
+                        />
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </LandingSection>
 
         <LandingSection id="examples" title={t.galleryTitle} text={t.galleryText}>
@@ -1329,6 +1295,80 @@ export default function Home() {
                 {requestStatus === "saving" ? t.sending : t.submit}
               </button>
             </form>
+          </section>
+        </div>
+      )}
+
+      {priceBreakdownOpen && selectedScreenCount > 0 && (
+        <div className="landing-modal-backdrop" role="presentation">
+          <section
+            className="landing-modal landing-pricing-breakdown-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="landing-price-breakdown-title"
+          >
+            <button
+              type="button"
+              onClick={() => setPriceBreakdownOpen(false)}
+              className="landing-modal-close"
+              aria-label={t.close}
+              title={t.close}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+            <p className="landing-eyebrow">Prisöversikt</p>
+            <h2 id="landing-price-breakdown-title">Exakt prisspecifikation</h2>
+            <p>
+              Samtliga belopp anges inklusive moms. Specifikationen bygger på
+              den valda kombinationen av skärmar.
+            </p>
+            <dl className="landing-package-breakdown-list landing-package-breakdown-modal-list">
+              <div>
+                <dt>
+                  Start och konfiguration
+                  <small>
+                    Grundavgift {formatLandingSek(plans[0].setupFeeSek)} (upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar). Inkluderar personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen.
+                    {selectedAdditionalSetupScreens > 0
+                      ? ` ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}.`
+                      : ""}
+                  </small>
+                </dt>
+                <dd>{formatLandingSek(selectedSetupFee)}</dd>
+              </div>
+              <div>
+                <dt>
+                  Skärmenheter
+                  <small>Samtliga valda Full HD- och 4K-enheter.</small>
+                </dt>
+                <dd>{formatLandingSek(selectedHardwareTotal)}</dd>
+              </div>
+              <div>
+                <dt>
+                  Frakt inom Sverige
+                  <small>
+                    {formatLandingSek(BASE_SHIPPING_FEE_SEK)} (upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter)
+                    {selectedAdditionalShippingDevices > 0
+                      ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
+                      : ""}.
+                  </small>
+                </dt>
+                <dd>{formatLandingSek(selectedShippingTotal)}</dd>
+              </div>
+              <div className="landing-package-breakdown-total">
+                <dt>
+                  Engångsbetalning vid start
+                  <small>Startavgift, skärmenheter och frakt.</small>
+                </dt>
+                <dd>{formatLandingSek(selectedFirstPayment)}</dd>
+              </div>
+              <div>
+                <dt>
+                  Abonnemang efter provperiod
+                  <small>Debiteras efter 21 kostnadsfria dagar. Ingen bindningstid.</small>
+                </dt>
+                <dd>{formatLandingSek(selectedMonthlyTotal)}/mån</dd>
+              </div>
+            </dl>
           </section>
         </div>
       )}

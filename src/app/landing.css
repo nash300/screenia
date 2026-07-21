@@ -6969,21 +6969,6 @@
   font-size: 1.2rem;
 }
 
-.landing-package-breakdown {
-  margin-top: 6px;
-  border-top: 1px solid #dbe4f1;
-  padding-top: 8px;
-  color: var(--screenia-navy);
-}
-
-.landing-package-breakdown summary {
-  width: fit-content;
-  cursor: pointer;
-  color: var(--screenia-blue);
-  font-size: 0.76rem;
-  font-weight: 850;
-}
-
 .landing-package-breakdown-list {
   display: grid;
   gap: 0;
@@ -7940,6 +7925,198 @@
 
   .account-dialog-actions .landing-button {
     width: 100%;
+  }
+}
+
+/* Compact pricing composition and keep supporting services inside the section. */
+.landing-pricing .landing-section-panel {
+  padding: clamp(24px, 3vw, 38px);
+}
+
+.landing-pricing .landing-price-grid {
+  margin-top: 26px;
+}
+
+.landing-pricing .landing-price-card {
+  grid-template-rows:
+    24px
+    auto
+    132px
+    minmax(42px, auto)
+    minmax(148px, auto)
+    auto
+    auto
+    auto;
+  padding: 18px;
+}
+
+.landing-pricing .landing-plan-card-top {
+  min-height: 24px;
+}
+
+.landing-pricing .landing-plan-badge,
+.landing-pricing .landing-plan-badge-placeholder {
+  padding: 6px 9px;
+}
+
+.landing-pricing .landing-plan-heading {
+  min-height: 40px;
+}
+
+.landing-pricing .landing-plan-device {
+  min-height: 124px;
+  margin: 10px -4px;
+}
+
+.landing-pricing .landing-plan-device img {
+  height: 118px;
+}
+
+.landing-pricing .landing-plan-device span {
+  bottom: 9px;
+  left: 12px;
+  padding: 5px 8px;
+}
+
+.landing-pricing .landing-plan-description {
+  min-height: 42px;
+  margin-bottom: 6px;
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.landing-pricing .landing-price-card ul {
+  gap: 5px;
+  min-height: 148px;
+  margin: 2px 0 6px;
+}
+
+.landing-pricing .landing-price-card li {
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.landing-pricing .landing-plan-price {
+  margin: 8px 0;
+  padding: 10px 13px;
+}
+
+.landing-pricing .landing-plan-price strong {
+  font-size: clamp(1.8rem, 2.5vw, 2.2rem);
+}
+
+.landing-pricing .landing-price-row {
+  padding: 8px 10px;
+}
+
+.landing-pricing .landing-price-mini-grid {
+  padding-top: 10px;
+}
+
+.landing-pricing .landing-plan-quantity {
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.landing-pricing .landing-package-builder {
+  margin-top: 18px;
+  padding: 18px;
+}
+
+.landing-pricing .landing-package-builder-heading {
+  padding-bottom: 12px;
+}
+
+.landing-pricing .landing-package-lines,
+.landing-pricing .landing-package-totals {
+  margin-top: 12px;
+}
+
+.landing-package-breakdown-trigger {
+  width: fit-content;
+  margin-top: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--screenia-blue);
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.landing-package-breakdown-trigger:hover {
+  color: #073f9e;
+}
+
+.landing-package-breakdown-trigger:focus-visible {
+  outline: 3px solid rgba(47, 125, 246, 0.25);
+  outline-offset: 4px;
+}
+
+.landing-pricing-note {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 22px;
+  margin-top: 16px;
+  padding: 18px 20px !important;
+}
+
+.landing-pricing-note h3 {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+.landing-pricing-note p {
+  margin: 0;
+}
+
+.landing-pricing-logo-rail {
+  position: relative;
+  inset: auto;
+  width: calc(100% + 2 * clamp(24px, 3vw, 38px));
+  height: 72px;
+  margin: 20px calc(-1 * clamp(24px, 3vw, 38px)) calc(-1 * clamp(24px, 3vw, 38px));
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.2);
+}
+
+.landing-pricing-breakdown-modal {
+  width: min(680px, 100%);
+}
+
+.landing-package-breakdown-modal-list {
+  margin-top: 24px;
+  font-size: 0.84rem;
+}
+
+.landing-package-breakdown-modal-list > div {
+  padding: 13px 0;
+}
+
+.landing-package-breakdown-modal-list dt small {
+  margin-top: 5px;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.landing-package-breakdown-modal-list dd {
+  font-size: 0.88rem;
+}
+
+@media (max-width: 720px) {
+  .landing-pricing-note {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-pricing-logo-rail {
+    width: calc(100% + 32px);
+    margin-right: -16px;
+    margin-bottom: -22px;
+    margin-left: -16px;
+    border-radius: 0 0 14px 14px;
   }
 }
 
