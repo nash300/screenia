@@ -1,20 +1,28 @@
 export default function AdminTrainingPage() {
   return (
-    <div className="admin-training-empty">
+    <div className="admin-training-page">
       <header className="admin-page-header">
         <div>
           <p className="admin-operation-kicker">Screenia learning</p>
           <h1 className="admin-title">Training catalog</h1>
           <p className="admin-subtitle">
-            This workspace is reserved for future training material.
+            Compact admin procedures collected from realistic customer testing.
           </p>
         </div>
       </header>
 
-      <section className="admin-empty-state" aria-label="Empty training catalog">
-        <span className="admin-empty-state-icon" aria-hidden="true">TR</span>
-        <h2>No training content yet</h2>
-        <p>Lessons and reference material will be added here later.</p>
+      <section className="admin-training-panel admin-card" aria-label="Training catalog format">
+        <div>
+          <h2 className="admin-card-title">Scenario playbook</h2>
+          <p className="admin-muted">
+            Each tested scenario will add one short entry here: admin action,
+            when to use it, click path, evidence to check, and follow-up.
+          </p>
+        </div>
+        <div className="admin-training-empty-note">
+          <strong>No tested procedures recorded yet.</strong>
+          <span>Run the first realistic scenario, then add its compact procedure.</span>
+        </div>
       </section>
     </div>
   );

@@ -25,8 +25,12 @@ if (!navigation.includes('href: "/admin/troubleshooting"')) {
 if (layout.includes("AdminContextGuide") || layout.includes("admin-page-with-guide")) {
   problems.push("The global page guide must remain removed.");
 }
-if (!training.includes("No training content yet") || training.includes("help-catalog")) {
-  problems.push("Training catalog must remain an empty reserved workspace.");
+if (
+  !training.includes("Scenario playbook") ||
+  !training.includes("No tested procedures recorded yet") ||
+  training.includes("help-catalog")
+) {
+  problems.push("Training catalog must remain a compact scenario playbook workspace.");
 }
 if (!troubleshooting.includes('href="/admin/email-events"')) {
   problems.push("Troubleshooting must link to email evidence.");
@@ -49,4 +53,4 @@ if (problems.length) {
   process.exit(1);
 }
 
-console.log("Admin surface check passed: simplified navigation, empty training workspace, hidden email diagnostics, and no page guide.");
+console.log("Admin surface check passed: simplified navigation, scenario training workspace, hidden email diagnostics, and no page guide.");

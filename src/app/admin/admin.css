@@ -7159,11 +7159,37 @@ a.admin-button-secondary::after,
 
 }
 
-/* Reserved training workspace and troubleshooting tools */
-.admin-training-empty,
+/* Training workspace and troubleshooting tools */
+.admin-training-page,
 .admin-troubleshooting-page {
   display: grid;
   gap: 1rem;
+}
+
+.admin-training-panel {
+  display: grid;
+  gap: 1rem;
+  max-width: 920px;
+}
+
+.admin-training-empty-note {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-md);
+  background: rgba(255, 255, 255, 0.74);
+  padding: 0.9rem 1rem;
+  color: var(--admin-text);
+}
+
+.admin-training-empty-note strong {
+  color: var(--admin-heading);
+}
+
+.admin-training-empty-note span {
+  color: var(--admin-muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .admin-empty-state {
