@@ -8750,7 +8750,7 @@
     linear-gradient(
       115deg,
       rgba(9, 13, 18, 0.98) 0 44%,
-      rgba(31, 112, 103, 0.93) 44% 58%,
+      rgba(21, 94, 232, 0.80) 44% 58%,
       rgba(226, 222, 211, 0.95) 58% 100%
     ),
     url("/landing/section-art/platform-workflow.jpg") center / cover !important;
@@ -8922,7 +8922,7 @@
     linear-gradient(
       115deg,
       rgba(9, 13, 18, 0.96) 0 46%,
-      rgba(31, 112, 103, 0.9) 46% 59%,
+      rgba(21, 94, 232, 0.78) 46% 59%,
       rgba(226, 222, 211, 0.92) 59% 100%
     ),
     url("/landing/section-art/platform-workflow.jpg") center / cover !important;
@@ -8932,7 +8932,7 @@
   max-width: 1180px;
   border-color: rgba(221, 238, 255, 0.34) !important;
   background:
-    linear-gradient(145deg, rgba(24, 44, 48, 0.84), rgba(10, 13, 18, 0.68)),
+    linear-gradient(145deg, rgba(10, 45, 108, 0.84), rgba(10, 13, 18, 0.68)),
     rgba(12, 19, 22, 0.56) !important;
   box-shadow:
     0 34px 90px rgba(0, 10, 32, 0.34),
@@ -9553,7 +9553,7 @@
     .landing-contact
   ) {
     background:
-      linear-gradient(160deg, #090d12 0 40%, #1f7067 40% 51%, #e5dfd2 51% 100%),
+      linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
       url("/landing/section-art/platform-workflow.jpg") center / cover !important;
   }
 }
@@ -9564,17 +9564,17 @@
 ========================================= */
 .landing-page {
   --screenia-glass-panel:
-    linear-gradient(145deg, rgba(24, 44, 48, 0.82), rgba(10, 13, 18, 0.64)),
+    linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(10, 13, 18, 0.64)),
     rgba(12, 19, 22, 0.54);
   --screenia-glass-card:
     linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.055)),
     rgba(12, 19, 22, 0.38);
   --screenia-glass-soft:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(232, 238, 232, 0.82)),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(232, 244, 255, 0.84)),
     rgba(255, 255, 255, 0.9);
   --screenia-glass-border: rgba(205, 232, 224, 0.3);
   --screenia-glow-blue: rgba(109, 141, 255, 0.24);
-  --screenia-glow-cyan: rgba(105, 214, 198, 0.3);
+  --screenia-glow-cyan: rgba(109, 141, 255, 0.26);
   --screenia-glow-gold: rgba(242, 196, 109, 0.3);
 }
 
@@ -9620,7 +9620,7 @@
   inset: 0;
   border-radius: inherit;
   background:
-    radial-gradient(circle at 10% 0%, rgba(105, 214, 198, 0.16), transparent 28%),
+    radial-gradient(circle at 10% 0%, rgba(109, 141, 255, 0.16), transparent 28%),
     radial-gradient(circle at 94% 16%, rgba(242, 196, 109, 0.1), transparent 22%),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   background-size: auto, auto, 56px 56px;
@@ -9640,8 +9640,8 @@
   height: 4px;
   margin-bottom: 18px;
   border-radius: 999px;
-  background: linear-gradient(90deg, #69d6c6, #6d8dff 58%, #f2c46d);
-  box-shadow: 0 0 24px rgba(105, 214, 198, 0.2);
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
+  box-shadow: 0 0 24px rgba(109, 141, 255, 0.2);
   content: "";
 }
 
@@ -9678,7 +9678,7 @@
   position: absolute;
   inset: auto 0 0;
   height: 3px;
-  background: linear-gradient(90deg, #69d6c6, #6d8dff 58%, #f2c46d);
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
   content: "";
   opacity: 0.74;
   transform: scaleX(0.28);
@@ -9714,9 +9714,9 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   background:
     radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.34), transparent 34%),
-    linear-gradient(145deg, #69d6c6, #6d8dff 68%, #1f7067) !important;
+    linear-gradient(145deg, #2f7df6, #6d8dff 68%, #1d6ff2) !important;
   box-shadow:
-    0 16px 34px rgba(31, 112, 103, 0.28),
+    0 16px 34px rgba(47, 125, 246, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.24);
 }
 
@@ -9862,7 +9862,7 @@
     linear-gradient(
       115deg,
       rgba(9, 13, 18, 0.97) 0 44%,
-      rgba(31, 112, 103, 0.92) 44% 58%,
+      rgba(21, 94, 232, 0.78) 44% 58%,
       rgba(226, 222, 211, 0.96) 58% 100%
     ),
     url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
@@ -9973,7 +9973,7 @@
   .contact-main,
   .flow-page {
     background:
-      linear-gradient(160deg, #090d12 0 40%, #1f7067 40% 51%, #e5dfd2 51% 100%),
+      linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
       url("/landing/section-art/platform-workflow.jpg") center / cover !important;
   }
 }
@@ -9987,5 +9987,243 @@
   .contact-form-wrap,
   .flow-shell {
     border-radius: 14px !important;
+  }
+}
+
+/* Screenia logo-blue theme correction.
+   This final layer owns public marketing surfaces and prevents older teal/green
+   experiments or active-link overrides from leaking through. */
+.landing-page {
+  --screenia-logo-deep: #061942;
+  --screenia-logo-navy: #0a2f72;
+  --screenia-logo-blue: #2f7df6;
+  --screenia-logo-sky: #6d8dff;
+  --screenia-logo-ice: #eaf4ff;
+  --screenia-logo-soft: #f6fbff;
+  --screenia-logo-gold: #f2c46d;
+  --screenia-glass-panel:
+    linear-gradient(145deg, rgba(10, 45, 108, 0.76), rgba(5, 20, 55, 0.58)),
+    rgba(5, 20, 55, 0.42);
+  --screenia-glass-card:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.2), rgba(232, 244, 255, 0.07)),
+    rgba(7, 30, 78, 0.34);
+  --screenia-glass-soft:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.94), rgba(232, 244, 255, 0.84)),
+    rgba(255, 255, 255, 0.9);
+  --screenia-glass-border: rgba(211, 229, 255, 0.34);
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+) {
+  background:
+    radial-gradient(circle at 8% 12%, rgba(109, 141, 255, 0.36), transparent 28%),
+    radial-gradient(ellipse at 78% 8%, rgba(232, 244, 255, 0.52), transparent 34%),
+    radial-gradient(circle at 82% 78%, rgba(47, 125, 246, 0.22), transparent 34%),
+    linear-gradient(
+      118deg,
+      rgba(5, 20, 55, 0.96) 0 39%,
+      rgba(21, 94, 232, 0.8) 39% 54%,
+      rgba(236, 246, 255, 0.96) 54% 100%
+    ),
+    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+)::before {
+  background:
+    radial-gradient(ellipse at 12% 18%, rgba(255, 255, 255, 0.14), transparent 26%),
+    radial-gradient(ellipse at 58% 2%, rgba(109, 141, 255, 0.16), transparent 32%),
+    conic-gradient(from 238deg at 70% 18%, transparent 0 22%, rgba(255, 255, 255, 0.18) 23% 34%, transparent 35% 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) !important;
+  background-size: auto, auto, auto, 58px 58px, 58px 58px !important;
+  opacity: 0.92 !important;
+  -webkit-mask-image: radial-gradient(ellipse at 44% 42%, #000 0 66%, transparent 88%);
+  mask-image: radial-gradient(ellipse at 44% 42%, #000 0 66%, transparent 88%);
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+) > :is(.landing-section-panel, .landing-contact-panel) {
+  border-color: rgba(211, 229, 255, 0.38) !important;
+  background: var(--screenia-glass-panel) !important;
+  box-shadow:
+    0 34px 90px rgba(3, 18, 52, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.landing-page main > :is(
+  .landing-platform,
+  .landing-workflow,
+  .landing-pricing,
+  .landing-examples,
+  .landing-service-film,
+  .landing-faq,
+  .landing-contact
+) > :is(.landing-section-panel, .landing-contact-panel)::before,
+.contact-form-wrap::before,
+.flow-shell::before {
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 55%, #f2c46d) !important;
+  box-shadow: 0 0 28px rgba(109, 141, 255, 0.22);
+}
+
+.landing-page :is(
+  .landing-feature,
+  .landing-illustration,
+  .landing-workflow-step,
+  .landing-gallery-card,
+  .landing-faq-item,
+  .landing-price-card,
+  .landing-package-builder,
+  .landing-pricing-note
+) {
+  border-color: rgba(211, 229, 255, 0.28) !important;
+  background: var(--screenia-glass-card) !important;
+  box-shadow:
+    0 20px 54px rgba(3, 18, 52, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.landing-page :is(
+  .landing-feature,
+  .landing-illustration,
+  .landing-workflow-step,
+  .landing-gallery-card,
+  .landing-faq-item
+)::after {
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d) !important;
+}
+
+.landing-platform .landing-feature-icon {
+  background:
+    radial-gradient(circle at 28% 20%, rgba(255, 255, 255, 0.34), transparent 34%),
+    linear-gradient(145deg, #6d8dff, #2f7df6 64%, #0a3eaa) !important;
+  box-shadow:
+    0 16px 34px rgba(47, 125, 246, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
+}
+
+.landing-page main > .landing-pricing,
+.contact-main,
+.flow-page {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(109, 141, 255, 0.32), transparent 28%),
+    radial-gradient(ellipse at 80% 8%, rgba(232, 244, 255, 0.5), transparent 34%),
+    radial-gradient(circle at 78% 78%, rgba(47, 125, 246, 0.2), transparent 34%),
+    linear-gradient(
+      118deg,
+      rgba(5, 20, 55, 0.96) 0 39%,
+      rgba(21, 94, 232, 0.78) 39% 54%,
+      rgba(236, 246, 255, 0.96) 54% 100%
+    ),
+    url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
+}
+
+.landing-pricing .landing-section-panel {
+  background:
+    linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(5, 20, 55, 0.66)),
+    rgba(5, 20, 55, 0.56) !important;
+}
+
+.landing-pricing .landing-price-card {
+  background:
+    radial-gradient(circle at 82% 4%, rgba(109, 141, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(13, 55, 126, 0.9), rgba(5, 20, 55, 0.86)),
+    rgba(5, 24, 60, 0.74) !important;
+}
+
+.landing-pricing .landing-price-card::before,
+.landing-pricing .landing-price-card.featured::before {
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, rgba(242, 196, 109, 0.92)) !important;
+}
+
+.landing-modal-backdrop {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(109, 141, 255, 0.22), transparent 28%),
+    rgba(3, 14, 38, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(110%) !important;
+}
+
+.landing-modal {
+  border-color: rgba(211, 229, 255, 0.72) !important;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(109, 141, 255, 0.14), transparent 28%),
+    linear-gradient(150deg, rgba(234, 244, 255, 0.9), #ffffff 48%),
+    #ffffff !important;
+  box-shadow:
+    0 38px 98px rgba(3, 18, 52, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.82) !important;
+}
+
+.landing-modal-close {
+  border: 1px solid rgba(211, 229, 255, 0.8) !important;
+  background:
+    linear-gradient(145deg, #ffffff, #eaf4ff) !important;
+  color: var(--screenia-logo-deep) !important;
+  box-shadow: 0 14px 30px rgba(3, 18, 52, 0.12) !important;
+}
+
+.landing-modal-close:hover {
+  background:
+    linear-gradient(145deg, #2f7df6, #0f63f4) !important;
+  color: #ffffff !important;
+}
+
+.contact-form-wrap,
+.flow-shell {
+  background: var(--screenia-glass-soft) !important;
+}
+
+.landing-nav-primary a.is-active,
+.how-page .landing-nav-primary a.is-active,
+.about-page .landing-nav-primary a.is-active {
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(232, 244, 255, 0.92), rgba(255, 255, 255, 0.72)) !important;
+  color: var(--screenia-logo-deep) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(47, 125, 246, 0.18),
+    0 10px 24px rgba(3, 18, 52, 0.08);
+  padding: 8px 12px;
+}
+
+@media (max-width: 900px) {
+  .landing-page main > :is(
+    .landing-platform,
+    .landing-workflow,
+    .landing-pricing,
+    .landing-examples,
+    .landing-service-film,
+    .landing-faq,
+    .landing-contact
+  ),
+  .contact-main,
+  .flow-page {
+    background:
+      radial-gradient(circle at 14% 8%, rgba(109, 141, 255, 0.28), transparent 30%),
+      radial-gradient(circle at 92% 76%, rgba(47, 125, 246, 0.18), transparent 34%),
+      linear-gradient(160deg, #061942 0 42%, #1d6ff2 42% 53%, #eaf4ff 53% 100%),
+      url("/landing/section-art/platform-workflow.jpg") center / cover !important;
   }
 }

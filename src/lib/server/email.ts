@@ -83,12 +83,12 @@ export function renderBrandedEmail({
           }
         </style>
       </head>
-      <body style="margin:0; padding:0; background:#eaf2ff;">
-    <div style="margin:0; padding:0; background:#eaf2ff;">
+      <body style="margin:0; padding:0; background:#eaf4ff;">
+    <div style="margin:0; padding:0; background:radial-gradient(circle at 12% 8%, rgba(109,141,255,0.30), transparent 30%), radial-gradient(circle at 88% 8%, rgba(255,255,255,0.78), transparent 34%), linear-gradient(135deg,#061942 0%,#1d6ff2 46%,#eaf4ff 100%);">
       <div class="screenia-email-shell" style="max-width:680px; margin:0 auto; padding:32px 16px; font-family:Arial, sans-serif; color:#102033; line-height:1.6;">
-        <div style="overflow:hidden; border:1px solid #cadcf5; border-radius:18px; background:#ffffff; box-shadow:0 24px 64px rgba(6,25,66,0.14);">
-          <div style="height:5px; background:linear-gradient(90deg,#0f63f4 0%,#20b9e8 58%,#f3b642 100%);"></div>
-          <div class="screenia-email-header" style="background:#061942; padding:22px 26px;">
+        <div style="overflow:hidden; border:1px solid #cfe2ff; border-radius:18px; background:#ffffff; box-shadow:0 28px 72px rgba(6,25,66,0.20);">
+          <div style="height:5px; background:linear-gradient(90deg,#2f7df6 0%,#6d8dff 58%,#f2c46d 100%);"></div>
+          <div class="screenia-email-header" style="background:radial-gradient(circle at 82% 0%, rgba(109,141,255,0.32), transparent 30%), linear-gradient(135deg,#061942,#0f63f4); padding:22px 26px;">
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="padding:0 12px 0 0; vertical-align:middle;"><img src="${logoUrl}" alt="" width="44" height="44" style="display:block; width:44px; height:44px; border:0;" /></td>
               <td style="vertical-align:middle; font-family:Arial, sans-serif; font-size:24px; font-weight:800; line-height:1; color:#ffffff;">screenia<span style="color:#4ea3ff;">.se</span></td>
@@ -97,7 +97,7 @@ export function renderBrandedEmail({
           <div class="screenia-email-section" style="padding:30px 28px 8px;">
             ${
               eyebrow
-                ? `<p style="margin:0 0 12px; color:#155ee8; font-size:12px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;">${eyebrow}</p>`
+                ? `<p style="margin:0 0 12px; color:#0f63f4; font-size:12px; font-weight:800; letter-spacing:0.14em; text-transform:uppercase;">${eyebrow}</p>`
                 : ""
             }
             <h1 class="screenia-email-title" style="margin:0; font-family:'Special Elite', Georgia, serif; font-size:34px; font-weight:400; line-height:1.12; color:#061942; overflow-wrap:anywhere;">${title}</h1>
@@ -110,7 +110,7 @@ export function renderBrandedEmail({
           ${
             showHelper
               ? `<div style="padding:18px 28px 0; text-align:center;">
-                  <div style="display:inline-block; border:1px solid #d8e7fb; border-radius:16px; background:#f3f8ff; padding:12px 22px 0;">
+                  <div style="display:inline-block; border:1px solid #d8e7fb; border-radius:16px; background:linear-gradient(145deg,#ffffff,#eaf4ff); padding:12px 22px 0; box-shadow:0 18px 40px rgba(6,25,66,0.08);">
                     <img src="${helperUrl}" alt="Screenia hj&auml;lper dig med sk&auml;rmen" width="136" height="205" style="display:block; width:136px !important; max-width:136px !important; height:auto !important; border-radius:12px 12px 0 0;" />
                   </div>
                 </div>`
@@ -119,7 +119,7 @@ export function renderBrandedEmail({
           <div class="screenia-email-section" style="padding:18px 28px 30px;">
             ${children}
           </div>
-          <div style="border-top:1px solid #dce8f8; background:#f4f8fe; padding:18px 28px; color:#65788d; font-size:13px;">
+          <div style="border-top:1px solid #dce8f8; background:linear-gradient(145deg,#f8fbff,#eaf4ff); padding:18px 28px; color:#65788d; font-size:13px;">
             <strong style="color:#061942;">${footer}</strong><br />
             <span>Digital skyltning, tydligt hanterad.</span><br />
             <a href="mailto:${CLIENT_COMMUNICATION_FROM_EMAIL}" style="color:#155ee8; text-decoration:underline;">${CLIENT_COMMUNICATION_FROM_EMAIL}</a>
