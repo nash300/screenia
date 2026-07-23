@@ -738,10 +738,10 @@
   font-size: 0.9rem;
 }
 
-.admin-order-number {
-  color: #2f7df6 !important;
-  font-size: 0.76rem !important;
-  font-weight: 950 !important;
+.admin-order-card .admin-order-number {
+  color: #2f7df6;
+  font-size: 0.76rem;
+  font-weight: 950;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -862,13 +862,13 @@
   color: #ffffff;
 }
 
-.admin-order-note {
-  margin-top: 14px !important;
+.admin-order-card .admin-order-note {
+  margin-top: 14px;
   border-left: 4px solid #f59e0b;
   border-radius: 12px;
   background: #fff9ed;
   padding: 12px;
-  color: #7a4a03 !important;
+  color: #7a4a03;
   white-space: pre-wrap;
 }
 
@@ -6603,19 +6603,19 @@
   min-width: 0;
   min-height: 92px;
   overflow: hidden;
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  border-radius: 16px !important;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(238, 245, 255, 0.86)) !important;
-  padding: 0.7rem !important;
-  color: #061942 !important;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(238, 245, 255, 0.86));
+  padding: 0.7rem;
+  color: #061942;
   text-align: left;
   white-space: normal;
-  box-shadow: 0 12px 24px rgba(7, 31, 84, 0.06) !important;
+  box-shadow: 0 12px 24px rgba(7, 31, 84, 0.06);
 }
 
 .admin-layout .admin-customer-workflow-step.admin-customer-workflow-step-active {
-  background: linear-gradient(135deg, #061942, #2f7df6) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #061942, #2f7df6);
+  color: #ffffff;
 }
 
 .admin-customer-workflow-step strong,
