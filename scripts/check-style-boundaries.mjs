@@ -505,6 +505,10 @@ if (landingNavSource.includes("landing-nav-link-active")) {
   problems.push("LandingNav must keep primary navigation links text-only and must not add landing-nav-link-active state classes.");
 }
 
+if (landingPageSource.includes('? "featured" : ""') || landingPageSource.includes("'featured'")) {
+  problems.push("Landing pricing cards must use landing-price-card-featured instead of a generic featured class.");
+}
+
 if (!landingNavSource.includes('aria-current={isCurrentPage ? "page" : undefined}')) {
   problems.push("LandingNav must expose current primary pages through aria-current instead of button-like active classes.");
 }
@@ -614,7 +618,7 @@ for (const singleOwnerLandingSelector of [
   ".landing-pricing .landing-price-card",
   ".landing-pricing .landing-price-card:hover",
   ".landing-pricing .landing-price-card::before",
-  ".landing-pricing .landing-price-card.featured::before",
+  ".landing-pricing .landing-price-card-featured::before",
   ".landing-gallery-grid",
   ".landing-gallery-card",
   ".landing-gallery-card::after",
@@ -699,6 +703,7 @@ for (const retiredUnscopedPricingOwner of [
   ".landing-price-card::before",
   ".landing-price-card::after",
   ".landing-price-card.featured",
+  ".landing-pricing .landing-price-card.featured",
   ".landing-price-grid",
   ".landing-plan-card-top",
   ".landing-plan-badge",

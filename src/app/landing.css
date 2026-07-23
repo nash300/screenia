@@ -5089,7 +5089,7 @@
   pointer-events: none;
 }
 
-.landing-pricing .landing-price-card.featured::before {
+.landing-pricing .landing-price-card-featured::before {
   background:
     linear-gradient(90deg, #2f7df6, #6d8dff 58%, rgba(242, 196, 109, 0.92));
 }
@@ -5121,7 +5121,7 @@
   text-transform: uppercase;
 }
 
-.landing-pricing .landing-price-card.featured .landing-plan-badge {
+.landing-pricing .landing-price-card-featured .landing-plan-badge {
   background: linear-gradient(135deg, #ffe37a, #ffad20);
   color: #2b2100;
   box-shadow:
@@ -5259,7 +5259,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-.landing-pricing .landing-price-card.featured .landing-plan-price {
+.landing-pricing .landing-price-card-featured .landing-plan-price {
   border-left-color: #ffd21f;
 }
 

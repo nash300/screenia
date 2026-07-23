@@ -925,7 +925,7 @@ export default function Home() {
                 <article
                   key={plan.name}
                   className={`landing-price-card landing-price-card-${plan.cardAccent} ${
-                    plan.featured ? "featured" : ""
+                    plan.featured ? "landing-price-card-featured" : ""
                   }`}
                 >
                   <div className="landing-plan-card-top">
