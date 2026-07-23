@@ -6265,13 +6265,33 @@
   display: flex;
   min-width: 0;
   gap: 0.75rem;
+  text-align: left;
+  text-decoration: none;
+}
+
+.admin-content-hub-card {
   border: 2px solid var(--admin-surface-highlight);
   border-right-color: var(--admin-surface-shadow);
   border-bottom-color: var(--admin-surface-shadow);
   background: var(--admin-surface-face);
   color: var(--admin-surface-text);
-  text-align: left;
-  text-decoration: none;
+}
+
+.admin-document-list-item {
+  width: 100%;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: auto;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  background-image: none;
+  color: var(--admin-text);
+  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05);
+  padding: 0.75rem;
+  white-space: normal;
+  cursor: pointer;
 }
 
 .admin-content-hub-card {
@@ -6341,14 +6361,11 @@
   scrollbar-gutter: stable;
 }
 
-.admin-document-list-item {
-  width: 100%;
-  flex-direction: column;
-  padding: 0.75rem;
-  cursor: pointer;
-}
-
+.admin-document-list-item:hover,
 .admin-document-list-item.admin-document-list-item-active {
+  border-color: rgba(47, 125, 246, 0.44);
+  background: linear-gradient(135deg, #ffffff, #eef5ff);
+  color: var(--admin-text);
   outline: 2px solid var(--admin-surface-title);
   outline-offset: -4px;
 }
@@ -7730,38 +7747,6 @@
     align-items: flex-start;
     flex-direction: column;
   }
-}
-
-/* Document list contrast guard for custom button-like rows. */
-.admin-layout button.admin-document-list-item {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  min-height: auto;
-  border: 1px solid rgba(47, 125, 246, 0.16);
-  border-radius: var(--admin-radius-md);
-  background: #ffffff;
-  background-image: none;
-  color: var(--admin-text);
-  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05);
-  text-align: left;
-  white-space: normal;
-}
-
-.admin-layout button.admin-document-list-item:hover,
-.admin-layout button.admin-document-list-item.admin-document-list-item-active {
-  border-color: rgba(47, 125, 246, 0.44);
-  background: linear-gradient(135deg, #ffffff, #eef5ff);
-  color: var(--admin-text);
-}
-
-.admin-layout button.admin-document-list-item strong {
-  color: var(--admin-text);
-}
-
-.admin-layout button.admin-document-list-item span,
-.admin-layout button.admin-document-list-item small {
-  color: var(--admin-muted-text);
 }
 
 .admin-layout .admin-nav-icon {

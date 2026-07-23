@@ -1060,6 +1060,10 @@ if (adminCss.includes("button.admin-document-list-item.is-active")) {
   problems.push("src/app/admin/admin.css must style button.admin-document-list-item-active instead of generic document list is-active.");
 }
 
+if (adminCss.includes("button.admin-document-list-item")) {
+  problems.push("src/app/admin/admin.css must not style document list rows by tag. Use class-owned admin-document-list-item selectors.");
+}
+
 if (!adminCss.includes(".admin-document-list-item.admin-document-list-item-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-document-list-item-active selector.");
 }
