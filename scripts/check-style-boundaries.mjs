@@ -322,6 +322,13 @@ for (const retiredAdminHelper of [
   }
 }
 
+if (
+  /\.admin-customers-search(?:\s|,|\{|::)/.test(adminCss) ||
+  adminCss.includes(".admin-customers-search .")
+) {
+  problems.push("src/app/admin/admin.css must not keep retired admin-customers-search wrapper styling. Use admin-customers-toolbar/search-row.");
+}
+
 if (!adminCss.includes(".admin-operation-card.admin-operation-card-selected")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-operation-card-selected selector.");
 }
@@ -667,7 +674,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 206,
+    max: 203,
   },
   {
     file: "src/app/landing.css",

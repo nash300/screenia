@@ -1895,13 +1895,11 @@
 }
 
 .admin-customers-create,
-.admin-customers-search,
 .admin-customers-list-panel {
   position: relative;
 }
 
 .admin-customers-create::before,
-.admin-customers-search::before,
 .admin-customers-list-panel::before {
   display: block;
   margin: -0.75rem -0.75rem 0.65rem;
@@ -1917,10 +1915,6 @@
 
 .admin-customers-create::before {
   content: "New record";
-}
-
-.admin-customers-search::before {
-  content: "Filters";
 }
 
 .admin-customers-list-panel::before {
@@ -5004,13 +4998,6 @@
   width: fit-content;
   margin-top: 1rem !important;
   clear: both;
-}
-
-.admin-customers-search .rounded-2xl,
-.admin-customers-search .bg-blue-50\/60 {
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  border-radius: var(--admin-radius-lg) !important;
-  background: #f7fbff !important;
 }
 
 @media (max-width: 900px) {
