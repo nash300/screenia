@@ -91,61 +91,6 @@ section h1 {
 }
 
 /* ==============================
-   Navbar
-============================== */
-.navbar {
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: var(--nav-height);
-  padding: 0 !important;
-  z-index: 1000;
-}
-
-.navbar-glass {
-  height: var(--nav-height);
-  padding: 0 !important;
-  background: linear-gradient(
-    90deg,
-    var(--brand-orange) 0%,
-    var(--brand-orange-dark) 58%,
-    var(--brand-red-orange) 100%
-  );
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 12px 32px rgba(8, 37, 74, 0.14);
-}
-
-.navbar .container {
-  height: var(--nav-height);
-  max-width: none;
-  padding-left: 0;
-  padding-right: clamp(1rem, 6vw, 7rem);
-}
-
-.navbar-nav {
-  margin-left: auto;
-}
-
-.navbar-nav .nav-link {
-  padding: 0 !important;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
-  font-weight: 700;
-  color: rgb(17, 24, 39) !important;
-}
-
-.navbar-nav .nav-link:hover,
-.nav-link.active {
-  color: var(--brand-navy) !important;
-}
-
-.nav-link.active {
-  font-weight: 800;
-  border-bottom: 2px solid var(--brand-navy);
-  padding-bottom: 2px !important;
-}
-
-/* ==============================
    Brand Logo
 ============================== */
 .screenia-logo {
@@ -207,342 +152,17 @@ section h1 {
   width: min(10rem, 58vw);
 }
 
-.navbar-brand {
-  font-size: 1.5rem;
-}
-
-.brand-logo {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: min(30vw, 560px);
-  min-width: 360px;
-  height: var(--nav-height);
-  display: flex;
-  align-items: stretch;
-  padding: 0 !important;
-  margin: 0;
-  text-decoration: none;
-  overflow: hidden;
-  z-index: 2;
-}
-
-.brand-logo-inner {
-  width: 100%;
-  height: var(--nav-height);
-  display: flex;
-  align-items: center;
-  gap: 0.95rem;
-  padding-left: clamp(1rem, 3vw, 3rem);
-  padding-right: 5rem;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.98),
-    rgba(255, 255, 255, 0.86) 58%,
-    rgba(255, 255, 255, 0)
-  );
-}
-
-.brand-logo::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: -1px;
-  bottom: 0;
-  width: 36%;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0),
-    var(--brand-orange-dark)
-  );
-}
-
-.brand-mark {
-  width: 54px;
-  height: 54px;
-  display: block;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
-
-.brand-wordmark {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 1.3rem;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.brand-info {
-  color: var(--brand-navy);
-}
-
-.brand-sync {
-  color: var(--brand-orange-dark);
-}
-
-/* ==============================
-   Buttons
-============================== */
-.btn-dark {
-  background-color: var(--brand-dark);
-  border: none;
-}
-
-.btn-dark:hover {
-  background-color: var(--brand-navy);
-}
-
-/* ==============================
-   Mobile Menu
-============================== */
-.mobile-toggle {
-  border: none;
-  background: none;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-.mobile-toggle .bar {
-  width: 26px;
-  height: 3px;
-  background: var(--brand-navy);
-  border-radius: 2px;
-  transition: 0.3s ease;
-}
-
-.mobile-toggle .bar.open:nth-child(1) {
-  transform: translateY(8px) rotate(45deg);
-}
-
-.mobile-toggle .bar.open:nth-child(2) {
-  opacity: 0;
-}
-
-.mobile-toggle .bar.open:nth-child(3) {
-  transform: translateY(-8px) rotate(-45deg);
-}
-
-.mobile-menu {
-  position: absolute;
-  top: var(--nav-height);
-  left: 0;
-  right: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  background: rgb(255, 255, 255);
-  opacity: 0;
-  transform: translateY(-15px);
-  pointer-events: none;
-  transition:
-    opacity 0.25s ease,
-    transform 0.25s ease;
-  border-bottom: 1px solid rgba(8, 37, 74, 0.08);
-  border-radius: 0 0 12px 12px;
-  box-shadow: 0 16px 32px rgba(8, 37, 74, 0.12);
-  z-index: 999;
-}
-
-.mobile-menu.open {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.mobile-menu a {
-  padding: 14px 0;
-  color: var(--brand-navy);
-  text-decoration: none;
-  font-size: 1.1rem;
-  font-weight: 700;
-  border-bottom: 1px solid rgb(238, 242, 247);
-}
-
-.mobile-menu a:last-of-type {
-  border-bottom: none;
-}
-
-.mobile-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(8, 37, 74, 0.28);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s ease;
-  z-index: 998;
-}
-
-.mobile-backdrop.open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-/* ==============================
-   Page Transition
-============================== */
-.page-transition {
-  transition: opacity 0.25s ease;
-}
-
-.page-transition.fade-in {
-  opacity: 1;
-}
-
-.page-transition.fade-out {
-  opacity: 0;
-}
-
 /* ==============================
    Responsive
 ============================== */
-@media (min-width: 992px) {
-  .navbar-nav {
-    flex-direction: row !important;
-  }
-
-  .mobile-toggle,
-  .mobile-menu {
-    display: none;
-  }
-}
-
 @media (max-width: 768px) {
   :root {
     --nav-height: 70px;
-  }
-
-  .navbar .container {
-    padding-right: 1rem;
-  }
-
-  .brand-logo {
-    width: 72vw;
-    min-width: 0;
-  }
-
-  .brand-logo-inner {
-    gap: 0.6rem;
-    padding-left: 1rem;
-    padding-right: 3.25rem;
-  }
-
-  .brand-mark {
-    width: 44px;
-    height: 44px;
-  }
-
-  .brand-wordmark {
-    font-size: 1rem;
-    letter-spacing: 0.07em;
   }
 }
 
 /* ==============================
    Screenia Auth Surface
-============================== */
-.screenia-auth-shell {
-  position: relative;
-  isolation: isolate;
-}
-
-.screenia-auth-bg {
-  background:
-    radial-gradient(circle at 18% 18%, rgba(47, 125, 246, 0.36), transparent 28%),
-    radial-gradient(circle at 82% 10%, rgba(244, 122, 32, 0.16), transparent 24%),
-    linear-gradient(135deg, #061942 0%, #0a2b70 50%, #f6f9ff 50.2%, #ffffff 100%);
-}
-
-.screenia-auth-bg::before {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
-  background-size: 34px 34px;
-  content: "";
-  mask-image: linear-gradient(90deg, #000, transparent 62%);
-}
-
-.screenia-auth-card {
-  border-radius: 16px;
-  box-shadow:
-    0 28px 72px rgba(3, 15, 38, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.76);
-}
-
-.screenia-auth-input {
-  min-height: 48px;
-  border-color: rgba(47, 125, 246, 0.16);
-  border-radius: 10px;
-  background: #f8fbff;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-}
-
-.screenia-auth-input:focus {
-  border-color: rgba(47, 125, 246, 0.7);
-  background: #ffffff;
-  box-shadow: 0 0 0 4px rgba(47, 125, 246, 0.14);
-}
-
-.screenia-auth-button {
-  border-radius: 10px !important;
-  background: linear-gradient(135deg, #2f7df6, #155ee8);
-  box-shadow: 0 18px 38px rgba(47, 125, 246, 0.26);
-}
-
-.screenia-auth-button:hover {
-  box-shadow: 0 22px 46px rgba(47, 125, 246, 0.32);
-  transform: translateY(-1px);
-}
-
-.screenia-auth-button:disabled {
-  background: linear-gradient(135deg, #9fc5ff, #78a9f0);
-  box-shadow: none;
-  color: rgba(255, 255, 255, 0.94);
-  opacity: 1;
-}
-
-.screenia-auth-secondary-button {
-  border-color: rgba(47, 125, 246, 0.16);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(6, 25, 66, 0.08);
-}
-
-.screenia-auth-secondary-button:hover {
-  border-color: rgba(47, 125, 246, 0.42);
-  box-shadow: 0 16px 34px rgba(6, 25, 66, 0.12);
-  transform: translateY(-1px);
-}
-
-.screenia-auth-secondary-button:disabled {
-  background: #f4f7fb;
-  color: #66758f !important;
-  opacity: 1;
-}
-
-@media (max-width: 768px) {
-  .screenia-auth-bg {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(47, 125, 246, 0.28), transparent 34%),
-      linear-gradient(180deg, #061942 0%, #0b2b70 36%, #f6f9ff 36.2%, #ffffff 100%);
-  }
-
-  .screenia-auth-card {
-    border-radius: 14px;
-  }
-}
-
-/* ==============================
-   Screenia Auth Surface Polish
    Matches the public landing visual system.
 ============================== */
 .screenia-auth-shell {
@@ -555,7 +175,7 @@ section h1 {
       rgba(10, 61, 135, 0.94) 44% 58%,
       rgba(229, 240, 252, 0.96) 58% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+    url("/landing/section-art/platform-workflow.jpg") center / cover;
 }
 
 .screenia-auth-shell::before {
@@ -575,8 +195,8 @@ section h1 {
   background:
     radial-gradient(circle at 18% 16%, rgba(68, 215, 255, 0.2), transparent 28%),
     radial-gradient(circle at 78% 18%, rgba(255, 210, 31, 0.1), transparent 22%),
-    linear-gradient(90deg, rgba(3, 14, 38, 0.24), rgba(3, 14, 38, 0.08)) !important;
-  opacity: 1 !important;
+    linear-gradient(90deg, rgba(3, 14, 38, 0.24), rgba(3, 14, 38, 0.08));
+  opacity: 1;
 }
 
 .screenia-auth-bg::before {
@@ -604,22 +224,22 @@ section h1 {
 
 .screenia-auth-shell section.text-white h1 {
   font-family: var(--font-special-elite), Georgia, serif;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
+  font-weight: 400;
+  letter-spacing: 0;
   text-shadow: 0 14px 36px rgba(0, 10, 32, 0.32);
 }
 
 .screenia-auth-card {
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(218, 236, 255, 0.48) !important;
-  border-radius: 20px !important;
+  border: 1px solid rgba(218, 236, 255, 0.48);
+  border-radius: 20px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(232, 243, 255, 0.88)),
-    rgba(255, 255, 255, 0.92) !important;
+    rgba(255, 255, 255, 0.92);
   box-shadow:
     0 34px 90px rgba(0, 10, 32, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.88) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.88);
 }
 
 .screenia-auth-card::before {
@@ -632,56 +252,84 @@ section h1 {
 
 .screenia-auth-card h1 {
   font-family: var(--font-special-elite), Georgia, serif;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .screenia-auth-input {
   min-height: 52px;
-  border-color: rgba(70, 111, 171, 0.26) !important;
-  border-radius: 12px !important;
-  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(70, 111, 171, 0.26);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
   box-shadow:
     0 10px 24px rgba(6, 25, 66, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .screenia-auth-input:focus {
-  border-color: rgba(47, 125, 246, 0.72) !important;
-  background: #ffffff !important;
+  border-color: rgba(47, 125, 246, 0.72);
+  background: #ffffff;
   box-shadow:
     0 0 0 4px rgba(47, 125, 246, 0.14),
-    0 12px 28px rgba(6, 25, 66, 0.08) !important;
+    0 12px 28px rgba(6, 25, 66, 0.08);
 }
 
 .screenia-auth-button {
-  border-radius: 999px !important;
+  border-radius: 999px;
   background:
     radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.34), transparent 32%),
-    linear-gradient(135deg, #2f7df6, #155ee8 68%, #0a3eaa) !important;
+    linear-gradient(135deg, #2f7df6, #155ee8 68%, #0a3eaa);
   box-shadow:
     0 18px 38px rgba(47, 125, 246, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.screenia-auth-button:hover {
+  box-shadow:
+    0 22px 46px rgba(47, 125, 246, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.screenia-auth-button:disabled {
+  background: linear-gradient(135deg, #9fc5ff, #78a9f0);
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.94);
+  opacity: 1;
 }
 
 .screenia-auth-secondary-button {
-  border-color: rgba(70, 111, 171, 0.22) !important;
-  border-radius: 999px !important;
+  border-color: rgba(70, 111, 171, 0.22);
+  border-radius: 999px;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 245, 255, 0.86)) !important;
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 245, 255, 0.86));
   box-shadow:
     0 14px 32px rgba(6, 25, 66, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+}
+
+.screenia-auth-secondary-button:hover {
+  border-color: rgba(47, 125, 246, 0.42);
+  box-shadow:
+    0 16px 34px rgba(6, 25, 66, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  transform: translateY(-1px);
+}
+
+.screenia-auth-secondary-button:disabled {
+  background: #f4f7fb;
+  color: #66758f;
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
   .screenia-auth-shell {
     background:
       linear-gradient(160deg, #061942 0 38%, #0d4b9f 38% 48%, #edf5ff 48% 100%),
-      url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+      url("/landing/section-art/platform-workflow.jpg") center / cover;
   }
 
   .screenia-auth-card {
-    border-radius: 16px !important;
+    border-radius: 16px;
   }
 }

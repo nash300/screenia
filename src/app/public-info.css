@@ -26,7 +26,7 @@
       rgba(21, 94, 232, 0.82) 41% 56%,
       rgba(236, 246, 255, 0.96) 56% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
+    url("/landing/section-art/platform-workflow.jpg") center / cover fixed;
 }
 
 .public-info-page :is(.how-hero, .how-promo-section, .about-hero, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing) {
@@ -36,7 +36,7 @@
   border-radius: 18px;
   background:
     linear-gradient(145deg, rgba(10, 45, 108, 0.68), rgba(5, 20, 55, 0.54)),
-    rgba(5, 20, 55, 0.42) !important;
+    rgba(5, 20, 55, 0.42);
   box-shadow:
     0 30px 82px rgba(0, 10, 32, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -51,7 +51,7 @@
   right: 0;
   left: 0;
   height: 4px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 52%, #f2c46d) !important;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 52%, #f2c46d);
   content: "";
   pointer-events: none;
 }
@@ -115,7 +115,7 @@
   border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(4, 16, 42, 0.04), rgba(4, 16, 42, 0.44)),
-    url("/landing/free-source/retail-digital-signage.jpg") center / cover !important;
+    url("/landing/free-source/retail-digital-signage.jpg") center / cover;
   box-shadow: 0 28px 66px rgba(0, 10, 32, 0.32);
   content: "";
   transform: translateY(-42%);
@@ -189,7 +189,7 @@
   border-radius: 14px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
-    rgba(7, 30, 78, 0.4) !important;
+    rgba(7, 30, 78, 0.4);
   box-shadow:
     0 18px 48px rgba(0, 10, 32, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -309,7 +309,7 @@
   border-radius: 16px;
   background:
     radial-gradient(circle at 42% 18%, rgba(255, 255, 255, 0.24), transparent 26%),
-    linear-gradient(145deg, rgba(109, 141, 255, 0.38), rgba(5, 20, 55, 0.82)) !important;
+    linear-gradient(145deg, rgba(109, 141, 255, 0.38), rgba(5, 20, 55, 0.82));
   box-shadow:
     0 28px 70px rgba(0, 10, 32, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -387,7 +387,7 @@
   border-radius: 16px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
-    rgba(7, 30, 78, 0.38) !important;
+    rgba(7, 30, 78, 0.38);
   box-shadow:
     0 18px 48px rgba(0, 10, 32, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -457,7 +457,7 @@
   border-radius: 14px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
-    rgba(7, 30, 78, 0.36) !important;
+    rgba(7, 30, 78, 0.36);
   box-shadow:
     0 18px 48px rgba(0, 10, 32, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -482,14 +482,14 @@
   background:
     radial-gradient(circle at 88% 18%, rgba(242, 196, 109, 0.18), transparent 30%),
     linear-gradient(145deg, rgba(21, 94, 232, 0.58), rgba(5, 20, 55, 0.66)),
-    rgba(7, 30, 78, 0.42) !important;
+    rgba(7, 30, 78, 0.42);
 }
 
 .public-info-page .about-proof {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   background:
     linear-gradient(135deg, rgba(5, 20, 55, 0.78), rgba(21, 94, 232, 0.52)),
-    rgba(7, 30, 78, 0.5) !important;
+    rgba(7, 30, 78, 0.5);
 }
 
 .public-info-page .about-proof-card {
@@ -547,7 +547,7 @@
     background:
       radial-gradient(circle at 14% 8%, rgba(109, 141, 255, 0.28), transparent 30%),
       linear-gradient(160deg, #061942 0 42%, #1d6ff2 42% 53%, #eaf4ff 53% 100%),
-      url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+      url("/landing/section-art/platform-workflow.jpg") center / cover;
   }
 
   .public-info-page .how-hero,
