@@ -3006,6 +3006,135 @@
   overflow-wrap: anywhere;
 }
 
+.admin-customer-orders-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-customer-orders-title {
+  font-size: 1rem;
+}
+
+.admin-customer-orders-empty,
+.admin-customer-orders-list {
+  margin-top: 1rem;
+}
+
+.admin-customer-orders-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-customer-order-card {
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.8rem;
+}
+
+.admin-customer-order-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, auto);
+  gap: 0.8rem;
+  justify-content: space-between;
+}
+
+.admin-customer-order-number {
+  margin: 0;
+  color: #061942;
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.admin-customer-order-meta,
+.admin-customer-order-state {
+  margin: 0.25rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.admin-customer-order-meta {
+  color: #52627a;
+}
+
+.admin-customer-order-state {
+  font-weight: 800;
+}
+
+.admin-customer-order-state-info {
+  color: #1d4ed8;
+}
+
+.admin-customer-order-state-warning {
+  color: #a16207;
+}
+
+.admin-customer-order-totals {
+  color: #52627a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: right;
+}
+
+.admin-customer-order-totals p {
+  margin: 0 0 0.25rem;
+}
+
+.admin-customer-refunds {
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(47, 125, 246, 0.16);
+  padding-top: 1.25rem;
+}
+
+.admin-customer-refunds-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-customer-refunds-header h3 {
+  margin: 0;
+  color: #061942;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.admin-customer-refunds-header p {
+  margin: 0.25rem 0 0;
+  color: #52627a;
+  font-size: 0.82rem;
+}
+
+.admin-customer-refunds-header span {
+  color: #52627a;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.admin-customer-refunds-empty,
+.admin-customer-refunds-table-wrap {
+  margin-top: 0.75rem;
+}
+
+.admin-customer-refunds-table-wrap {
+  overflow-x: auto;
+}
+
+.admin-customer-refunds-table {
+  min-width: 760px;
+}
+
+@media (max-width: 760px) {
+  .admin-customer-order-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-customer-order-totals {
+    text-align: left;
+  }
+}
+
 .admin-compact-note p {
   margin: 0.25rem 0 0;
   color: #52627a;

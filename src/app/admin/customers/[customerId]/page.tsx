@@ -3223,58 +3223,58 @@ export default function CustomerDetailPage({
           Orders
       ============================== */}
       {activeSection === "orders" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Orders</h2>
+      <div className="admin-card admin-customer-orders-panel">
+        <h2 className="admin-card-title admin-customer-orders-title">Orders</h2>
 
         {subscriptions.length === 0 ? (
-          <p className="admin-muted mt-4">No orders yet.</p>
+          <p className="admin-muted admin-customer-orders-empty">No orders yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-3">
+          <div className="admin-scroll-region admin-customer-orders-list">
             {subscriptions.map((subscription) => (
               <div
                 key={subscription.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-customer-order-card"
               >
-                <div className="flex flex-col justify-between gap-3 md:flex-row">
+                <div className="admin-customer-order-layout">
                   <div>
-                    <p className="font-semibold text-slate-950">
+                    <p className="admin-customer-order-number">
                       {subscription.order_number || "Order number pending"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-order-meta">
                       Status: {subscription.status} | Fulfillment:{" "}
                       {subscription.fulfillment_status || "pending"} | Stock allocation:{" "}
                       {subscription.inventory_status || "not reserved"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-order-meta">
                       Stripe checkout:{" "}
                       {subscription.stripe_checkout_session_id || "Not started"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-order-meta">
                       Stripe subscription:{" "}
                       {subscription.stripe_subscription_id || "Not created yet"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-order-meta">
                       Latest Stripe invoice:{" "}
                       {subscription.stripe_invoice_id || "Not recorded yet"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-order-meta">
                       Paid period: {formatDateTime(subscription.stripe_current_period_start)} -{" "}
                       {formatDateTime(subscription.stripe_current_period_end)}
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-blue-700">
+                    <p className="admin-customer-order-state admin-customer-order-state-info">
                       Trial: {formatTrialRemaining(
                         subscription.trial_ends_at,
                         subscription.stripe_current_period_start,
                       )}
                     </p>
                     {subscription.cancel_at_period_end && (
-                      <p className="mt-1 text-sm font-semibold text-amber-700">
+                      <p className="admin-customer-order-state admin-customer-order-state-warning">
                         Cancels at period end:{" "}
                         {formatDateTime(subscription.cancellation_effective_at)}
                       </p>
                     )}
                     {subscription.pause_started_at && (
-                      <p className="mt-1 text-sm font-semibold text-blue-700">
+                      <p className="admin-customer-order-state admin-customer-order-state-info">
                         Paused: {formatDateTime(subscription.pause_started_at)}
                         {subscription.pause_reason
                           ? ` - ${subscription.pause_reason}`
@@ -3283,7 +3283,7 @@ export default function CustomerDetailPage({
                     )}
                   </div>
 
-                  <div className="text-sm text-slate-600 md:text-right">
+                  <div className="admin-customer-order-totals">
                     <p>
                       Setup:{" "}
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
@@ -3324,23 +3324,23 @@ export default function CustomerDetailPage({
           </div>
         )}
 
-        <div className="mt-6 border-t border-slate-200 pt-5">
-          <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="admin-customer-refunds">
+          <div className="admin-customer-refunds-header">
             <div>
-              <h3 className="text-base font-black text-slate-950">Refund cases</h3>
-              <p className="mt-1 text-sm text-slate-500">
+              <h3>Refund cases</h3>
+              <p>
                 Requests, decisions, exact amounts, and Stripe references remain separate from the order status.
               </p>
             </div>
-            <span className="text-xs font-bold text-slate-500">
+            <span>
               {refundCases.length} recorded
             </span>
           </div>
           {refundCases.length === 0 ? (
-            <p className="admin-muted mt-3">No refund request or partial refund recorded.</p>
+            <p className="admin-muted admin-customer-refunds-empty">No refund request or partial refund recorded.</p>
           ) : (
-            <div className="mt-3 overflow-x-auto">
-              <table className="admin-table min-w-[760px]">
+            <div className="admin-customer-refunds-table-wrap">
+              <table className="admin-table admin-customer-refunds-table">
                 <thead>
                   <tr>
                     <th>Requested</th>
