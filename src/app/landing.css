@@ -316,10 +316,6 @@
   letter-spacing: 0;
 }
 
-.landing-page a {
-  text-decoration: none;
-}
-
 .landing-nav {
   position: fixed;
   top: 0;
@@ -354,6 +350,7 @@
   font-family: var(--landing-font-ui);
   font-weight: 900;
   letter-spacing: 0;
+  text-decoration: none;
 }
 
 .landing-brand .screenia-logo {
@@ -405,6 +402,7 @@
   font-family: var(--landing-font-ui);
   font-size: 0.92rem;
   font-weight: 750;
+  text-decoration: none;
 }
 
 .landing-nav-primary .landing-nav-link {
@@ -1214,6 +1212,7 @@
 .contact-direct a {
   color: #fff;
   font-weight: 800;
+  text-decoration: none;
   text-decoration-color: #63d6ff;
   text-underline-offset: 4px;
 }
@@ -1351,6 +1350,7 @@
 .contact-privacy a {
   color: #155ee8;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .contact-form-error {
@@ -2700,6 +2700,7 @@
   color: rgba(255, 255, 255, 0.74);
   font-family: var(--landing-font-ui);
   font-weight: 750;
+  text-decoration: none;
 }
 
 .landing-footer p {
@@ -2892,6 +2893,7 @@
 .landing-request-privacy a {
   color: var(--landing-blue-700);
   font-weight: 800;
+  text-decoration: none;
 }
 
 .landing-request-form .landing-request-checkbox {
@@ -3222,6 +3224,7 @@
 .flow-checks a {
   color: var(--landing-blue-700);
   font-weight: 850;
+  text-decoration: none;
 }
 
 .flow-result {
