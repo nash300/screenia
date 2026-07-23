@@ -119,6 +119,9 @@ for (const file of sourceFiles) {
   if (retiredAdminThemePattern.test(text)) {
     problems.push(`${file} still contains a retired admin theme token name.`);
   }
+  if (text.includes("placeholder.supabase.co") || text.includes('SERVICE_ROLE_KEY || "placeholder"')) {
+    problems.push(`${file} contains placeholder Supabase credentials. Use explicit env checks and avoid fake service keys.`);
+  }
   if (text.includes(["admin", "cyan"].join("-"))) {
     problems.push(`${file} still contains retired admin focus color token naming. Use admin-focus instead.`);
   }
