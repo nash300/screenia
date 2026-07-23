@@ -167,6 +167,9 @@ section h1 {
 ============================== */
 .screenia-auth-shell {
   position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #061942;
   isolation: isolate;
   background:
     linear-gradient(
@@ -191,6 +194,8 @@ section h1 {
 }
 
 .screenia-auth-bg {
+  position: absolute;
+  inset: 0;
   z-index: -1;
   background:
     radial-gradient(circle at 18% 16%, rgba(68, 215, 255, 0.2), transparent 28%),
@@ -208,7 +213,7 @@ section h1 {
   mask-image: none;
 }
 
-.screenia-auth-shell section.text-white {
+.screenia-auth-hero {
   border: 1px solid rgba(218, 236, 255, 0.18);
   border-radius: 22px;
   background:
@@ -222,11 +227,75 @@ section h1 {
   -webkit-backdrop-filter: blur(18px) saturate(126%);
 }
 
-.screenia-auth-shell section.text-white h1 {
+.screenia-auth-layout {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: 64rem;
+  min-height: 100vh;
+  align-items: center;
+  gap: 2.5rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem;
+}
+
+.screenia-auth-layout-admin {
+  min-height: calc(100vh - 64px);
+  gap: 2rem;
+  padding-block: 2rem;
+}
+
+.screenia-auth-hero-hidden-mobile {
+  display: none;
+}
+
+.screenia-auth-logo-link {
+  display: inline-flex;
+  max-width: 100%;
+  text-decoration: none;
+}
+
+.screenia-auth-logo-link-mobile {
+  margin-bottom: 1.75rem;
+}
+
+.screenia-auth-hero-kicker {
+  margin: 3rem 0 0;
+  color: #8cc2ff;
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.screenia-auth-hero-hidden-mobile .screenia-auth-hero-kicker {
+  margin-top: 4rem;
+}
+
+.screenia-auth-hero-title {
+  max-width: 36rem;
+  margin: 1rem 0 0;
+  color: #ffffff;
   font-family: var(--font-special-elite), Georgia, serif;
+  font-size: clamp(2.5rem, 5vw, 3rem);
   font-weight: 400;
   letter-spacing: 0;
+  line-height: 1.04;
   text-shadow: 0 14px 36px rgba(0, 10, 32, 0.32);
+}
+
+.screenia-auth-hero-copy {
+  max-width: 32rem;
+  margin: 1.25rem 0 0;
+  color: #dbeafe;
+  font-size: 1.125rem;
+  line-height: 1.78;
+}
+
+.screenia-auth-card-wrap {
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
 }
 
 .screenia-auth-card {
@@ -240,6 +309,9 @@ section h1 {
   box-shadow:
     0 34px 90px rgba(0, 10, 32, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  padding: 1.5rem;
+  backdrop-filter: blur(18px) saturate(128%);
+  -webkit-backdrop-filter: blur(18px) saturate(128%);
 }
 
 .screenia-auth-card::before {
@@ -256,14 +328,73 @@ section h1 {
   letter-spacing: 0;
 }
 
+.screenia-auth-card-kicker {
+  margin: 1.75rem 0 0;
+  color: #2f7df6;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.screenia-auth-card-kicker-flush {
+  margin-top: 0;
+}
+
+.screenia-auth-card-title {
+  margin: 0.75rem 0 0;
+  color: #061942;
+  font-size: 1.875rem;
+  font-weight: 400;
+}
+
+.screenia-auth-card-copy {
+  margin: 1.25rem 0 0;
+  color: #52617d;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
+.screenia-auth-form-stack {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.screenia-auth-form-stack-compact {
+  margin-top: 1.5rem;
+}
+
+.screenia-auth-field {
+  display: block;
+}
+
+.screenia-auth-label {
+  color: #52617d;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
 .screenia-auth-input {
   min-height: 52px;
-  border-color: rgba(70, 111, 171, 0.26);
+  width: 100%;
+  margin-top: 0.5rem;
+  border: 1px solid rgba(70, 111, 171, 0.26);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.94);
+  padding: 0.75rem 1rem;
+  color: #061942;
+  outline: none;
   box-shadow:
     0 10px 24px rgba(6, 25, 66, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .screenia-auth-input:focus {
@@ -275,6 +406,11 @@ section h1 {
 }
 
 .screenia-auth-button {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 999px;
   background:
     radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.34), transparent 32%),
@@ -282,6 +418,61 @@ section h1 {
   box-shadow:
     0 18px 38px rgba(47, 125, 246, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  padding: 0.75rem 1.75rem;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 900;
+  text-decoration: none;
+  transition:
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.screenia-auth-button-full {
+  width: 100%;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-left: 1.75rem;
+}
+
+.screenia-auth-button-spaced {
+  margin-top: 1.75rem;
+}
+
+.screenia-auth-button-admin {
+  min-width: 11rem;
+  margin-top: 2rem;
+}
+
+.screenia-auth-button:disabled {
+  cursor: not-allowed;
+  background: linear-gradient(135deg, #9fc5ff, #78a9f0);
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.94);
+  opacity: 1;
+}
+
+.screenia-auth-button-icon {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #155ee8;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+  transition: transform 160ms ease;
+}
+
+.screenia-auth-button:hover .screenia-auth-button-icon {
+  transform: translateX(2px);
+}
+
+.screenia-auth-button-icon svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
 }
 
 .screenia-auth-button:hover {
@@ -291,21 +482,29 @@ section h1 {
   transform: translateY(-1px);
 }
 
-.screenia-auth-button:disabled {
-  background: linear-gradient(135deg, #9fc5ff, #78a9f0);
-  box-shadow: none;
-  color: rgba(255, 255, 255, 0.94);
-  opacity: 1;
-}
-
 .screenia-auth-secondary-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
   border-color: rgba(70, 111, 171, 0.22);
+  border: 1px solid rgba(70, 111, 171, 0.22);
   border-radius: 999px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 245, 255, 0.86));
+  padding: 0.75rem 1.25rem;
+  color: #061942;
+  font-size: 0.875rem;
+  font-weight: 900;
   box-shadow:
     0 14px 32px rgba(6, 25, 66, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
 .screenia-auth-secondary-button:hover {
@@ -317,9 +516,94 @@ section h1 {
 }
 
 .screenia-auth-secondary-button:disabled {
+  cursor: not-allowed;
   background: #f4f7fb;
   color: #66758f;
   opacity: 1;
+}
+
+.screenia-auth-actions {
+  display: grid;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.screenia-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #7b8aaa;
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.screenia-auth-divider span {
+  height: 1px;
+  flex: 1;
+  background: #dbeafe;
+}
+
+.screenia-auth-provider-mark {
+  display: inline-flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #4285f4;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.screenia-auth-helper {
+  margin: 0;
+  color: #52617d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
+.screenia-auth-link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2.25rem;
+  font-size: 0.875rem;
+}
+
+.screenia-auth-link-row-admin {
+  margin-top: 1.75rem;
+}
+
+.screenia-auth-link,
+.screenia-auth-link-button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #2f7df6;
+  font: inherit;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.screenia-auth-link-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.screenia-auth-alert {
+  margin: 1.25rem 0 0;
+  border: 1px solid #fde68a;
+  border-radius: 0.5rem;
+  background: #fffbeb;
+  padding: 0.75rem 1rem;
+  color: #7a4a03;
+  font-size: 0.875rem;
+  font-weight: 800;
 }
 
 @media (max-width: 768px) {
@@ -331,5 +615,33 @@ section h1 {
 
   .screenia-auth-card {
     border-radius: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .screenia-auth-card {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .screenia-auth-layout {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  }
+
+  .screenia-auth-layout-admin {
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  }
+
+  .screenia-auth-hero-hidden-mobile {
+    display: block;
+  }
+
+  .screenia-auth-card-kicker-responsive {
+    margin-top: 0;
+  }
+
+  .screenia-auth-logo-link-mobile {
+    display: none;
   }
 }

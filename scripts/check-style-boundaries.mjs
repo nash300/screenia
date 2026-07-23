@@ -177,6 +177,12 @@ const customersPageSource = read("src/app/admin/customers/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
+const authPageSources = new Map([
+  ["src/app/login/page.tsx", read("src/app/login/page.tsx")],
+  ["src/app/admin-login/page.tsx", read("src/app/admin-login/page.tsx")],
+  ["src/app/account/activate/page.tsx", read("src/app/account/activate/page.tsx")],
+  ["src/app/account/reset-password/page.tsx", read("src/app/account/reset-password/page.tsx")],
+]);
 
 for (const retiredRevealClassName of [
   '"is-visible"',
@@ -273,6 +279,48 @@ for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
         .map(([selector, count]) => `${selector} (${count})`)
         .join(", ")}. Merge base styles and keep responsive overrides inside media queries.`,
     );
+  }
+}
+
+if (landingCss.includes("screenia-auth-")) {
+  problems.push("src/app/landing.css must not define screenia-auth-* classes. Auth surface styling belongs in globals.css only.");
+}
+
+for (const className of [
+  "screenia-auth-layout",
+  "screenia-auth-hero",
+  "screenia-auth-card-wrap",
+  "screenia-auth-card-kicker",
+  "screenia-auth-form-stack",
+  "screenia-auth-field",
+  "screenia-auth-label",
+  "screenia-auth-alert",
+  "screenia-auth-link-button",
+]) {
+  if (!globals.includes(className)) {
+    problems.push(`src/app/globals.css must define the shared auth class ${className}.`);
+  }
+}
+
+for (const [file, source] of authPageSources) {
+  for (const retiredAuthClass of [
+    "min-h-screen overflow-hidden",
+    "absolute inset-0",
+    "relative mx-auto grid",
+    "hidden text-white lg:block",
+    "inline-flex no-underline",
+    "border border-white/70",
+    "bg-white/[",
+    "space-y-4",
+    "text-xs font-black uppercase",
+    "screenia-auth-input mt-2",
+    "screenia-auth-button mt-",
+    "disabled:hover:translate-y-0",
+    "font-bold text-[#2f7df6]",
+  ]) {
+    if (source.includes(retiredAuthClass)) {
+      problems.push(`${file} must use explicit screenia-auth-* classes instead of retired utility snippet "${retiredAuthClass}".`);
+    }
   }
 }
 

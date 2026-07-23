@@ -114,36 +114,36 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="screenia-auth-shell min-h-screen overflow-hidden bg-[#061942] text-[#061942]">
-      <div className="screenia-auth-bg absolute inset-0" />
+    <main className="screenia-auth-shell">
+      <div className="screenia-auth-bg" />
 
-      <div className="relative mx-auto grid min-h-screen w-full max-w-5xl items-center gap-10 px-5 py-10 lg:grid-cols-[0.85fr_1.15fr]">
-        <section className="hidden text-white lg:block">
-          <Link href="/" className="inline-flex no-underline">
+      <div className="screenia-auth-layout">
+        <section className="screenia-auth-hero screenia-auth-hero-hidden-mobile">
+          <Link href="/" className="screenia-auth-logo-link">
             <ScreeniaLogo className="screenia-logo-auth-card" />
           </Link>
 
-          <p className="mt-16 text-sm font-black uppercase tracking-[0.22em] text-[#8cc2ff]">
+          <p className="screenia-auth-hero-kicker">
             Säker inloggning
           </p>
-          <h1 className="mt-4 max-w-xl text-5xl font-black leading-[1.02] tracking-tight">
+          <h1 className="screenia-auth-hero-title">
             En inloggning för order, innehåll och support.
           </h1>
         </section>
 
-        <section className="mx-auto w-full max-w-md">
-          <div className="screenia-auth-card border border-white/70 bg-white/[0.92] p-6 backdrop-blur md:p-8">
-            <Link href="/" className="inline-flex no-underline lg:hidden">
+        <section className="screenia-auth-card-wrap">
+          <div className="screenia-auth-card">
+            <Link href="/" className="screenia-auth-logo-link screenia-auth-logo-link-mobile">
               <ScreeniaLogo className="screenia-logo-auth-inline" />
             </Link>
 
-            <p className="mt-7 text-xs font-black uppercase tracking-[0.2em] text-[#2f7df6] lg:mt-0">
+            <p className="screenia-auth-card-kicker screenia-auth-card-kicker-responsive">
               Screenia kundportal
             </p>
 
-            <div className="mt-7 space-y-4">
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.14em] text-[#52617d]">
+            <div className="screenia-auth-form-stack">
+              <label className="screenia-auth-field">
+                <span className="screenia-auth-label">
                   E-post
                 </span>
                 <input
@@ -151,12 +151,12 @@ export default function LoginPage() {
                   placeholder="namn@foretag.se"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
+                  className="screenia-auth-input"
                 />
               </label>
 
-              <label className="block">
-                <span className="text-xs font-black uppercase tracking-[0.14em] text-[#52617d]">
+              <label className="screenia-auth-field">
+                <span className="screenia-auth-label">
                   Lösenord
                 </span>
                 <input
@@ -169,32 +169,30 @@ export default function LoginPage() {
                       submit();
                     }
                   }}
-                  className="screenia-auth-input mt-2 w-full border px-4 py-3 text-[#061942] outline-none transition"
+                  className="screenia-auth-input"
                 />
               </label>
             </div>
 
             {message && (
-              <p className="mt-5 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-[#7a4a03]">
+              <p className="screenia-auth-alert">
                 {message}
               </p>
             )}
 
-            <div className="mt-10 space-y-4">
+            <div className="screenia-auth-actions">
               <button
                 type="button"
                 onClick={submit}
                 disabled={loading || !email || !password}
-                className="screenia-auth-button group inline-flex min-h-12 w-full items-center justify-between gap-4 border border-white/50 px-4 py-2 pl-7 text-sm font-black text-white transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
-                style={{ borderRadius: "999px" }}
+                className="screenia-auth-button screenia-auth-button-full"
               >
                 <span>{loading ? "Kontrollerar..." : "Logga in"}</span>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[#155ee8] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.45)] transition group-hover:translate-x-0.5">
+                <span className="screenia-auth-button-icon">
                   <svg
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                     focusable="false"
-                    className="h-4 w-4 fill-current"
                   >
                     <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
                     <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
@@ -202,22 +200,22 @@ export default function LoginPage() {
                 </span>
               </button>
 
-              <div className="flex items-center gap-3 text-xs font-black uppercase tracking-[0.18em] text-[#7b8aaa]">
-                <span className="h-px flex-1 bg-blue-100" />
+              <div className="screenia-auth-divider">
+                <span />
                 eller
-                <span className="h-px flex-1 bg-blue-100" />
+                <span />
               </div>
 
               <button
                 type="button"
                 onClick={signInWithGoogle}
                 disabled={googleLoading || !isGoogleAuthEnabled}
-                className="screenia-auth-secondary-button inline-flex min-h-12 w-full items-center justify-center gap-3 border bg-white px-5 py-3 text-sm font-black text-[#061942] transition disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                className="screenia-auth-secondary-button"
               >
                 <span
                   aria-hidden="true"
                   role="presentation"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-base font-black text-[#4285f4]"
+                  className="screenia-auth-provider-mark"
                 >
                   G
                 </span>
@@ -228,23 +226,23 @@ export default function LoginPage() {
                     : "Google-inloggning kommer snart"}
               </button>
 
-              <p className="text-xs font-semibold leading-5 text-[#52617d]">
+              <p className="screenia-auth-helper">
                 {isGoogleAuthEnabled
                   ? "Google fungerar bara om e-postadressen redan hör till ett betalt Screenia-konto."
                   : "Google aktiveras när Google Cloud och Supabase OAuth är färdigkonfigurerade."}
               </p>
             </div>
 
-            <div className="mt-9 flex flex-wrap gap-4 text-sm">
+            <div className="screenia-auth-link-row">
               <button
                 type="button"
                 onClick={sendResetEmail}
                 disabled={resetLoading || !email}
-                className="font-bold text-[#2f7df6] no-underline disabled:opacity-50"
+                className="screenia-auth-link-button"
               >
                 {resetLoading ? "Skickar..." : "Glömt lösenord?"}
               </button>
-              <Link href="/" className="font-bold text-[#2f7df6] no-underline">
+              <Link href="/" className="screenia-auth-link">
                 Till startsidan
               </Link>
             </div>
