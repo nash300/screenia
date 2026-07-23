@@ -1827,19 +1827,36 @@ function requireCssBlock(cssText, selector, checks) {
 landingCss
   .split(/\r?\n/)
   .forEach((line, index) => {
-    if (
-      /\.(how-|about-|public-info-page)/.test(line)
-    ) {
-      problems.push(
-        `src/app/landing.css:${index + 1} contains public-info page selector "${line.trim()}". Move it to public-info.css.`,
-      );
-    }
     if (temporaryLandingClassPattern.test(line)) {
       problems.push(
         `src/app/landing.css:${index + 1} contains temporary landing class naming "${line.trim()}". Use a descriptive role name instead.`,
       );
     }
   });
+
+for (const file of ["src/app/globals.css", "src/app/admin/admin.css", "src/app/landing.css"]) {
+  const cssSource = read(file);
+  cssSource.split(/\r?\n/).forEach((line, index) => {
+    if (/\.(?:how-|about-|public-info-page)/.test(line)) {
+      problems.push(
+        `${file}:${index + 1} contains public-info page selector "${line.trim()}". Keep /sa-fungerar-det and /om-oss styling in src/app/public-info.css.`,
+      );
+    }
+  });
+}
+
+for (const { file, requiredWrapper } of [
+  { file: "src/app/sa-fungerar-det/page.tsx", requiredWrapper: "landing-page how-page public-info-page" },
+  { file: "src/app/om-oss/page.tsx", requiredWrapper: "landing-page about-page public-info-page" },
+]) {
+  const source = read(file);
+  if (!source.includes('import "../public-info.css";')) {
+    problems.push(`${file} must import public-info.css for its scoped public-page styles.`);
+  }
+  if (!source.includes(`className="${requiredWrapper}"`)) {
+    problems.push(`${file} must keep the "${requiredWrapper}" wrapper so public-info.css remains safely scoped.`);
+  }
+}
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
   {
@@ -2083,14 +2100,6 @@ for (const retiredActiveNavSelector of [
   if (landingCss.includes(retiredActiveNavSelector)) {
     problems.push(`src/app/landing.css must not keep retired active primary nav selector: ${retiredActiveNavSelector}`);
   }
-}
-
-if (!read("src/app/sa-fungerar-det/page.tsx").includes('import "../public-info.css";')) {
-  problems.push("/sa-fungerar-det must import public-info.css for its scoped page styles.");
-}
-
-if (!read("src/app/om-oss/page.tsx").includes('import "../public-info.css";')) {
-  problems.push("/om-oss must import public-info.css for its scoped page styles.");
 }
 
 if (problems.length) {
