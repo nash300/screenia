@@ -5943,29 +5943,6 @@
   width: 100%;
 }
 
-.admin-customers-quick-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.admin-layout .admin-customers-quick-filters button {
-  min-height: 34px;
-  padding: 0.42rem 0.68rem;
-  box-shadow: none;
-}
-
-.admin-customers-quick-filters button span {
-  display: inline-grid;
-  min-width: 1.35rem;
-  height: 1.35rem;
-  margin-left: 0.3rem;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(47, 125, 246, 0.12);
-  font-size: 0.7rem;
-}
-
 .admin-customers-create::before,
 .admin-customers-toolbar::before,
 .admin-customers-list-panel::before {
@@ -6412,9 +6389,6 @@
     align-items: flex-start;
   }
 
-  .admin-layout .admin-customers-quick-filters button {
-    flex: 1 1 calc(50% - 0.45rem);
-  }
 }
 
 .admin-main {

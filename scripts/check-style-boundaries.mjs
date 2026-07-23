@@ -436,6 +436,13 @@ if (
   problems.push("src/app/admin/admin.css must not keep retired admin-customers-search wrapper styling. Use admin-customers-toolbar/search-row.");
 }
 
+if (
+  adminCss.includes("admin-customers-quick-filters") ||
+  customersPageSource.includes("admin-customers-quick-filters")
+) {
+  problems.push("Customer work must not keep retired admin-customers-quick-filters button UI. Use the compact status select instead.");
+}
+
 if (/\b(?:admin-card p-6|admin-card-title text-xl|mt-1|mt-4|w-full|rounded-xl|border-slate-200|px-3|py-2|text-slate-|disabled:opacity-50|text-sm font-semibold)\b/.test(customersPageSource)) {
   problems.push("The admin customers page must use explicit admin-customers-* classes instead of broad utility class styling.");
 }
@@ -1436,7 +1443,6 @@ for (const retiredAdminInventoryOverride of [
   ".admin-inventory-toolbar > input:focus,\n.admin-inventory-field input:focus,\n.admin-inventory-field select:focus,\n.admin-inventory-field textarea:focus {\n  border-color: rgba(47, 125, 246, 0.54) !important;",
   ".admin-inventory-item {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto;\n  gap: 0.85rem;\n  width: 100%;\n  border: 1px solid rgba(47, 125, 246, 0.14) !important;",
   ".admin-inventory-item:hover,\n.admin-inventory-item.admin-inventory-item-active {\n  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;",
-  ".admin-layout .admin-customers-quick-filters button {\n  min-height: 34px;\n  padding: 0.42rem 0.68rem !important;",
 ]) {
   if (adminCss.includes(retiredAdminInventoryOverride)) {
     problems.push(`src/app/admin/admin.css must not keep retired inventory override pattern: ${retiredAdminInventoryOverride}`);
