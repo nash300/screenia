@@ -1105,7 +1105,7 @@ const importantRatchets = [
   {
     file: "src/app/landing.css",
     css: landingCss,
-    max: 127,
+    max: 123,
   },
 ];
 
@@ -1139,6 +1139,9 @@ for (const retiredLandingGlassPattern of [
   ".landing-page main > .landing-platform,\n.landing-page main > .landing-workflow",
   ".landing-page main > .landing-platform::before,\n.landing-page main > .landing-workflow::before",
   ".landing-page main > .landing-platform > .landing-section-panel",
+  ".landing-hero-copy,\n.landing-section,\n.landing-contact",
+  ".landing-gallery,",
+  ".landing-gallery .landing-section-heading",
   "background-color: rgba(10, 19, 22, 0.5)",
   "rgba(217, 234, 255, 0.32)",
   "rgba(217, 234, 255, 0.24)",
@@ -1171,6 +1174,14 @@ for (const sectionClass of [
   );
   if (retiredPseudoImagePattern.test(landingCss)) {
     problems.push(`src/app/landing.css must not keep retired individual ${sectionClass} pseudo-element image ownership. Use landing-section-surface.`);
+  }
+
+  const retiredDirectSectionShellPattern = new RegExp(
+    `^\\.${sectionClass}\\s*\\{[^}]*\\b(?:background|padding|display|grid-template-columns|box-shadow)\\b`,
+    "ms",
+  );
+  if (retiredDirectSectionShellPattern.test(landingCss)) {
+    problems.push(`src/app/landing.css must not keep direct shell layout/background ownership on .${sectionClass}. Use landing-section-surface or a child component class.`);
   }
 }
 
