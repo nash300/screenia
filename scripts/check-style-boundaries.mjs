@@ -98,6 +98,26 @@ if (publicInfo.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
 }
 
+const allowedPublicInfoNavLines = [
+  ".how-page .landing-nav-primary a.is-active",
+  ".about-page .landing-nav-primary a.is-active",
+  ".how-page .landing-nav-primary a.is-active::after",
+  ".about-page .landing-nav-primary a.is-active::after",
+];
+
+read("src/app/landing.css")
+  .split(/\r?\n/)
+  .forEach((line, index) => {
+    if (
+      /\.(how-|about-|public-info-page)/.test(line) &&
+      !allowedPublicInfoNavLines.some((allowed) => line.includes(allowed))
+    ) {
+      problems.push(
+        `src/app/landing.css:${index + 1} contains public-info page selector "${line.trim()}". Move it to public-info.css.`,
+      );
+    }
+  });
+
 if (!read("src/app/sa-fungerar-det/page.tsx").includes('import "../public-info.css";')) {
   problems.push("/sa-fungerar-det must import public-info.css for its scoped page styles.");
 }
