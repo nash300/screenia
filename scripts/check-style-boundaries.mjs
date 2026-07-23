@@ -348,6 +348,14 @@ if (adminCss.includes(".admin-nav-link.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-nav-link-active instead of generic admin-nav-link.is-active.");
 }
 
+if (adminCss.includes(".admin-layout .admin-nav-icon")) {
+  problems.push("src/app/admin/admin.css must keep admin nav icon styles in the main admin-nav-icon owner block.");
+}
+
+if (adminCss.includes(".admin-layout .admin-customer-workflow-step")) {
+  problems.push("src/app/admin/admin.css must keep customer workflow step styles in the main admin-customer-workflow-step owner block.");
+}
+
 if (/(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not keep the retired generic page-header alias. Use admin-page-header.");
 }
@@ -1340,6 +1348,24 @@ if (adminLayoutRootCount !== 1) {
     `src/app/admin/admin.css must keep exactly one base .admin-layout owner block; found ${adminLayoutRootCount}.`,
   );
 }
+
+const allowedAdminLayoutSelectors = new Set([
+  ".admin-layout {",
+  ".admin-layout *,",
+  ".admin-layout *::before,",
+  ".admin-layout *::after {",
+]);
+
+adminCss
+  .split(/\r?\n/)
+  .forEach((line, index) => {
+    const trimmed = line.trim();
+    if (!trimmed.startsWith(".admin-layout")) return;
+    if (allowedAdminLayoutSelectors.has(trimmed)) return;
+    problems.push(
+      `src/app/admin/admin.css:${index + 1} uses admin-layout descendant ownership "${trimmed}". Use explicit admin-* component classes instead.`,
+    );
+  });
 
 const importantRatchets = [
   {
