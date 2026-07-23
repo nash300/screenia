@@ -566,6 +566,11 @@ for (const singleOwnerLandingSelector of [
   ".landing-pricing .landing-price-card",
   ".landing-pricing .landing-price-card::before",
   ".landing-pricing .landing-price-card.featured::before",
+  ".landing-gallery-grid",
+  ".landing-gallery-card",
+  ".landing-gallery-card::after",
+  ".landing-gallery-image",
+  ".landing-gallery-content",
 ]) {
   const selectorCount = countOccurrences(
     landingCss,
