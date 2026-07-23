@@ -922,6 +922,12 @@ for (const className of [
   "admin-customer-overview-edit-grid",
   "admin-customer-overview-control",
   "admin-customer-overview-danger-zone",
+  "admin-customer-communication-panel",
+  "admin-customer-communication-header",
+  "admin-customer-message-panel",
+  "admin-customer-message-card",
+  "admin-customer-message-control",
+  "admin-customer-message-file-link",
 ]) {
   if (!customerDetailPageSource.includes(className)) {
     problems.push(`The admin customer detail page must expose the explicit ${className} state class.`);

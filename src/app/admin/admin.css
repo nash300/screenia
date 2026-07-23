@@ -4288,6 +4288,177 @@
   color: rgba(255, 255, 255, 0.78);
 }
 
+.admin-customer-communication-panel,
+.admin-customer-message-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-customer-communication-header,
+.admin-customer-message-card-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-customer-communication-title {
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+}
+
+.admin-customer-communication-copy {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.admin-customer-message-empty,
+.admin-customer-message-list {
+  margin-top: 1rem;
+}
+
+.admin-customer-message-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-customer-message-card {
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+  padding: 1rem;
+}
+
+.admin-customer-message-subject {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+
+.admin-customer-message-meta {
+  margin: 0.25rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.admin-customer-message-timestamp {
+  margin: 0.25rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.875rem;
+}
+
+.admin-customer-message-body {
+  margin: 0.75rem 0 0;
+  color: var(--admin-text);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.admin-customer-message-review {
+  margin-top: 1rem;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: var(--admin-radius-lg);
+  background: #f8fafc;
+  padding: 1rem;
+}
+
+.admin-customer-message-review-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-customer-message-field {
+  display: block;
+  color: var(--admin-text);
+  font-size: 0.875rem;
+  font-weight: 850;
+}
+
+.admin-customer-message-field-spaced {
+  margin-top: 0.75rem;
+}
+
+.admin-customer-message-control {
+  width: 100%;
+  margin-top: 0.35rem;
+  border: 1px solid rgba(47, 125, 246, 0.2);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  padding: 0.55rem 0.75rem;
+  color: var(--admin-text);
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.admin-customer-message-control:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
+}
+
+.admin-customer-message-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-customer-message-action-note {
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+  font-weight: 850;
+}
+
+.admin-customer-message-reply {
+  margin-top: 1rem;
+  border-top: 1px solid rgba(47, 125, 246, 0.16);
+  padding-top: 1rem;
+}
+
+.admin-customer-message-send-button {
+  margin-top: 0.75rem;
+}
+
+.admin-customer-message-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.admin-customer-message-file-link,
+.admin-customer-message-file-missing {
+  border: 1px solid rgba(82, 98, 122, 0.22);
+  border-radius: var(--admin-radius-md);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.admin-customer-message-file-link {
+  color: var(--admin-text);
+}
+
+.admin-customer-message-file-missing {
+  color: var(--admin-muted-text);
+}
+
+@media (min-width: 768px) {
+  .admin-customer-communication-header,
+  .admin-customer-message-card-header {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .admin-customer-message-review-grid {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+}
+
 .admin-customer-upload-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

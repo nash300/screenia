@@ -2790,11 +2790,11 @@ export default function CustomerDetailPage({
       )}
 
       {activeSection === "communication" && (
-        <div className="admin-card p-6">
-          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+        <div className="admin-card admin-customer-communication-panel">
+          <div className="admin-customer-communication-header">
             <div>
-              <h2 className="admin-card-title text-xl">Communication center</h2>
-              <p className="admin-muted mt-2 text-sm">
+              <h2 className="admin-card-title admin-customer-communication-title">Communication center</h2>
+              <p className="admin-muted admin-customer-communication-copy">
                 Conversations, troubleshooting requests, new order discussions,
                 and uploaded screen material for this customer.
               </p>
@@ -2829,43 +2829,43 @@ export default function CustomerDetailPage({
           Customer Messages
       ============================== */}
       {activeSection === "communication" && communicationView === "messages" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Customer messages</h2>
+      <div className="admin-card admin-customer-message-panel">
+        <h2 className="admin-card-title admin-customer-communication-title">Customer messages</h2>
 
         {messages.length === 0 ? (
-          <p className="admin-muted mt-4">No customer messages yet.</p>
+          <p className="admin-muted admin-customer-message-empty">No customer messages yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-3">
+          <div className="admin-scroll-region admin-customer-message-list">
             {messages.map((item) => (
               <div
                 key={item.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-customer-message-card"
               >
-                <div className="flex flex-col justify-between gap-2 md:flex-row">
+                <div className="admin-customer-message-card-header">
                   <div>
-                    <p className="font-semibold text-slate-950">
+                    <p className="admin-customer-message-subject">
                       {item.subject || "Message"}
                     </p>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                    <p className="admin-customer-message-meta">
                       {item.ticketNumber || "No ticket"} |{" "}
                       {item.requestType.replace(/_/g, " ")} | {item.priority}
                       {item.relatedTicketNumber
                         ? ` | Reply to ${item.relatedTicketNumber}`
                         : ""}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-message-timestamp">
                       {new Date(item.createdAt).toLocaleString("sv-SE")} |{" "}
                       {item.status}
                     </p>
                   </div>
                 </div>
-                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+                <p className="admin-customer-message-body">
                   {item.message}
                 </p>
 
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="grid gap-3 md:grid-cols-[220px_1fr]">
-                    <label className="text-sm font-semibold text-slate-700">
+                <div className="admin-customer-message-review">
+                  <div className="admin-customer-message-review-grid">
+                    <label className="admin-customer-message-field">
                       Status
                       <select
                         id={`message-status-${item.id}`}
@@ -2882,7 +2882,7 @@ export default function CustomerDetailPage({
                             },
                           }))
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-message-control"
                       >
                         <option value="new">New</option>
                         <option value="customer_reply">Customer reply</option>
@@ -2891,7 +2891,7 @@ export default function CustomerDetailPage({
                         <option value="resolved">Resolved</option>
                       </select>
                     </label>
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="admin-customer-message-field">
                       Internal admin note
                       <textarea
                         id={`message-admin-note-${item.id}`}
@@ -2909,11 +2909,11 @@ export default function CustomerDetailPage({
                         }
                         rows={3}
                         placeholder="Record troubleshooting notes or the next action."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-message-control"
                       />
                     </label>
                   </div>
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
+                  <label className="admin-customer-message-field admin-customer-message-field-spaced">
                     Reason for updating this support message review *
                     <textarea
                       value={messageDrafts[item.id]?.reason || ""}
@@ -2930,26 +2930,26 @@ export default function CustomerDetailPage({
                       }
                       rows={2}
                       placeholder="Example: Customer issue reviewed and assigned to support."
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                      className="admin-customer-message-control"
                     />
                   </label>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="admin-customer-message-actions">
                     <button
                       type="button"
                       onClick={() => updateCustomerMessage(item)}
                       disabled={saving || !(messageDrafts[item.id]?.reason || "").trim()}
-                      className="admin-button-primary disabled:opacity-50"
+                      className="admin-button-primary"
                     >
                       {saving ? "Saving..." : "Save message update"}
                     </button>
                     {item.adminNoteUpdatedAt && (
-                      <span className="text-xs font-semibold text-slate-500">
+                      <span className="admin-customer-message-action-note">
                         Note updated {new Date(item.adminNoteUpdatedAt).toLocaleString("sv-SE")}
                       </span>
                     )}
                   </div>
-                  <div className="mt-4 border-t border-slate-200 pt-4">
-                    <label className="text-sm font-semibold text-slate-700">
+                  <div className="admin-customer-message-reply">
+                    <label className="admin-customer-message-field">
                       Customer-visible reply
                       <textarea
                         id={`message-customer-reply-${item.id}`}
@@ -2963,14 +2963,14 @@ export default function CustomerDetailPage({
                         }
                         rows={4}
                         placeholder="Write the reply that the customer should see in the portal and receive by email."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-message-control"
                       />
                     </label>
                     <button
                       type="button"
                       onClick={() => sendCustomerMessageReply(item)}
                       disabled={saving}
-                      className="admin-button-primary mt-3 disabled:opacity-50"
+                      className="admin-button-primary admin-customer-message-send-button"
                     >
                       {saving ? "Sending..." : "Send customer reply"}
                     </button>
@@ -2978,21 +2978,21 @@ export default function CustomerDetailPage({
                 </div>
 
                 {item.files.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-2">
+                  <div className="admin-customer-message-files">
                     {item.files.map((file) =>
                       file.downloadUrl ? (
                         <a
                           key={file.id}
                           href={file.downloadUrl}
                           target="_blank"
-                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 no-underline"
+                          className="admin-customer-message-file-link"
                         >
                           {file.fileName}
                         </a>
                       ) : (
                         <span
                           key={file.id}
-                          className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-400"
+                          className="admin-customer-message-file-missing"
                         >
                           {file.fileName}
                         </span>
