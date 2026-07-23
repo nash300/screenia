@@ -3116,24 +3116,6 @@
   }
 }
 
-.admin-section-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  margin: 0.75rem 0 1rem;
-}
-
-.admin-section-tab {
-  min-height: 42px;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.72) !important;
-  color: #4d5d7c !important;
-  padding: 0.45rem 0.9rem !important;
-  font-weight: 850 !important;
-  box-shadow: 0 10px 22px rgba(7, 31, 84, 0.06) !important;
-}
-
 .admin-customer-workflow {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -3613,30 +3595,6 @@
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.84);
   box-shadow: 0 10px 28px rgba(7, 31, 84, 0.06);
-}
-
-.admin-section-tab {
-  align-items: flex-start !important;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 132px;
-  text-align: left;
-}
-
-.admin-section-tab span {
-  position: relative;
-  z-index: 1;
-  font-weight: 950;
-}
-
-.admin-section-tab small {
-  position: relative;
-  z-index: 1;
-  display: block;
-  color: inherit;
-  font-size: 0.7rem;
-  font-weight: 700;
-  opacity: 0.78;
 }
 
 .admin-order-tracking-action {
@@ -5053,8 +5011,7 @@
 .admin-layout .admin-button-success::after,
 .admin-layout a.admin-button-primary::after,
 .admin-layout a.admin-button-secondary::after,
-.admin-action-card::after,
-.admin-section-tab::after {
+.admin-action-card::after {
   display: none;
 }
 
@@ -5277,7 +5234,7 @@
   letter-spacing: 0;
 }
 
-.admin-layout button:not(.admin-section-tab):not(.admin-document-list-item),
+.admin-layout button:not(.admin-document-list-item),
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
@@ -5317,17 +5274,6 @@
 
 .admin-inline-flow-actions {
   justify-content: flex-start;
-}
-
-.admin-section-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-  align-items: center;
-}
-
-.admin-section-tab {
-  flex: 0 1 auto;
 }
 
 .admin-dashboard-panel article,

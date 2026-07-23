@@ -281,6 +281,10 @@ if (adminCss.includes(".admin-operation-card.is-selected")) {
   problems.push("src/app/admin/admin.css must style admin-operation-card-selected instead of generic admin-operation-card.is-selected.");
 }
 
+if (adminCss.includes("admin-section-tab")) {
+  problems.push("src/app/admin/admin.css must not keep retired admin-section-tab styling.");
+}
+
 if (!adminCss.includes(".admin-operation-card.admin-operation-card-selected")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-operation-card-selected selector.");
 }
@@ -607,7 +611,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 214,
+    max: 206,
   },
   {
     file: "src/app/landing.css",
