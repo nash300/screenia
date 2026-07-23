@@ -957,7 +957,9 @@ export default function AccountPage() {
               <AccountCard title="Setup och avbokning">
                 <div
                   className={`account-policy-card ${
-                    data.customer.setup_fee_locked_at ? "is-locked" : "is-open"
+                    data.customer.setup_fee_locked_at
+                      ? "account-policy-card-locked"
+                      : "account-policy-card-open"
                   }`}
                 >
                   <strong>

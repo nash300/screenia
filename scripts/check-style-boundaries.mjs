@@ -298,12 +298,31 @@ if (accountPageSource.includes('"is-active"')) {
   problems.push("The account page must use explicit component state class names instead of generic is-active.");
 }
 
+if (accountPageSource.includes('"is-open"') || accountPageSource.includes('"is-locked"')) {
+  problems.push("The account page must use account-policy-card-open/locked instead of generic is-open/is-locked.");
+}
+
 for (const className of ["account-menu-button-active", "account-card-active"]) {
   if (!accountPageSource.includes(className)) {
     problems.push(`The account page must expose the explicit ${className} state class.`);
   }
   if (!landingCss.includes(className)) {
     problems.push(`src/app/landing.css must define the explicit ${className} selector.`);
+  }
+}
+
+for (const className of ["account-policy-card-open", "account-policy-card-locked"]) {
+  if (!accountPageSource.includes(className)) {
+    problems.push(`The account page must expose the explicit ${className} state class.`);
+  }
+  if (!landingCss.includes(`.account-policy-card.${className}`)) {
+    problems.push(`src/app/landing.css must define the explicit .account-policy-card.${className} selector.`);
+  }
+}
+
+for (const retiredSelector of [".account-policy-card.is-open", ".account-policy-card.is-locked"]) {
+  if (landingCss.includes(retiredSelector)) {
+    problems.push(`src/app/landing.css must not keep generic account policy selector ${retiredSelector}.`);
   }
 }
 
