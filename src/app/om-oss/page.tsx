@@ -78,7 +78,7 @@ const proofPoints = [
 const signals = [
   ["Planering med kunden", "Processen börjar med att förstå lokal, målgrupp och vilket budskap som ska synas.", "/landing/free-source/business-consultation.jpg"],
   ["Synlighet i lokalen", "Innehållet ska upplevas professionellt där kunden faktiskt möter verksamheten.", "/landing/free-source/retail-digital-signage.jpg"],
-  ["Enkel drift", "Tjänsten byggs för återkommande uppdateringar utan att kunden behöver hantera teknisk drift.", "/landing/free-source/mall-digital-kiosk.jpg"],
+  ["Enkel drift", "Tjänsten byggs för återkommande uppdateringar utan att kunden behöver hantera teknisk drift.", "/landing/free-source/restaurant-neon-sign.jpg"],
 ] as const;
 
 export default function AboutPage() {

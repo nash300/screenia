@@ -10,11 +10,5 @@ business/signage photography for public marketing pages.
 - business-consultation.jpg
   Source page: https://unsplash.com/photos/a-businessman-and-a-woman-discussing-with-laptop-u4NKmzhDnNw
 
-- self-service-kiosk.jpg
-  Source page: https://unsplash.com/photos/a-black-and-white-photo-of-a-kiosk-L6dqe3dsAnY
-
-- mall-digital-kiosk.jpg
-  Source page: https://unsplash.com/photos/a-large-blue-screen-in-the-middle-of-a-mall-EUbx14lAEqs
-
 - restaurant-neon-sign.jpg
   Source page: https://unsplash.com/photos/a-restaurant-sign-lit-up-with-neon-lights-P4PCdpo5Tl8

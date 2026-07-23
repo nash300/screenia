@@ -21,6 +21,7 @@ const defaultSelectors = [
   ".about-hero-copy",
   ".about-hero-visual",
   ".about-belief",
+  ".about-signal-card",
   ".about-story-panel",
   ".about-value-card",
   ".about-strategy-card",

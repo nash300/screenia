@@ -55,8 +55,8 @@ const reasons = [
   ["01", "Tydlig start", "Paket, uppstart, betalning och nästa steg samlas i ett enkelt flöde innan arbetet startar.", "/landing/free-source/business-consultation.jpg"],
   ["02", "Professionellt uttryck", "Skärminnehållet planeras för att ge lokalen ett modernt, tydligt och säljande intryck.", "/landing/free-source/retail-digital-signage.jpg"],
   ["03", "Mindre teknikstress", "Screenia förbereder processen så att verksamheten slipper bygga ett eget tekniskt system.", "/landing/free-source/restaurant-neon-sign.jpg"],
-  ["04", "Personlig planering", "Rådgivning, layoutstöd och överenskomna justeringar ingår i uppstarten.", "/landing/free-source/self-service-kiosk.jpg"],
-  ["05", "Redo att växa", "Lösningen kan utökas med fler skärmar när behovet ökar, utan att arbetssättet byts ut.", "/landing/free-source/mall-digital-kiosk.jpg"],
+  ["04", "Personlig planering", "Rådgivning, layoutstöd och överenskomna justeringar ingår i uppstarten.", "/landing/free-source/business-consultation.jpg"],
+  ["05", "Redo att växa", "Lösningen kan utökas med fler skärmar när behovet ökar, utan att arbetssättet byts ut.", "/landing/free-source/retail-digital-signage.jpg"],
 ] as const;
 
 export default function HowItWorksPage() {
