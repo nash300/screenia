@@ -5162,7 +5162,11 @@
   color: var(--screenia-ink);
 }
 
-.landing-page :is(.landing-section, .landing-contact, .landing-footer, .flow-shell, .account-shell) {
+.landing-page .landing-section,
+.landing-page .landing-contact,
+.landing-page .landing-footer,
+.landing-page .flow-shell,
+.landing-page .account-shell {
   position: relative;
   isolation: isolate;
 }

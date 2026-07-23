@@ -1078,6 +1078,7 @@ for (const { token, message } of retiredAdminTokenNames) {
 }
 
 for (const retiredLandingGlassPattern of [
+  ".landing-page :is(.landing-section, .landing-contact, .landing-footer, .flow-shell, .account-shell)",
   ".landing-page :is(.landing-section-panel, .landing-contact-panel)",
   "background-color: rgba(10, 19, 22, 0.5)",
   "rgba(217, 234, 255, 0.32)",
