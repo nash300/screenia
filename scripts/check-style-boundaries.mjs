@@ -1061,7 +1061,7 @@ const importantRatchets = [
   {
     file: "src/app/landing.css",
     css: landingCss,
-    max: 287,
+    max: 283,
   },
 ];
 

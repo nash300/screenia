@@ -5338,10 +5338,10 @@
 }
 
 .landing-price-card {
-  border: 1px solid rgba(70, 111, 171, 0.2) !important;
-  border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.94) !important;
-  box-shadow: var(--screenia-shadow) !important;
+  border: 1px solid rgba(70, 111, 171, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--screenia-shadow);
 }
 
 .landing-price-card::before {
