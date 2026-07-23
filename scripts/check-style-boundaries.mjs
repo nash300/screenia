@@ -546,9 +546,20 @@ for (const retiredLandingClass of [
   "landing-flag-sv",
   "landing-flag-en",
   "landing-hero-media",
+  "landing-hero-trust",
   "landing-slide-caption",
   "landing-slide-controls",
   "landing-panel-status",
+  "landing-process-visual",
+  "landing-device-visual",
+  "landing-device-screen",
+  "landing-pricing-layout",
+  "landing-checkout-visual",
+  "landing-comparison",
+  "landing-trust",
+  "landing-service-grid",
+  "landing-service-mark",
+  "landing-delivery-panel",
 ]) {
   if (landingCss.includes(retiredLandingClass)) {
     problems.push(`src/app/landing.css still contains retired ${retiredLandingClass} styling. Remove dead landing UI layers instead of keeping override-prone CSS.`);
