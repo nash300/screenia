@@ -4602,36 +4602,6 @@
   outline-offset: -4px;
 }
 
-.admin-layout .admin-document-list-item {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  min-height: auto !important;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-radius: var(--admin-radius-md) !important;
-  background: #ffffff !important;
-  color: var(--admin-text) !important;
-  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05) !important;
-  text-align: left !important;
-  white-space: normal !important;
-}
-
-.admin-layout .admin-document-list-item:hover,
-.admin-layout .admin-document-list-item.admin-document-list-item-active {
-  border-color: rgba(47, 125, 246, 0.44) !important;
-  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
-  color: var(--admin-text) !important;
-}
-
-.admin-layout .admin-document-list-item strong {
-  color: var(--admin-text) !important;
-}
-
-.admin-layout .admin-document-list-item span,
-.admin-layout .admin-document-list-item small {
-  color: var(--admin-muted-text) !important;
-}
-
 .admin-document-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4677,38 +4647,6 @@
   .admin-layout .admin-customers-quick-filters button {
     flex: 1 1 calc(50% - 0.45rem);
   }
-}
-
-/* Final contrast guard: custom row buttons must not inherit primary blue button styling. */
-.admin-layout .admin-document-list-item {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  min-height: auto !important;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-radius: var(--admin-radius-md) !important;
-  background: #ffffff !important;
-  background-image: none !important;
-  color: var(--admin-text) !important;
-  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05) !important;
-  text-align: left !important;
-  white-space: normal !important;
-}
-
-.admin-layout .admin-document-list-item:hover,
-.admin-layout .admin-document-list-item.admin-document-list-item-active {
-  border-color: rgba(47, 125, 246, 0.44) !important;
-  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
-  color: var(--admin-text) !important;
-}
-
-.admin-layout .admin-document-list-item strong {
-  color: var(--admin-text) !important;
-}
-
-.admin-layout .admin-document-list-item span,
-.admin-layout .admin-document-list-item small {
-  color: var(--admin-muted-text) !important;
 }
 
 /* =========================================
@@ -6264,15 +6202,23 @@
 
 /* Document list contrast guard for custom button-like rows. */
 .admin-layout button.admin-document-list-item {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  min-height: auto !important;
+  border: 1px solid rgba(47, 125, 246, 0.16) !important;
+  border-radius: var(--admin-radius-md) !important;
   background: #ffffff !important;
   background-image: none !important;
   color: var(--admin-text) !important;
+  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05) !important;
   text-align: left !important;
   white-space: normal !important;
 }
 
 .admin-layout button.admin-document-list-item:hover,
 .admin-layout button.admin-document-list-item.admin-document-list-item-active {
+  border-color: rgba(47, 125, 246, 0.44) !important;
   background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
   color: var(--admin-text) !important;
 }
