@@ -568,6 +568,7 @@ for (const singleOwnerLandingSelector of [
   ".landing-faq-item summary",
   ".landing-faq-item summary::after",
   ".landing-pricing .landing-price-card",
+  ".landing-pricing .landing-price-card:hover",
   ".landing-pricing .landing-price-card::before",
   ".landing-pricing .landing-price-card.featured::before",
   ".landing-gallery-grid",
@@ -608,6 +609,21 @@ for (const retiredFooterSelector of [
 ]) {
   if (landingCss.includes(retiredFooterSelector) || landingScrollRevealSource.includes(retiredFooterSelector)) {
     problems.push(`Retired landing footer helper ${retiredFooterSelector} must not return; use the real landing-footer element.`);
+  }
+}
+
+for (const retiredUnscopedPricingOwner of [
+  ".landing-price-card",
+  ".landing-price-card::before",
+  ".landing-price-card::after",
+  ".landing-price-card.featured",
+]) {
+  const ownerCount = countOccurrences(
+    stripAtRuleBlocks(landingCss),
+    new RegExp(`^${retiredUnscopedPricingOwner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
+  );
+  if (ownerCount > 0) {
+    problems.push(`src/app/landing.css must not keep unscoped pricing owner ${retiredUnscopedPricingOwner}; scope pricing card ownership to .landing-pricing.`);
   }
 }
 
