@@ -1736,28 +1736,6 @@
   margin-top: 34px;
 }
 
-.landing-step {
-  border: 1px solid var(--landing-line);
-  border-radius: var(--landing-radius);
-  background: var(--landing-surface);
-  box-shadow: 0 16px 42px rgba(7, 31, 84, 0.08);
-}
-
-.landing-step h3 {
-  margin: 18px 0 0;
-  color: var(--landing-text);
-  font-family: var(--landing-font-ui);
-  font-size: 1.05rem;
-  font-weight: 900;
-}
-
-.landing-step p,
-.landing-pricing .landing-plan-description {
-  color: var(--landing-muted);
-  font-size: 0.9rem;
-  line-height: 1.62;
-}
-
 .landing-platform .landing-section-heading p,
 .landing-pricing .landing-section-heading p,
 .landing-faq .landing-section-heading p {
@@ -1877,57 +1855,6 @@
 .landing-illustration-icon svg {
   width: 24px;
   height: 24px;
-}
-
-.landing-step {
-  position: relative;
-  overflow: hidden;
-  border-color: rgba(255, 255, 255, 0.18);
-  background: var(--landing-card);
-  padding: 0 20px 20px;
-}
-
-.landing-step::before {
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: linear-gradient(90deg, var(--landing-blue-700), var(--landing-yellow));
-  content: "";
-}
-
-.landing-step span {
-  display: inline-flex;
-  margin-top: 18px;
-  color: var(--landing-yellow);
-  font-weight: 950;
-}
-
-.landing-step img {
-  display: block;
-  width: calc(100% + 40px);
-  height: 150px;
-  margin: 0 -20px;
-  object-fit: cover;
-  filter: saturate(0.92);
-}
-
-.landing-step small {
-  display: block;
-  margin-top: 12px;
-  border-top: 1px solid var(--landing-line);
-  padding-top: 12px;
-  color: var(--landing-blue-800);
-  font-size: 0.78rem;
-  font-weight: 800;
-  line-height: 1.5;
-}
-
-.landing-pricing .landing-price-card li {
-  position: relative;
-  padding-left: 22px;
-  color: var(--landing-ink);
-  font-size: 0.88rem;
-  line-height: 1.5;
 }
 
 .landing-pricing .landing-price-card li::before {
@@ -4976,22 +4903,10 @@
   padding: 5px 8px;
 }
 
-.landing-pricing .landing-plan-description {
-  min-height: 42px;
-  margin-bottom: 6px;
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-
 .landing-pricing .landing-price-card ul {
   gap: 5px;
   min-height: 158px;
   margin: 2px 0 6px;
-}
-
-.landing-pricing .landing-price-card li {
-  font-size: 0.82rem;
-  line-height: 1.45;
 }
 
 .landing-pricing .landing-plan-price {
@@ -5139,7 +5054,6 @@
 .landing-page .landing-workflow-heading p,
 .landing-service-film-copy p,
 .landing-platform .landing-feature p,
-.landing-step p,
 .landing-platform .landing-section-heading p,
 .landing-pricing .landing-section-heading p,
 .landing-pricing .landing-plan-description,
@@ -5187,7 +5101,6 @@
 .landing-page .landing-workflow-heading p,
 .landing-service-film-copy p,
 .landing-platform .landing-feature p,
-.landing-step p,
 .landing-pricing .landing-plan-description,
 .landing-pricing .landing-price-card li,
 .landing-gallery-content p,
@@ -5645,6 +5558,8 @@
   margin: 0 0 10px;
   justify-content: flex-start;
   color: rgba(234, 244, 255, 0.84);
+  font-size: 0.86rem;
+  line-height: 1.5;
   text-align: left;
 }
 
@@ -5660,7 +5575,11 @@
 }
 
 .landing-pricing .landing-price-card li {
+  position: relative;
+  padding-left: 22px;
   color: rgba(232, 242, 255, 0.84);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
 .landing-pricing .landing-plan-price {

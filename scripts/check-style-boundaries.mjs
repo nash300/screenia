@@ -1227,6 +1227,7 @@ for (const retiredLandingClass of [
   "landing-slide-caption",
   "landing-slide-controls",
   "landing-panel-status",
+  "landing-step",
   "landing-process-visual",
   "landing-device-visual",
   "landing-device-screen",
