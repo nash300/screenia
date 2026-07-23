@@ -271,6 +271,10 @@ if (publicInfoCss.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
 }
 
+if (publicInfoCss.includes(":is(")) {
+  problems.push("src/app/public-info.css should use explicit page selectors instead of :is(...) groups.");
+}
+
 for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
   const duplicates = findDuplicateBaseSelectors(read(file));
   if (duplicates.length) {

@@ -29,7 +29,16 @@
     url("/landing/section-art/platform-workflow.jpg") center / cover fixed;
 }
 
-.public-info-page :is(.how-hero, .how-promo-section, .about-hero, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing) {
+.public-info-page .how-hero,
+.public-info-page .how-promo-section,
+.public-info-page .about-hero,
+.public-info-page .about-beliefs,
+.public-info-page .about-signals,
+.public-info-page .about-story,
+.public-info-page .about-values,
+.public-info-page .about-strategy,
+.public-info-page .about-proof,
+.public-info-page .about-closing {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(218, 236, 255, 0.28);
@@ -44,8 +53,16 @@
   -webkit-backdrop-filter: blur(24px) saturate(130%);
 }
 
-.public-info-page :is(.how-hero, .about-hero)::before,
-.public-info-page :is(.how-promo-section, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing)::before {
+.public-info-page .how-hero::before,
+.public-info-page .about-hero::before,
+.public-info-page .how-promo-section::before,
+.public-info-page .about-beliefs::before,
+.public-info-page .about-signals::before,
+.public-info-page .about-story::before,
+.public-info-page .about-values::before,
+.public-info-page .about-strategy::before,
+.public-info-page .about-proof::before,
+.public-info-page .about-closing::before {
   position: absolute;
   top: 0;
   right: 0;
@@ -56,7 +73,8 @@
   pointer-events: none;
 }
 
-.public-info-page :is(.how-hero, .about-hero)::after {
+.public-info-page .how-hero::after,
+.public-info-page .about-hero::after {
   position: absolute;
   inset: 20px;
   border: 1px solid rgba(218, 236, 255, 0.16);
@@ -65,7 +83,12 @@
   pointer-events: none;
 }
 
-.public-info-page :is(.how-hero, .about-hero-copy, .how-section-heading, .about-section-heading, .about-story-panel, .about-closing) {
+.public-info-page .how-hero,
+.public-info-page .about-hero-copy,
+.public-info-page .how-section-heading,
+.public-info-page .about-section-heading,
+.public-info-page .about-story-panel,
+.public-info-page .about-closing {
   color: #ecf6ff;
 }
 
@@ -73,7 +96,12 @@
   color: #9edcff;
 }
 
-.public-info-page :is(.how-hero h1, .about-hero-copy h1, .how-section-heading h2, .about-section-heading h2, .about-story-panel h2, .about-closing h2) {
+.public-info-page .how-hero h1,
+.public-info-page .about-hero-copy h1,
+.public-info-page .how-section-heading h2,
+.public-info-page .about-section-heading h2,
+.public-info-page .about-story-panel h2,
+.public-info-page .about-closing h2 {
   color: #ffffff;
   font-family: var(--font-special-elite), Georgia, serif;
   font-weight: 400;
@@ -82,7 +110,12 @@
   text-shadow: 0 16px 42px rgba(0, 10, 32, 0.32);
 }
 
-.public-info-page :is(.how-hero p, .how-section-heading p, .about-hero-copy p, .about-section-heading p, .about-story-panel p, .about-closing p) {
+.public-info-page .how-hero p,
+.public-info-page .how-section-heading p,
+.public-info-page .about-hero-copy p,
+.public-info-page .about-section-heading p,
+.public-info-page .about-story-panel p,
+.public-info-page .about-closing p {
   color: rgba(239, 246, 240, 0.82);
   font-size: clamp(0.98rem, 1.1vw, 1.08rem);
   line-height: 1.72;
@@ -250,7 +283,9 @@
 }
 
 .public-info-page .how-reason-card h3,
-.public-info-page :is(.about-belief h2, .about-value-card h3, .about-strategy-card h3) {
+.public-info-page .about-belief h2,
+.public-info-page .about-value-card h3,
+.public-info-page .about-strategy-card h3 {
   margin: 0;
   color: #ffffff;
   font-family: var(--font-special-elite), Georgia, serif;
@@ -260,7 +295,9 @@
 }
 
 .public-info-page .how-reason-card p,
-.public-info-page :is(.about-belief p, .about-value-card p, .about-strategy-card p) {
+.public-info-page .about-belief p,
+.public-info-page .about-value-card p,
+.public-info-page .about-strategy-card p {
   margin: 0;
   color: rgba(239, 246, 240, 0.8);
   font-size: 0.95rem;
@@ -452,7 +489,11 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.public-info-page :is(.about-belief, .about-value-card, .about-strategy-card, .about-proof-card, .about-story-panel) {
+.public-info-page .about-belief,
+.public-info-page .about-value-card,
+.public-info-page .about-strategy-card,
+.public-info-page .about-proof-card,
+.public-info-page .about-story-panel {
   border: 1px solid rgba(218, 236, 255, 0.24);
   border-radius: 14px;
   background:
@@ -587,11 +628,26 @@
 }
 
 @media (max-width: 560px) {
-  .public-info-page :is(.how-hero, .how-promo-section, .about-hero, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing) {
+  .public-info-page .how-hero,
+  .public-info-page .how-promo-section,
+  .public-info-page .about-hero,
+  .public-info-page .about-beliefs,
+  .public-info-page .about-signals,
+  .public-info-page .about-story,
+  .public-info-page .about-values,
+  .public-info-page .about-strategy,
+  .public-info-page .about-proof,
+  .public-info-page .about-closing {
     border-radius: 14px;
   }
 
-  .public-info-page :is(.how-promo-section, .about-beliefs, .about-signals, .about-values, .about-strategy, .about-proof, .about-closing) {
+  .public-info-page .how-promo-section,
+  .public-info-page .about-beliefs,
+  .public-info-page .about-signals,
+  .public-info-page .about-values,
+  .public-info-page .about-strategy,
+  .public-info-page .about-proof,
+  .public-info-page .about-closing {
     padding: 20px;
   }
 
@@ -611,24 +667,33 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .public-info-page :is(.how-reason-card, .about-belief, .about-signal-card, .about-value-card, .about-strategy-card, .about-proof-card) {
+  .public-info-page .how-reason-card,
+  .public-info-page .about-belief,
+  .public-info-page .about-signal-card,
+  .public-info-page .about-value-card,
+  .public-info-page .about-strategy-card,
+  .public-info-page .about-proof-card {
     animation: public-card-rise 760ms cubic-bezier(0.2, 0.78, 0.22, 1) both;
     animation-delay: calc(var(--public-card-delay, 0) * 90ms);
   }
 
-  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(1) {
+  .public-info-page .how-reason-card:nth-child(1),
+  .public-info-page .about-signal-card:nth-child(1) {
     --public-card-delay: 1;
   }
 
-  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(2) {
+  .public-info-page .how-reason-card:nth-child(2),
+  .public-info-page .about-signal-card:nth-child(2) {
     --public-card-delay: 2;
   }
 
-  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(3) {
+  .public-info-page .how-reason-card:nth-child(3),
+  .public-info-page .about-signal-card:nth-child(3) {
     --public-card-delay: 3;
   }
 
-  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(4) {
+  .public-info-page .how-reason-card:nth-child(4),
+  .public-info-page .about-signal-card:nth-child(4) {
     --public-card-delay: 4;
   }
 
