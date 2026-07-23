@@ -227,8 +227,8 @@ export default function AdminPrivacyIncidentsPage() {
         </div>
       </div>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Incident response workflow</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Incident response workflow</h2>
         <div className="admin-incident-workflow" aria-label="Privacy incident response workflow">
           {incidentWorkflow.map((item) => (
             <div key={item.stage} className="admin-incident-workflow-step">
@@ -241,7 +241,7 @@ export default function AdminPrivacyIncidentsPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitIncident}>
+        <form className="admin-record-form" onSubmit={submitIncident}>
           <label className="admin-field">
             <span>Title</span>
             <input
@@ -289,7 +289,7 @@ export default function AdminPrivacyIncidentsPage() {
               rows={2}
             />
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.authority_notification_required}
@@ -299,7 +299,7 @@ export default function AdminPrivacyIncidentsPage() {
             />
             Authority notification required
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.customer_notification_required}
@@ -329,9 +329,9 @@ export default function AdminPrivacyIncidentsPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Incident response cases</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Incident response cases</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -360,7 +360,7 @@ export default function AdminPrivacyIncidentsPage() {
                     Customer: {incident.customer_notification_required ? "Yes" : "No"}
                   </td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="admin-record-actions">
                       {incident.status === "detected" && (
                         <button
                           type="button"

@@ -162,6 +162,7 @@ const compliancePageSource = read("src/app/admin/compliance/page.tsx");
 const dataSubjectRequestsPageSource = read("src/app/admin/data-subject-requests/page.tsx");
 const accessReviewsPageSource = read("src/app/admin/access-reviews/page.tsx");
 const dataRetentionPageSource = read("src/app/admin/data-retention/page.tsx");
+const privacyIncidentsPageSource = read("src/app/admin/privacy-incidents/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -537,6 +538,7 @@ for (const [pageName, pageSource] of [
   ["data-subject-requests", dataSubjectRequestsPageSource],
   ["access-reviews", accessReviewsPageSource],
   ["data-retention", dataRetentionPageSource],
+  ["privacy-incidents", privacyIncidentsPageSource],
 ]) {
   if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex items-center gap-2|flex flex-wrap gap-2)\b/.test(pageSource)) {
     problems.push(`The admin ${pageName} page must use explicit admin-record-* classes instead of broad utility class styling.`);
@@ -559,6 +561,7 @@ for (const className of [
   for (const [pageName, pageSource] of [
     ["access-reviews", accessReviewsPageSource],
     ["data-retention", dataRetentionPageSource],
+    ["privacy-incidents", privacyIncidentsPageSource],
   ]) {
     if (!pageSource.includes(className)) {
       problems.push(`The admin ${pageName} page must expose the explicit ${className} class.`);
@@ -566,8 +569,13 @@ for (const className of [
   }
 }
 
-if (!accessReviewsPageSource.includes("admin-record-check")) {
-  problems.push("The admin access-reviews page must expose the explicit admin-record-check class.");
+for (const [pageName, pageSource] of [
+  ["access-reviews", accessReviewsPageSource],
+  ["privacy-incidents", privacyIncidentsPageSource],
+]) {
+  if (!pageSource.includes("admin-record-check")) {
+    problems.push(`The admin ${pageName} page must expose the explicit admin-record-check class.`);
+  }
 }
 
 for (const selector of [
