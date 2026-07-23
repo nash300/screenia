@@ -5871,25 +5871,25 @@
   margin-bottom: 1rem;
 }
 
-.admin-action-card {
+.admin-layout .admin-action-card {
   align-items: center;
   min-height: 96px;
-  border-left: 4px solid var(--admin-blue) !important;
-  color: var(--admin-text) !important;
-  padding: 1rem !important;
+  border-left: 4px solid var(--admin-blue);
+  color: var(--admin-text);
+  padding: 1rem;
   text-decoration: none;
 }
 
-.admin-action-warning {
-  border-left-color: var(--admin-warning) !important;
+.admin-layout .admin-action-warning {
+  border-left-color: var(--admin-warning);
 }
 
-.admin-action-danger {
-  border-left-color: var(--admin-danger) !important;
+.admin-layout .admin-action-danger {
+  border-left-color: var(--admin-danger);
 }
 
 .admin-priority-title {
-  color: var(--admin-text) !important;
+  color: var(--admin-text);
   font-size: 0.95rem;
 }
 
@@ -5912,7 +5912,7 @@
 .admin-stat-card {
   position: relative;
   min-height: 132px;
-  padding: 1rem !important;
+  padding: 1rem;
   overflow: hidden;
 }
 
@@ -5929,13 +5929,13 @@
 }
 
 .admin-stat-label {
-  color: var(--admin-muted-text) !important;
+  color: var(--admin-muted-text);
   font-size: 0.74rem;
   letter-spacing: 0.08em;
 }
 
 .admin-stat-value {
-  color: var(--admin-text) !important;
+  color: var(--admin-text);
   font-size: clamp(2rem, 4vw, 3.2rem);
   line-height: 0.95;
 }
@@ -5944,10 +5944,10 @@
 .admin-progress-block,
 .admin-priority-item,
 .admin-customers-empty-message {
-  border: 1px solid rgba(47, 125, 246, 0.12) !important;
-  border-radius: var(--admin-radius-md) !important;
-  background: #ffffff !important;
-  box-shadow: none !important;
+  border: 1px solid rgba(47, 125, 246, 0.12);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  box-shadow: none;
 }
 
 .admin-status-dot {
@@ -5955,19 +5955,19 @@
 }
 
 .admin-status-success {
-  background: var(--admin-success) !important;
+  background: var(--admin-success);
 }
 
 .admin-status-warning {
-  background: var(--admin-warning) !important;
+  background: var(--admin-warning);
 }
 
 .admin-status-danger {
-  background: var(--admin-danger) !important;
+  background: var(--admin-danger);
 }
 
 .admin-status-info {
-  background: var(--admin-blue) !important;
+  background: var(--admin-blue);
 }
 
 .admin-layout input,
@@ -6230,7 +6230,7 @@
 }
 
 .admin-card {
-  padding: clamp(0.95rem, 1.6vw, 1.25rem) !important;
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
 
 .admin-card-title {
@@ -6238,7 +6238,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin: 0 0 0.85rem !important;
+  margin: 0 0 0.85rem;
   padding-bottom: 0.65rem;
 }
 
@@ -6271,7 +6271,7 @@
 .admin-progress-block,
 .admin-priority-item {
   min-height: 44px;
-  padding: 0.65rem 0.75rem !important;
+  padding: 0.65rem 0.75rem;
 }
 
 .admin-layout button,
@@ -6337,7 +6337,7 @@
 
 .admin-dashboard-panel .admin-button-secondary.mt-3,
 .admin-dashboard-panel .admin-button-primary.mt-3 {
-  margin-top: 0.75rem !important;
+  margin-top: 0.75rem;
 }
 
 .admin-dashboard-panel > div:last-child,
@@ -7208,43 +7208,43 @@
 
 /* Document list contrast guard for custom button-like rows. */
 .admin-layout button.admin-document-list-item {
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: flex-start !important;
-  min-height: auto !important;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-radius: var(--admin-radius-md) !important;
-  background: #ffffff !important;
-  background-image: none !important;
-  color: var(--admin-text) !important;
-  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05) !important;
-  text-align: left !important;
-  white-space: normal !important;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-height: auto;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  background-image: none;
+  color: var(--admin-text);
+  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.05);
+  text-align: left;
+  white-space: normal;
 }
 
 .admin-layout button.admin-document-list-item:hover,
 .admin-layout button.admin-document-list-item.admin-document-list-item-active {
-  border-color: rgba(47, 125, 246, 0.44) !important;
-  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
-  color: var(--admin-text) !important;
+  border-color: rgba(47, 125, 246, 0.44);
+  background: linear-gradient(135deg, #ffffff, #eef5ff);
+  color: var(--admin-text);
 }
 
 .admin-layout button.admin-document-list-item strong {
-  color: var(--admin-text) !important;
+  color: var(--admin-text);
 }
 
 .admin-layout button.admin-document-list-item span,
 .admin-layout button.admin-document-list-item small {
-  color: var(--admin-muted-text) !important;
+  color: var(--admin-muted-text);
 }
 
 .admin-layout .admin-nav-icon {
-  background: #eaf2ff !important;
-  color: var(--admin-text) !important;
+  background: #eaf2ff;
+  color: var(--admin-text);
 }
 
 .admin-layout .admin-nav-link:hover .admin-nav-icon,
 .admin-layout .admin-nav-link.admin-nav-link-active .admin-nav-icon {
-  background: #ffffff !important;
-  color: var(--admin-text) !important;
+  background: #ffffff;
+  color: var(--admin-text);
 }
