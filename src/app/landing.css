@@ -9237,37 +9237,13 @@
 }
 
 .landing-nav-primary .landing-nav-link.landing-nav-link-active {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: auto;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
   color: var(--screenia-logo-deep);
-  box-shadow: none;
-  transform: none;
+  font-weight: 820;
 }
 
 .landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
-  position: absolute;
-  right: 0;
-  bottom: -6px;
-  left: 0;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff);
-  opacity: 0.72;
-  content: "";
-}
-
-@media (max-width: 900px) {
-  .landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
-    right: auto;
-    bottom: -4px;
-    width: 44px;
-  }
+  display: none;
+  content: none;
 }
 
 @media (max-width: 900px) {

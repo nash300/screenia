@@ -867,35 +867,39 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active", [
   {
-    includes: "background: transparent",
-    message: "must keep active links transparent.",
+    rejects: "background:",
+    message: "must keep active links text-only without a button background.",
   },
   {
-    includes: "box-shadow: none",
+    rejects: "box-shadow:",
     message: "must keep active links shadow-free.",
   },
   {
-    includes: "border-radius: 0",
+    rejects: "border:",
+    message: "must keep active primary nav links border-free.",
+  },
+  {
+    rejects: "border-radius:",
     message: "must keep active primary nav links text shaped.",
   },
   {
-    includes: "padding: 0",
+    rejects: "padding:",
     message: "must not make active primary nav links button sized.",
   },
   {
-    includes: "min-height: auto",
+    rejects: "min-height:",
     message: "must not make active primary nav links button height.",
   },
 ]);
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active::after", [
   {
-    includes: "height: 2px;",
-    message: "must use a thin underline active indicator.",
+    includes: "display: none;",
+    message: "must disable the active nav pseudo-element.",
   },
   {
-    includes: "content: \"\";",
-    message: "must render the active underline pseudo-element.",
+    includes: "content: none;",
+    message: "must keep active public nav links text-only.",
   },
 ]);
 
