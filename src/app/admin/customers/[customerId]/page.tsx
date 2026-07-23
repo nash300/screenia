@@ -3376,42 +3376,42 @@ export default function CustomerDetailPage({
           History
       ============================== */}
       {activeSection === "history" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">History</h2>
-        <p className="admin-muted mt-2 text-sm">
+      <div className="admin-card admin-customer-history-panel">
+        <h2 className="admin-card-title admin-customer-history-title">History</h2>
+        <p className="admin-muted admin-customer-history-intro">
           A searchable change trail for customer data, orders, displays,
           uploaded material, payment events, and admin actions.
         </p>
 
         {auditEvents.length === 0 ? (
-          <p className="admin-muted mt-4">No history events yet.</p>
+          <p className="admin-muted admin-customer-history-empty">No history events yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-3">
+          <div className="admin-scroll-region admin-customer-history-list">
             {auditEvents.map((event) => (
               <div
                 key={event.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-customer-history-event"
               >
-                <div className="flex flex-col justify-between gap-2 md:flex-row">
+                <div className="admin-customer-history-event-header">
                   <div>
-                    <p className="font-semibold text-slate-950">
+                    <p className="admin-customer-history-event-title">
                       {event.event_type.replace(/_/g, " ")}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-history-event-meta">
                       {new Date(event.created_at).toLocaleString("sv-SE")} |{" "}
                       {event.actor_type}
                       {event.actor_id ? ` | ${event.actor_id}` : ""}
                     </p>
                   </div>
                 </div>
-                <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+                <p className="admin-customer-history-event-description">
                   {event.event_description}
                 </p>
-                <details className="mt-3 text-xs text-slate-600">
-                  <summary className="cursor-pointer font-bold text-slate-800">
+                <details className="admin-customer-history-metadata">
+                  <summary>
                     Metadata
                   </summary>
-                  <pre className="mt-2 max-h-72 overflow-auto rounded-xl bg-slate-950 p-3 text-white">
+                  <pre>
                     {JSON.stringify(event.metadata, null, 2)}
                   </pre>
                 </details>
