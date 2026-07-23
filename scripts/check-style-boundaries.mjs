@@ -717,6 +717,33 @@ for (const className of ["account-menu-button-active", "account-card-active"]) {
   }
 }
 
+for (const retiredAccountSelector of [
+  ".account-nav",
+  ".account-hero",
+  ".account-upload-builder",
+  ".account-plus-upload",
+  ".account-upload-queue",
+  ".account-actions",
+  ".account-panel",
+]) {
+  const cssPattern = new RegExp(`${retiredAccountSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![-_a-zA-Z0-9])`);
+  const sourcePattern = new RegExp(`["'\` ]${retiredAccountSelector.slice(1).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![-_a-zA-Z0-9])`);
+  if (cssPattern.test(landingCss) || sourcePattern.test(accountPageSource)) {
+    problems.push(`Account workspace must not keep retired selector ${retiredAccountSelector}.`);
+  }
+}
+
+for (const retiredAccountOverride of [
+  "/* Account workspace */\n.account-page {\n  background:\n    linear-gradient(90deg, rgba(70, 111, 171, 0.07) 1px, transparent 1px)",
+  ".account-sidebar,\n.account-card,\n.account-hero-panel,\n.account-stat {\n  border-color: rgba(70, 111, 171, 0.18) !important;",
+  ".account-card,\n.account-panel,\n.account-history-row,\n.account-dropzone",
+  ".account-hero p,",
+]) {
+  if (landingCss.includes(retiredAccountOverride)) {
+    problems.push(`src/app/landing.css must not keep retired account override pattern: ${retiredAccountOverride}`);
+  }
+}
+
 for (const className of ["account-policy-card-open", "account-policy-card-locked"]) {
   if (!accountPageSource.includes(className)) {
     problems.push(`The account page must expose the explicit ${className} state class.`);
