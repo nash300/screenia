@@ -6515,7 +6515,7 @@
 
 .admin-page > div,
 .admin-page > main {
-  width: min(100%, 1280px);
+  width: min(100%, var(--admin-content-max));
   margin-right: auto;
   margin-left: auto;
   border: 1px solid var(--admin-border);
@@ -6537,7 +6537,9 @@
 .admin-customer-detail-page,
 .admin-devices-page,
 .admin-customers-page {
-  padding: clamp(1rem, 2vw, 1.5rem);
+  display: grid;
+  gap: var(--admin-space-md);
+  padding: clamp(0.9rem, 1.7vw, 1.25rem);
 }
 
 .admin-page-header {
@@ -6842,22 +6844,6 @@
 .admin-layout {
   --admin-content-max: 1360px;
   --admin-space-md: 1rem;
-}
-
-.admin-page > div,
-.admin-page > main {
-  width: min(100%, var(--admin-content-max));
-}
-
-.admin-dashboard-page,
-.admin-compliance-page,
-.admin-inventory-page,
-.admin-customer-detail-page,
-.admin-devices-page,
-.admin-customers-page {
-  display: grid;
-  gap: var(--admin-space-md);
-  padding: clamp(0.9rem, 1.7vw, 1.25rem);
 }
 
 .admin-page-header > div:first-child {

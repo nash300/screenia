@@ -1268,6 +1268,25 @@ if (
   problems.push("src/app/admin/admin.css must not include .admin-order-list in page-shell grouped layout selectors; it is the scrollable order queue list.");
 }
 
+const adminPageChromeSelector = ".admin-page > div,\n.admin-page > main";
+const adminPageChromeCount = countOccurrences(
+  adminCss,
+  new RegExp(adminPageChromeSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+);
+if (adminPageChromeCount > 1) {
+  problems.push("src/app/admin/admin.css must keep admin page chrome wrapper styles in one grouped selector block.");
+}
+
+const adminPageShellSelector =
+  ".admin-dashboard-page,\n.admin-compliance-page,\n.admin-inventory-page,\n.admin-customer-detail-page,\n.admin-devices-page,\n.admin-customers-page";
+const adminPageShellCount = countOccurrences(
+  adminCss,
+  new RegExp(adminPageShellSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+);
+if (adminPageShellCount > 1) {
+  problems.push("src/app/admin/admin.css must keep shared admin page-shell layout in one grouped selector block.");
+}
+
 for (const retiredCustomerCreateSelector of [
   ".admin-customers-create label {",
   ".admin-customers-create > label {",
