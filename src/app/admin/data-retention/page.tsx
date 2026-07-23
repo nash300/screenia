@@ -236,8 +236,8 @@ export default function AdminDataRetentionPage() {
         </div>
       </div>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record retention review</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Record retention review</h2>
         <div className="admin-retention-workflow" aria-label="Data retention workflow">
           {retentionWorkflow.map((item) => (
             <div key={item.stage} className="admin-retention-workflow-step">
@@ -250,7 +250,7 @@ export default function AdminDataRetentionPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
+        <form className="admin-record-form" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Record area</span>
             <select
@@ -371,9 +371,9 @@ export default function AdminDataRetentionPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Retention decisions</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Retention decisions</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -414,7 +414,7 @@ export default function AdminDataRetentionPage() {
                     {review.review_status === "completed" ? (
                       <span className="admin-muted">Completed</span>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="admin-record-actions">
                         <button
                           type="button"
                           className="admin-button-secondary"

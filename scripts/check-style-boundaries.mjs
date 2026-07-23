@@ -161,6 +161,7 @@ const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.ts
 const compliancePageSource = read("src/app/admin/compliance/page.tsx");
 const dataSubjectRequestsPageSource = read("src/app/admin/data-subject-requests/page.tsx");
 const accessReviewsPageSource = read("src/app/admin/access-reviews/page.tsx");
+const dataRetentionPageSource = read("src/app/admin/data-retention/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -535,6 +536,7 @@ for (const selector of [".admin-compliance-panel", ".admin-compliance-title"]) {
 for (const [pageName, pageSource] of [
   ["data-subject-requests", dataSubjectRequestsPageSource],
   ["access-reviews", accessReviewsPageSource],
+  ["data-retention", dataRetentionPageSource],
 ]) {
   if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex items-center gap-2|flex flex-wrap gap-2)\b/.test(pageSource)) {
     problems.push(`The admin ${pageName} page must use explicit admin-record-* classes instead of broad utility class styling.`);
@@ -551,13 +553,21 @@ for (const className of [
   "admin-record-panel",
   "admin-record-title",
   "admin-record-form",
-  "admin-record-check",
   "admin-record-table-wrap",
   "admin-record-actions",
 ]) {
-  if (!accessReviewsPageSource.includes(className)) {
-    problems.push(`The admin access-reviews page must expose the explicit ${className} class.`);
+  for (const [pageName, pageSource] of [
+    ["access-reviews", accessReviewsPageSource],
+    ["data-retention", dataRetentionPageSource],
+  ]) {
+    if (!pageSource.includes(className)) {
+      problems.push(`The admin ${pageName} page must expose the explicit ${className} class.`);
+    }
   }
+}
+
+if (!accessReviewsPageSource.includes("admin-record-check")) {
+  problems.push("The admin access-reviews page must expose the explicit admin-record-check class.");
 }
 
 for (const selector of [
