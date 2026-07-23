@@ -302,6 +302,10 @@ if (accountPageSource.includes('"is-open"') || accountPageSource.includes('"is-l
   problems.push("The account page must use account-policy-card-open/locked instead of generic is-open/is-locked.");
 }
 
+if (accountPageSource.includes('"is-done"')) {
+  problems.push("The account page must use account-status-step-done instead of generic is-done.");
+}
+
 for (const className of ["account-menu-button-active", "account-card-active"]) {
   if (!accountPageSource.includes(className)) {
     problems.push(`The account page must expose the explicit ${className} state class.`);
@@ -318,6 +322,18 @@ for (const className of ["account-policy-card-open", "account-policy-card-locked
   if (!landingCss.includes(`.account-policy-card.${className}`)) {
     problems.push(`src/app/landing.css must define the explicit .account-policy-card.${className} selector.`);
   }
+}
+
+if (!accountPageSource.includes("account-status-step-done")) {
+  problems.push("The account page must expose the explicit account-status-step-done state class.");
+}
+
+if (!landingCss.includes(".account-status-step.account-status-step-done")) {
+  problems.push("src/app/landing.css must define the explicit .account-status-step.account-status-step-done selector.");
+}
+
+if (landingCss.includes(".account-status-step.is-done")) {
+  problems.push("src/app/landing.css must not keep generic account status selector .account-status-step.is-done.");
 }
 
 for (const retiredSelector of [".account-policy-card.is-open", ".account-policy-card.is-locked"]) {

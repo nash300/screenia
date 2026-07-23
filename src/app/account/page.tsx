@@ -942,7 +942,9 @@ export default function AccountPage() {
                   {journeySteps(data).map((step, index) => (
                     <div
                       key={step.label}
-                      className={`account-status-step ${step.done ? "is-done" : ""}`}
+                      className={`account-status-step ${
+                        step.done ? "account-status-step-done" : ""
+                      }`}
                     >
                       <span>{index + 1}</span>
                       <div>

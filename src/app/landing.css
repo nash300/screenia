@@ -4811,7 +4811,7 @@
   font-weight: 950;
 }
 
-.account-status-step.is-done > span {
+.account-status-step.account-status-step-done > span {
   background: var(--landing-primary);
   color: #ffffff;
 }
