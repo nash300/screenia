@@ -1216,6 +1216,23 @@ if (adminButtonBaseCount > 1) {
   problems.push("src/app/admin/admin.css must keep admin button base sizing in one selector block.");
 }
 
+for (const singleOwnerAdminSelector of [
+  ".admin-sidebar-logo-card",
+  ".admin-sidebar-logo-card .screenia-logo",
+  ".admin-sidebar-logo-card .screenia-logo-wordmark",
+  ".admin-nav-link",
+  ".admin-nav-link span:last-child",
+  ".admin-nav-icon",
+]) {
+  const selectorCount = countOccurrences(
+    adminCss,
+    new RegExp(`^${singleOwnerAdminSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
+  );
+  if (selectorCount > 1) {
+    problems.push(`src/app/admin/admin.css must keep ${singleOwnerAdminSelector} in one owner block.`);
+  }
+}
+
 if (adminCss.includes('content: "Screenia Admin"')) {
   problems.push("src/app/admin/admin.css contains the retired generated page-shell titlebar. Use the real admin layout titlebar instead.");
 }

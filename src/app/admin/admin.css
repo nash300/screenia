@@ -81,17 +81,6 @@
     2px 0 14px rgba(0, 0, 0, 0.18);
 }
 
-.admin-sidebar-logo-card {
-  display: flex;
-  justify-content: center;
-  background: transparent;
-  padding: 0.2rem 0;
-}
-
-.admin-sidebar-logo-card .screenia-logo {
-  max-width: 100%;
-}
-
 .admin-sidebar-kicker {
   margin: 0;
   font-size: 0.7rem;
@@ -504,72 +493,6 @@
   font-weight: 900;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-}
-
-.admin-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  min-height: 40px;
-  margin-bottom: 0.25rem;
-  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
-    var(--admin-surface-highlight);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-md);
-  padding: 0.35rem 0.5rem;
-  background: linear-gradient(
-    var(--admin-button-top),
-    var(--admin-button-bottom)
-  );
-  color: var(--admin-surface-text);
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 700;
-}
-
-.admin-nav-link span:last-child {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.admin-nav-link:hover {
-  background: linear-gradient(
-    var(--admin-button-primary-top),
-    var(--admin-button-primary-bottom)
-  );
-  color: var(--admin-surface-title-text);
-  text-decoration: none;
-  box-shadow: 0 4px 10px rgba(17, 53, 111, 0.24);
-}
-
-.admin-nav-link:active {
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow);
-  padding: calc(0.45rem + 1px) calc(0.55rem - 1px) calc(0.45rem - 1px)
-    calc(0.55rem + 1px);
-}
-
-.admin-nav-icon {
-  display: flex;
-  height: 22px;
-  width: 22px;
-  flex: 0 0 22px;
-  align-items: center;
-  justify-content: center;
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-sm);
-  background: #ffffff;
-  font-size: 0.9rem;
-}
-
-.admin-nav-link:hover .admin-nav-icon {
-  color: var(--admin-surface-text);
 }
 
 /* =========================================
@@ -5496,23 +5419,6 @@
   font-size: 14px;
 }
 
-.admin-sidebar-logo-card {
-  justify-content: flex-start;
-  border-radius: 18px;
-  background: linear-gradient(135deg, #ffffff, #edf5ff);
-  padding: 0.5rem 0.65rem;
-}
-
-.admin-sidebar-logo-card .screenia-logo {
-  width: 100%;
-  transform-origin: left center;
-}
-
-.admin-sidebar-logo-card .screenia-logo-wordmark {
-  width: min(100%, 13.25rem);
-  filter: none;
-}
-
 .admin-sidebar-kicker,
 .admin-card-title,
 .admin-eyebrow,
@@ -6651,11 +6557,25 @@
 }
 
 .admin-sidebar-logo-card {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0.45rem 0.25rem 0.8rem;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius-lg);
   background: linear-gradient(135deg, #ffffff, #f1f7ff);
-  padding: 0.85rem;
+  padding: 0.7rem;
   box-shadow: var(--admin-shadow-soft);
+}
+
+.admin-sidebar-logo-card .screenia-logo {
+  width: 100%;
+  max-width: 100%;
+  transform-origin: left center;
+}
+
+.admin-sidebar-logo-card .screenia-logo-wordmark {
+  width: min(11.5rem, 82%);
+  filter: none;
 }
 
 .admin-sidebar-kicker {
@@ -6674,18 +6594,33 @@
 }
 
 .admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
   min-height: 42px;
+  margin-bottom: 0.38rem;
   border: 1px solid rgba(47, 125, 246, 0.13);
   border-radius: var(--admin-radius-md);
   background: rgba(255, 255, 255, 0.84);
+  padding: 0.48rem 0.58rem;
   color: var(--admin-text);
   box-shadow: none;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
   transition:
     background 150ms ease,
     border-color 150ms ease,
     color 150ms ease,
     transform 150ms ease,
     box-shadow 150ms ease;
+}
+
+.admin-nav-link span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-nav-link:hover,
@@ -6698,6 +6633,10 @@
 }
 
 .admin-nav-icon {
+  display: flex;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
   height: 24px;
   width: 24px;
   border: 0;
@@ -7120,27 +7059,6 @@
 
 .admin-sidebar {
   padding: 0.75rem !important;
-}
-
-.admin-sidebar-logo-card {
-  margin: 0.45rem 0.25rem 0.8rem;
-  padding: 0.7rem !important;
-}
-
-.admin-sidebar-logo-card .screenia-logo-wordmark {
-  width: min(11.5rem, 82%);
-}
-
-.admin-nav-link {
-  gap: 0.7rem;
-  margin-bottom: 0.38rem;
-  padding: 0.48rem 0.58rem !important;
-}
-
-.admin-nav-link span:last-child {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .admin-page {
