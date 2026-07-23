@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/landing/hero-slides/02/image.png",
+        url: "/landing/free-source/retail-digital-signage.jpg",
         width: 1200,
         height: 630,
-        alt: "Screenia digital skyltning för lokala företag",
+        alt: "Digital skyltning i en verksamhetsmiljö",
       },
     ],
   },
@@ -47,23 +47,16 @@ export const metadata: Metadata = {
     title: "Så fungerar digital skyltning för företag | Screenia",
     description:
       "Guide till digital skyltning för lokala företag i Sverige: paket, material, betalning, leverans och löpande uppdateringar.",
-    images: ["/landing/hero-slides/02/image.png"],
+    images: ["/landing/free-source/retail-digital-signage.jpg"],
   },
 };
 
 const reasons = [
-  ["01", "Byggt för småföretag", "En enkel helhetslösning för restauranger, salonger, butiker och andra lokala verksamheter.", "/window_screen2.jpg"],
-  ["02", "Ingen tekniker behövs", "Screenia förbereder flödet och enheten. Installation av avancerade system eller utbildning i ny teknik behövs inte.", "/landing/hero-slides/02/image.png"],
-  ["03", "Professionellt uttryck", "Genomtänkt skärminnehåll ger lokalen ett modernare och mer förtroendeingivande uttryck.", "/salon1.jpg"],
-  ["04", "Snabbare start", "Ett tydligt steg-för-steg-flöde gör att verksamheten kan komma igång utan långa installationsprojekt.", "/window_screen1.jpg"],
-  ["05", "Tydliga kostnader", "Paket, provperiod, startavgift och löpande pris presenteras före godkännande och betalning.", "/landing/hero-slides/01/image.png"],
-  ["06", "Mer synliga erbjudanden", "Kampanjer, menyer och aktuella priser får en tydlig plats där kunderna faktiskt ser dem.", "/bbr.jpg"],
-  ["07", "Bättre läsbarhet", "Välj Full HD för enklare innehåll eller 4K när menyer, text och detaljer ska vara extra skarpa.", "/landing/hero-slides/03/image.png"],
-  ["08", "Uppdateringar vid behov", "Skicka nya bilder, priser och kampanjer via kundportalen när verksamhetens innehåll förändras.", "/salon2.jpg"],
-  ["09", "Trygg betalning", "Uppgifter, villkor och betalning hanteras i ett sammanhållet flöde med tydlig bekräftelse.", "/m.jpg"],
-  ["10", "Enhet förberedd av oss", "Screenia förbereder skärmenheten så att verksamheten kan fokusera på sitt innehåll i stället för tekniken.", "/brand/screenia-helper.png"],
-  ["11", "Skalbart över tid", "Lägg till fler skärmar eller platser när behovet växer, utan att byta arbetssätt.", "/salon3.jpg"],
-  ["12", "Personlig hjälp", "Personlig rådgivning och support ingår för innehåll, skärmvisning och löpande uppdateringar.", "/salon4.jpg"],
+  ["01", "Tydlig start", "Paket, uppstart, betalning och nästa steg samlas i ett enkelt flöde innan arbetet startar.", "/landing/free-source/business-consultation.jpg"],
+  ["02", "Professionellt uttryck", "Skärminnehållet planeras för att ge lokalen ett modernt, tydligt och säljande intryck.", "/landing/free-source/retail-digital-signage.jpg"],
+  ["03", "Mindre teknikstress", "Screenia förbereder processen så att verksamheten slipper bygga ett eget tekniskt system.", "/landing/free-source/restaurant-neon-sign.jpg"],
+  ["04", "Personlig planering", "Rådgivning, layoutstöd och överenskomna justeringar ingår i uppstarten.", "/landing/free-source/self-service-kiosk.jpg"],
+  ["05", "Redo att växa", "Lösningen kan utökas med fler skärmar när behovet ökar, utan att arbetssättet byts ut.", "/landing/free-source/mall-digital-kiosk.jpg"],
 ] as const;
 
 export default function HowItWorksPage() {
@@ -127,15 +120,15 @@ export default function HowItWorksPage() {
         <section className="how-promo-section">
           <div className="how-section-heading">
             <p className="landing-eyebrow">Det här gör skillnaden</p>
-            <h2>12 fördelar som gör skärmen enklare att använda.</h2>
+            <h2>De viktigaste fördelarna för en trygg skärmstart.</h2>
             <p>
-              Från första val till löpande uppdateringar är varje del utformad
-              för att spara tid, skapa tydlighet och ge ett professionellt
-              resultat i lokalen.
+              Fokus ligger på de delar som har störst betydelse för kunden:
+              tydlig process, professionellt innehåll, trygg uppstart och en
+              lösning som kan växa med verksamheten.
             </p>
           </div>
 
-          <div className="how-reason-grid" aria-label="Screenia fördelar">
+          <div className="how-reason-grid how-reason-grid-featured" aria-label="Screenia fördelar">
             {reasons.map(([number, title, text, image]) => (
               <article key={number} className="how-reason-card">
                 <Image

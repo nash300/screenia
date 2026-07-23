@@ -35,10 +35,10 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/brand/screenia-pricing-devices.png",
+        url: "/landing/free-source/business-consultation.jpg",
         width: 1200,
         height: 630,
-        alt: "Screenia digital skyltning och skärmenheter",
+        alt: "Planering inför digital skyltning med Screenia",
       },
     ],
   },
@@ -47,34 +47,38 @@ export const metadata: Metadata = {
     title: "Om Screenia | Digital skyltning för lokala företag",
     description:
       "Vår vision är att göra digital skyltning lika enkel att använda som den är effektiv att se.",
-    images: ["/brand/screenia-pricing-devices.png"],
+    images: ["/landing/free-source/business-consultation.jpg"],
   },
 };
 
 const beliefs = [
-  ["Tydlighet före teknik", "Kunden ska förstå nästa steg, kostnaden och resultatet utan att behöva tolka tekniska begrepp."],
-  ["Professionellt från början", "En lokal verksamhet ska kunna se modern och välorganiserad ut även utan en egen marknadsavdelning."],
-  ["Rimliga kostnader", "Digital skyltning ska vara möjlig att testa och utveckla utan långa bindningar eller onödigt komplicerade avtal."],
+  ["Tydlighet före teknik", "Kunden ska förstå upplägg, nästa steg och resultat utan att behöva tolka tekniska begrepp."],
+  ["Personlig planering", "Varje uppstart ska kännas genomtänkt, enkel att följa och anpassad efter verksamhetens lokal."],
+  ["Kontrollerad tillväxt", "Tjänsten ska kunna växa med fler skärmar utan att processen blir tung eller otydlig."],
 ] as const;
 
 const values = [
-  ["Enkelhet", "Vi skalar bort tekniskt brus och bygger flöden som är lätta att följa för både kund och administratör."],
-  ["Noggrannhet", "Beställningar, betalningar, innehåll och status ska vara spårbara, tydliga och lätta att kontrollera."],
-  ["Förtroende", "Vi arbetar med transparens kring priser, villkor, leverans och vad kunden faktiskt får."],
-  ["Utveckling", "Tjänsten ska växa steg för steg med verkliga kundbehov, inte med funktioner som bara ser bra ut på papper."],
+  ["Enkelhet", "Vi skalar bort tekniskt brus och bygger flöden som är lätta att följa."],
+  ["Noggrannhet", "Beställningar, betalningar, innehåll och status ska vara spårbara."],
+  ["Förtroende", "Priser, villkor, leverans och ansvar ska vara tydliga från början."],
 ] as const;
 
 const strategy = [
-  ["1", "Starta smalt", "Vi fokuserar först på företag som har tydliga visuella behov: restauranger, salonger, butiker och serviceverksamheter."],
-  ["2", "Göra flödet tryggt", "Förfrågan, onboarding, betalning, innehåll och support ska sitta ihop i ett kontrollerat arbetsflöde."],
-  ["3", "Bygga för upprepning", "När processerna fungerar stabilt kan fler skärmar, fler kunder och fler innehållstyper hanteras utan att kvaliteten sjunker."],
+  ["1", "Lyssna på behovet", "Först identifieras vad verksamheten vill visa och vilken typ av skärm som passar bäst."],
+  ["2", "Göra starten trygg", "Förfrågan, onboarding, betalning, innehåll och support kopplas ihop i ett kontrollerat flöde."],
+  ["3", "Förbättra med data", "När verkliga kundflöden används kan tjänsten utvecklas utan att förlora enkelheten."],
 ] as const;
 
 const proofPoints = [
-  ["3 veckor", "kostnadsfri provperiod"],
-  ["0 månader", "bindningstid"],
-  ["FHD eller 4K", "paket efter behov"],
-  ["Sverige", "byggt för lokala företag"],
+  ["Planering", "personligt stöd från start"],
+  ["Tydlighet", "samma flöde för uppstart och betalning"],
+  ["Skalbart", "fler skärmar när behovet växer"],
+] as const;
+
+const signals = [
+  ["Planering med kunden", "Processen börjar med att förstå lokal, målgrupp och vilket budskap som ska synas.", "/landing/free-source/business-consultation.jpg"],
+  ["Synlighet i lokalen", "Innehållet ska upplevas professionellt där kunden faktiskt möter verksamheten.", "/landing/free-source/retail-digital-signage.jpg"],
+  ["Enkel drift", "Tjänsten byggs för återkommande uppdateringar utan att kunden behöver hantera teknisk drift.", "/landing/free-source/mall-digital-kiosk.jpg"],
 ] as const;
 
 export default function AboutPage() {
@@ -146,15 +150,15 @@ export default function AboutPage() {
 
           <div className="about-hero-visual" aria-label="Screenia skärmvisning">
             <Image
-              src="/brand/screenia-pricing-devices.png"
-              alt="Screenia enheter för digital skyltning"
+              src="/landing/free-source/business-consultation.jpg"
+              alt="Planering inför digital skyltning"
               width={1400}
               height={900}
               priority
             />
             <div className="about-hero-stat">
-              <strong>Från idé till skärm</strong>
-              <span>En tydlig process för innehåll, betalning och start.</span>
+              <strong>Från behov till tydlig visning</strong>
+              <span>Planering, innehåll och uppstart ska kännas lugnt och professionellt.</span>
             </div>
           </div>
         </section>
@@ -164,6 +168,18 @@ export default function AboutPage() {
             <article className="about-belief" key={title}>
               <h2>{title}</h2>
               <p>{text}</p>
+            </article>
+          ))}
+        </section>
+
+        <section className="about-signals" aria-label="Screenias arbetssätt">
+          {signals.map(([title, text, image]) => (
+            <article className="about-signal-card" key={title}>
+              <Image src={image} alt={`${title} hos Screenia`} width={1000} height={760} />
+              <div>
+                <h2>{title}</h2>
+                <p>{text}</p>
+              </div>
             </article>
           ))}
         </section>

@@ -2,8 +2,8 @@
 
 .public-info-page {
   min-height: 100vh;
-  background: #061942;
-  color: #ecf6ff;
+  background: #090d12;
+  color: #f1f6f2;
 }
 
 .public-info-page .how-main,
@@ -17,23 +17,25 @@
     max(18px, calc((100vw - 1240px) / 2))
     clamp(44px, 6vw, 78px);
   background:
+    radial-gradient(circle at 18% 10%, rgba(105, 214, 198, 0.18), transparent 28%),
+    radial-gradient(circle at 82% 18%, rgba(242, 196, 109, 0.14), transparent 30%),
     linear-gradient(
-      115deg,
-      rgba(3, 14, 38, 0.98) 0 42%,
-      rgba(10, 61, 135, 0.94) 42% 58%,
-      rgba(225, 238, 252, 0.96) 58% 100%
+      116deg,
+      rgba(9, 13, 18, 0.98) 0 44%,
+      rgba(26, 60, 58, 0.94) 44% 61%,
+      rgba(226, 222, 211, 0.96) 61% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover fixed;
+    url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
 }
 
-.public-info-page :is(.how-hero, .how-promo-section, .about-hero, .about-beliefs, .about-story, .about-values, .about-strategy, .about-proof, .about-closing) {
+.public-info-page :is(.how-hero, .how-promo-section, .about-hero, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing) {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(218, 236, 255, 0.28);
   border-radius: 18px;
   background:
-    linear-gradient(145deg, rgba(11, 40, 90, 0.62), rgba(4, 16, 42, 0.54)),
-    rgba(4, 16, 42, 0.42);
+    linear-gradient(145deg, rgba(24, 44, 48, 0.62), rgba(10, 13, 18, 0.54)),
+    rgba(10, 13, 18, 0.42) !important;
   box-shadow:
     0 30px 82px rgba(0, 10, 32, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -42,13 +44,13 @@
 }
 
 .public-info-page :is(.how-hero, .about-hero)::before,
-.public-info-page :is(.how-promo-section, .about-beliefs, .about-story, .about-values, .about-strategy, .about-proof, .about-closing)::before {
+.public-info-page :is(.how-promo-section, .about-beliefs, .about-signals, .about-story, .about-values, .about-strategy, .about-proof, .about-closing)::before {
   position: absolute;
   top: 0;
   right: 0;
   left: 0;
   height: 4px;
-  background: linear-gradient(90deg, #44d7ff, #2f7df6 58%, #ffd21f);
+  background: linear-gradient(90deg, #69d6c6, #6d8dff 52%, #f2c46d) !important;
   content: "";
   pointer-events: none;
 }
@@ -67,7 +69,7 @@
 }
 
 .public-info-page .landing-eyebrow {
-  color: #57ccff;
+  color: #69d6c6;
 }
 
 .public-info-page :is(.how-hero h1, .about-hero-copy h1, .how-section-heading h2, .about-section-heading h2, .about-story-panel h2, .about-closing h2) {
@@ -80,7 +82,7 @@
 }
 
 .public-info-page :is(.how-hero p, .how-section-heading p, .about-hero-copy p, .about-section-heading p, .about-story-panel p, .about-closing p) {
-  color: rgba(232, 242, 255, 0.82);
+  color: rgba(239, 246, 240, 0.82);
   font-size: clamp(0.98rem, 1.1vw, 1.08rem);
   line-height: 1.72;
 }
@@ -112,7 +114,7 @@
   border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(4, 16, 42, 0.04), rgba(4, 16, 42, 0.44)),
-    url("/landing/hero-slides/02/image.png") center / cover;
+    url("/landing/free-source/retail-digital-signage.jpg") center / cover !important;
   box-shadow: 0 28px 66px rgba(0, 10, 32, 0.32);
   content: "";
   transform: translateY(-42%);
@@ -133,7 +135,7 @@
 .public-info-page .how-hero::after {
   background:
     linear-gradient(145deg, rgba(3, 14, 38, 0.18), rgba(3, 14, 38, 0.04)),
-    radial-gradient(circle at 74% 36%, rgba(68, 215, 255, 0.2), transparent 26%);
+    radial-gradient(circle at 74% 36%, rgba(105, 214, 198, 0.18), transparent 26%);
 }
 
 .public-info-page .how-promo-section {
@@ -151,7 +153,7 @@
 }
 
 .public-info-page .how-section-heading h2 {
-  max-width: 15ch;
+  max-width: 16ch;
   margin: 0;
   font-size: clamp(2.45rem, 5.2vw, 4.65rem);
   line-height: 0.98;
@@ -164,8 +166,17 @@
 
 .public-info-page .how-reason-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: clamp(14px, 1.6vw, 20px);
+}
+
+.public-info-page .how-reason-grid-featured .how-reason-card {
+  grid-column: span 2;
+}
+
+.public-info-page .how-reason-grid-featured .how-reason-card:nth-child(1),
+.public-info-page .how-reason-grid-featured .how-reason-card:nth-child(2) {
+  grid-column: span 3;
 }
 
 .public-info-page .how-reason-card {
@@ -175,7 +186,9 @@
   overflow: hidden;
   border: 1px solid rgba(218, 236, 255, 0.24);
   border-radius: 14px;
-  background: rgba(4, 18, 48, 0.42);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.035)),
+    rgba(12, 19, 22, 0.44) !important;
   box-shadow:
     0 18px 48px rgba(0, 10, 32, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -188,10 +201,10 @@
 }
 
 .public-info-page .how-reason-card:hover {
-  border-color: rgba(68, 215, 255, 0.54);
+  border-color: rgba(105, 214, 198, 0.58);
   box-shadow:
     0 24px 60px rgba(0, 10, 32, 0.3),
-    0 0 0 1px rgba(68, 215, 255, 0.16),
+    0 0 0 1px rgba(105, 214, 198, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
   transform: translateY(-4px);
 }
@@ -200,8 +213,15 @@
   width: 100%;
   height: 100%;
   aspect-ratio: auto;
-  border-bottom: 3px solid #2f7df6;
+  border-bottom: 3px solid #69d6c6;
   object-fit: cover;
+  transition: transform 520ms ease, filter 520ms ease;
+}
+
+.public-info-page .how-reason-card:hover img,
+.public-info-page .about-signal-card:hover img {
+  filter: saturate(1.08) contrast(1.04);
+  transform: scale(1.055);
 }
 
 .public-info-page .how-reason-card div {
@@ -220,12 +240,12 @@
   min-height: 34px;
   place-items: center;
   border-radius: 8px;
-  background: linear-gradient(145deg, #44d7ff, #2f7df6);
-  color: #ffffff;
+  background: linear-gradient(145deg, #69d6c6, #f2c46d);
+  color: #101418;
   font-family: var(--landing-font-ui);
   font-size: 0.8rem;
   font-weight: 900;
-  box-shadow: 0 14px 30px rgba(47, 125, 246, 0.24);
+  box-shadow: 0 14px 30px rgba(105, 214, 198, 0.18);
 }
 
 .public-info-page .how-reason-card h3,
@@ -241,7 +261,7 @@
 .public-info-page .how-reason-card p,
 .public-info-page :is(.about-belief p, .about-value-card p, .about-strategy-card p) {
   margin: 0;
-  color: rgba(232, 242, 255, 0.8);
+  color: rgba(239, 246, 240, 0.8);
   font-size: 0.95rem;
   line-height: 1.62;
 }
@@ -288,7 +308,7 @@
   border-radius: 16px;
   background:
     radial-gradient(circle at 42% 18%, rgba(255, 255, 255, 0.24), transparent 26%),
-    linear-gradient(145deg, rgba(47, 125, 246, 0.92), rgba(4, 18, 48, 0.8));
+    linear-gradient(145deg, rgba(105, 214, 198, 0.38), rgba(10, 13, 18, 0.82)) !important;
   box-shadow:
     0 28px 70px rgba(0, 10, 32, 0.34),
     inset 0 1px 0 rgba(255, 255, 255, 0.18);
@@ -311,7 +331,7 @@
   width: min(310px, calc(100% - 44px));
   border: 1px solid rgba(218, 236, 255, 0.18);
   border-radius: 14px;
-  background: rgba(4, 16, 42, 0.76);
+  background: rgba(10, 13, 18, 0.76);
   color: #ffffff;
   padding: 18px;
   box-shadow: 0 18px 42px rgba(0, 10, 32, 0.28);
@@ -332,11 +352,12 @@
 
 .public-info-page .about-hero-stat span {
   margin-top: 6px;
-  color: rgba(232, 242, 255, 0.82);
+  color: rgba(239, 246, 240, 0.82);
   line-height: 1.5;
 }
 
 .public-info-page .about-beliefs,
+.public-info-page .about-signals,
 .public-info-page .about-value-grid,
 .public-info-page .about-strategy-grid,
 .public-info-page .about-proof,
@@ -349,6 +370,54 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
   padding: clamp(24px, 4vw, 44px);
+}
+
+.public-info-page .about-signals {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.public-info-page .about-signal-card {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: 220px 1fr;
+  overflow: hidden;
+  border: 1px solid rgba(218, 236, 255, 0.22);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.04)),
+    rgba(12, 19, 22, 0.4) !important;
+  box-shadow:
+    0 18px 48px rgba(0, 10, 32, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.public-info-page .about-signal-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 520ms ease, filter 520ms ease;
+}
+
+.public-info-page .about-signal-card div {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+}
+
+.public-info-page .about-signal-card h2 {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-special-elite), Georgia, serif;
+  font-size: clamp(1.35rem, 1.9vw, 1.7rem);
+  font-weight: 400;
+  line-height: 1.06;
+}
+
+.public-info-page .about-signal-card p {
+  margin: 0;
+  color: rgba(239, 246, 240, 0.8);
+  line-height: 1.62;
 }
 
 .public-info-page .about-values,
@@ -387,7 +456,7 @@
   border-radius: 14px;
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
-    rgba(4, 18, 48, 0.34);
+    rgba(12, 19, 22, 0.36) !important;
   box-shadow:
     0 18px 48px rgba(0, 10, 32, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
@@ -410,16 +479,16 @@
 
 .public-info-page .about-story-panel-dark {
   background:
-    radial-gradient(circle at 88% 18%, rgba(255, 210, 31, 0.18), transparent 30%),
-    linear-gradient(145deg, rgba(10, 61, 135, 0.62), rgba(4, 16, 42, 0.62)),
-    rgba(4, 18, 48, 0.42);
+    radial-gradient(circle at 88% 18%, rgba(242, 196, 109, 0.18), transparent 30%),
+    linear-gradient(145deg, rgba(31, 112, 103, 0.58), rgba(10, 13, 18, 0.66)),
+    rgba(12, 19, 22, 0.42) !important;
 }
 
 .public-info-page .about-proof {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   background:
-    linear-gradient(135deg, rgba(4, 18, 48, 0.76), rgba(10, 61, 135, 0.58)),
-    rgba(4, 16, 42, 0.5);
+    linear-gradient(135deg, rgba(10, 13, 18, 0.76), rgba(31, 112, 103, 0.52)),
+    rgba(12, 19, 22, 0.5) !important;
 }
 
 .public-info-page .about-proof-card {
@@ -430,7 +499,7 @@
 }
 
 .public-info-page .about-proof-card strong {
-  color: #ffd21f;
+  color: #f2c46d;
   font-family: var(--font-special-elite), Georgia, serif;
   font-size: clamp(1.55rem, 2.4vw, 2.25rem);
   font-weight: 400;
@@ -439,7 +508,7 @@
 
 .public-info-page .about-proof-card span {
   margin-top: 8px;
-  color: rgba(232, 242, 255, 0.84);
+  color: rgba(239, 246, 240, 0.84);
   font-weight: 700;
 }
 
@@ -451,9 +520,16 @@
 
 @media (max-width: 1120px) {
   .public-info-page .how-reason-grid,
+  .public-info-page .about-signals,
   .public-info-page .about-value-grid,
   .public-info-page .about-proof {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .public-info-page .how-reason-grid-featured .how-reason-card,
+  .public-info-page .how-reason-grid-featured .how-reason-card:nth-child(1),
+  .public-info-page .how-reason-grid-featured .how-reason-card:nth-child(2) {
+    grid-column: auto;
   }
 
   .public-info-page .about-hero,
@@ -468,8 +544,8 @@
   .public-info-page .about-main {
     padding: 100px 16px 42px;
     background:
-      linear-gradient(160deg, #061942 0 38%, #0d4b9f 38% 48%, #edf5ff 48% 100%),
-      url("/landing/section-art/platform-workflow.jpg") center / cover;
+      linear-gradient(160deg, #090d12 0 42%, #1f7067 42% 52%, #e5dfd2 52% 100%),
+      url("/landing/section-art/platform-workflow.jpg") center / cover !important;
   }
 
   .public-info-page .how-hero,
@@ -495,6 +571,7 @@
 
   .public-info-page .how-reason-grid,
   .public-info-page .about-beliefs,
+  .public-info-page .about-signals,
   .public-info-page .about-value-grid,
   .public-info-page .about-strategy-grid,
   .public-info-page .about-proof,
@@ -512,7 +589,7 @@
     border-radius: 14px;
   }
 
-  .public-info-page :is(.how-promo-section, .about-beliefs, .about-values, .about-strategy, .about-proof, .about-closing) {
+  .public-info-page :is(.how-promo-section, .about-beliefs, .about-signals, .about-values, .about-strategy, .about-proof, .about-closing) {
     padding: 20px;
   }
 
@@ -528,5 +605,44 @@
     right: 14px;
     bottom: 14px;
     width: calc(100% - 28px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .public-info-page :is(.how-reason-card, .about-belief, .about-signal-card, .about-value-card, .about-strategy-card, .about-proof-card) {
+    animation: public-card-rise 760ms cubic-bezier(0.2, 0.78, 0.22, 1) both;
+    animation-delay: calc(var(--public-card-delay, 0) * 90ms);
+  }
+
+  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(1) {
+    --public-card-delay: 1;
+  }
+
+  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(2) {
+    --public-card-delay: 2;
+  }
+
+  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(3) {
+    --public-card-delay: 3;
+  }
+
+  .public-info-page :is(.how-reason-card, .about-signal-card):nth-child(4) {
+    --public-card-delay: 4;
+  }
+
+  .public-info-page .how-reason-card:nth-child(5) {
+    --public-card-delay: 5;
+  }
+}
+
+@keyframes public-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
