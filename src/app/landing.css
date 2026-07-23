@@ -8650,20 +8650,27 @@
 }
 
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link.landing-nav-link-active::after {
+  display: none;
+  content: none;
+  box-shadow: none;
+}
+
+.landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus-visible {
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--screenia-logo-deep);
+}
+
+.landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus-visible::after {
   position: absolute;
   right: 0;
-  bottom: -7px;
+  bottom: -6px;
   left: 0;
   display: block;
   height: 2px;
   border-radius: 999px;
   background: linear-gradient(90deg, #2f7df6, #6d8dff);
   content: "";
-  opacity: 0.82;
-  box-shadow: none;
-}
-
-.landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus-visible {
-  outline: 2px solid rgba(47, 125, 246, 0.26);
-  outline-offset: 8px;
+  opacity: 0.78;
 }

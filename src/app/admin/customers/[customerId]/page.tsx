@@ -3663,46 +3663,46 @@ export default function CustomerDetailPage({
       )}
       {deleteConfirmationOpen && customer && (
         <div
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-950/70 px-4 py-6 backdrop-blur-sm"
+          className="admin-customer-delete-backdrop"
           role="dialog"
           aria-modal="true"
           aria-labelledby="delete-customer-title"
         >
-          <div className="w-full max-w-lg overflow-hidden rounded-3xl border border-red-200 bg-white shadow-2xl">
-            <div className="bg-gradient-to-br from-slate-950 via-red-950 to-red-800 p-6 text-white">
-              <p className="text-xs font-black uppercase tracking-[0.22em] text-red-100">
+          <div className="admin-customer-delete-dialog">
+            <div className="admin-customer-delete-hero">
+              <p className="admin-customer-delete-kicker">
                 Permanent action
               </p>
-              <h2 id="delete-customer-title" className="mt-3 text-2xl font-black">
+              <h2 id="delete-customer-title">
                 Delete customer?
               </h2>
-              <p className="mt-2 text-sm leading-6 text-red-50">
+              <p>
                 This removes the customer and cleanup-safe related records. Audit
                 history is kept without the customer link for troubleshooting.
               </p>
             </div>
 
-            <div className="space-y-4 p-6">
-              <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
-                <p className="text-xs font-black uppercase tracking-[0.16em] text-red-700">
+            <div className="admin-customer-delete-body">
+              <div className="admin-customer-delete-subject">
+                <p className="admin-customer-delete-subject-label">
                   Customer
                 </p>
-                <p className="mt-1 break-words text-base font-black text-red-950">
+                <p className="admin-customer-delete-subject-name">
                   {customer.name}
                 </p>
-                <p className="mt-1 break-all text-xs font-semibold text-red-700">
+                <p className="admin-customer-delete-subject-meta">
                   {customer.email || customer.id}
                 </p>
               </div>
 
-              <p className="text-sm leading-6 text-slate-700">
+              <p className="admin-customer-delete-copy">
                 This cannot be undone from the admin panel. Use it only for
                 wrong drafts or duplicates without Stripe/payment history.
                 Customer history with payments should be suspended, refunded,
                 cancelled, or anonymized instead of deleted.
               </p>
 
-              <label className="block text-sm font-semibold text-red-900">
+              <label className="admin-customer-delete-field">
                 Reason for permanently deleting this draft customer *
                 <textarea
                   value={deleteReason}
@@ -3712,22 +3712,21 @@ export default function CustomerDetailPage({
                   }}
                   rows={3}
                   placeholder="Example: Duplicate draft created during testing and no payment history exists."
-                  className="mt-1 w-full rounded-xl border border-red-200 px-3 py-2 text-slate-900 outline-none"
+                  className="admin-customer-delete-control"
                 />
               </label>
 
-              <label className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-sm font-semibold text-red-900">
+              <label className="admin-customer-delete-check">
                 <input
                   type="checkbox"
                   checked={deleteConfirmed}
                   onChange={(event) => setDeleteConfirmed(event.target.checked)}
-                  className="mt-1"
                 />
                 I checked that this is a wrong draft or duplicate without
                 payment history, and I want to delete it.
               </label>
 
-              <div className="flex flex-wrap justify-end gap-3 pt-2">
+              <div className="admin-customer-delete-actions">
                 <button
                   type="button"
                   onClick={() => {

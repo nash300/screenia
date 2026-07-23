@@ -72,7 +72,7 @@ export default function DevicesPage() {
   return (
     <div>
       {/* Page Header */}
-      <div className="admin-page-header flex flex-col justify-between gap-4 md:flex-row md:items-end">
+      <div className="admin-page-header admin-devices-page-header">
         <div>
           <h1 className="admin-title">Displays</h1>
           <p className="admin-subtitle">

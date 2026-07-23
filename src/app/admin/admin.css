@@ -1396,107 +1396,6 @@
   background: #000000;
 }
 
-.admin-layout .bg-white,
-.admin-layout .bg-white\/70,
-.admin-layout .bg-slate-50,
-.admin-layout .bg-slate-100,
-.admin-layout .bg-gray-100 {
-  background-color: #ffffff !important;
-}
-
-.admin-layout .text-white {
-  color: #ffffff !important;
-}
-
-.admin-layout .text-slate-950,
-.admin-layout .text-slate-900,
-.admin-layout .text-gray-900 {
-  color: var(--admin-surface-text) !important;
-}
-
-.admin-layout .text-slate-500,
-.admin-layout .text-slate-600,
-.admin-layout .text-gray-500,
-.admin-layout .text-gray-600 {
-  color: var(--admin-surface-muted) !important;
-}
-
-.admin-layout .ring-2,
-.admin-layout .focus\:ring-2:focus {
-  box-shadow: 0 0 0 2px #ffff00 !important;
-}
-
-.admin-layout .border,
-.admin-layout .border-slate-200,
-.admin-layout .border-slate-300,
-.admin-layout .border-slate-800 {
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow) !important;
-  border-style: solid !important;
-  border-width: 2px !important;
-  border-radius: var(--admin-radius-sm) !important;
-}
-
-.admin-layout .p-6 {
-  padding: 0.75rem !important;
-}
-
-.admin-layout .p-4 {
-  padding: 0.55rem !important;
-}
-
-.admin-layout .px-5 {
-  padding-left: 0.65rem !important;
-  padding-right: 0.65rem !important;
-}
-
-.admin-layout .py-4 {
-  padding-top: 0.5rem !important;
-  padding-bottom: 0.5rem !important;
-}
-
-.admin-layout .mt-8 {
-  margin-top: 0.85rem !important;
-}
-
-.admin-layout .mt-6 {
-  margin-top: 0.75rem !important;
-}
-
-.admin-layout .mt-5 {
-  margin-top: 0.6rem !important;
-}
-
-.admin-layout .mt-4 {
-  margin-top: 0.5rem !important;
-}
-
-.admin-layout .gap-5 {
-  gap: 0.75rem !important;
-}
-
-.admin-layout .gap-4 {
-  gap: 0.6rem !important;
-}
-
-.admin-layout .space-y-4 > :not([hidden]) ~ :not([hidden]),
-.admin-layout .space-y-3 > :not([hidden]) ~ :not([hidden]) {
-  margin-top: 0.45rem !important;
-}
-
-.admin-layout .text-5xl {
-  font-size: 2rem !important;
-  line-height: 1 !important;
-}
-
-.admin-layout .text-3xl {
-  font-size: 1.35rem !important;
-}
-
-.admin-layout .text-xl {
-  font-size: 1rem !important;
-}
-
 /* =========================================
    GLOBAL ADMIN TOASTS
 ========================================= */
@@ -2967,6 +2866,142 @@
   }
 }
 
+.admin-customer-delete-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 23, 42, 0.7);
+  padding: 1.5rem 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.admin-customer-delete-dialog {
+  width: min(100%, 32rem);
+  overflow: hidden;
+  border: 1px solid rgba(248, 113, 113, 0.32);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(15, 23, 42, 0.28);
+}
+
+.admin-customer-delete-hero {
+  background: linear-gradient(135deg, #0f172a, #7f1d1d 58%, #991b1b);
+  padding: 1.25rem;
+  color: #ffffff;
+}
+
+.admin-customer-delete-kicker {
+  margin: 0;
+  color: #fee2e2;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.admin-customer-delete-hero h2 {
+  margin: 0.75rem 0 0;
+  font-size: 1.55rem;
+  font-weight: 950;
+  line-height: 1.12;
+}
+
+.admin-customer-delete-hero p:not(.admin-customer-delete-kicker) {
+  margin: 0.5rem 0 0;
+  color: #fef2f2;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.admin-customer-delete-body {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+}
+
+.admin-customer-delete-subject {
+  border: 1px solid rgba(248, 113, 113, 0.22);
+  border-radius: 14px;
+  background: rgba(254, 242, 242, 0.92);
+  padding: 0.9rem;
+}
+
+.admin-customer-delete-subject-label {
+  margin: 0;
+  color: #b91c1c;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-customer-delete-subject-name {
+  overflow-wrap: anywhere;
+  margin: 0.35rem 0 0;
+  color: #450a0a;
+  font-size: 0.95rem;
+  font-weight: 950;
+}
+
+.admin-customer-delete-subject-meta {
+  overflow-wrap: anywhere;
+  margin: 0.35rem 0 0;
+  color: #b91c1c;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.admin-customer-delete-copy {
+  margin: 0;
+  color: #334155;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.admin-customer-delete-field {
+  display: grid;
+  gap: 0.35rem;
+  color: #7f1d1d;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.admin-customer-delete-control {
+  width: 100%;
+  min-height: 5.2rem;
+  border: 1px solid rgba(248, 113, 113, 0.36);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.55rem 0.7rem;
+  color: #061942;
+  font: inherit;
+  outline: none;
+}
+
+.admin-customer-delete-check {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.5rem;
+  color: #7f1d1d;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.admin-customer-delete-check input {
+  margin-top: 0.2rem;
+}
+
+.admin-customer-delete-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
 .admin-compact-info-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4252,6 +4287,13 @@
   padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
 
+.admin-devices-page-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .admin-devices-info-panel {
   margin-top: 0.75rem;
   border: 1px solid rgba(47, 125, 246, 0.14);
@@ -4305,6 +4347,13 @@
 .admin-devices-search-input:focus {
   border-color: var(--admin-focus);
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
+}
+
+@media (min-width: 768px) {
+  .admin-devices-page-header {
+    flex-direction: row;
+    align-items: flex-end;
+  }
 }
 
 .admin-devices-results {
@@ -5513,26 +5562,6 @@
 
 .admin-order-tracking-action button {
   width: 100%;
-}
-
-.admin-layout .bg-yellow-600 {
-  background: linear-gradient(135deg, #f47a20, #f7a155) !important;
-}
-
-.admin-layout .border,
-.admin-layout .border-slate-200,
-.admin-layout .border-slate-300,
-.admin-layout .border-slate-800 {
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  border-radius: 14px !important;
-}
-
-.admin-layout .bg-white,
-.admin-layout .bg-white\/70,
-.admin-layout .bg-slate-50,
-.admin-layout .bg-slate-100,
-.admin-layout .bg-gray-100 {
-  background-color: rgba(255, 255, 255, 0.84) !important;
 }
 
 /* =========================================
