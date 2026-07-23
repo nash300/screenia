@@ -308,6 +308,7 @@
   box-shadow: none;
   color: var(--screenia-logo-deep);
   outline: 0;
+  outline-offset: 0;
   text-decoration: none;
 }
 
@@ -1311,7 +1312,7 @@
 .landing-hero-controls {
   position: absolute;
   right: max(22px, 5vw);
-  bottom: clamp(120px, 13.5svh, 154px);
+  bottom: clamp(122px, 14.5svh, 156px);
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -4273,10 +4274,6 @@
   display: block;
   min-width: 0;
   align-self: center;
-}
-
-.landing-hero-controls {
-  bottom: clamp(122px, 14.5svh, 156px);
 }
 
 @keyframes hero-benefit-rotator {

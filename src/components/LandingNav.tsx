@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 
 const navItems = [
@@ -25,7 +26,9 @@ export function LandingNav({
   onSignOut,
 }: LandingNavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const isHome = currentPath === "/";
+  const pathname = usePathname();
+  const resolvedPath = (pathname || currentPath) as LandingNavProps["currentPath"];
+  const isHome = resolvedPath === "/";
 
   return (
     <header className="landing-nav">
@@ -57,7 +60,7 @@ export function LandingNav({
         <div className="landing-nav-primary">
           {navItems.map((item) => {
             const href = isHome ? item.homeHref : item.href;
-            const isCurrentPage = !isHome && item.href === currentPath;
+            const isCurrentPage = !isHome && item.href === resolvedPath;
 
             return (
               <Link

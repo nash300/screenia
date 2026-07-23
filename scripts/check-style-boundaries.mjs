@@ -504,6 +504,10 @@ if (!landingNavSource.includes('aria-current={isCurrentPage ? "page" : undefined
   problems.push("LandingNav must expose current primary pages through aria-current instead of button-like active classes.");
 }
 
+if (!landingNavSource.includes('import { usePathname } from "next/navigation";') || !landingNavSource.includes("usePathname()")) {
+  problems.push("LandingNav must derive the active primary link from the current pathname so client-side navigation stays in sync.");
+}
+
 if (!landingNavSource.includes("onMouseDown={(event) => event.preventDefault()}")) {
   problems.push("LandingNav primary links must prevent sticky mouse focus while preserving keyboard focus-visible styling.");
 }
@@ -744,6 +748,14 @@ for (const scopedPricingSingleOwner of [
   if (ownerCount !== 1) {
     problems.push(`src/app/landing.css must keep exactly one base owner for ${scopedPricingSingleOwner}; found ${ownerCount}.`);
   }
+}
+
+const heroControlsBaseOwnerCount = countOccurrences(
+  landingCss,
+  /^\.landing-hero-controls\s*\{/gm,
+);
+if (heroControlsBaseOwnerCount !== 1) {
+  problems.push(`src/app/landing.css must keep exactly one base owner for .landing-hero-controls; found ${heroControlsBaseOwnerCount}.`);
 }
 
 for (const retiredIllustrationSelector of [
@@ -1984,6 +1996,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
   {
     includes: "outline: 0;",
     message: "must use an underline focus cue instead of a rectangle that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "outline-offset: 0;",
+    message: "must not leave offset global focus outlines around primary nav links.",
   },
   {
     includes: "background: transparent;",
