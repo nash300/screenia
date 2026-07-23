@@ -246,8 +246,16 @@ if (landingNavSource.includes('"is-active"')) {
   problems.push("LandingNav must use landing-nav-link-active instead of generic is-active state naming.");
 }
 
+if (landingNavSource.includes("landing-links open")) {
+  problems.push("LandingNav must use landing-links-open instead of a generic open state class.");
+}
+
 if (!landingNavSource.includes("landing-nav-link-active")) {
   problems.push("LandingNav must expose the explicit landing-nav-link-active state class.");
+}
+
+if (!landingNavSource.includes("landing-links-open")) {
+  problems.push("LandingNav must expose the explicit landing-links-open menu state class.");
 }
 
 if (landingPageSource.includes('"is-active"')) {
@@ -264,6 +272,14 @@ if (landingCss.includes(".landing-hero-dots button.is-active")) {
 
 if (/\.active\b/.test(landingCss)) {
   problems.push("src/app/landing.css must not contain generic .active selectors. Use explicit component state class names.");
+}
+
+if (landingCss.includes(".landing-links.open")) {
+  problems.push("src/app/landing.css must style landing-links-open instead of generic .landing-links.open.");
+}
+
+if (!landingCss.includes(".landing-links.landing-links-open")) {
+  problems.push("src/app/landing.css must define the explicit landing-links-open menu state selector.");
 }
 
 if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {

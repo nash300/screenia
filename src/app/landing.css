@@ -4006,7 +4006,7 @@
     box-shadow: 0 18px 42px rgba(9, 36, 74, 0.14);
   }
 
-  .landing-links.open {
+  .landing-links.landing-links-open {
     display: grid;
     gap: 14px;
   }

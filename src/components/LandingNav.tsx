@@ -51,7 +51,7 @@ export function LandingNav({
       </div>
 
       <nav
-        className={menuOpen ? "landing-links open" : "landing-links"}
+        className={menuOpen ? "landing-links landing-links-open" : "landing-links"}
         aria-label="Huvudnavigering"
       >
         <div className="landing-nav-primary">
