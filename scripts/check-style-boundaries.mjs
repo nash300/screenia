@@ -471,6 +471,15 @@ if (!landingCss.includes(".landing-links.landing-links-open")) {
   problems.push("src/app/landing.css must define the explicit landing-links-open menu state selector.");
 }
 
+for (const broadNavActionSelector of [
+  ".landing-nav-actions a",
+  ".landing-nav-actions button",
+]) {
+  if (landingCss.includes(broadNavActionSelector)) {
+    problems.push(`src/app/landing.css must not style ${broadNavActionSelector}; target landing-nav-cta or landing-nav-login explicitly.`);
+  }
+}
+
 if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {
   problems.push("src/app/landing.css must define the explicit landing-hero-dot-active selector.");
 }
@@ -1275,6 +1284,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-
   {
     includes: "text-decoration: none;",
     message: "must show the active state as text color/weight rather than an underline or button treatment.",
+  },
+  {
+    includes: "transform: none;",
+    message: "must not animate active primary nav links like pressed buttons.",
   },
 ]);
 

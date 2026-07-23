@@ -440,6 +440,23 @@
   transform: none;
 }
 
+.landing-nav-primary .landing-nav-link.landing-nav-link-active {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  color: var(--screenia-logo-deep);
+  font-weight: 850;
+  text-decoration: none;
+  transform: none;
+}
+
+.landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
+  display: none;
+  content: none;
+}
+
 .landing-nav-primary .landing-nav-link:active {
   border: 0;
   background: transparent;
@@ -3617,8 +3634,8 @@
   }
 
   .landing-nav-primary .landing-nav-link,
-  .landing-nav-actions a,
-  .landing-nav-actions button {
+  .landing-nav-actions .landing-nav-cta,
+  .landing-nav-actions .landing-nav-login {
     justify-content: flex-start;
     color: #ffffff;
   }
@@ -8724,22 +8741,6 @@
 .contact-form-wrap,
 .flow-shell {
   background: var(--screenia-glass-soft) !important;
-}
-
-.landing-nav-primary .landing-nav-link.landing-nav-link-active {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-  color: var(--screenia-logo-deep);
-  font-weight: 850;
-  text-decoration: none;
-}
-
-.landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
-  display: none;
-  content: none;
 }
 
 @media (max-width: 900px) {
