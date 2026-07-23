@@ -7321,9 +7321,9 @@
 .landing-page main > .landing-service-film,
 .landing-page main > .landing-faq,
 .landing-page main > .landing-contact {
-  position: relative !important;
+  position: relative;
   isolation: isolate;
-  overflow: hidden !important;
+  overflow: hidden;
   background:
     linear-gradient(
       115deg,
@@ -7331,8 +7331,8 @@
       rgba(21, 94, 232, 0.80) 44% 58%,
       rgba(226, 222, 211, 0.95) 58% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
-  box-shadow: none !important;
+    url("/landing/section-art/platform-workflow.jpg") center / cover;
+  box-shadow: none;
 }
 
 .landing-page main > .landing-platform::before,
@@ -7342,22 +7342,22 @@
 .landing-page main > .landing-service-film::before,
 .landing-page main > .landing-faq::before,
 .landing-page main > .landing-contact::before {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: -1 !important;
-  display: block !important;
-  width: auto !important;
-  height: auto !important;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  display: block;
+  width: auto;
+  height: auto;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px) !important;
-  background-position: 0 0 !important;
-  background-size: 38px 38px !important;
-  content: "" !important;
-  filter: none !important;
-  opacity: 1 !important;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-position: 0 0;
+  background-size: 38px 38px;
+  content: "";
+  filter: none;
+  opacity: 1;
   pointer-events: none;
-  transform: none !important;
+  transform: none;
   -webkit-mask-image: linear-gradient(to right, #000, transparent 68%);
   mask-image: linear-gradient(to right, #000, transparent 68%);
 }
@@ -7369,7 +7369,7 @@
 .landing-page main > .landing-service-film::after,
 .landing-page main > .landing-faq::after,
 .landing-page main > .landing-contact::after {
-  content: none !important;
+  content: none;
 }
 
 .landing-page .landing-plan-price,
