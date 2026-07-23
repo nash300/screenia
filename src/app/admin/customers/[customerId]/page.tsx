@@ -2303,7 +2303,7 @@ export default function CustomerDetailPage({
                             ),
                           );
                         }}
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       >
                         {pricingPlans.map((plan) => (
                           <option key={plan.id} value={plan.code}>
@@ -2339,7 +2339,7 @@ export default function CustomerDetailPage({
                             ),
                           )
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       />
                     </label>
 
@@ -2377,7 +2377,7 @@ export default function CustomerDetailPage({
                         ),
                       )
                     }
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                   />
                 </label>
 
@@ -2396,7 +2396,7 @@ export default function CustomerDetailPage({
                         ),
                       )
                     }
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                   />
                 </label>
               </div>
@@ -2414,7 +2414,7 @@ export default function CustomerDetailPage({
                   onChange={(event) => setQuoteNotes(event.target.value)}
                   rows={3}
                   placeholder="Optional internal/customer-facing note for this quote"
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                 />
               </label>
 
@@ -2873,7 +2873,7 @@ export default function CustomerDetailPage({
                             },
                           }))
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       >
                         <option value="new">New</option>
                         <option value="customer_reply">Customer reply</option>
@@ -2900,7 +2900,7 @@ export default function CustomerDetailPage({
                         }
                         rows={3}
                         placeholder="Record troubleshooting notes or the next action."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       />
                     </label>
                   </div>
@@ -2921,7 +2921,7 @@ export default function CustomerDetailPage({
                       }
                       rows={2}
                       placeholder="Example: Customer issue reviewed and assigned to support."
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                     />
                   </label>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -2954,7 +2954,7 @@ export default function CustomerDetailPage({
                         }
                         rows={4}
                         placeholder="Write the reply that the customer should see in the portal and receive by email."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       />
                     </label>
                     <button
@@ -3035,7 +3035,7 @@ export default function CustomerDetailPage({
                 value={previewUrlDraft}
                 onChange={(event) => setPreviewUrlDraft(event.target.value)}
                 placeholder="https://www.canva.com/design/.../view"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               />
             </label>
             <label className="text-sm font-semibold text-slate-700">
@@ -3046,7 +3046,7 @@ export default function CustomerDetailPage({
                 rows={2}
                 maxLength={1000}
                 placeholder="Example: View-only link checked and first draft ready for review."
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               />
             </label>
           </div>
@@ -3131,7 +3131,7 @@ export default function CustomerDetailPage({
                             },
                           }))
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       >
                         <option value="new">New</option>
                         <option value="reviewed">Reviewed</option>
@@ -3157,7 +3157,7 @@ export default function CustomerDetailPage({
                         rows={3}
                         maxLength={1000}
                         placeholder="Record review outcome, content risks, or next action."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                       />
                     </label>
                   </div>
@@ -3179,7 +3179,7 @@ export default function CustomerDetailPage({
                       }
                       rows={2}
                       placeholder="Example: Uploaded display material reviewed for publishing."
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
                     />
                   </label>
                   <div className="mt-3 flex flex-wrap items-center gap-3">
@@ -3488,7 +3488,7 @@ export default function CustomerDetailPage({
               <select
                 value={stockTypeFilter}
                 onChange={(event) => setStockTypeFilter(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               >
                 <option value="all">All package types</option>
                 <option value="standard_fhd">Standard FHD</option>
@@ -3503,7 +3503,7 @@ export default function CustomerDetailPage({
               <select
                 value={stockModelFilter}
                 onChange={(event) => setStockModelFilter(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               >
                 <option value="all">All models</option>
                 {stockModelOptions.map((model) => (
@@ -3522,7 +3522,7 @@ export default function CustomerDetailPage({
                 value={stockAllocationLocation}
                 onChange={(event) => setStockAllocationLocation(event.target.value)}
                 placeholder="Reception, entrance, menu board..."
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               />
             </label>
             <label className="text-sm font-semibold text-slate-700">
@@ -3532,7 +3532,7 @@ export default function CustomerDetailPage({
                 onChange={(event) => setStockAllocationReason(event.target.value)}
                 placeholder="Example: Customer paid for Premium 4K and this unit is prepared for installation."
                 rows={3}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
               />
             </label>
           </div>
@@ -3788,7 +3788,7 @@ function Input({
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
       />
     </div>
   );

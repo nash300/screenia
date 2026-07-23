@@ -48,6 +48,9 @@ for (const file of sourceFiles) {
   if (retiredAdminThemePattern.test(text)) {
     problems.push(`${file} still contains a retired admin theme token name.`);
   }
+  if (text.includes(["admin", "cyan"].join("-"))) {
+    problems.push(`${file} still contains retired admin focus color token naming. Use admin-focus instead.`);
+  }
   if (
     /\.(tsx?|jsx?)$/.test(file) &&
     file !== "src/components/LandingScrollReveal.tsx" &&
@@ -102,6 +105,23 @@ if (publicInfo.includes("!important")) {
 }
 
 const adminCss = read("src/app/admin/admin.css");
+const retiredAdminTokenNames = [
+  {
+    token: ["admin", "classic"].join("-"),
+    message: "src/app/admin/admin.css contains retired admin surface token naming. Use admin-surface tokens instead.",
+  },
+  {
+    token: ["admin", "cyan"].join("-"),
+    message: "src/app/admin/admin.css contains retired admin focus color token naming. Use admin-focus instead.",
+  },
+];
+
+for (const { token, message } of retiredAdminTokenNames) {
+  if (adminCss.includes(token)) {
+    problems.push(message);
+  }
+}
+
 const retiredAdminButtonPatterns = [
   {
     pattern: ".admin-layout .bg-slate-950",

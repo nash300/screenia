@@ -414,7 +414,7 @@ export default function AdminDevicePage({
       <div className="admin-page-header">
         <Link
           href="/admin/devices"
-          className="text-sm font-semibold text-[var(--admin-cyan)] no-underline"
+          className="text-sm font-semibold text-[var(--admin-focus)] no-underline"
         >
           Back to displays
         </Link>
@@ -660,7 +660,7 @@ export default function AdminDevicePage({
           <input
             value={newDeviceName}
             onChange={(e) => setNewDeviceName(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
           />
 
           <button
@@ -706,7 +706,7 @@ export default function AdminDevicePage({
           value={editInternalNotes}
           onChange={(e) => setEditInternalNotes(e.target.value)}
           placeholder="Internal notes"
-          className="mt-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+          className="mt-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
           rows={3}
         />
 
@@ -962,7 +962,7 @@ function Input({
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
+        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
       />
     </div>
   );

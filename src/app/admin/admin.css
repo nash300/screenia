@@ -2,17 +2,17 @@
    ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
-  --admin-classic-face: #c0c0c0;
-  --admin-classic-face-light: #dfdfdf;
-  --admin-classic-face-dark: #808080;
-  --admin-classic-shadow: #404040;
-  --admin-classic-highlight: #ffffff;
-  --admin-classic-title: #000080;
-  --admin-classic-title-text: #ffffff;
-  --admin-classic-text: #000000;
-  --admin-classic-muted: #303030;
-  --admin-classic-link: #000080;
-  --admin-cyan: var(--admin-classic-title);
+  --admin-surface-face: #c0c0c0;
+  --admin-surface-face-light: #dfdfdf;
+  --admin-surface-face-dark: #808080;
+  --admin-surface-shadow: #404040;
+  --admin-surface-highlight: #ffffff;
+  --admin-surface-title: #000080;
+  --admin-surface-title-text: #ffffff;
+  --admin-surface-text: #000000;
+  --admin-surface-muted: #303030;
+  --admin-surface-link: #000080;
+  --admin-focus: var(--admin-surface-title);
   --admin-titlebar-start: #11356f;
   --admin-titlebar-end: #1770a6;
   --admin-section-header: #dbe5ea;
@@ -36,7 +36,7 @@
     linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
     #0b7f7f;
   background-size: auto, 18px 18px, 18px 18px;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
   font-size: 13px;
 }
@@ -48,15 +48,15 @@
 }
 
 .admin-window-border {
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-lg);
-  background: var(--admin-classic-face);
+  background: var(--admin-surface-face);
   box-shadow:
-    inset -1px -1px 0 var(--admin-classic-face-dark),
-    inset 1px 1px 0 var(--admin-classic-face-light),
+    inset -1px -1px 0 var(--admin-surface-face-dark),
+    inset 1px 1px 0 var(--admin-surface-face-light),
     var(--admin-shadow-soft);
 }
 
@@ -74,7 +74,7 @@
     var(--admin-titlebar-start),
     var(--admin-titlebar-end)
   );
-  color: var(--admin-classic-title-text);
+  color: var(--admin-surface-title-text);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -90,16 +90,16 @@
    SIDEBAR / NAVIGATION PANEL
 ========================================= */
 .admin-sidebar {
-  background: var(--admin-classic-face);
-  color: var(--admin-classic-text);
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight);
+  background: var(--admin-surface-face);
+  color: var(--admin-surface-text);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: 0 var(--admin-radius-lg) var(--admin-radius-lg) 0;
   box-shadow:
-    inset -1px -1px 0 var(--admin-classic-face-dark),
-    inset 1px 1px 0 var(--admin-classic-face-light),
+    inset -1px -1px 0 var(--admin-surface-face-dark),
+    inset 1px 1px 0 var(--admin-surface-face-light),
     2px 0 14px rgba(0, 0, 0, 0.18);
 }
 
@@ -124,13 +124,13 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--admin-classic-title);
+  color: var(--admin-surface-title);
 }
 
 .admin-sidebar-description {
   margin-top: 0.45rem;
   font-size: 0.78rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
 }
 
 .admin-sidebar-footer {
@@ -143,7 +143,7 @@
 .admin-sidebar-version {
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
 }
 
 .admin-sidebar-signout {
@@ -167,8 +167,8 @@
   margin-top: 0.75rem;
   height: 0.8rem;
   padding: 2px;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -570,8 +570,8 @@
   gap: 0.6rem;
   min-height: 40px;
   margin-bottom: 0.25rem;
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -580,7 +580,7 @@
     var(--admin-button-top),
     var(--admin-button-bottom)
   );
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 700;
@@ -598,14 +598,14 @@
     var(--admin-button-primary-top),
     var(--admin-button-primary-bottom)
   );
-  color: var(--admin-classic-title-text);
+  color: var(--admin-surface-title-text);
   text-decoration: none;
   box-shadow: 0 4px 10px rgba(17, 53, 111, 0.24);
 }
 
 .admin-nav-link:active {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   padding: calc(0.45rem + 1px) calc(0.55rem - 1px) calc(0.45rem - 1px)
     calc(0.55rem + 1px);
 }
@@ -617,8 +617,8 @@
   flex: 0 0 22px;
   align-items: center;
   justify-content: center;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -627,7 +627,7 @@
 }
 
 .admin-nav-link:hover .admin-nav-icon {
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
 }
 
 /* =========================================
@@ -693,14 +693,14 @@
   align-items: center;
   gap: 0.65rem;
   min-height: 64px;
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow)
-    var(--admin-classic-shadow) var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow)
+    var(--admin-surface-shadow) var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
   background: linear-gradient(var(--admin-button-top), var(--admin-button-bottom));
   padding: 0.6rem;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   text-decoration: none;
 }
 
@@ -709,7 +709,7 @@
     var(--admin-button-primary-top),
     var(--admin-button-primary-bottom)
   );
-  color: var(--admin-classic-title-text);
+  color: var(--admin-surface-title-text);
   text-decoration: none;
 }
 
@@ -995,15 +995,15 @@
   width: min(100%, 1180px);
   margin-right: auto;
   margin-left: auto;
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-lg);
-  background: var(--admin-classic-face);
+  background: var(--admin-surface-face);
   box-shadow:
-    inset -1px -1px 0 var(--admin-classic-face-dark),
-    inset 1px 1px 0 var(--admin-classic-face-light),
+    inset -1px -1px 0 var(--admin-surface-face-dark),
+    inset 1px 1px 0 var(--admin-surface-face-light),
     var(--admin-shadow-panel);
 }
 
@@ -1020,7 +1020,7 @@
     var(--admin-titlebar-start),
     var(--admin-titlebar-end)
   );
-  color: var(--admin-classic-title-text);
+  color: var(--admin-surface-title-text);
   content: "Screenia Admin";
   font-weight: 700;
   line-height: 1;
@@ -1038,8 +1038,8 @@
 .page-header {
   margin: 0.75rem 0;
   padding: 0.55rem 0.65rem;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -1049,7 +1049,7 @@
 .admin-title,
 .page-header h1 {
   margin: 0;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -1058,12 +1058,12 @@
 .admin-subtitle,
 .page-header p {
   margin: 0.2rem 0 0;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.78rem;
 }
 
 .eyebrow {
-  color: var(--admin-classic-title) !important;
+  color: var(--admin-surface-title) !important;
   font-size: 0.72rem !important;
   font-weight: 700;
   text-transform: uppercase;
@@ -1074,17 +1074,17 @@
 ========================================= */
 .admin-card,
 .card {
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight) !important;
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-md) !important;
-  background: var(--admin-classic-face) !important;
+  background: var(--admin-surface-face) !important;
   box-shadow:
-    inset -1px -1px 0 var(--admin-classic-face-dark),
-    inset 1px 1px 0 var(--admin-classic-face-light),
+    inset -1px -1px 0 var(--admin-surface-face-dark),
+    inset 1px 1px 0 var(--admin-surface-face-light),
     var(--admin-shadow-soft) !important;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
 }
 
 .admin-card-title,
@@ -1179,20 +1179,20 @@
 .admin-pricing-toggle {
   display: grid;
   gap: 0.28rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-weight: 800;
 }
 
 .admin-pricing-fields input {
   width: 100%;
   min-height: 38px;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   padding: 0.4rem 0.5rem;
 }
 
@@ -1200,7 +1200,7 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   width: fit-content;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
 }
 
 .admin-pricing-toggle input {
@@ -1216,8 +1216,8 @@
 
 .admin-pricing-summary div,
 .admin-pricing-stripe-list {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -1227,7 +1227,7 @@
 
 .admin-pricing-summary span {
   display: block;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.72rem;
   font-weight: 800;
 }
@@ -1244,7 +1244,7 @@
 
 .admin-pricing-stripe-list summary {
   cursor: pointer;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -1407,7 +1407,7 @@
 }
 
 .admin-muted {
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
 }
 
 /* =========================================
@@ -1416,13 +1416,13 @@
 .admin-layout input,
 .admin-layout select,
 .admin-layout textarea {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-sm) !important;
   background: #ffffff !important;
-  color: var(--admin-classic-text) !important;
+  color: var(--admin-surface-text) !important;
   font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
   font-size: 13px !important;
   min-height: 28px;
@@ -1458,7 +1458,7 @@
 }
 
 .admin-layout a {
-  color: var(--admin-classic-link);
+  color: var(--admin-surface-link);
   text-decoration: none;
 }
 
@@ -1468,8 +1468,8 @@
 
 .admin-layout iframe,
 .admin-layout video {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -1491,14 +1491,14 @@
 .admin-layout .text-slate-950,
 .admin-layout .text-slate-900,
 .admin-layout .text-gray-900 {
-  color: var(--admin-classic-text) !important;
+  color: var(--admin-surface-text) !important;
 }
 
 .admin-layout .text-slate-500,
 .admin-layout .text-slate-600,
 .admin-layout .text-gray-500,
 .admin-layout .text-gray-600 {
-  color: var(--admin-classic-muted) !important;
+  color: var(--admin-surface-muted) !important;
 }
 
 .admin-layout .ring-2,
@@ -1510,8 +1510,8 @@
 .admin-layout .border-slate-200,
 .admin-layout .border-slate-300,
 .admin-layout .border-slate-800 {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-sm) !important;
@@ -1600,7 +1600,7 @@
     rgba(30, 30, 30, 0.62) rgba(255, 255, 255, 0.9);
   border-radius: var(--admin-radius-lg);
   padding: 0.75rem 0.85rem;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.72),
     0 14px 34px rgba(0, 0, 0, 0.28);
@@ -1791,7 +1791,7 @@
   min-height: 118px;
   overflow: hidden;
   padding: 0.8rem !important;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
 }
 
 .admin-stat-card::after {
@@ -1832,7 +1832,7 @@
 .admin-stat-meta,
 .admin-priority-description {
   margin: 0;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.76rem;
 }
 
@@ -1846,7 +1846,7 @@
   position: relative;
   z-index: 1;
   margin: 0.25rem 0 0.15rem;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-size: 2rem;
   font-weight: 800;
   line-height: 1;
@@ -1869,12 +1869,12 @@
   gap: 0.4rem;
   min-height: 30px;
   border: 2px solid;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
   padding: 0.3rem 0.55rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -1948,7 +1948,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -1962,8 +1962,8 @@
   margin-top: 0.45rem;
   overflow: hidden;
   border: 2px solid;
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
 }
@@ -1988,7 +1988,7 @@
   border-radius: var(--admin-radius-md);
   background: rgba(255, 255, 255, 0.68);
   padding: 0.6rem;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.7),
     0 3px 8px rgba(0, 0, 0, 0.12);
@@ -2022,14 +2022,14 @@
   align-items: center;
   justify-content: center;
   border: 2px solid;
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow)
-    var(--admin-classic-shadow) var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow)
+    var(--admin-surface-shadow) var(--admin-surface-highlight);
   border-radius: var(--admin-radius-sm);
   background: linear-gradient(
     var(--admin-button-top),
     var(--admin-button-bottom)
   );
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-weight: 800;
 }
 
@@ -2106,7 +2106,7 @@
   border-radius: var(--admin-radius-md);
   background: rgba(255, 255, 255, 0.62);
   padding: 0.75rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.82rem;
   box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.7);
 }
@@ -2123,8 +2123,8 @@
 }
 
 .admin-customer-list::-webkit-scrollbar-track {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow);
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -2132,12 +2132,12 @@
 }
 
 .admin-customer-list::-webkit-scrollbar-thumb {
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight);
+  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
+    var(--admin-surface-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
-  background: var(--admin-classic-face);
+  background: var(--admin-surface-face);
 }
 
 .admin-table-wrap,
@@ -3722,17 +3722,17 @@
    SCREENIA BRAND REFRESH
 ========================================= */
 .admin-layout {
-  --admin-classic-face: #ffffff;
-  --admin-classic-face-light: #ffffff;
-  --admin-classic-face-dark: #d7e3f7;
-  --admin-classic-shadow: #b7c6df;
-  --admin-classic-highlight: #ffffff;
-  --admin-classic-title: #061942;
-  --admin-classic-title-text: #ffffff;
-  --admin-classic-text: #061942;
-  --admin-classic-muted: #51617f;
-  --admin-classic-link: #2f7df6;
-  --admin-cyan: #2f7df6;
+  --admin-surface-face: #ffffff;
+  --admin-surface-face-light: #ffffff;
+  --admin-surface-face-dark: #d7e3f7;
+  --admin-surface-shadow: #b7c6df;
+  --admin-surface-highlight: #ffffff;
+  --admin-surface-title: #061942;
+  --admin-surface-title-text: #ffffff;
+  --admin-surface-text: #061942;
+  --admin-surface-muted: #51617f;
+  --admin-surface-link: #2f7df6;
+  --admin-focus: #2f7df6;
   --admin-titlebar-start: #061942;
   --admin-titlebar-end: #2f7df6;
   --admin-section-header: #eef5ff;
@@ -3750,7 +3750,7 @@
   background:
     radial-gradient(circle at 8% 0%, rgba(47, 125, 246, 0.12), transparent 26%),
     linear-gradient(180deg, #ffffff 0%, #f4f8ff 54%, #eaf2ff 100%);
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
@@ -4599,7 +4599,7 @@
   display: grid;
   gap: 0.35rem;
   min-width: 0;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-size: 0.76rem;
   font-weight: 800;
 }
@@ -4618,7 +4618,7 @@
 
 .admin-landing-field-help {
   margin: -0.2rem 0 0;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.72rem;
   line-height: 1.35;
 }
@@ -4631,10 +4631,10 @@
 
 .admin-landing-content-section {
   min-width: 0;
-  border: 2px solid var(--admin-classic-highlight);
-  border-right-color: var(--admin-classic-shadow);
-  border-bottom-color: var(--admin-classic-shadow);
-  background: var(--admin-classic-face-light);
+  border: 2px solid var(--admin-surface-highlight);
+  border-right-color: var(--admin-surface-shadow);
+  border-bottom-color: var(--admin-surface-shadow);
+  background: var(--admin-surface-face-light);
   padding: 0.75rem;
 }
 
@@ -4648,13 +4648,13 @@
 
 .admin-landing-content-heading h2 {
   margin: 0;
-  color: var(--admin-classic-title);
+  color: var(--admin-surface-title);
   font-size: 1rem;
 }
 
 .admin-landing-content-heading p {
   margin: 0.25rem 0 0;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.76rem;
 }
 
@@ -4671,10 +4671,10 @@
   display: grid;
   grid-template-columns: minmax(160px, 34%) minmax(0, 1fr);
   overflow: hidden;
-  border: 2px solid var(--admin-classic-highlight);
-  border-right-color: var(--admin-classic-shadow);
-  border-bottom-color: var(--admin-classic-shadow);
-  background: var(--admin-classic-face);
+  border: 2px solid var(--admin-surface-highlight);
+  border-right-color: var(--admin-surface-shadow);
+  border-bottom-color: var(--admin-surface-shadow);
+  background: var(--admin-surface-face);
 }
 
 .admin-landing-benefit-editor {
@@ -4718,11 +4718,11 @@
   min-height: 32px;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--admin-classic-highlight);
-  border-right-color: var(--admin-classic-shadow);
-  border-bottom-color: var(--admin-classic-shadow);
-  background: var(--admin-classic-face);
-  color: var(--admin-classic-text);
+  border: 2px solid var(--admin-surface-highlight);
+  border-right-color: var(--admin-surface-shadow);
+  border-bottom-color: var(--admin-surface-shadow);
+  background: var(--admin-surface-face);
+  color: var(--admin-surface-text);
   cursor: pointer;
   font-size: 0.76rem;
   font-weight: 800;
@@ -4770,11 +4770,11 @@
   display: flex;
   min-width: 0;
   gap: 0.75rem;
-  border: 2px solid var(--admin-classic-highlight);
-  border-right-color: var(--admin-classic-shadow);
-  border-bottom-color: var(--admin-classic-shadow);
-  background: var(--admin-classic-face);
-  color: var(--admin-classic-text);
+  border: 2px solid var(--admin-surface-highlight);
+  border-right-color: var(--admin-surface-shadow);
+  border-bottom-color: var(--admin-surface-shadow);
+  background: var(--admin-surface-face);
+  color: var(--admin-surface-text);
   text-align: left;
   text-decoration: none;
 }
@@ -4787,7 +4787,7 @@
 .admin-content-hub-card strong,
 .admin-document-list-item strong {
   display: block;
-  color: var(--admin-classic-title);
+  color: var(--admin-surface-title);
 }
 
 .admin-content-hub-card small,
@@ -4795,7 +4795,7 @@
 .admin-document-list-item span {
   display: block;
   margin-top: 0.18rem;
-  color: var(--admin-classic-muted);
+  color: var(--admin-surface-muted);
   font-size: 0.76rem;
   line-height: 1.35;
 }
@@ -4817,7 +4817,7 @@
   display: grid;
   gap: 0.35rem;
   min-width: 0;
-  color: var(--admin-classic-text);
+  color: var(--admin-surface-text);
   font-size: 0.76rem;
   font-weight: 800;
 }
@@ -4854,7 +4854,7 @@
 }
 
 .admin-document-list-item.is-active {
-  outline: 2px solid var(--admin-classic-title);
+  outline: 2px solid var(--admin-surface-title);
   outline-offset: -4px;
 }
 

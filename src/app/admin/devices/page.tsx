@@ -106,7 +106,7 @@ export default function DevicesPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by display name, code, customer, or location..."
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100 md:max-w-md"
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100 md:max-w-md"
           />
 
           <div className="admin-list-selects">
