@@ -227,8 +227,8 @@ export default function AdminAccessReviewsPage() {
         </div>
       </div>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Record admin access</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Record admin access</h2>
         <div className="admin-access-workflow" aria-label="Admin access workflow">
           {accessWorkflow.map((item) => (
             <div key={item.stage} className="admin-access-workflow-step">
@@ -241,7 +241,7 @@ export default function AdminAccessReviewsPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
+        <form className="admin-record-form" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Admin email</span>
             <input
@@ -279,7 +279,7 @@ export default function AdminAccessReviewsPage() {
               rows={2}
             />
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.mfa_verified}
@@ -289,7 +289,7 @@ export default function AdminAccessReviewsPage() {
             />
             MFA verified
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.access_confirmed}
@@ -319,9 +319,9 @@ export default function AdminAccessReviewsPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Admin access decisions</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Admin access decisions</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -358,7 +358,7 @@ export default function AdminAccessReviewsPage() {
                     review.access_confirmed ? (
                       <span className="admin-muted">Approved</span>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="admin-record-actions">
                         <button
                           type="button"
                           className="admin-button-secondary"

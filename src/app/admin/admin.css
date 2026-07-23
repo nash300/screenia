@@ -1230,6 +1230,27 @@
   font-size: clamp(1.08rem, 1.5vw, 1.25rem);
 }
 
+.admin-record-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .admin-record-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-record-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
 .admin-record-table-wrap {
   margin-top: 1rem;
 }
