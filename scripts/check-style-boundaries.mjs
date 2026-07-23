@@ -1579,6 +1579,7 @@ for (const singleOwnerAdminSelector of [
   ".admin-dashboard-kpis",
   ".admin-action-grid",
   ".admin-stat-label",
+  ".admin-stat-icon",
   ".admin-dashboard-grid",
   ".admin-dashboard-panel",
   ".admin-status-dot",
@@ -1604,6 +1605,7 @@ for (const singleOwnerAdminSelector of [
   ".admin-stat-value",
   ".admin-inline-flow",
   ".admin-inline-flow-actions",
+  ".admin-content-hub-card",
 ]) {
   const selectorCount = countOccurrences(
     adminCss,
