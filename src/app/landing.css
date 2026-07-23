@@ -337,6 +337,7 @@
   left: 0;
   z-index: 100;
   display: flex;
+  height: var(--nav-height);
   min-height: 76px;
   align-items: center;
   justify-content: space-between;
@@ -357,6 +358,7 @@
 
 .landing-brand {
   display: inline-flex;
+  height: 100%;
   align-items: center;
   gap: 12px;
   color: var(--landing-text);
@@ -366,11 +368,18 @@
 }
 
 .landing-brand .screenia-logo {
+  display: inline-flex;
+  height: clamp(42px, 4vw, 54px);
+  align-items: center;
   max-width: min(62vw, 286px);
 }
 
 .landing-brand .screenia-logo-wordmark {
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: min(62vw, 286px);
+  height: 100%;
+  object-fit: contain;
 }
 
 .landing-header-controls {
