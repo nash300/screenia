@@ -3176,20 +3176,6 @@
 }
 
 @media (max-width: 900px) {
-  .admin-sidebar {
-    position: static !important;
-    width: auto !important;
-    height: auto !important;
-  }
-
-  .admin-layout main.ml-72 {
-    margin-left: 0 !important;
-  }
-
-  .admin-page {
-    padding: 0.75rem;
-  }
-
   .admin-layout .grid.two-columns {
     grid-template-columns: 1fr;
   }
