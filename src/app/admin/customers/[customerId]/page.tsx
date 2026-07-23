@@ -199,12 +199,16 @@ export default function CustomerDetailPage({
   };
 
   const getStatusClass = (status: string | null) => {
-    if (status === "active") return "bg-green-100 text-green-700";
-    if (status === "invited") return "bg-blue-100 text-blue-700";
-    if (status === "suspended") return "bg-red-100 text-red-700";
-    if (status === "completed_profile") return "bg-purple-100 text-purple-700";
-    if (status === "accepted_terms") return "bg-yellow-100 text-yellow-700";
-    return "bg-slate-100 text-slate-700";
+    if (status === "active") return "admin-customer-overview-status-active";
+    if (status === "invited") return "admin-customer-overview-status-invited";
+    if (status === "suspended") return "admin-customer-overview-status-suspended";
+    if (status === "completed_profile") {
+      return "admin-customer-overview-status-completed-profile";
+    }
+    if (status === "accepted_terms") {
+      return "admin-customer-overview-status-accepted-terms";
+    }
+    return "admin-customer-overview-status-default";
   };
 
   const loadData = useCallback(async () => {
@@ -1577,7 +1581,7 @@ export default function CustomerDetailPage({
 
   if (loading) {
     return (
-      <div className="admin-card p-6">
+      <div className="admin-card admin-customer-overview-loading-panel">
         <p className="admin-muted">Loading customer...</p>
       </div>
     );
@@ -1998,12 +2002,12 @@ export default function CustomerDetailPage({
       <div className="admin-page-header">
         <Link
           href="/admin/customers"
-          className="text-sm font-semibold text-[rgb(8,184,238)] no-underline"
+          className="admin-customer-overview-back-link"
         >
           Back to customers
         </Link>
 
-        <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="admin-customer-overview-header-main">
           <div>
             <h1 className="admin-title">{customer.name}</h1>
             <p className="admin-subtitle">
@@ -2013,7 +2017,7 @@ export default function CustomerDetailPage({
           </div>
 
           <span
-            className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${getStatusClass(
+            className={`admin-customer-overview-status ${getStatusClass(
               customer.status,
             )}`}
           >
@@ -2065,7 +2069,7 @@ export default function CustomerDetailPage({
       )}
 
       {schemaNotice && (
-        <div className="mb-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm font-semibold text-yellow-800">
+        <div className="admin-customer-overview-schema-notice">
           {schemaNotice}
         </div>
       )}
@@ -2074,9 +2078,9 @@ export default function CustomerDetailPage({
           Customer Details
       ============================== */}
       {activeSection === "overview" && (
-      <div className="admin-card p-6">
+      <div className="admin-card admin-customer-overview-panel">
         <div className="admin-compact-heading">
-          <h2 className="admin-card-title text-xl">Customer overview</h2>
+          <h2 className="admin-card-title admin-customer-overview-title">Customer overview</h2>
           <button
             type="button"
             className="admin-button-primary"
@@ -2086,7 +2090,7 @@ export default function CustomerDetailPage({
           </button>
         </div>
 
-        <div className="admin-compact-info-grid mt-4">
+        <div className="admin-compact-info-grid admin-customer-overview-info-grid">
           <InfoRow label="Customer number" value={customer.customer_number || "Pending"} />
           <InfoRow label="Created" value={formatDateTime(customer.created_at)} />
           <InfoRow label="Updated" value={formatDateTime(customer.updated_at)} />
@@ -2120,15 +2124,15 @@ export default function CustomerDetailPage({
         </div>
 
         {customer.notes && (
-          <div className="admin-compact-note mt-4">
+          <div className="admin-compact-note admin-customer-overview-note">
             <strong>Internal notes</strong>
             <p>{customer.notes}</p>
           </div>
         )}
 
         {isEditingCustomer && (
-          <div className="admin-edit-panel mt-4">
-            <div className="grid gap-4 md:grid-cols-2">
+          <div className="admin-edit-panel admin-customer-overview-edit-panel">
+            <div className="admin-customer-overview-edit-grid">
               <Input label="Company name" value={editName} onChange={setEditName} required />
               <Input label="Contact person" value={editContactPerson} onChange={setEditContactPerson} />
               <Input label="Phone" value={editPhone} onChange={setEditPhone} />
@@ -2136,12 +2140,12 @@ export default function CustomerDetailPage({
               <Input label="Organisation number" value={editOrganisationNumber} onChange={setEditOrganisationNumber} />
               <Input label="Business category" value={editBusinessCategory} onChange={setEditBusinessCategory} />
               <Input label="Website or social link" value={editWebsiteUrl} onChange={setEditWebsiteUrl} />
-              <label className="text-sm font-semibold text-slate-700">
+              <label className="admin-customer-overview-field">
                 Preferred contact
                 <select
                   value={editPreferredContactChannel}
                   onChange={(event) => setEditPreferredContactChannel(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                  className="admin-customer-overview-control"
                 >
                   <option value="email">Email</option>
                   <option value="phone">Phone</option>
@@ -2153,43 +2157,43 @@ export default function CustomerDetailPage({
               <Input label="City" value={editCity} onChange={setEditCity} />
               <Input label="Country" value={editCountry} onChange={setEditCountry} />
             </div>
-            <label className="mt-4 block text-sm font-semibold text-slate-700">
+            <label className="admin-customer-overview-field admin-customer-overview-field-spaced">
               Internal notes
               <textarea
                 value={editNotes}
                 onChange={(event) => setEditNotes(event.target.value)}
                 rows={3}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                className="admin-customer-overview-control"
               />
             </label>
-            <label className="mt-4 block text-sm font-semibold text-slate-700">
+            <label className="admin-customer-overview-field admin-customer-overview-field-spaced">
               Reason for this customer detail change *
               <textarea
                 value={editReason}
                 onChange={(event) => setEditReason(event.target.value)}
                 rows={2}
                 placeholder="Example: corrected billing email after customer confirmation."
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                className="admin-customer-overview-control"
               />
             </label>
             <button
               onClick={saveCustomerDetails}
               disabled={saving}
-              className="admin-button-primary mt-4 disabled:opacity-50"
+              className="admin-button-primary admin-customer-overview-save-button"
             >
               {saving ? "Saving..." : "Save customer details"}
             </button>
           </div>
         )}
 
-        <div className="mt-6 rounded-2xl border border-red-200 bg-red-50/70 p-4">
-          <h3 className="font-semibold text-red-900">Danger zone</h3>
-          <p className="mt-1 text-sm text-red-700">
+        <div className="admin-customer-overview-danger-zone">
+          <h3>Danger zone</h3>
+          <p>
             Permanently delete this customer and related database records. Use
             this only for wrong drafts or duplicates without payment history.
             Use anonymization for retained customer history.
           </p>
-          <label className="mt-4 block text-sm font-semibold text-red-900">
+          <label className="admin-customer-overview-danger-field">
             Reason for anonymizing this customer
             <textarea
               value={anonymizeReason}
@@ -2199,21 +2203,20 @@ export default function CustomerDetailPage({
               }}
               rows={2}
               placeholder="Example: Customer requested deletion of personal data under GDPR."
-              className="mt-1 w-full rounded-xl border border-red-200 px-3 py-2 text-slate-900 outline-none"
+              className="admin-customer-overview-danger-control"
             />
           </label>
-          <label className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-sm font-semibold text-red-900">
+          <label className="admin-customer-overview-danger-check">
             <input
               type="checkbox"
               checked={anonymizeConfirmed}
               onChange={(event) => setAnonymizeConfirmed(event.target.checked)}
-              className="mt-1"
             />
             I understand anonymization removes contact details, uploaded
             material, and support messages while retained payment/order/audit
             references stay.
           </label>
-          <div className="mt-3 flex flex-wrap gap-3">
+          <div className="admin-customer-overview-danger-actions">
             <button
               type="button"
               onClick={anonymizeCustomer}
@@ -3786,15 +3789,15 @@ function Input({
   required?: boolean;
 }) {
   return (
-    <div>
-      <label className="text-sm font-semibold text-slate-700">
+    <div className="admin-customer-overview-field">
+      <label>
         {label}
         {required ? " *" : ""}
       </label>
       <input
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+        className="admin-customer-overview-control"
       />
     </div>
   );

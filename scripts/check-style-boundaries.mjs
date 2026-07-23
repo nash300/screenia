@@ -890,6 +890,19 @@ for (const retiredCustomerActionButtonClass of [
   "rounded-xl bg-amber-700",
   "rounded-xl bg-red-800",
   "rounded-xl border border-slate-200 bg-white",
+  "text-sm font-semibold text-[rgb(8,184,238)] no-underline",
+  "mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end",
+  "inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold",
+  "admin-compact-info-grid mt-4",
+  "admin-compact-note mt-4",
+  "admin-edit-panel mt-4",
+  "rounded-2xl border border-red-200 bg-red-50/70 p-4",
+  "mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-sm font-semibold text-red-900",
+  "bg-green-100 text-green-700",
+  "bg-blue-100 text-blue-700",
+  "bg-red-100 text-red-700",
+  "bg-purple-100 text-purple-700",
+  "bg-yellow-100 text-yellow-700",
 ]) {
   if (customerDetailPageSource.includes(retiredCustomerActionButtonClass)) {
     problems.push(
@@ -902,6 +915,13 @@ for (const className of [
   "admin-customer-workflow-step-active",
   "admin-communication-workflow-step-active",
   "admin-operation-card-selected",
+  "admin-customer-overview-back-link",
+  "admin-customer-overview-header-main",
+  "admin-customer-overview-status",
+  "admin-customer-overview-panel",
+  "admin-customer-overview-edit-grid",
+  "admin-customer-overview-control",
+  "admin-customer-overview-danger-zone",
 ]) {
   if (!customerDetailPageSource.includes(className)) {
     problems.push(`The admin customer detail page must expose the explicit ${className} state class.`);
