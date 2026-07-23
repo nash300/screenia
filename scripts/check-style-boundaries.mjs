@@ -275,6 +275,10 @@ if (publicInfoCss.includes(":is(")) {
   problems.push("src/app/public-info.css should use explicit page selectors instead of :is(...) groups.");
 }
 
+if (landingCss.includes(".landing-page main > :is(")) {
+  problems.push("src/app/landing.css should use explicit section selectors instead of broad .landing-page main > :is(...) groups.");
+}
+
 for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
   const duplicates = findDuplicateBaseSelectors(read(file));
   if (duplicates.length) {

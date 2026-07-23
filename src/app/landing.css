@@ -6865,15 +6865,13 @@
   font-family: var(--landing-font-body);
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) {
+.landing-page main > .landing-platform,
+.landing-page main > .landing-workflow,
+.landing-page main > .landing-pricing,
+.landing-page main > .landing-examples,
+.landing-page main > .landing-service-film,
+.landing-page main > .landing-faq,
+.landing-page main > .landing-contact {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -6884,24 +6882,20 @@
   padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2));
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-)::before,
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-)::after {
+.landing-page main > .landing-platform::before,
+.landing-page main > .landing-workflow::before,
+.landing-page main > .landing-pricing::before,
+.landing-page main > .landing-examples::before,
+.landing-page main > .landing-service-film::before,
+.landing-page main > .landing-faq::before,
+.landing-page main > .landing-contact::before,
+.landing-page main > .landing-platform::after,
+.landing-page main > .landing-workflow::after,
+.landing-page main > .landing-pricing::after,
+.landing-page main > .landing-examples::after,
+.landing-page main > .landing-service-film::after,
+.landing-page main > .landing-faq::after,
+.landing-page main > .landing-contact::after {
   display: none;
 }
 
@@ -7196,15 +7190,13 @@
 }
 
 @media (max-width: 560px) {
-  .landing-page main > :is(
-    .landing-platform,
-    .landing-workflow,
-    .landing-pricing,
-    .landing-examples,
-    .landing-service-film,
-    .landing-faq,
-    .landing-contact
-  ) {
+  .landing-page main > .landing-platform,
+  .landing-page main > .landing-workflow,
+  .landing-page main > .landing-pricing,
+  .landing-page main > .landing-examples,
+  .landing-page main > .landing-service-film,
+  .landing-page main > .landing-faq,
+  .landing-page main > .landing-contact {
     min-height: auto;
     padding: 28px 14px !important;
   }
@@ -7303,15 +7295,13 @@
 }
 
 /* Match the contact-page background across all landing sections after the hero. */
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) {
+.landing-page main > .landing-platform,
+.landing-page main > .landing-workflow,
+.landing-page main > .landing-pricing,
+.landing-page main > .landing-examples,
+.landing-page main > .landing-service-film,
+.landing-page main > .landing-faq,
+.landing-page main > .landing-contact {
   position: relative !important;
   isolation: isolate;
   overflow: hidden !important;
@@ -7326,15 +7316,13 @@
   box-shadow: none !important;
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-)::before {
+.landing-page main > .landing-platform::before,
+.landing-page main > .landing-workflow::before,
+.landing-page main > .landing-pricing::before,
+.landing-page main > .landing-examples::before,
+.landing-page main > .landing-service-film::before,
+.landing-page main > .landing-faq::before,
+.landing-page main > .landing-contact::before {
   position: absolute !important;
   inset: 0 !important;
   z-index: -1 !important;
@@ -7355,15 +7343,13 @@
   mask-image: linear-gradient(to right, #000, transparent 68%);
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-)::after {
+.landing-page main > .landing-platform::after,
+.landing-page main > .landing-workflow::after,
+.landing-page main > .landing-pricing::after,
+.landing-page main > .landing-examples::after,
+.landing-page main > .landing-service-film::after,
+.landing-page main > .landing-faq::after,
+.landing-page main > .landing-contact::after {
   content: none !important;
 }
 
@@ -8027,15 +8013,13 @@
 }
 
 @media (max-width: 780px) {
-  .landing-page main > :is(
-    .landing-platform,
-    .landing-workflow,
-    .landing-pricing,
-    .landing-examples,
-    .landing-service-film,
-    .landing-faq,
-    .landing-contact
-  ) {
+  .landing-page main > .landing-platform,
+  .landing-page main > .landing-workflow,
+  .landing-page main > .landing-pricing,
+  .landing-page main > .landing-examples,
+  .landing-page main > .landing-service-film,
+  .landing-page main > .landing-faq,
+  .landing-page main > .landing-contact {
     background:
       linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
       url("/landing/section-art/platform-workflow.jpg") center / cover !important;
@@ -8062,27 +8046,30 @@
   --screenia-glow-gold: rgba(242, 196, 109, 0.3);
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) {
+.landing-page main > .landing-platform,
+.landing-page main > .landing-workflow,
+.landing-page main > .landing-pricing,
+.landing-page main > .landing-examples,
+.landing-page main > .landing-service-film,
+.landing-page main > .landing-faq,
+.landing-page main > .landing-contact {
   position: relative !important;
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) > :is(.landing-section-panel, .landing-contact-panel) {
+.landing-page main > .landing-platform > .landing-section-panel,
+.landing-page main > .landing-workflow > .landing-section-panel,
+.landing-page main > .landing-pricing > .landing-section-panel,
+.landing-page main > .landing-examples > .landing-section-panel,
+.landing-page main > .landing-service-film > .landing-section-panel,
+.landing-page main > .landing-faq > .landing-section-panel,
+.landing-page main > .landing-contact > .landing-section-panel,
+.landing-page main > .landing-platform > .landing-contact-panel,
+.landing-page main > .landing-workflow > .landing-contact-panel,
+.landing-page main > .landing-pricing > .landing-contact-panel,
+.landing-page main > .landing-examples > .landing-contact-panel,
+.landing-page main > .landing-service-film > .landing-contact-panel,
+.landing-page main > .landing-faq > .landing-contact-panel,
+.landing-page main > .landing-contact > .landing-contact-panel {
   border-color: rgba(211, 229, 255, 0.38) !important;
   background: var(--screenia-glass-panel) !important;
   box-shadow:
@@ -8091,15 +8078,20 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) > :is(.landing-section-panel, .landing-contact-panel)::before {
+.landing-page main > .landing-platform > .landing-section-panel::before,
+.landing-page main > .landing-workflow > .landing-section-panel::before,
+.landing-page main > .landing-pricing > .landing-section-panel::before,
+.landing-page main > .landing-examples > .landing-section-panel::before,
+.landing-page main > .landing-service-film > .landing-section-panel::before,
+.landing-page main > .landing-faq > .landing-section-panel::before,
+.landing-page main > .landing-contact > .landing-section-panel::before,
+.landing-page main > .landing-platform > .landing-contact-panel::before,
+.landing-page main > .landing-workflow > .landing-contact-panel::before,
+.landing-page main > .landing-pricing > .landing-contact-panel::before,
+.landing-page main > .landing-examples > .landing-contact-panel::before,
+.landing-page main > .landing-service-film > .landing-contact-panel::before,
+.landing-page main > .landing-faq > .landing-contact-panel::before,
+.landing-page main > .landing-contact > .landing-contact-panel::before {
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -8480,15 +8472,13 @@
   --screenia-logo-gold: #f2c46d;
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) {
+.landing-page main > .landing-platform,
+.landing-page main > .landing-workflow,
+.landing-page main > .landing-pricing,
+.landing-page main > .landing-examples,
+.landing-page main > .landing-service-film,
+.landing-page main > .landing-faq,
+.landing-page main > .landing-contact {
   background:
     radial-gradient(circle at 8% 12%, rgba(109, 141, 255, 0.36), transparent 28%),
     radial-gradient(ellipse at 78% 8%, rgba(232, 244, 255, 0.52), transparent 34%),
@@ -8502,15 +8492,13 @@
     url("/landing/section-art/platform-workflow.jpg") no-repeat center / cover !important;
 }
 
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-)::before {
+.landing-page main > .landing-platform::before,
+.landing-page main > .landing-workflow::before,
+.landing-page main > .landing-pricing::before,
+.landing-page main > .landing-examples::before,
+.landing-page main > .landing-service-film::before,
+.landing-page main > .landing-faq::before,
+.landing-page main > .landing-contact::before {
   background:
     radial-gradient(ellipse at 12% 18%, rgba(255, 255, 255, 0.14), transparent 26%),
     radial-gradient(ellipse at 58% 2%, rgba(109, 141, 255, 0.16), transparent 32%),
@@ -8604,15 +8592,13 @@
 }
 
 @media (max-width: 900px) {
-  .landing-page main > :is(
-    .landing-platform,
-    .landing-workflow,
-    .landing-pricing,
-    .landing-examples,
-    .landing-service-film,
-    .landing-faq,
-    .landing-contact
-  ),
+  .landing-page main > .landing-platform,
+  .landing-page main > .landing-workflow,
+  .landing-page main > .landing-pricing,
+  .landing-page main > .landing-examples,
+  .landing-page main > .landing-service-film,
+  .landing-page main > .landing-faq,
+  .landing-page main > .landing-contact,
   .contact-main,
   .flow-page {
     background:
