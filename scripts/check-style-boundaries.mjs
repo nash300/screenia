@@ -694,8 +694,16 @@ requireCssBlock(landingCss, ".landing-nav-primary a", [
     message: "must stay as a text-sized inline link instead of a block button.",
   },
   {
+    includes: "min-height: auto;",
+    message: "must not inherit button-like minimum height.",
+  },
+  {
     includes: "background: transparent;",
     message: "must not inherit button-like backgrounds.",
+  },
+  {
+    includes: "padding: 0;",
+    message: "must not inherit button-like padding.",
   },
   {
     includes: "box-shadow: none;",
@@ -715,6 +723,25 @@ requireCssBlock(landingCss, ".landing-nav-primary a:hover", [
   {
     includes: "box-shadow: none;",
     message: "must not use a hover shadow that makes primary nav links look like buttons.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary a:active", [
+  {
+    includes: "background: transparent;",
+    message: "must not use an active background that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "border-radius: 0;",
+    message: "must not use an active radius that makes primary nav links look like pills.",
+  },
+  {
+    includes: "box-shadow: none;",
+    message: "must not use an active shadow that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "transform: none;",
+    message: "must not animate primary nav links like pressed buttons.",
   },
 ]);
 
@@ -747,12 +774,16 @@ requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active", [
     message: "must keep active links shadow-free.",
   },
   {
-    rejects: "border-radius: 999px",
-    message: "must not make active primary nav links pill shaped.",
+    includes: "border-radius: 0",
+    message: "must keep active primary nav links text shaped.",
   },
   {
-    rejects: "padding:",
+    includes: "padding: 0",
     message: "must not make active primary nav links button sized.",
+  },
+  {
+    includes: "min-height: auto",
+    message: "must not make active primary nav links button height.",
   },
 ]);
 

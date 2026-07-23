@@ -413,14 +413,26 @@
   position: relative;
   display: inline-flex;
   align-items: center;
+  min-height: auto;
   border-radius: 0;
   background: transparent;
+  padding: 0;
   box-shadow: none;
+  line-height: 1.35;
 }
 
 .landing-nav-primary a:hover {
   background: transparent;
+  border-radius: 0;
   box-shadow: none;
+  transform: none;
+}
+
+.landing-nav-primary a:active {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  transform: none;
 }
 
 .landing-nav-primary a:focus-visible {
@@ -433,12 +445,12 @@
 .landing-nav-primary a:focus-visible::after {
   position: absolute;
   right: 0;
-  bottom: -8px;
+  bottom: -6px;
   left: 0;
   height: 2px;
   border-radius: 999px;
   background: linear-gradient(90deg, #2f7df6, #6d8dff);
-  box-shadow: 0 8px 18px rgba(47, 125, 246, 0.18);
+  opacity: 0.72;
   content: "";
 }
 
@@ -9237,20 +9249,23 @@
 
 .landing-nav-primary a.landing-nav-link-active {
   position: relative;
-  background: transparent !important;
-  color: var(--screenia-logo-deep) !important;
-  box-shadow: none !important;
+  min-height: auto;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--screenia-logo-deep);
+  box-shadow: none;
 }
 
 .landing-nav-primary a.landing-nav-link-active::after {
   position: absolute;
   right: 0;
-  bottom: -8px;
+  bottom: -6px;
   left: 0;
   height: 2px;
   border-radius: 999px;
   background: linear-gradient(90deg, #2f7df6, #6d8dff);
-  box-shadow: 0 8px 18px rgba(47, 125, 246, 0.18);
+  opacity: 0.72;
   content: "";
 }
 
