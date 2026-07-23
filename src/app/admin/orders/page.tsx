@@ -33,7 +33,7 @@ export default function AdminOrdersPage() {
   return (
     <Suspense
       fallback={
-        <div className="admin-card p-6">
+        <div className="admin-card admin-orders-loading-panel">
           <p className="admin-muted">Loading orders...</p>
         </div>
       }

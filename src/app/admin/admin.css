@@ -6086,6 +6086,12 @@
   flex: 0 0 auto;
 }
 
+.admin-orders-loading-panel {
+  display: grid;
+  min-height: 92px;
+  align-content: center;
+}
+
 .admin-orders-toolbar-panel,
 .admin-orders-list-panel {
   padding: clamp(0.95rem, 1.6vw, 1.25rem) !important;

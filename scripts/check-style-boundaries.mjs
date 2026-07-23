@@ -156,6 +156,7 @@ const landingScrollRevealSource = read("src/components/LandingScrollReveal.tsx")
 const landingPageSource = read("src/app/page.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
+const ordersPageSource = read("src/app/admin/orders/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
 const compliancePageSource = read("src/app/admin/compliance/page.tsx");
@@ -536,6 +537,18 @@ for (const selector of [".admin-compliance-panel", ".admin-compliance-title"]) {
   if (!adminCss.includes(selector)) {
     problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
   }
+}
+
+if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex flex-wrap gap-2|flex items-center gap-2)\b/.test(ordersPageSource)) {
+  problems.push("The admin orders page must use explicit admin-orders-* classes instead of broad utility class styling.");
+}
+
+if (!ordersPageSource.includes("admin-orders-loading-panel")) {
+  problems.push("The admin orders page must expose the explicit admin-orders-loading-panel class.");
+}
+
+if (!adminCss.includes(".admin-orders-loading-panel")) {
+  problems.push("src/app/admin/admin.css must define the explicit .admin-orders-loading-panel selector.");
 }
 
 for (const [pageName, pageSource] of [
