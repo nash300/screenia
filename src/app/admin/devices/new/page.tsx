@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 
@@ -12,28 +12,10 @@ type Customer = {
 };
 
 export default function NewDevicePage() {
-  return (
-    <Suspense fallback={<NewDeviceFallback />}>
-      <NewDevicePageContent />
-    </Suspense>
-  );
-}
-
-function NewDeviceFallback() {
-  return (
-    <div className="admin-card admin-device-create-panel">
-      <p className="admin-muted">Loading display endpoint form...</p>
-    </div>
-  );
-}
-
-function NewDevicePageContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const preselectedCustomerId = searchParams.get("customerId") || "";
 
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [customerId, setCustomerId] = useState(preselectedCustomerId);
+  const [customerId, setCustomerId] = useState("");
 
   const [name, setName] = useState("");
   const [location, setLocation] = useState("");
@@ -103,6 +85,7 @@ function NewDevicePageContent() {
   };
 
   useEffect(() => {
+    setCustomerId(new URLSearchParams(window.location.search).get("customerId") || "");
     loadCustomers();
   }, []);
 

@@ -83,7 +83,7 @@ export default function AdminDevicePage({
 
     const { data, error } = await supabase
       .from("playlists")
-      .select("id, src, order_index, videos(storage_bucket, storage_path)")
+      .select("id, src, type, order_index, videos(storage_bucket, storage_path, content_type)")
       .eq("device_id", device.id)
       .order("order_index");
 
@@ -103,11 +103,15 @@ export default function AdminDevicePage({
               .createSignedUrl(video.storage_path, 60 * 15);
 
             if (signedUrlData?.signedUrl) {
-              return { ...item, src: signedUrlData.signedUrl };
+              return {
+                ...item,
+                content_type: video.content_type || null,
+                src: signedUrlData.signedUrl,
+              };
             }
           }
 
-          return { ...item, src: item.src || "" };
+          return { ...item, content_type: null, src: item.src || "" };
         }),
       );
 
@@ -275,8 +279,8 @@ export default function AdminDevicePage({
   const uploadVideo = async () => {
     if (!deviceUuid || !videoFile) return;
 
-    if (videoFile.type !== "video/mp4") {
-      showAdminNotification("warning", "Please upload an MP4 video.");
+    if (!["video/mp4", "image/png", "image/jpeg", "image/webp"].includes(videoFile.type)) {
+      showAdminNotification("warning", "Please upload an MP4, PNG, JPG, or WebP file.");
       return;
     }
 
@@ -314,7 +318,7 @@ export default function AdminDevicePage({
     setVideoFile(null);
     setVideoUploadReason("");
     await loadDeviceAndPlaylist();
-    showAdminNotification("success", "Video uploaded and added to playlist.");
+    showAdminNotification("success", "Media uploaded and added to playlist.");
     setSaving(false);
   };
 
@@ -762,16 +766,16 @@ export default function AdminDevicePage({
       </div>
       )}
 
-      {/* Upload Video */}
+      {/* Upload Media */}
       {activeSection === "media" && (
       <div className="admin-operation-panel">
         <div className="admin-operation-header">
           <div>
             <p className="admin-operation-kicker">Playlist media flow</p>
-            <h3>Add display video</h3>
+            <h3>Add display media</h3>
             <p>
-              Choose an MP4, record the operational reason, then add it to the
-              playlist in one audited step.
+              Choose an MP4, PNG, JPG, or WebP file, record the operational
+              reason, then add it to the playlist in one audited step.
             </p>
           </div>
           <div className="admin-operation-summary">
@@ -782,10 +786,10 @@ export default function AdminDevicePage({
 
         <div className="admin-device-media-flow">
           <label className="admin-device-file-picker">
-            MP4 video file
+            Display media file
             <input
               type="file"
-              accept="video/mp4"
+              accept="video/mp4,image/png,image/jpeg,image/webp"
               onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
             />
             <span>
@@ -836,7 +840,7 @@ export default function AdminDevicePage({
         <h2 className="admin-card-title admin-device-detail-title">Current playlist</h2>
 
         {playlist.length === 0 ? (
-          <p className="admin-muted admin-device-playlist-empty">No videos assigned yet.</p>
+          <p className="admin-muted admin-device-playlist-empty">No media assigned yet.</p>
         ) : (
           <div className="admin-scroll-region admin-device-playlist-list">
             {playlist.map((item) => (
@@ -848,7 +852,16 @@ export default function AdminDevicePage({
                   Order: {item.order_index}
                 </p>
 
-                <video src={item.src} controls className="admin-device-playlist-video" />
+                {item.content_type?.startsWith("image/") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.src}
+                    alt=""
+                    className="admin-device-playlist-video"
+                  />
+                ) : (
+                  <video src={item.src} controls className="admin-device-playlist-video" />
+                )}
 
                 {removingPlaylistId === item.id ? (
                   <div className="admin-device-remove-flow">

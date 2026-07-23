@@ -14,6 +14,7 @@ export type DisplayListItem = {
 export type PlaylistItem = {
   id: string;
   src: string;
+  content_type: string | null;
   order_index: number;
 };
 

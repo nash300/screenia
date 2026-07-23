@@ -7192,6 +7192,29 @@ a.admin-button-secondary::after,
   line-height: 1.45;
 }
 
+.admin-training-entry {
+  display: grid;
+  gap: 0.8rem;
+  border: 1px solid rgba(47, 125, 246, 0.18);
+  border-radius: var(--admin-radius-md);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(235, 244, 255, 0.78));
+  padding: 1rem;
+  box-shadow: 0 18px 42px rgba(14, 39, 74, 0.08);
+}
+
+.admin-training-entry h3 {
+  margin: 0.2rem 0 0;
+  color: var(--admin-heading);
+  font-size: 1.05rem;
+}
+
+.admin-training-entry p {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
 .admin-empty-state {
   display: grid;
   min-height: 280px;

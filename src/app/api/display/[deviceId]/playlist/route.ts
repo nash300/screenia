@@ -21,15 +21,18 @@ type DisplayDevice = {
 type PlaylistRow = {
   id: string;
   src: string | null;
+  type: string | null;
   order_index: number | null;
   videos:
     | {
         storage_bucket: string | null;
         storage_path: string | null;
+        content_type: string | null;
       }
     | Array<{
         storage_bucket: string | null;
         storage_path: string | null;
+        content_type: string | null;
       }>
     | null;
 };
@@ -96,8 +99,9 @@ export async function GET(
       `
       id,
       src,
+      type,
       order_index,
-      videos(storage_bucket, storage_path)
+      videos(storage_bucket, storage_path, content_type)
     `,
     )
     .eq("device_id", device.id)
@@ -130,6 +134,8 @@ export async function GET(
       playlist.push({
         id: row.id,
         src: data.signedUrl,
+        type: row.type || (video.content_type?.startsWith("image/") ? "image" : "video"),
+        contentType: video.content_type || null,
         orderIndex: row.order_index || 0,
       });
       continue;

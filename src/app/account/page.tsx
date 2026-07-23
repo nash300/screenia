@@ -292,6 +292,24 @@ function trialStatus(subscription: AccountData["subscriptions"][number]) {
   )})`;
 }
 
+function subscriptionPackageLabel(subscription: AccountData["subscriptions"][number]) {
+  const quoteItems = subscription.quote_items || [];
+
+  if (quoteItems.length) {
+    return quoteItems
+      .map((item) => {
+        const quantity = Math.max(1, item.quantity || 1);
+        const name = [item.name, item.resolution].filter(Boolean).join(" ");
+        return `${quantity} x ${name || "Screenia"}`;
+      })
+      .join(" + ");
+  }
+
+  return `${subscription.pricing_plans?.name || "Paket"} ${
+    subscription.pricing_plans?.resolution || ""
+  }`.trim();
+}
+
 function fileSize(value: number | null) {
   if (!value) return "-";
   if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
@@ -1539,7 +1557,7 @@ export default function AccountPage() {
                       <Fact label="Beställning" value={activeSubscription.order_number} />
                       <Fact
                         label="Paket"
-                        value={`${activeSubscription.pricing_plans?.name || "Paket"} ${activeSubscription.pricing_plans?.resolution || ""}`}
+                        value={subscriptionPackageLabel(activeSubscription)}
                       />
                       <Fact label="Status" value={statusLabel(activeSubscription.status)} />
                       <Fact
@@ -1790,7 +1808,7 @@ export default function AccountPage() {
             <dl className="account-dialog-summary">
               <div>
                 <dt>Paket</dt>
-                <dd>{activeSubscription.pricing_plans?.name || "Screenia"}</dd>
+                <dd>{subscriptionPackageLabel(activeSubscription)}</dd>
               </div>
               <div>
                 <dt>Månadspris</dt>

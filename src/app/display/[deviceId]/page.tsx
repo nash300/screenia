@@ -5,6 +5,8 @@ import { use, useCallback, useEffect, useState } from "react";
 type PlaylistItem = {
   id: string;
   src: string;
+  type?: string | null;
+  contentType?: string | null;
 };
 
 type DisplayPlaylistResponse = {
@@ -137,21 +139,65 @@ export default function DisplayPage({
     );
   }
 
-  return (
-    <main className="fixed inset-0 z-[9999] overflow-hidden bg-black">
-      <video
-        key={currentItem.src}
-        src={currentItem.src}
-        autoPlay
-        muted
-        playsInline
-        preload="auto"
-        onEnded={goToNextItem}
-        onError={goToNextItem}
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+  const isImage = currentItem.type === "image" || currentItem.contentType?.startsWith("image/");
 
-      <div className="absolute left-2 top-2 text-sm text-white opacity-40">
+  return (
+    <main
+      className="screenia-display-root"
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 9999,
+        overflow: "hidden",
+        background: "#000",
+      }}
+    >
+      {isImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={currentItem.src}
+          src={currentItem.src}
+          alt=""
+          className="screenia-display-media"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+          onError={goToNextItem}
+        />
+      ) : (
+        <video
+          key={currentItem.src}
+          src={currentItem.src}
+          autoPlay
+          muted
+          playsInline
+          preload="auto"
+          onEnded={goToNextItem}
+          onError={goToNextItem}
+          className="screenia-display-media"
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          left: 8,
+          top: 8,
+          color: "rgba(255,255,255,0.4)",
+          fontSize: 14,
+        }}
+      >
         Device: {deviceId}
       </div>
     </main>

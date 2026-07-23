@@ -27,7 +27,8 @@ if (layout.includes("AdminContextGuide") || layout.includes("admin-page-with-gui
 }
 if (
   !training.includes("Scenario playbook") ||
-  !training.includes("No tested procedures recorded yet") ||
+  !training.includes("Restaurant orders 2 Premium 4K and 1 Standard FHD screen") ||
+  !training.includes("Evidence: customer row with mixed quote items") ||
   training.includes("help-catalog")
 ) {
   problems.push("Training catalog must remain a compact scenario playbook workspace.");

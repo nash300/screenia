@@ -41,8 +41,19 @@ function sanitizeFileName(value: string) {
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9.-]/g, "")
-      .slice(0, 160) || "screenia-video.mp4"
+      .slice(0, 160) || "screenia-display-media"
   );
+}
+
+const allowedDisplayMediaTypes = new Set([
+  "video/mp4",
+  "image/png",
+  "image/jpeg",
+  "image/webp",
+]);
+
+function playlistTypeFor(contentType: string) {
+  return contentType.startsWith("image/") ? "image" : "video";
 }
 
 async function getDevice(deviceId: string) {
@@ -156,15 +167,12 @@ export async function POST(
   }
 
   if (!(file instanceof File)) {
-    return NextResponse.json(
-      { error: "Choose an MP4 video file." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Choose a display media file." }, { status: 400 });
   }
 
-  if (file.type !== "video/mp4") {
+  if (!allowedDisplayMediaTypes.has(file.type)) {
     return NextResponse.json(
-      { error: "Only MP4 videos are supported." },
+      { error: "Only MP4, PNG, JPG, and WebP display media are supported." },
       { status: 400 },
     );
   }
@@ -224,7 +232,7 @@ export async function POST(
     .insert({
       device_id: device.id,
       video_id: videoRecord.id,
-      type: "video",
+      type: playlistTypeFor(file.type),
       src: storagePath,
       order_index: (count || 0) + 1,
     })
@@ -251,7 +259,7 @@ export async function POST(
         actorId: user.id,
         eventType: "admin_device_media_added",
         eventDescription:
-          "Admin uploaded video media to a display device playlist.",
+          "Admin uploaded display media to a display device playlist.",
         metadata: {
           deviceId: device.id,
           deviceCode: device.device_code,
