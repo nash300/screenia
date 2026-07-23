@@ -199,8 +199,8 @@ export default function AdminDataSubjectRequestsPage() {
         </div>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Privacy request workflow</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Privacy request workflow</h2>
         <div className="admin-privacy-workflow" aria-label="Privacy request workflow">
           {privacyWorkflow.map((item) => (
             <div key={item.stage} className="admin-privacy-workflow-step">
@@ -213,7 +213,7 @@ export default function AdminDataSubjectRequestsPage() {
             </div>
           ))}
         </div>
-        <div className="admin-table-wrap mt-4">
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -241,7 +241,7 @@ export default function AdminDataSubjectRequestsPage() {
                     <td>{formatDate(request.due_at)}</td>
                     <td>{request.description}</td>
                     <td>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="admin-record-actions">
                         {request.status === "received" && (
                           <button
                             type="button"

@@ -159,6 +159,7 @@ const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
 const compliancePageSource = read("src/app/admin/compliance/page.tsx");
+const dataSubjectRequestsPageSource = read("src/app/admin/data-subject-requests/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -525,6 +526,22 @@ for (const className of ["admin-compliance-panel", "admin-compliance-title"]) {
 }
 
 for (const selector of [".admin-compliance-panel", ".admin-compliance-title"]) {
+  if (!adminCss.includes(selector)) {
+    problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
+  }
+}
+
+if (/\b(?:p-6|mt-4|text-xl|flex flex-wrap gap-2)\b/.test(dataSubjectRequestsPageSource)) {
+  problems.push("The admin data-subject-requests page must use explicit admin-record-* classes instead of broad utility class styling.");
+}
+
+for (const className of ["admin-record-panel", "admin-record-title", "admin-record-table-wrap", "admin-record-actions"]) {
+  if (!dataSubjectRequestsPageSource.includes(className)) {
+    problems.push(`The admin data-subject-requests page must expose the explicit ${className} class.`);
+  }
+}
+
+for (const selector of [".admin-record-panel", ".admin-record-title", ".admin-record-table-wrap", ".admin-record-actions"]) {
   if (!adminCss.includes(selector)) {
     problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
   }
