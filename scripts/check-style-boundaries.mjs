@@ -73,6 +73,16 @@ function findDuplicateBaseSelectors(cssText) {
   return [...counts.entries()].filter(([, count]) => count > 1);
 }
 
+function findDuplicateCustomProperties(cssText, prefix) {
+  const counts = new Map();
+  for (const match of cssText.matchAll(/(--[a-z0-9-]+)\s*:/gi)) {
+    const token = match[1];
+    if (!token.startsWith(prefix)) continue;
+    counts.set(token, (counts.get(token) || 0) + 1);
+  }
+  return [...counts.entries()].filter(([, count]) => count > 1);
+}
+
 const retiredPublicInfoFile = ["standalone", "public.css"].join("-");
 const retiredBrandPattern = new RegExp(["info", "sync"].join(""), "i");
 
@@ -188,6 +198,15 @@ for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
 
 const adminCss = read("src/app/admin/admin.css");
 const landingCss = read("src/app/landing.css");
+const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
+if (duplicateAdminTokens.length) {
+  problems.push(
+    `src/app/admin/admin.css contains duplicate admin custom properties: ${duplicateAdminTokens
+      .map(([token, count]) => `${token} (${count})`)
+      .join(", ")}. Keep admin tokens single-source in the first .admin-layout block.`,
+  );
+}
+
 const importantRatchets = [
   {
     file: "src/app/admin/admin.css",

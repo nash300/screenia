@@ -2,32 +2,32 @@
    ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
-  --admin-surface-face: #c0c0c0;
-  --admin-surface-face-light: #dfdfdf;
-  --admin-surface-face-dark: #808080;
-  --admin-surface-shadow: #404040;
+  --admin-surface-face: #ffffff;
+  --admin-surface-face-light: #ffffff;
+  --admin-surface-face-dark: #d7e3f7;
+  --admin-surface-shadow: #b7c6df;
   --admin-surface-highlight: #ffffff;
-  --admin-surface-title: #000080;
+  --admin-surface-title: #061942;
   --admin-surface-title-text: #ffffff;
-  --admin-surface-text: #000000;
-  --admin-surface-muted: #303030;
-  --admin-surface-link: #000080;
-  --admin-focus: var(--admin-surface-title);
-  --admin-titlebar-start: #11356f;
-  --admin-titlebar-end: #1770a6;
-  --admin-section-header: #dbe5ea;
-  --admin-section-header-border: #9aa8b0;
-  --admin-button-top: #eeeeee;
-  --admin-button-bottom: #c8c8c8;
-  --admin-button-primary-top: #1c6fae;
-  --admin-button-primary-bottom: #11356f;
+  --admin-surface-text: #061942;
+  --admin-surface-muted: #51617f;
+  --admin-surface-link: #2f7df6;
+  --admin-focus: #2f7df6;
+  --admin-titlebar-start: #061942;
+  --admin-titlebar-end: #2f7df6;
+  --admin-section-header: #eef5ff;
+  --admin-section-header-border: rgba(47, 125, 246, 0.24);
+  --admin-button-top: #ffffff;
+  --admin-button-bottom: #eef5ff;
+  --admin-button-primary-top: #3f8bff;
+  --admin-button-primary-bottom: #2f7df6;
   --admin-button-warning-top: #d8a53a;
   --admin-button-success-top: #3f8f61;
-  --admin-radius-sm: 4px;
-  --admin-radius-md: 7px;
+  --admin-radius-sm: 6px;
+  --admin-radius-md: 8px;
   --admin-radius-lg: 10px;
-  --admin-shadow-soft: 0 8px 20px rgba(0, 0, 0, 0.16);
-  --admin-shadow-panel: 0 12px 26px rgba(0, 0, 0, 0.2);
+  --admin-shadow-soft: 0 8px 22px rgba(7, 31, 84, 0.07);
+  --admin-shadow-panel: 0 18px 44px rgba(7, 31, 84, 0.1);
 
   min-height: 100vh;
   background:
@@ -3667,31 +3667,6 @@
    SCREENIA ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
-  --admin-surface-face: #ffffff;
-  --admin-surface-face-light: #ffffff;
-  --admin-surface-face-dark: #d7e3f7;
-  --admin-surface-shadow: #b7c6df;
-  --admin-surface-highlight: #ffffff;
-  --admin-surface-title: #061942;
-  --admin-surface-title-text: #ffffff;
-  --admin-surface-text: #061942;
-  --admin-surface-muted: #51617f;
-  --admin-surface-link: #2f7df6;
-  --admin-focus: #2f7df6;
-  --admin-titlebar-start: #061942;
-  --admin-titlebar-end: #2f7df6;
-  --admin-section-header: #eef5ff;
-  --admin-section-header-border: rgba(47, 125, 246, 0.24);
-  --admin-button-top: #ffffff;
-  --admin-button-bottom: #eef5ff;
-  --admin-button-primary-top: #3f8bff;
-  --admin-button-primary-bottom: #2f7df6;
-  --admin-radius-sm: 8px;
-  --admin-radius-md: 12px;
-  --admin-radius-lg: 18px;
-  --admin-shadow-soft: 0 12px 34px rgba(7, 31, 84, 0.1);
-  --admin-shadow-panel: 0 18px 50px rgba(7, 31, 84, 0.12);
-
   background:
     radial-gradient(circle at 8% 0%, rgba(47, 125, 246, 0.12), transparent 26%),
     linear-gradient(180deg, #ffffff 0%, #f4f8ff 54%, #eaf2ff 100%);
@@ -4873,11 +4848,6 @@
   --admin-success: #16a064;
   --admin-warning: #d68a06;
   --admin-danger: #dc3f45;
-  --admin-radius-sm: 6px;
-  --admin-radius-md: 8px;
-  --admin-radius-lg: 10px;
-  --admin-shadow-soft: 0 8px 22px rgba(7, 31, 84, 0.07);
-  --admin-shadow-panel: 0 18px 44px rgba(7, 31, 84, 0.1);
 
   background:
     linear-gradient(90deg, rgba(47, 125, 246, 0.055) 0 1px, transparent 1px),
