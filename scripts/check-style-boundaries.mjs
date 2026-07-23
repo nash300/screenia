@@ -241,6 +241,19 @@ for (const token of ["--landing-font-body", "--landing-font-ui", "--landing-font
 }
 
 for (const token of [
+  "--landing-radius",
+  "--landing-radius-sm",
+  "--landing-shadow-sm",
+  "--landing-shadow-md",
+  "--landing-shadow-lg",
+]) {
+  const count = countOccurrences(landingCss, new RegExp(`${token}:`, "g"));
+  if (count !== 1) {
+    problems.push(`src/app/landing.css should define ${token} exactly once; found ${count}.`);
+  }
+}
+
+for (const token of [
   "--screenia-glass-panel",
   "--screenia-glass-card",
   "--screenia-glass-soft",
