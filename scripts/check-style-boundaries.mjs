@@ -1664,8 +1664,8 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:active", [
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visible", [
   {
-    includes: "outline: 2px solid rgba(47, 125, 246, 0.42);",
-    message: "must keep an accessible focus ring without using a button background.",
+    includes: "outline: 0;",
+    message: "must use an underline focus cue instead of a rectangle that makes primary nav links look like buttons.",
   },
   {
     includes: "background: transparent;",
@@ -1678,6 +1678,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
   {
     rejects: "border:",
     message: "must not use a border that makes primary nav links look like buttons.",
+  },
+  {
+    rejects: "border-radius:",
+    message: "must not use a radius that makes focused primary nav links look like pills.",
   },
 ]);
 
