@@ -211,6 +211,33 @@ for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
 
 const adminCss = read("src/app/admin/admin.css");
 const landingCss = read("src/app/landing.css");
+const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
+const landingNavSource = read("src/components/LandingNav.tsx");
+
+if (adminSidebarNavSource.includes('"is-active"')) {
+  problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
+}
+
+if (!adminSidebarNavSource.includes("admin-nav-link-active")) {
+  problems.push("AdminSidebarNav must expose the explicit admin-nav-link-active state class.");
+}
+
+if (adminCss.includes(".admin-nav-link.is-active")) {
+  problems.push("src/app/admin/admin.css must style admin-nav-link-active instead of generic admin-nav-link.is-active.");
+}
+
+if (!adminCss.includes(".admin-nav-link.admin-nav-link-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-nav-link-active selector.");
+}
+
+if (landingNavSource.includes('"is-active"')) {
+  problems.push("LandingNav must use landing-nav-link-active instead of generic is-active state naming.");
+}
+
+if (!landingNavSource.includes("landing-nav-link-active")) {
+  problems.push("LandingNav must expose the explicit landing-nav-link-active state class.");
+}
+
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
 if (duplicateAdminTokens.length) {
   problems.push(

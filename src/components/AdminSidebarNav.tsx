@@ -45,7 +45,11 @@ export default function AdminSidebarNav() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`admin-nav-link ${isActive ? "is-active" : ""}`}
+                    className={
+                      isActive
+                        ? "admin-nav-link admin-nav-link-active"
+                        : "admin-nav-link"
+                    }
                     aria-current={isActive ? "page" : undefined}
                   >
                     <span className="admin-nav-icon" aria-hidden="true">

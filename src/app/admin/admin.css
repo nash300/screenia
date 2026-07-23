@@ -4914,7 +4914,7 @@
 }
 
 .admin-nav-link:hover,
-.admin-nav-link.is-active {
+.admin-nav-link.admin-nav-link-active {
   border-color: transparent !important;
   background: linear-gradient(135deg, var(--admin-blue), #66a5ff) !important;
   color: #ffffff !important;
@@ -4935,7 +4935,7 @@
 }
 
 .admin-nav-link:hover .admin-nav-icon,
-.admin-nav-link.is-active .admin-nav-icon {
+.admin-nav-link.admin-nav-link-active .admin-nav-icon {
   background: #ffffff;
   color: var(--admin-blue);
 }
@@ -6457,7 +6457,7 @@
 }
 
 .admin-layout .admin-nav-link:hover .admin-nav-icon,
-.admin-layout .admin-nav-link.is-active .admin-nav-icon {
+.admin-layout .admin-nav-link.admin-nav-link-active .admin-nav-icon {
   background: #ffffff !important;
   color: var(--admin-text) !important;
 }
