@@ -1311,7 +1311,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 26,
+    max: 16,
   },
   {
     file: "src/app/landing.css",
@@ -1415,6 +1415,17 @@ if (
   adminCss.includes(".admin-layout input,\n.admin-layout select,\n.admin-layout textarea {\n  min-height: 40px;\n  border: 1px solid rgba(47, 125, 246, 0.18) !important")
 ) {
   problems.push("src/app/admin/admin.css must not keep retired admin-surface theme or form control overrides.");
+}
+
+for (const retiredAdminInventoryOverride of [
+  ".admin-inventory-toolbar > input:focus,\n.admin-inventory-field input:focus,\n.admin-inventory-field select:focus,\n.admin-inventory-field textarea:focus {\n  border-color: rgba(47, 125, 246, 0.54) !important;",
+  ".admin-inventory-item {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr) auto;\n  gap: 0.85rem;\n  width: 100%;\n  border: 1px solid rgba(47, 125, 246, 0.14) !important;",
+  ".admin-inventory-item:hover,\n.admin-inventory-item.admin-inventory-item-active {\n  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;",
+  ".admin-layout .admin-customers-quick-filters button {\n  min-height: 34px;\n  padding: 0.42rem 0.68rem !important;",
+]) {
+  if (adminCss.includes(retiredAdminInventoryOverride)) {
+    problems.push(`src/app/admin/admin.css must not keep retired inventory override pattern: ${retiredAdminInventoryOverride}`);
+  }
 }
 
 const adminButtonBaseSelector =

@@ -5548,8 +5548,8 @@
 .admin-inventory-field input:focus,
 .admin-inventory-field select:focus,
 .admin-inventory-field textarea:focus {
-  border-color: rgba(47, 125, 246, 0.54) !important;
-  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12) !important;
+  border-color: rgba(47, 125, 246, 0.54);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12);
 }
 
 .admin-inventory-actions button {
@@ -5604,19 +5604,19 @@
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 0.85rem;
   width: 100%;
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.72) !important;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.72);
   padding: 0.85rem;
-  color: #061942 !important;
+  color: #061942;
   text-align: left;
-  box-shadow: none !important;
+  box-shadow: none;
 }
 
 .admin-inventory-item:hover,
 .admin-inventory-item.admin-inventory-item-active {
-  background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
-  box-shadow: 0 12px 28px rgba(7, 31, 84, 0.08) !important;
+  background: linear-gradient(135deg, #ffffff, #eef5ff);
+  box-shadow: 0 12px 28px rgba(7, 31, 84, 0.08);
 }
 
 .admin-inventory-item h3 {
@@ -5945,8 +5945,8 @@
 
 .admin-layout .admin-customers-quick-filters button {
   min-height: 34px;
-  padding: 0.42rem 0.68rem !important;
-  box-shadow: none !important;
+  padding: 0.42rem 0.68rem;
+  box-shadow: none;
 }
 
 .admin-customers-quick-filters button span {
