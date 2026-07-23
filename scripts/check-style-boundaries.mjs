@@ -92,6 +92,16 @@ if (exists(`src/app/${retiredPublicInfoFile}`)) {
 
 const sourceFiles = walk("src").filter((file) => /\.(css|tsx?|jsx?)$/.test(file));
 const appStylesheets = sourceFiles.filter((file) => file.startsWith("src/app/") && file.endsWith(".css")).sort();
+const publicFiles = walk("public");
+const serviceLogoFiles = publicFiles.filter((file) => file.startsWith("public/landing/service-logos/"));
+for (const file of serviceLogoFiles) {
+  const fileName = path.basename(file);
+  if (fileName === ".gitkeep") continue;
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\.png$/.test(fileName)) {
+    problems.push(`${file} should use lowercase kebab-case PNG naming for predictable dynamic logo loading.`);
+  }
+}
+
 const expectedAppStylesheets = [
   "src/app/admin/admin.css",
   "src/app/globals.css",
@@ -136,7 +146,7 @@ for (const file of sourceFiles) {
   }
 }
 
-for (const file of walk("public").filter((item) => !/\.pdf$/i.test(item))) {
+for (const file of publicFiles.filter((item) => !/\.pdf$/i.test(item))) {
   const text = read(file);
   if (retiredBrandPattern.test(text)) {
     problems.push(`${file} still contains the retired company name.`);
@@ -313,13 +323,6 @@ if (packageJson.dependencies?.bootstrap || packageJson.devDependencies?.bootstra
   problems.push("package.json still includes Bootstrap. Avoid broad third-party CSS that can override Screenia styles.");
 }
 
-const allowedPublicInfoNavLines = [
-  ".how-page .landing-nav-primary a.is-active",
-  ".about-page .landing-nav-primary a.is-active",
-  ".how-page .landing-nav-primary a.is-active::after",
-  ".about-page .landing-nav-primary a.is-active::after",
-];
-
 const temporaryLandingClassPattern = /\.landing-[a-z0-9-]*(?:-(?:old|new|placeholder))(?:\b|-)/;
 
 function requireCssBlock(cssText, selector, checks) {
@@ -345,8 +348,7 @@ landingCss
   .split(/\r?\n/)
   .forEach((line, index) => {
     if (
-      /\.(how-|about-|public-info-page)/.test(line) &&
-      !allowedPublicInfoNavLines.some((allowed) => line.includes(allowed))
+      /\.(how-|about-|public-info-page)/.test(line)
     ) {
       problems.push(
         `src/app/landing.css:${index + 1} contains public-info page selector "${line.trim()}". Move it to public-info.css.`,
@@ -389,7 +391,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a:focus-visible", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a.is-active", [
+requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active", [
   {
     includes: "background: transparent",
     message: "must keep active links transparent.",
@@ -408,7 +410,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a.is-active", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a.is-active::after", [
+requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active::after", [
   {
     includes: "height: 2px;",
     message: "must use a thin underline active indicator.",

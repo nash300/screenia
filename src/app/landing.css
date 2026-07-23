@@ -9441,18 +9441,14 @@
   background: var(--screenia-glass-soft) !important;
 }
 
-.landing-nav-primary a.is-active,
-.how-page .landing-nav-primary a.is-active,
-.about-page .landing-nav-primary a.is-active {
+.landing-nav-primary a.landing-nav-link-active {
   position: relative;
   background: transparent !important;
   color: var(--screenia-logo-deep) !important;
   box-shadow: none !important;
 }
 
-.landing-nav-primary a.is-active::after,
-.how-page .landing-nav-primary a.is-active::after,
-.about-page .landing-nav-primary a.is-active::after {
+.landing-nav-primary a.landing-nav-link-active::after {
   position: absolute;
   right: 0;
   bottom: -8px;
@@ -9465,9 +9461,7 @@
 }
 
 @media (max-width: 900px) {
-  .landing-nav-primary a.is-active::after,
-  .how-page .landing-nav-primary a.is-active::after,
-  .about-page .landing-nav-primary a.is-active::after {
+  .landing-nav-primary a.landing-nav-link-active::after {
     right: auto;
     bottom: -4px;
     width: 44px;
