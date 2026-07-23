@@ -7679,12 +7679,12 @@
   gap: 0.45rem;
 }
 
-.admin-layout .admin-queue-pagination button {
+.admin-queue-pagination-button {
   min-height: 32px;
   padding: 0.35rem 0.65rem;
 }
 
-.admin-layout .admin-queue-pagination button:disabled {
+.admin-queue-pagination-button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }

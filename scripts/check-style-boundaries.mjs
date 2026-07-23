@@ -380,6 +380,10 @@ if (/\.admin-layout\s+(?:iframe|video)(?=[\s:{,\[])/.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not style all admin media embeds through .admin-layout. Use explicit device preview or playlist media classes.");
 }
 
+if (/\.admin-layout\s+\.admin-queue-pagination\s+button(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must style admin-queue-pagination-button instead of every button inside admin-queue-pagination.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
@@ -1495,6 +1499,19 @@ if (
   /admin-dashboard-page,[\s\S]*?\.admin-order-list,[\s\S]*?admin-customers-page/.test(adminCss)
 ) {
   problems.push("src/app/admin/admin.css must not include .admin-order-list in page-shell grouped layout selectors; it is the scrollable order queue list.");
+}
+
+if (!adminCss.includes(".admin-queue-pagination-button")) {
+  problems.push("src/app/admin/admin.css must define admin-queue-pagination-button for shared pagination controls.");
+}
+
+for (const [file, source] of [
+  ["src/app/admin/customers/page.tsx", customersPageSource],
+  ["src/app/admin/orders/page.tsx", ordersPageSource],
+]) {
+  if (!source.includes("admin-queue-pagination-button")) {
+    problems.push(`${file} must use admin-queue-pagination-button on pagination controls.`);
+  }
 }
 
 const adminPageChromeSelector = ".admin-page > div,\n.admin-page > main";

@@ -767,7 +767,7 @@ function AdminOrdersContent() {
             <div>
               <button
                 type="button"
-                className="admin-button-secondary"
+                className="admin-button-secondary admin-queue-pagination-button"
                 disabled={visiblePage === 1}
                 onClick={() => setPage((current) => Math.max(1, current - 1))}
               >
@@ -775,7 +775,7 @@ function AdminOrdersContent() {
               </button>
               <button
                 type="button"
-                className="admin-button-secondary"
+                className="admin-button-secondary admin-queue-pagination-button"
                 disabled={visiblePage === pageCount}
                 onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
               >
