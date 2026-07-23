@@ -3952,9 +3952,9 @@
 
 .flow-state-panel h1 {
   color: var(--landing-text);
-  font-family: var(--landing-font-ui) !important;
-  font-weight: 950 !important;
-  letter-spacing: 0 !important;
+  font-family: var(--landing-font-ui);
+  font-weight: 950;
+  letter-spacing: 0;
 }
 
 .flow-state-panel p:not(.landing-eyebrow) {
@@ -4048,10 +4048,10 @@
 .account-state-panel h1 {
   margin: 0;
   color: var(--landing-text);
-  font-family: var(--landing-font-ui) !important;
+  font-family: var(--landing-font-ui);
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 950 !important;
-  letter-spacing: 0 !important;
+  font-weight: 950;
+  letter-spacing: 0;
   line-height: 1.06;
 }
 
@@ -5136,13 +5136,6 @@
     transform: translateY(0) scale(1);
     filter: none;
   }
-}
-
-.flow-state-panel h1,
-.account-state-panel h1 {
-  font-family: var(--landing-font-ui) !important;
-  font-weight: 950 !important;
-  letter-spacing: 0 !important;
 }
 
 /* =========================================
