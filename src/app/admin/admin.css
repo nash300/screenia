@@ -1315,28 +1315,6 @@
 }
 
 /* =========================================
-   FORMS / BUTTONS
-========================================= */
-.admin-layout input,
-.admin-layout select,
-.admin-layout textarea {
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow) !important;
-  border-style: solid !important;
-  border-width: 2px !important;
-  border-radius: var(--admin-radius-sm) !important;
-  background: #ffffff !important;
-  color: var(--admin-surface-text) !important;
-  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
-  font-size: 13px !important;
-  min-height: 28px;
-  outline: none !important;
-  box-shadow:
-    inset 1px 1px 3px rgba(0, 0, 0, 0.2),
-    0 1px 0 rgba(255, 255, 255, 0.65) !important;
-}
-
-/* =========================================
    ADMIN SCOPED UTILITY STYLES
 ========================================= */
 .admin-layout .rounded-xl,

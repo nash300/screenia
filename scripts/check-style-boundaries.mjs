@@ -591,7 +591,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 266,
+    max: 244,
   },
   {
     file: "src/app/landing.css",
@@ -622,6 +622,13 @@ for (const { token, message } of retiredAdminTokenNames) {
   if (adminCss.includes(token)) {
     problems.push(message);
   }
+}
+
+if (
+  adminCss.includes(".admin-layout input,\n.admin-layout select,\n.admin-layout textarea {\n  border-color: var(--admin-surface-shadow)") ||
+  adminCss.includes('font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important')
+) {
+  problems.push("src/app/admin/admin.css must not keep the retired broad admin-surface form control override.");
 }
 
 if (adminCss.includes('content: "Screenia Admin"')) {
