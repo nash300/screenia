@@ -45,6 +45,15 @@ for (const file of sourceFiles) {
   if (retiredAdminThemePattern.test(text)) {
     problems.push(`${file} still contains a retired admin theme token name.`);
   }
+  if (
+    /\.(tsx?|jsx?)$/.test(file) &&
+    file !== "src/components/LandingScrollReveal.tsx" &&
+    (text.includes("landing-reveal-target") ||
+      text.includes("new IntersectionObserver") ||
+      text.includes("document.querySelectorAll<HTMLElement>(selectors.join"))
+  ) {
+    problems.push(`${file} duplicates landing scroll reveal behavior. Use LandingScrollReveal instead.`);
+  }
 }
 
 for (const file of walk("public").filter((item) => !/\.pdf$/i.test(item))) {

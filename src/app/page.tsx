@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
+import { LandingScrollReveal } from "@/components/LandingScrollReveal";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 import {
   ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
@@ -703,64 +704,6 @@ export default function Home() {
     };
   }, [heroSlideCount, heroInteractionKey]);
 
-  useEffect(() => {
-    const selectors = [
-      ".landing-section",
-      ".landing-section-heading",
-      ".landing-feature",
-      ".landing-price-card",
-      ".landing-gallery-card",
-      ".landing-service-film-copy",
-      ".landing-film-stage",
-      ".landing-faq-item",
-      ".landing-contact",
-      ".landing-footer-company",
-      ".landing-footer-card",
-    ];
-    const elements = Array.from(
-      document.querySelectorAll<HTMLElement>(selectors.join(",")),
-    );
-    let lastScrollY = window.scrollY;
-
-    elements.forEach((element, index) => {
-      element.classList.add("landing-reveal-target");
-      element.style.setProperty("--reveal-index", String(index % 6));
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const isScrollingDown = window.scrollY >= lastScrollY;
-        lastScrollY = window.scrollY;
-
-        entries.forEach((entry) => {
-          const target = entry.target as HTMLElement;
-          target.classList.toggle("from-scroll-down", isScrollingDown);
-          target.classList.toggle("from-scroll-up", !isScrollingDown);
-          target.classList.toggle("is-visible", entry.isIntersecting);
-        });
-      },
-      {
-        rootMargin: "0px 0px -4% 0px",
-        threshold: 0.08,
-      },
-    );
-
-    elements.forEach((element) => observer.observe(element));
-
-    return () => {
-      observer.disconnect();
-      elements.forEach((element) => {
-        element.classList.remove(
-          "landing-reveal-target",
-          "is-visible",
-          "from-scroll-down",
-          "from-scroll-up",
-        );
-        element.style.removeProperty("--reveal-index");
-      });
-    };
-  }, []);
-
   const submitPlanRequest = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selectedScreenCount === 0) return;
@@ -813,6 +756,7 @@ export default function Home() {
 
   return (
     <div className="landing-page">
+      <LandingScrollReveal />
       <LandingNav currentPath="/" />
 
       <main id="top">
