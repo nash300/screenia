@@ -19,7 +19,6 @@ import {
   additionalShippingDeviceCount,
   calculateShippingFeeSek,
 } from "@/lib/pricing/shipping-fee";
-import "./landing.css";
 
 const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
 

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollReveal } from "@/components/LandingScrollReveal";
-import "../landing.css";
 import "../public-info.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";

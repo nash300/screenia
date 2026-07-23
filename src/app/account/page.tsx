@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { LandingNav } from "@/components/LandingNav";
-import "../landing.css";
 
 type AccountSection = "overview" | "setup" | "material" | "messages" | "billing" | "legal";
 

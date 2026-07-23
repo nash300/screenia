@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import "../../landing.css";
 
 export default async function PaymentCancelledPage({
   searchParams,

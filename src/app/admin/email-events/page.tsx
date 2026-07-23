@@ -5,7 +5,8 @@ import { showAdminNotification } from "@/lib/admin/notifications";
 
 type EmailEvent = {
   id: string;
-  svix_id: string;
+  source: "outbound_attempt" | "delivery_event";
+  svix_id: string | null;
   event_type: string;
   resend_email_id: string | null;
   recipient_email: string | null;
@@ -19,6 +20,7 @@ type EmailEvent = {
 type EmailEventFilter = "all" | "needs_follow_up" | "healthy";
 
 const healthyEmailStatuses = [
+  "sent",
   "received",
   "processed",
   "delivered",
@@ -54,8 +56,13 @@ function formatEventType(value: string) {
 }
 
 function formatEventStatus(value: string) {
+  if (value === "sent") return "Sent by app";
   if (value === "action_required") return "Needs action";
   return formatEventType(value);
+}
+
+function formatSource(value: EmailEvent["source"]) {
+  return value === "outbound_attempt" ? "Outbound" : "Delivery";
 }
 
 export default function AdminEmailEventsPage() {
@@ -220,6 +227,7 @@ export default function AdminEmailEventsPage() {
           <table className="admin-table">
             <thead>
               <tr>
+                <th>Source</th>
                 <th>Event</th>
                 <th>Recipient</th>
                 <th>Subject</th>
@@ -231,6 +239,7 @@ export default function AdminEmailEventsPage() {
             <tbody>
               {filteredEvents.map((event) => (
                 <tr key={event.id}>
+                  <td>{formatSource(event.source)}</td>
                   <td>
                     <strong>{formatEventType(event.event_type)}</strong>
                   </td>
@@ -263,7 +272,7 @@ export default function AdminEmailEventsPage() {
               ))}
               {!loading && filteredEvents.length === 0 && (
                 <tr>
-                  <td colSpan={6}>
+                  <td colSpan={7}>
                     {events.length === 0
                       ? "No email delivery events recorded."
                       : "No email delivery events match this view."}

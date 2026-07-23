@@ -1,6 +1,8 @@
 import { Bubblegum_Sans, Geist_Mono, Plus_Jakarta_Sans, Special_Elite } from "next/font/google";
 import type { Metadata } from "next";
 import "./globals.css";
+import "./landing.css";
+import "./public-info.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",

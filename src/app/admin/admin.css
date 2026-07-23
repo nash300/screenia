@@ -1069,7 +1069,8 @@
 .admin-email-status-received,
 .admin-email-status-delivered,
 .admin-email-status-opened,
-.admin-email-status-clicked {
+.admin-email-status-clicked,
+.admin-email-status-sent {
   background: #dcfce7;
   color: #166534;
 }

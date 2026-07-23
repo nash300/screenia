@@ -4,7 +4,6 @@ import { use, useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
 import { isValidSwedishRegistrationNumber } from "@/lib/business/sweden";
-import "../../landing.css";
 
 type Customer = {
   id: string;
