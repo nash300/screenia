@@ -719,6 +719,19 @@ for (const retiredUnscopedPricingOwner of [
   }
 }
 
+for (const scopedPricingQuantityOwner of [
+  ".landing-pricing .landing-plan-quantity",
+  ".landing-pricing .landing-quantity-stepper",
+]) {
+  const ownerCount = countOccurrences(
+    landingCss,
+    new RegExp(`^${scopedPricingQuantityOwner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
+  );
+  if (ownerCount !== 1) {
+    problems.push(`src/app/landing.css must keep exactly one base owner for ${scopedPricingQuantityOwner}; found ${ownerCount}.`);
+  }
+}
+
 for (const retiredIllustrationSelector of [
   ".landing-illustration-art span:nth-child",
   ".landing-illustration-2 .landing-illustration-art",

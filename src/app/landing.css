@@ -4158,16 +4158,6 @@
   counter-reset: screenia-feature;
 }
 
-.landing-pricing .landing-plan-quantity {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  margin-top: 16px;
-  border-top: 1px solid var(--screenia-line);
-  padding-top: 16px;
-}
-
 .landing-pricing .landing-plan-quantity > div:first-child {
   display: grid;
   gap: 3px;
@@ -4181,58 +4171,6 @@
 .landing-pricing .landing-plan-quantity span {
   color: var(--landing-muted);
   font-size: 0.72rem;
-}
-
-.landing-pricing .landing-quantity-stepper {
-  display: grid;
-  grid-template-columns: 38px 48px 38px;
-  width: 124px;
-  height: 38px;
-  overflow: hidden;
-  border: 1px solid rgba(47, 125, 246, 0.24);
-  border-radius: 6px;
-  background: #ffffff;
-}
-
-.landing-pricing .landing-quantity-stepper button,
-.landing-pricing .landing-quantity-stepper input {
-  width: 100%;
-  min-width: 0;
-  height: 36px;
-  border: 0;
-  border-radius: 0;
-  background: #ffffff;
-  color: var(--screenia-navy);
-  font: inherit;
-  font-weight: 900;
-  text-align: center;
-}
-
-.landing-pricing .landing-quantity-stepper button {
-  cursor: pointer;
-  color: var(--screenia-blue);
-  font-size: 1rem;
-}
-
-.landing-pricing .landing-quantity-stepper button:hover:not(:disabled) {
-  background: #edf4ff;
-}
-
-.landing-pricing .landing-quantity-stepper button:disabled {
-  cursor: not-allowed;
-  opacity: 0.35;
-}
-
-.landing-pricing .landing-quantity-stepper input {
-  border-right: 1px solid rgba(47, 125, 246, 0.16);
-  border-left: 1px solid rgba(47, 125, 246, 0.16);
-  appearance: textfield;
-}
-
-.landing-pricing .landing-quantity-stepper input::-webkit-inner-spin-button,
-.landing-pricing .landing-quantity-stepper input::-webkit-outer-spin-button {
-  margin: 0;
-  appearance: none;
 }
 
 .landing-package-builder {
@@ -4905,11 +4843,6 @@
   align-content: start;
   min-height: 96px;
   padding-top: 8px;
-}
-
-.landing-pricing .landing-plan-quantity {
-  margin-top: 10px;
-  padding-top: 12px;
 }
 
 .landing-pricing .landing-package-builder {
@@ -5641,15 +5574,24 @@
 }
 
 .landing-pricing .landing-plan-quantity {
+  display: flex;
   min-height: 56px;
-  margin-top: 12px;
-  padding-top: 12px;
   align-items: center;
-  border-top-color: rgba(221, 238, 255, 0.14);
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+  border-top: 1px solid rgba(221, 238, 255, 0.14);
+  padding-top: 12px;
 }
 
 .landing-pricing .landing-quantity-stepper {
-  border-color: rgba(221, 238, 255, 0.24);
+  display: grid;
+  grid-template-columns: 38px 48px 38px;
+  width: 124px;
+  height: 38px;
+  overflow: hidden;
+  border: 1px solid rgba(221, 238, 255, 0.24);
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.1);
   box-shadow:
     0 12px 24px rgba(0, 10, 32, 0.16),
@@ -5658,7 +5600,43 @@
 
 .landing-pricing .landing-quantity-stepper button,
 .landing-pricing .landing-quantity-stepper input {
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  border: 0;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.92);
+  color: var(--screenia-navy);
+  font: inherit;
+  font-weight: 900;
+  text-align: center;
+}
+
+.landing-pricing .landing-quantity-stepper button {
+  cursor: pointer;
+  color: var(--screenia-blue);
+  font-size: 1rem;
+}
+
+.landing-pricing .landing-quantity-stepper button:hover:not(:disabled) {
+  background: #edf4ff;
+}
+
+.landing-pricing .landing-quantity-stepper button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.landing-pricing .landing-quantity-stepper input {
+  border-right: 1px solid rgba(47, 125, 246, 0.16);
+  border-left: 1px solid rgba(47, 125, 246, 0.16);
+  appearance: textfield;
+}
+
+.landing-pricing .landing-quantity-stepper input::-webkit-inner-spin-button,
+.landing-pricing .landing-quantity-stepper input::-webkit-outer-spin-button {
+  margin: 0;
+  appearance: none;
 }
 
 .landing-pricing .landing-package-builder {
