@@ -725,6 +725,7 @@ for (const scopedPricingSingleOwner of [
   ".landing-pricing .landing-price-row",
   ".landing-pricing .landing-package-builder",
   ".landing-pricing .landing-package-builder-heading",
+  ".landing-pricing .landing-plan-badge,\n.landing-pricing .landing-plan-badge-spacer",
   ".landing-pricing .landing-plan-card-top",
   ".landing-pricing .landing-plan-heading",
   ".landing-pricing .landing-plan-device",
@@ -1250,6 +1251,7 @@ for (const retiredLandingClass of [
   "landing-flag-sv",
   "landing-flag-en",
   "landing-hero-media",
+  "landing-hero-benefit-icon",
   "landing-hero-trust",
   "landing-slide-caption",
   "landing-slide-controls",
@@ -1272,6 +1274,8 @@ for (const retiredLandingClass of [
   "landing-service-grid",
   "landing-service-mark",
   "landing-delivery-panel",
+  "benefit-float",
+  "benefit-sheen",
 ]) {
   if (landingCss.includes(retiredLandingClass) || landingScrollRevealSource.includes(retiredLandingClass)) {
     problems.push(`Landing source still contains retired ${retiredLandingClass} styling or reveal wiring. Remove dead landing UI layers instead of keeping override-prone code.`);

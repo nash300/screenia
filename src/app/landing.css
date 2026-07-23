@@ -853,123 +853,6 @@
   padding-right: clamp(12px, 1.2vw, 20px);
 }
 
-.landing-hero-benefits {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  width: 100%;
-  margin: 0;
-}
-
-.landing-hero-benefit {
-  display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
-  gap: 8px;
-  align-items: start;
-  min-width: 0;
-  border: 1px solid rgba(191, 219, 254, 0.22);
-  border-radius: 14px;
-  background:
-    linear-gradient(135deg, rgba(59, 130, 246, 0.24), rgba(7, 24, 47, 0.18)),
-    rgba(7, 24, 47, 0.22);
-  padding: 9px 10px;
-  color: #ffffff;
-  overflow: hidden;
-  position: relative;
-  box-shadow:
-    0 12px 28px rgba(4, 16, 42, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  animation: none;
-  transition:
-    border-color 180ms ease,
-    box-shadow 180ms ease,
-    transform 180ms ease;
-}
-
-.landing-hero-benefit::after {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.16) 42%, transparent 72%);
-  content: "";
-  opacity: 0;
-  transform: translateX(-120%);
-  animation: benefit-sheen 8s ease-in-out infinite;
-  pointer-events: none;
-}
-
-.landing-hero-benefit-icon {
-  display: inline-grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border-radius: 999px;
-  background: #3b82f6;
-  color: #ffffff;
-  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.28);
-  position: relative;
-  z-index: 1;
-}
-
-.landing-hero-benefit-icon::before {
-  width: 9px;
-  height: 5px;
-  border-bottom: 2px solid currentColor;
-  border-left: 2px solid currentColor;
-  content: "";
-  transform: rotate(-45deg) translate(1px, -1px);
-}
-
-.landing-hero-benefit strong,
-.landing-hero-benefit small {
-  display: block;
-  position: relative;
-  z-index: 1;
-}
-
-.landing-hero-benefit strong {
-  color: #ffffff;
-  font-family: var(--landing-font-ui);
-  font-size: 0.78rem;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.landing-hero-benefit small {
-  margin-top: 2px;
-  color: rgba(239, 246, 255, 0.78);
-  font-size: 0.68rem;
-  line-height: 1.28;
-}
-
-@keyframes benefit-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-3px);
-  }
-}
-
-@keyframes benefit-sheen {
-  0%,
-  54% {
-    opacity: 0;
-    transform: translateX(-120%);
-  }
-
-  62% {
-    opacity: 1;
-  }
-
-  76%,
-  100% {
-    opacity: 0;
-    transform: translateX(120%);
-  }
-}
-
 @keyframes logo-marquee {
   from {
     transform: translateX(0);
@@ -1033,10 +916,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-hero-benefit::after {
-    animation: none;
-  }
-
   .landing-logo-track {
     animation-duration: 44s;
   }
@@ -3006,29 +2885,6 @@
     animation-duration: 48s;
   }
 
-  .landing-hero-benefits {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
-
-  .landing-hero-benefit {
-    grid-template-columns: 20px minmax(0, 1fr);
-    padding: 7px 8px;
-  }
-
-  .landing-hero-benefit-icon {
-    width: 19px;
-    height: 19px;
-  }
-
-  .landing-hero-benefit strong {
-    font-size: 0.72rem;
-  }
-
-  .landing-hero-benefit small {
-    font-size: 0.64rem;
-  }
-
   .landing-logo-tile {
     height: 100%;
     flex: 0 0 98px;
@@ -4409,6 +4265,7 @@
 /* Rotate one concise customer promise at a time without competing with the hero. */
 .landing-hero-benefits {
   position: absolute;
+  display: grid;
   right: auto;
   bottom: clamp(24px, 3.5svh, 40px);
   left: clamp(32px, 7.5vw, 118px);
@@ -4430,8 +4287,10 @@
 
 .landing-hero-benefit {
   position: absolute;
+  display: grid;
   inset: 0;
   min-height: 108px;
+  min-width: 0;
   grid-template-columns: minmax(0, 1fr);
   align-items: center;
   gap: 14px;
@@ -4482,9 +4341,12 @@
 
 .landing-hero-benefit strong {
   position: relative;
+  z-index: 1;
   display: block;
   color: #ffffff;
+  font-family: var(--landing-font-ui);
   font-size: clamp(1.18rem, 1.5vw, 1.42rem);
+  font-weight: 900;
   letter-spacing: 0;
   line-height: 1.08;
   text-shadow: 0 10px 24px rgba(0, 10, 30, 0.28);
@@ -4492,6 +4354,7 @@
 
 .landing-hero-benefit small {
   position: relative;
+  z-index: 1;
   display: block;
   max-width: 34ch;
   margin-top: 8px;
@@ -4780,11 +4643,6 @@
   .landing-faq-grid {
     column-count: 1;
   }
-}
-
-.landing-pricing .landing-plan-badge,
-.landing-pricing .landing-plan-badge-spacer {
-  padding: 6px 9px;
 }
 
 .landing-pricing .landing-package-lines,
