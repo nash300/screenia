@@ -160,6 +160,7 @@ const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
+const newDevicePageSource = read("src/app/admin/devices/new/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
@@ -560,6 +561,14 @@ if (
   problems.push("The admin devices list page must use explicit admin-devices-* classes instead of broad utility class styling.");
 }
 
+if (
+  /\b(?:rounded-2xl|rounded-xl|border-slate-200|bg-slate-50|text-slate-|focus:ring|focus:border|grid gap-|md:grid-cols|p-4|p-6|mt-1|mt-4|mt-6)\b/.test(
+    newDevicePageSource,
+  )
+) {
+  problems.push("The admin create-display page must use explicit admin-device-create-* classes instead of broad utility class styling.");
+}
+
 for (const className of [
   "admin-devices-list-panel",
   "admin-devices-info-panel",
@@ -571,6 +580,20 @@ for (const className of [
 ]) {
   if (!devicesPageSource.includes(className)) {
     problems.push(`The admin devices list page must expose the explicit ${className} class.`);
+  }
+}
+
+for (const className of [
+  "admin-device-create-panel",
+  "admin-device-create-info-panel",
+  "admin-device-create-grid",
+  "admin-device-create-field",
+  "admin-device-create-label",
+  "admin-device-create-control",
+  "admin-device-create-submit",
+]) {
+  if (!newDevicePageSource.includes(className)) {
+    problems.push(`The admin create-display page must expose the explicit ${className} class.`);
   }
 }
 

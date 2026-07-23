@@ -3110,6 +3110,75 @@
   color: #9a1c1c;
 }
 
+.admin-device-create-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-device-create-info-panel {
+  margin-bottom: 1.25rem;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: var(--admin-radius-lg);
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  padding: 0.9rem 1rem;
+}
+
+.admin-device-create-info-title {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.admin-device-create-info-copy {
+  margin: 0.35rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-device-create-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-device-create-field {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.admin-device-create-field-wide {
+  margin-top: 1rem;
+}
+
+.admin-device-create-label {
+  color: var(--admin-text);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.admin-device-create-control {
+  width: 100%;
+  border: 1px solid rgba(47, 125, 246, 0.2);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  padding: 0.62rem 0.78rem;
+  color: var(--admin-text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-device-create-control:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
+}
+
+.admin-device-create-submit {
+  margin-top: 1.25rem;
+}
+
 .admin-device-media-flow,
 .admin-device-remove-flow {
   display: grid;
@@ -3161,6 +3230,10 @@
 
   .admin-device-list-status {
     text-align: left;
+  }
+
+  .admin-device-create-grid {
+    grid-template-columns: 1fr;
   }
 
   .admin-layout .grid.two-columns {

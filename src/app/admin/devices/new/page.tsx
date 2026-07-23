@@ -21,7 +21,7 @@ export default function NewDevicePage() {
 
 function NewDeviceFallback() {
   return (
-    <div className="admin-card p-6">
+    <div className="admin-card admin-device-create-panel">
       <p className="admin-muted">Loading display endpoint form...</p>
     </div>
   );
@@ -118,12 +118,12 @@ function NewDevicePageContent() {
       </div>
 
       {/* Display Form */}
-      <div className="admin-card p-6">
-        <div className="mb-5 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <p className="text-sm font-semibold text-slate-800">
+      <div className="admin-card admin-device-create-panel">
+        <div className="admin-device-create-info-panel">
+          <p className="admin-device-create-info-title">
             Where this fits in the workflow
           </p>
-          <p className="admin-muted mt-1 text-sm">
+          <p className="admin-device-create-info-copy">
             Use the customer profile&apos;s Device allocation tab to connect paid
             customers to available stock. Use this page only when you need to
             create or replace the live endpoint that serves screen content.
@@ -131,7 +131,7 @@ function NewDevicePageContent() {
             repairs, and retirement in Hardware stock.
           </p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="admin-device-create-grid">
           <SelectInput
             id="device-customer"
             name="customerId"
@@ -166,8 +166,8 @@ function NewDevicePageContent() {
           />
         </div>
 
-        <div className="mt-4">
-          <label htmlFor="device-internal-notes" className="text-sm font-semibold text-slate-700">
+        <div className="admin-device-create-field admin-device-create-field-wide">
+          <label htmlFor="device-internal-notes" className="admin-device-create-label">
             Internal notes
           </label>
           <textarea
@@ -175,13 +175,13 @@ function NewDevicePageContent() {
             name="internalNotes"
             value={internalNotes}
             onChange={(e) => setInternalNotes(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+            className="admin-device-create-control"
             rows={4}
           />
         </div>
 
-        <div className="mt-4">
-          <label htmlFor="device-create-reason" className="text-sm font-semibold text-slate-700">
+        <div className="admin-device-create-field admin-device-create-field-wide">
+          <label htmlFor="device-create-reason" className="admin-device-create-label">
             Creation reason *
           </label>
           <textarea
@@ -190,7 +190,7 @@ function NewDevicePageContent() {
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Example: Paid customer needs a screen URL for the entrance display."
-            className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+            className="admin-device-create-control"
             rows={3}
           />
         </div>
@@ -198,7 +198,7 @@ function NewDevicePageContent() {
         <button
           onClick={createDevice}
           disabled={saving || !reason.trim()}
-          className="admin-button-primary mt-6 disabled:opacity-50"
+          className="admin-button-primary admin-device-create-submit disabled:opacity-50"
         >
           {saving ? "Creating..." : "Create display endpoint"}
         </button>
@@ -225,8 +225,8 @@ function TextInput({
   type?: string;
 }) {
   return (
-    <div>
-      <label htmlFor={id} className="text-sm font-semibold text-slate-700">{label}</label>
+    <div className="admin-device-create-field">
+      <label htmlFor={id} className="admin-device-create-label">{label}</label>
       <input
         id={id}
         name={name}
@@ -234,7 +234,7 @@ function TextInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+        className="admin-device-create-control"
       />
     </div>
   );
@@ -256,14 +256,14 @@ function SelectInput({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <label htmlFor={id} className="text-sm font-semibold text-slate-700">{label}</label>
+    <div className="admin-device-create-field">
+      <label htmlFor={id} className="admin-device-create-label">{label}</label>
       <select
         id={id}
         name={name}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+        className="admin-device-create-control"
       >
         {children}
       </select>
