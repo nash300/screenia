@@ -7,7 +7,6 @@ const defaultSelectors = [
   ".landing-section-heading",
   ".landing-feature",
   ".landing-price-card",
-  ".landing-pricing-note",
   ".landing-gallery-card",
   ".landing-service-film-copy",
   ".landing-film-stage",

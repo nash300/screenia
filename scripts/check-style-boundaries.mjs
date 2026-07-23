@@ -1225,6 +1225,7 @@ for (const retiredLandingClass of [
   "landing-pricing-layout",
   "landing-workflow-banner",
   "landing-workflow-layout",
+  "landing-pricing-note",
   "landing-timeline",
   "landing-checkout-visual",
   "landing-comparison",
@@ -1233,8 +1234,8 @@ for (const retiredLandingClass of [
   "landing-service-mark",
   "landing-delivery-panel",
 ]) {
-  if (landingCss.includes(retiredLandingClass)) {
-    problems.push(`src/app/landing.css still contains retired ${retiredLandingClass} styling. Remove dead landing UI layers instead of keeping override-prone CSS.`);
+  if (landingCss.includes(retiredLandingClass) || landingScrollRevealSource.includes(retiredLandingClass)) {
+    problems.push(`Landing source still contains retired ${retiredLandingClass} styling or reveal wiring. Remove dead landing UI layers instead of keeping override-prone code.`);
   }
 }
 
