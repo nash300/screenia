@@ -352,6 +352,14 @@ if (/(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not keep the retired generic page-header alias. Use admin-page-header.");
 }
 
+if (adminCss.includes(".grid.two-columns") || sourceFiles.some((file) => file.startsWith("src/app/admin/") && read(file).includes("grid two-columns"))) {
+  problems.push("Admin pages must not use the generic grid two-columns helper. Use an explicit admin-* layout class owned by the component.");
+}
+
+if (/\.admin-layout\s+\.(?:rounded|shadow)|\.admin-card\s*>\s*\.rounded/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style Tailwind-style rounded/shadow utility classes. Use explicit admin-* component classes.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
@@ -1056,7 +1064,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 35,
+    max: 30,
   },
   {
     file: "src/app/landing.css",

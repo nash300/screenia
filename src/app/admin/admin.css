@@ -978,19 +978,6 @@
   font-weight: 700;
 }
 
-.admin-card > .rounded-2xl,
-.admin-card > .rounded-xl,
-.admin-card > a.rounded-2xl,
-.admin-card > div.rounded-2xl {
-  border-radius: var(--admin-radius-md) !important;
-}
-
-.admin-layout .grid.two-columns {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
-}
-
 .admin-pricing-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1353,30 +1340,8 @@
 }
 
 /* =========================================
-   ADMIN SCOPED UTILITY STYLES
+   ADMIN SHARED ELEMENT DEFAULTS
 ========================================= */
-.admin-layout .rounded-xl,
-.admin-layout .rounded-2xl,
-.admin-layout .rounded-lg {
-  border-radius: var(--admin-radius-md) !important;
-}
-
-.admin-layout .rounded-3xl {
-  border-radius: var(--admin-radius-lg) !important;
-}
-
-.admin-layout .rounded-full {
-  border-radius: 999px !important;
-}
-
-.admin-layout .shadow,
-.admin-layout .shadow-md,
-.admin-layout .shadow-xl,
-.admin-layout .shadow-2xl,
-.admin-layout .shadow-sm {
-  box-shadow: var(--admin-shadow-soft) !important;
-}
-
 .admin-layout a {
   color: var(--admin-surface-link);
   text-decoration: none;
@@ -4840,10 +4805,6 @@
   }
 
   .admin-device-create-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-layout .grid.two-columns {
     grid-template-columns: 1fr;
   }
 
