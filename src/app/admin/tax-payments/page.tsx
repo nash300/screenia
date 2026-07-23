@@ -282,8 +282,8 @@ export default function AdminTaxPaymentsPage() {
         </div>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Moms/VAT filing workflow</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Moms/VAT filing workflow</h2>
         <div className="admin-tax-workflow" aria-label="Moms/VAT filing workflow">
           {vatWorkflow.map((item) => (
             <div key={item.stage} className="admin-tax-workflow-step">
@@ -296,7 +296,7 @@ export default function AdminTaxPaymentsPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitRecord}>
+        <form className="admin-record-form" onSubmit={submitRecord}>
           <label className="admin-field">
             <span>Period start</span>
             <input
@@ -395,9 +395,9 @@ export default function AdminTaxPaymentsPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Moms/VAT filing periods</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Moms/VAT filing periods</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -422,7 +422,7 @@ export default function AdminTaxPaymentsPage() {
                   <td>{formatDate(record.paid_at)}</td>
                   <td>{record.reference || "-"}</td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="admin-record-actions">
                       {record.status === "draft" && (
                         <button
                           type="button"
