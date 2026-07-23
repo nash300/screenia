@@ -7137,11 +7137,11 @@
   width: 44px;
   height: 44px;
   place-items: center;
-  border: 1px solid rgba(89, 126, 180, 0.28) !important;
-  border-radius: 50% !important;
-  background: rgba(239, 246, 255, 0.92) !important;
-  color: #061942 !important;
-  padding: 0 !important;
+  border: 1px solid rgba(89, 126, 180, 0.28);
+  border-radius: 50%;
+  background: rgba(239, 246, 255, 0.92);
+  color: #061942;
+  padding: 0;
   box-shadow:
     0 12px 28px rgba(6, 25, 66, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -7153,7 +7153,7 @@
 }
 
 .landing-modal-close::before {
-  content: none !important;
+  content: none;
 }
 
 .landing-modal-close span {
@@ -7166,8 +7166,8 @@
 }
 
 .landing-modal-close:hover {
-  border-color: rgba(21, 94, 232, 0.48) !important;
-  background: #ffffff !important;
+  border-color: rgba(21, 94, 232, 0.48);
+  background: #ffffff;
   box-shadow: 0 16px 34px rgba(6, 25, 66, 0.24);
   transform: translateY(-2px);
 }
