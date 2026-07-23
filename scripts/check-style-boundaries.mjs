@@ -36,6 +36,9 @@ const sourceFiles = walk("src").filter((file) => /\.(css|tsx?|jsx?)$/.test(file)
 const retiredAdminThemePattern = new RegExp(["win", "95"].join(""), "i");
 for (const file of sourceFiles) {
   const text = read(file);
+  if (text.includes("bootstrap/dist/css") || text.includes("bootstrap/dist/js")) {
+    problems.push(`${file} imports Bootstrap globally. Use scoped Screenia styles instead.`);
+  }
   if (text.includes(retiredPublicInfoFile)) {
     problems.push(`${file} still imports or references the retired public info stylesheet name.`);
   }
@@ -96,6 +99,11 @@ for (const selector of bannedGlobalSelectors) {
 const publicInfo = read("src/app/public-info.css");
 if (publicInfo.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
+}
+
+const packageJson = JSON.parse(read("package.json"));
+if (packageJson.dependencies?.bootstrap || packageJson.devDependencies?.bootstrap) {
+  problems.push("package.json still includes Bootstrap. Avoid broad third-party CSS that can override Screenia styles.");
 }
 
 const allowedPublicInfoNavLines = [
