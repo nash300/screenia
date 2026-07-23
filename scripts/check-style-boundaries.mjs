@@ -601,6 +601,7 @@ for (const singleOwnerLandingSelector of [
   ".landing-footer nav",
   ".landing-footer a",
   ".landing-footer p",
+  ".landing-page main > .landing-section-surface",
   ".contact-main",
   ".contact-form-wrap",
   ".contact-form-wrap::before",
@@ -703,6 +704,22 @@ for (const retiredContactOverride of [
 ]) {
   if (landingCss.includes(retiredContactOverride)) {
     problems.push(`src/app/landing.css must not keep retired contact override pattern: ${retiredContactOverride}`);
+  }
+}
+
+for (const retiredPublicThemeOverride of [
+  ".landing-page main > .landing-section-surface {\n  position: relative;\n}",
+  ".landing-page main > .landing-section-surface {\n  background:\n    radial-gradient(circle at 8% 12%",
+  ".landing-section-surface {\n  border-radius: 0;",
+  "url(\"/landing/section-art/platform-workflow.jpg\") no-repeat center / cover !important",
+  "url(\"/landing/section-art/platform-workflow.jpg\") no-repeat fixed center / cover !important",
+  "url(\"/landing/section-art/platform-workflow.jpg\") center / cover !important",
+  ".landing-workflow-step:hover {\n  border-color: rgba(255, 210, 31, 0.34) !important;",
+  "linear-gradient(145deg, #6d8dff, #2f7df6 64%, #0a3eaa) !important;",
+  "rgba(5, 20, 55, 0.56) !important;",
+]) {
+  if (landingCss.includes(retiredPublicThemeOverride)) {
+    problems.push(`src/app/landing.css must not keep retired public theme override pattern: ${retiredPublicThemeOverride}`);
   }
 }
 
