@@ -15,7 +15,7 @@ export default function AdminLayout({
 }) {
   return (
     <div className="admin-layout">
-      <aside className="admin-sidebar fixed left-0 top-0 z-40 flex h-screen w-72 flex-col overflow-hidden shadow-2xl">
+      <aside className="admin-sidebar">
         <div className="admin-window-titlebar">
           <span className="admin-window-titlebar-text">Screenia Admin</span>
         </div>
@@ -48,7 +48,7 @@ export default function AdminLayout({
           </Suspense>
       </aside>
 
-      <main className="ml-72 min-h-screen">
+      <main className="admin-main">
         <div className="admin-page">
           <Suspense fallback={null}>
             <AdminBreadcrumbs />
