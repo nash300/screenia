@@ -80,7 +80,7 @@
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.94)),
     #ffffff;
-  padding: 0.75rem !important;
+  padding: 0.75rem;
   color: var(--admin-surface-text);
   box-shadow: 10px 0 34px rgba(7, 31, 84, 0.08);
 }
@@ -1788,7 +1788,7 @@
 .admin-customers-create {
   position: relative;
   display: block;
-  padding: 0 !important;
+  padding: 0;
 }
 
 .admin-customers-list-panel {
@@ -3819,10 +3819,10 @@
 }
 
 .admin-operation-kicker {
-  margin: 0 !important;
-  color: #2f7df6 !important;
-  font-size: 0.68rem !important;
-  font-weight: 950 !important;
+  margin: 0;
+  color: #2f7df6;
+  font-size: 0.68rem;
+  font-weight: 950;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -5343,8 +5343,8 @@
 .admin-priority-title,
 .admin-progress-header strong,
 .admin-status-row strong {
-  color: #061942 !important;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif !important;
+  color: #061942;
+  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
 }
 
 .admin-page-header,
@@ -6033,7 +6033,7 @@
 
 .admin-customers-create-submit {
   width: fit-content;
-  margin-top: 0 !important;
+  margin-top: 0;
 }
 
 .admin-customer-status-active {
@@ -6985,7 +6985,7 @@
 
 .admin-work-queue-header .admin-card-title {
   display: block;
-  margin: 0.15rem 0 0.3rem !important;
+  margin: 0.15rem 0 0.3rem;
   padding: 0;
   border: 0;
   font-size: 1.25rem;
@@ -7336,7 +7336,7 @@
 
 @media (max-width: 900px) {
   .admin-sidebar > .relative {
-    padding: 0.85rem 1rem !important;
+    padding: 0.85rem 1rem;
   }
 
   .admin-sidebar-logo-card .screenia-logo-wordmark {
@@ -7350,7 +7350,7 @@
 
   .admin-sidebar nav {
     overflow: visible;
-    padding: 0 0.75rem 0.75rem !important;
+    padding: 0 0.75rem 0.75rem;
   }
 
   .admin-nav-group {
@@ -7364,7 +7364,7 @@
   }
 
   .admin-nav-link {
-    margin: 0 !important;
+    margin: 0;
     min-width: 0;
   }
 
@@ -7477,7 +7477,7 @@
 
 .admin-orders-toolbar-panel,
 .admin-orders-list-panel {
-  padding: clamp(0.95rem, 1.6vw, 1.25rem) !important;
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
 
 .admin-orders-toolbar-heading,
@@ -7705,7 +7705,7 @@
 
 .admin-layout .admin-queue-pagination button {
   min-height: 32px;
-  padding: 0.35rem 0.65rem !important;
+  padding: 0.35rem 0.65rem;
 }
 
 .admin-layout .admin-queue-pagination button:disabled {

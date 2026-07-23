@@ -1311,7 +1311,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 16,
+    max: 0,
   },
   {
     file: "src/app/landing.css",
