@@ -187,6 +187,7 @@ for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
 }
 
 const adminCss = read("src/app/admin/admin.css");
+const landingCss = read("src/app/landing.css");
 const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
@@ -195,7 +196,7 @@ const importantRatchets = [
   },
   {
     file: "src/app/landing.css",
-    css: read("src/app/landing.css"),
+    css: landingCss,
     max: 408,
   },
 ];
@@ -226,6 +227,17 @@ for (const { token, message } of retiredAdminTokenNames) {
 
 if (adminCss.includes('content: "Screenia Admin"')) {
   problems.push("src/app/admin/admin.css contains the retired generated page-shell titlebar. Use the real admin layout titlebar instead.");
+}
+
+if (landingCss.includes('font-family: "Carter One"')) {
+  problems.push("src/app/landing.css declares the unused Carter One font. Remove retired font-face declarations.");
+}
+
+for (const token of ["--landing-font-body", "--landing-font-ui", "--landing-font-display"]) {
+  const count = countOccurrences(landingCss, new RegExp(`${token}:`, "g"));
+  if (count !== 1) {
+    problems.push(`src/app/landing.css should define ${token} exactly once; found ${count}.`);
+  }
 }
 
 const retiredAdminButtonPatterns = [
@@ -261,7 +273,6 @@ const allowedPublicInfoNavLines = [
   ".about-page .landing-nav-primary a.is-active::after",
 ];
 
-const landingCss = read("src/app/landing.css");
 const temporaryLandingClassPattern = /\.landing-[a-z0-9-]*(?:-(?:old|new|placeholder))(?:\b|-)/;
 
 function requireCssBlock(cssText, selector, checks) {
