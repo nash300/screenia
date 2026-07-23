@@ -166,6 +166,7 @@ const privacyIncidentsPageSource = read("src/app/admin/privacy-incidents/page.ts
 const processorReviewsPageSource = read("src/app/admin/processor-reviews/page.tsx");
 const backupDrillsPageSource = read("src/app/admin/backup-drills/page.tsx");
 const taxPaymentsPageSource = read("src/app/admin/tax-payments/page.tsx");
+const legalChangeNoticesPageSource = read("src/app/admin/legal-change-notices/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -545,6 +546,7 @@ for (const [pageName, pageSource] of [
   ["processor-reviews", processorReviewsPageSource],
   ["backup-drills", backupDrillsPageSource],
   ["tax-payments", taxPaymentsPageSource],
+  ["legal-change-notices", legalChangeNoticesPageSource],
 ]) {
   if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex items-center gap-2|flex flex-wrap gap-2)\b/.test(pageSource)) {
     problems.push(`The admin ${pageName} page must use explicit admin-record-* classes instead of broad utility class styling.`);
@@ -571,6 +573,7 @@ for (const className of [
     ["processor-reviews", processorReviewsPageSource],
     ["backup-drills", backupDrillsPageSource],
     ["tax-payments", taxPaymentsPageSource],
+    ["legal-change-notices", legalChangeNoticesPageSource],
   ]) {
     if (!pageSource.includes(className)) {
       problems.push(`The admin ${pageName} page must expose the explicit ${className} class.`);
@@ -582,6 +585,7 @@ for (const [pageName, pageSource] of [
   ["access-reviews", accessReviewsPageSource],
   ["privacy-incidents", privacyIncidentsPageSource],
   ["processor-reviews", processorReviewsPageSource],
+  ["legal-change-notices", legalChangeNoticesPageSource],
 ]) {
   if (!pageSource.includes("admin-record-check")) {
     problems.push(`The admin ${pageName} page must expose the explicit admin-record-check class.`);
