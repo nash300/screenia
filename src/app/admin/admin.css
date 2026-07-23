@@ -1771,55 +1771,30 @@
    CUSTOMERS PAGE COMPACT SCROLL LAYOUT
 ========================================= */
 .admin-customers-page {
-  display: flex;
-  height: calc(100vh - 1.5rem);
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
+  height: auto;
+  min-height: calc(100vh - 1.5rem);
+  overflow: visible;
+  gap: 0.7rem;
 }
 
 .admin-customers-page .admin-page-header {
-  flex: 0 0 auto;
+  padding: 0.8rem 1rem;
 }
 
-.admin-customers-controls {
-  display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.admin-customers-create,
-.admin-customers-list-panel {
+.admin-customers-toolbar {
   position: relative;
 }
 
-.admin-customers-create::before,
-.admin-customers-list-panel::before {
+.admin-customers-create {
+  position: relative;
   display: block;
-  margin: -0.75rem -0.75rem 0.65rem;
-  border-bottom: 2px solid var(--admin-section-header-border);
-  border-radius: var(--admin-radius-md) var(--admin-radius-md) 0 0;
-  background: linear-gradient(90deg, var(--admin-section-header), #f4f7f8);
-  padding: 0.35rem 0.55rem;
-  color: var(--admin-titlebar-start);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.admin-customers-create::before {
-  content: "New record";
-}
-
-.admin-customers-list-panel::before {
-  content: "Records";
+  padding: 0 !important;
 }
 
 .admin-customers-list-panel {
+  position: relative;
   display: flex;
-  min-height: 0;
+  min-height: 300px;
   flex: 1 1 auto;
   flex-direction: column;
   overflow: hidden;
@@ -5916,23 +5891,6 @@
 }
 
 /* Compact customer work surface: common actions first, infrequent entry collapsed. */
-.admin-customers-page {
-  height: auto;
-  min-height: calc(100vh - 1.5rem);
-  overflow: visible;
-  gap: 0.7rem;
-}
-
-.admin-customers-page .admin-page-header {
-  padding: 0.8rem 1rem;
-}
-
-.admin-customers-toolbar,
-.admin-customers-create,
-.admin-customers-list-panel {
-  position: relative;
-}
-
 .admin-customers-toolbar {
   display: grid;
   gap: 0.7rem;
@@ -6000,10 +5958,6 @@
   border-radius: 999px;
   background: rgba(47, 125, 246, 0.12);
   font-size: 0.7rem;
-}
-
-.admin-customers-create {
-  padding: 0 !important;
 }
 
 .admin-customers-create::before,
@@ -6120,10 +6074,6 @@
 .admin-customer-status-default {
   background: #f1f5f9;
   color: #334155;
-}
-
-.admin-customers-list-panel {
-  min-height: 300px;
 }
 
 .admin-customers-list-heading {
@@ -6868,31 +6818,6 @@
 .admin-inventory-header-actions,
 .admin-inventory-form-actions {
   align-items: center;
-}
-
-.admin-customers-create {
-  display: block;
-}
-
-.admin-customers-create label {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.admin-customers-create > label {
-  margin-top: 1rem;
-}
-
-.admin-customers-create textarea {
-  display: block;
-  min-height: 86px;
-  resize: vertical;
-}
-
-.admin-customers-create > .admin-button-primary {
-  width: fit-content;
-  margin-top: 1rem !important;
-  clear: both;
 }
 
 @media (max-width: 900px) {

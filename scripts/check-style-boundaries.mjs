@@ -1235,6 +1235,9 @@ for (const singleOwnerAdminSelector of [
   ".admin-status-danger",
   ".admin-status-info",
   ".admin-priority-title",
+  ".admin-customers-page .admin-page-header",
+  ".admin-customers-list-panel",
+  ".admin-customers-create",
   ".admin-sidebar-logo-card",
   ".admin-sidebar-logo-card .screenia-logo",
   ".admin-sidebar-logo-card .screenia-logo-wordmark",
@@ -1263,6 +1266,16 @@ if (
   /admin-dashboard-page,[\s\S]*?\.admin-order-list,[\s\S]*?admin-customers-page/.test(adminCss)
 ) {
   problems.push("src/app/admin/admin.css must not include .admin-order-list in page-shell grouped layout selectors; it is the scrollable order queue list.");
+}
+
+for (const retiredCustomerCreateSelector of [
+  ".admin-customers-create label {",
+  ".admin-customers-create > label {",
+  ".admin-customers-create > .admin-button-primary {",
+]) {
+  if (adminCss.includes(retiredCustomerCreateSelector)) {
+    problems.push(`src/app/admin/admin.css must not keep retired direct customer-create form selector ${retiredCustomerCreateSelector}`);
+  }
 }
 
 if (adminCss.includes('content: "Screenia Admin"')) {
