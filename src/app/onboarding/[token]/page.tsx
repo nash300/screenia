@@ -360,7 +360,11 @@ function WizardSteps({ active }: { active: WizardStep }) {
       {stepOrder.map((stepName, index) => (
         <div
           key={stepName}
-          className={`flow-step ${index <= activeIndex ? "is-active" : ""}`}
+          className={
+            index <= activeIndex
+              ? "flow-step flow-step-active"
+              : "flow-step"
+          }
         >
           <span>{index + 1}</span>
           <strong>{stepLabels[stepName]}</strong>

@@ -214,6 +214,8 @@ const landingCss = read("src/app/landing.css");
 const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
 const landingNavSource = read("src/components/LandingNav.tsx");
 const landingPageSource = read("src/app/page.tsx");
+const accountPageSource = read("src/app/account/page.tsx");
+const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -253,6 +255,35 @@ if (landingCss.includes(".landing-hero-dots button.is-active")) {
 
 if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {
   problems.push("src/app/landing.css must define the explicit landing-hero-dot-active selector.");
+}
+
+if (accountPageSource.includes('"is-active"')) {
+  problems.push("The account page must use explicit component state class names instead of generic is-active.");
+}
+
+for (const className of ["account-menu-button-active", "account-card-active"]) {
+  if (!accountPageSource.includes(className)) {
+    problems.push(`The account page must expose the explicit ${className} state class.`);
+  }
+  if (!landingCss.includes(className)) {
+    problems.push(`src/app/landing.css must define the explicit ${className} selector.`);
+  }
+}
+
+if (onboardingPageSource.includes('"is-active"')) {
+  problems.push("The onboarding page must use flow-step-active instead of generic is-active.");
+}
+
+if (!onboardingPageSource.includes("flow-step-active")) {
+  problems.push("The onboarding page must expose the explicit flow-step-active state class.");
+}
+
+if (landingCss.includes(".flow-step.is-active")) {
+  problems.push("src/app/landing.css must style flow-step-active instead of generic flow-step.is-active.");
+}
+
+if (!landingCss.includes(".flow-step.flow-step-active")) {
+  problems.push("src/app/landing.css must define the explicit flow-step-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");

@@ -898,7 +898,11 @@ export default function AccountPage() {
               <button
                 key={section.id}
                 type="button"
-                className={activeSection === section.id ? "is-active" : ""}
+                className={
+                  activeSection === section.id
+                    ? "account-menu-button-active"
+                    : undefined
+                }
                 onClick={() => setActiveSection(section.id)}
               >
                 <strong>{section.label}</strong>
@@ -1888,7 +1892,7 @@ function AccountChoice({
   return (
     <button
       type="button"
-      className={`account-card ${active ? "is-active" : ""}`}
+      className={active ? "account-card account-card-active" : "account-card"}
       onClick={onClick}
     >
       <strong>{title}</strong>
