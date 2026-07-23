@@ -216,6 +216,7 @@ const landingNavSource = read("src/components/LandingNav.tsx");
 const landingPageSource = read("src/app/page.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
+const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -284,6 +285,22 @@ if (landingCss.includes(".flow-step.is-active")) {
 
 if (!landingCss.includes(".flow-step.flow-step-active")) {
   problems.push("src/app/landing.css must define the explicit flow-step-active selector.");
+}
+
+if (emailEventsPageSource.includes('"is-active"')) {
+  problems.push("The admin email-events page must use admin-email-filter-active instead of generic is-active.");
+}
+
+if (!emailEventsPageSource.includes("admin-email-filter-active")) {
+  problems.push("The admin email-events page must expose the explicit admin-email-filter-active state class.");
+}
+
+if (adminCss.includes(".admin-email-filter-row button.is-active")) {
+  problems.push("src/app/admin/admin.css must style admin-email-filter-active instead of generic email filter is-active.");
+}
+
+if (!adminCss.includes(".admin-email-filter-row button.admin-email-filter-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-email-filter-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");

@@ -1315,7 +1315,7 @@
 }
 
 .admin-email-filter-row button:hover,
-.admin-email-filter-row button.is-active {
+.admin-email-filter-row button.admin-email-filter-active {
   background: linear-gradient(135deg, #2f7df6, #66a5ff) !important;
   color: #ffffff !important;
 }
