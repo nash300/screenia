@@ -283,7 +283,12 @@ if (landingCss.includes(":is(")) {
   problems.push("src/app/landing.css should use explicit selectors instead of :is(...) groups.");
 }
 
-for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
+for (const file of [
+  "src/app/globals.css",
+  "src/app/public-info.css",
+  "src/app/landing.css",
+  "src/app/admin/admin.css",
+]) {
   const duplicates = findDuplicateBaseSelectors(read(file));
   if (duplicates.length) {
     problems.push(

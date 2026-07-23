@@ -1501,7 +1501,10 @@
 }
 
 .landing-section-heading {
-  max-width: 720px;
+  position: relative;
+  display: grid;
+  max-width: 900px;
+  gap: 12px;
 }
 
 .landing-section-heading h2,
@@ -1512,6 +1515,7 @@
 
 .landing-section-heading p {
   margin: 16px 0 0;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
 }
 
 .landing-feature-grid {
@@ -1525,15 +1529,6 @@
 .landing-pricing .landing-section-heading p,
 .landing-faq .landing-section-heading p {
   color: var(--landing-muted);
-}
-
-.landing-pricing .landing-section-heading h2 {
-  font-size: clamp(1.85rem, 3.4vw, 3rem);
-}
-
-.landing-pricing .landing-section-heading p {
-  max-width: 760px;
-  font-size: 0.96rem;
 }
 
 .landing-illustration-grid {
@@ -3733,14 +3728,6 @@
   display: none;
 }
 
-.landing-section-heading {
-  max-width: 900px;
-}
-
-.landing-section-heading p {
-  font-size: clamp(1rem, 1.4vw, 1.15rem);
-}
-
 .landing-pricing .landing-plan-badge,
 .landing-pricing .landing-price-row,
 .landing-hero-benefit,
@@ -3773,12 +3760,6 @@
 
 .landing-examples .landing-section-heading > p:last-child {
   color: rgba(255, 255, 255, 0.78);
-}
-
-.landing-section-heading {
-  position: relative;
-  display: grid;
-  gap: 12px;
 }
 
 @media (max-width: 640px) {
@@ -4365,10 +4346,6 @@
 
 .landing-examples .landing-section-heading h2 {
   color: #ffffff;
-}
-
-.landing-examples .landing-section-heading > p:last-child {
-  color: rgba(255, 255, 255, 0.78);
 }
 
 .landing-service-film-copy h2 {
@@ -5048,12 +5025,14 @@
 .landing-pricing .landing-section-heading h2 {
   max-width: 13ch;
   margin: 0;
+  font-size: clamp(1.85rem, 3.4vw, 3rem);
   text-wrap: balance;
 }
 
 .landing-pricing .landing-section-heading p {
-  max-width: 70ch;
   margin-top: 14px;
+  max-width: 70ch;
+  font-size: 0.96rem;
 }
 
 .landing-pricing .landing-price-grid {
