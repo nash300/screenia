@@ -349,6 +349,16 @@ if (adminCss.includes(".admin-contact-filters button.is-active")) {
   problems.push("src/app/admin/admin.css must not keep retired contact filter is-active styling.");
 }
 
+for (const retiredFilterClass of [
+  "admin-order-filter-row",
+  "admin-inventory-filter-row",
+  "admin-order-section-filters",
+]) {
+  if (adminCss.includes(retiredFilterClass)) {
+    problems.push(`src/app/admin/admin.css still contains retired ${retiredFilterClass} button-filter styling. Use current select/list controls instead.`);
+  }
+}
+
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
 if (duplicateAdminTokens.length) {
   problems.push(

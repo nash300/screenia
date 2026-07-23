@@ -727,32 +727,6 @@
   box-shadow: 0 0 0 4px rgba(47, 125, 246, 0.14);
 }
 
-.admin-order-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.admin-order-filter-row button {
-  border: 0;
-  border-radius: 999px;
-  background: #eef5ff;
-  color: #155ee8;
-  padding: 10px 14px;
-  font-size: 0.82rem;
-  font-weight: 900;
-  text-transform: capitalize;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
-}
-
-.admin-order-filter-row button:hover,
-.admin-order-filter-row button.is-active {
-  background: #2f7df6;
-  color: #ffffff;
-  box-shadow: 0 12px 28px rgba(47, 125, 246, 0.22);
-  transform: translateY(-1px);
-}
-
 .admin-order-list {
   display: grid;
   gap: 16px;
@@ -3774,7 +3748,6 @@
 
 .admin-inventory-header-actions,
 .admin-inventory-form-actions,
-.admin-inventory-filter-row,
 .admin-inventory-actions {
   display: flex;
   flex-wrap: wrap;
@@ -3935,17 +3908,11 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12) !important;
 }
 
-.admin-inventory-filter-row button,
 .admin-inventory-actions button {
   width: auto;
   min-height: 34px;
   padding: 0.45rem 0.68rem;
   font-size: 0.78rem;
-}
-
-.admin-inventory-filter-row button.is-active {
-  background: linear-gradient(135deg, #061942, #2f7df6) !important;
-  color: #ffffff !important;
 }
 
 .admin-inventory-type-row {
@@ -5230,8 +5197,7 @@
 .admin-pricing-actions,
 .admin-order-action-row,
 .admin-inventory-header-actions,
-.admin-inventory-form-actions,
-.admin-inventory-filter-row {
+.admin-inventory-form-actions {
   align-items: center;
 }
 
@@ -5367,8 +5333,7 @@
 .admin-pricing-actions,
 .admin-order-action-row,
 .admin-inventory-header-actions,
-.admin-inventory-form-actions,
-.admin-inventory-filter-row {
+.admin-inventory-form-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -5905,8 +5870,7 @@
   .admin-pricing-actions,
   .admin-order-action-row,
   .admin-inventory-header-actions,
-  .admin-inventory-form-actions,
-  .admin-inventory-filter-row {
+  .admin-inventory-form-actions {
     justify-content: flex-start;
   }
 }
@@ -5917,8 +5881,7 @@
   .admin-pricing-actions,
   .admin-order-action-row,
   .admin-inventory-header-actions,
-  .admin-inventory-form-actions,
-  .admin-inventory-filter-row {
+  .admin-inventory-form-actions {
     align-items: stretch;
     flex-direction: column;
   }
@@ -6247,42 +6210,6 @@
   z-index: 2;
 }
 
-.admin-order-section-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.admin-layout .admin-order-section-filters button {
-  min-height: 34px;
-  border-color: rgba(47, 125, 246, 0.18) !important;
-  background: #ffffff !important;
-  color: var(--admin-text) !important;
-  padding: 0.42rem 0.68rem !important;
-  box-shadow: none !important;
-}
-
-.admin-layout .admin-order-section-filters button.is-active {
-  border-color: transparent !important;
-  background: linear-gradient(135deg, var(--admin-blue), var(--admin-blue-dark)) !important;
-  color: #ffffff !important;
-}
-
-.admin-order-section-filters button span {
-  display: inline-grid;
-  min-width: 1.35rem;
-  height: 1.35rem;
-  margin-left: 0.3rem;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(47, 125, 246, 0.12);
-  font-size: 0.7rem;
-}
-
-.admin-order-section-filters button.is-active span {
-  background: rgba(255, 255, 255, 0.2);
-}
-
 .admin-orders-list-panel {
   min-height: 300px;
 }
@@ -6392,10 +6319,6 @@
 
   .admin-inventory-type-row {
     grid-template-columns: 1fr;
-  }
-
-  .admin-layout .admin-order-section-filters button {
-    flex: 1 1 calc(50% - 0.45rem);
   }
 
   .admin-queue-pagination {
