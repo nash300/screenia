@@ -3427,16 +3427,16 @@ export default function CustomerDetailPage({
       ============================== */}
       {activeSection === "devices" && (
       <>
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Device allocation</h2>
+      <div className="admin-card admin-customer-device-panel">
+        <h2 className="admin-card-title admin-customer-device-title">Device allocation</h2>
 
-        <p className="admin-muted mt-2 text-sm">
+        <p className="admin-muted admin-customer-device-intro">
           Assign available stock to this customer&apos;s paid device entitlement and
           create display endpoints after onboarding. Stock purchase records,
           warranty, returns, and repairs stay in Hardware stock.
         </p>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <div className="admin-customer-device-slots">
           <InfoTile
             label="Paid display slots"
             value={paidDeviceQuantity ? String(paidDeviceQuantity) : "None"}
@@ -3449,14 +3449,14 @@ export default function CustomerDetailPage({
         </div>
 
         {remainingDeviceSlots < 1 ? (
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+          <div className="admin-customer-device-warning">
             {paidDeviceQuantity < 1
               ? "This customer has no eligible paid display entitlement. Resolve payment and service access before assigning hardware or creating a display endpoint."
               : "This customer already has the paid number of active displays. Return or deactivate a faulty display before assigning a replacement, or update the subscription quantity first."}
           </div>
         ) : null}
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="admin-customer-device-actions">
           {remainingDeviceSlots > 0 ? (
             <Link
               href={`/admin/devices/new?customerId=${customer.id}`}
@@ -3467,7 +3467,7 @@ export default function CustomerDetailPage({
           ) : (
             <span
               aria-disabled="true"
-              className="admin-button-primary cursor-not-allowed opacity-50"
+              className="admin-button-primary admin-button-disabled"
               title="A paid available display slot is required."
             >
               Create display endpoint
@@ -3478,26 +3478,26 @@ export default function CustomerDetailPage({
           </Link>
         </div>
 
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="admin-customer-stock-panel">
+          <div className="admin-customer-stock-header">
             <div>
-              <h3 className="text-base font-black text-slate-950">
+              <h3>
                 Allocate existing stock
               </h3>
-              <p className="admin-muted mt-1 text-sm">
+              <p>
                 Filter available stock by package type or hardware model, then
                 allocate a physical unit to this customer.
               </p>
             </div>
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <label className="text-sm font-semibold text-slate-700">
+          <div className="admin-customer-stock-filter-grid">
+            <label className="admin-customer-stock-field">
               Package type
               <select
                 value={stockTypeFilter}
                 onChange={(event) => setStockTypeFilter(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-stock-control"
               >
                 <option value="all">All package types</option>
                 <option value="standard_fhd">Standard FHD</option>
@@ -3507,12 +3507,12 @@ export default function CustomerDetailPage({
               </select>
             </label>
 
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="admin-customer-stock-field">
               Hardware model
               <select
                 value={stockModelFilter}
                 onChange={(event) => setStockModelFilter(event.target.value)}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-stock-control"
               >
                 <option value="all">All models</option>
                 {stockModelOptions.map((model) => (
@@ -3524,68 +3524,68 @@ export default function CustomerDetailPage({
             </label>
           </div>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <label className="text-sm font-semibold text-slate-700">
+          <div className="admin-customer-stock-filter-grid">
+            <label className="admin-customer-stock-field">
               Customer screen location
               <input
                 value={stockAllocationLocation}
                 onChange={(event) => setStockAllocationLocation(event.target.value)}
                 placeholder="Reception, entrance, menu board..."
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-stock-control"
               />
             </label>
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="admin-customer-stock-field">
               Allocation reason
               <textarea
                 value={stockAllocationReason}
                 onChange={(event) => setStockAllocationReason(event.target.value)}
                 placeholder="Example: Customer paid for Premium 4K and this unit is prepared for installation."
                 rows={3}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-stock-control"
               />
             </label>
           </div>
 
           {filteredStockItems.length === 0 ? (
-            <p className="admin-muted mt-4 text-sm">
+            <p className="admin-muted admin-customer-stock-empty">
               No available stock matches this filter.
             </p>
           ) : (
-            <div className="admin-scroll-region mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="admin-scroll-region admin-customer-stock-list">
               {filteredStockItems.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-slate-200 bg-white p-4"
+                  className="admin-customer-stock-item"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="admin-customer-stock-item-header">
                     <div>
-                      <p className="font-black text-slate-950">
+                      <p className="admin-customer-stock-item-code">
                         {item.item_code}
                       </p>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="admin-customer-stock-item-meta">
                         {inventoryTypeLabel(item.item_type)} |{" "}
                         {item.model || "Model missing"}
                       </p>
                     </div>
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black uppercase text-emerald-700">
+                    <span className="admin-customer-stock-status">
                       In stock
                     </span>
                   </div>
-                  <dl className="mt-3 grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
+                  <dl className="admin-customer-stock-detail-grid">
                     <div>
-                      <dt className="font-bold text-slate-900">Serial</dt>
+                      <dt>Serial</dt>
                       <dd>{item.serial_number || "Missing"}</dd>
                     </div>
                     <div>
-                      <dt className="font-bold text-slate-900">Condition</dt>
+                      <dt>Condition</dt>
                       <dd>{item.condition}</dd>
                     </div>
                     <div>
-                      <dt className="font-bold text-slate-900">Make</dt>
+                      <dt>Make</dt>
                       <dd>{item.make || "Not set"}</dd>
                     </div>
                     <div>
-                      <dt className="font-bold text-slate-900">Seller</dt>
+                      <dt>Seller</dt>
                       <dd>{item.seller || "Not set"}</dd>
                     </div>
                   </dl>
@@ -3598,7 +3598,7 @@ export default function CustomerDetailPage({
                       remainingDeviceSlots < 1 ||
                       !stockAllocationReason.trim()
                     }
-                    className="admin-button-primary mt-4 disabled:opacity-50"
+                    className="admin-button-primary admin-customer-stock-allocate"
                   >
                     {allocatingStockItemId === item.id
                       ? "Allocating..."
