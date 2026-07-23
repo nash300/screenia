@@ -1229,6 +1229,8 @@ for (const singleOwnerAdminSelector of [
   ".admin-card-title",
   ".admin-stat-card",
   ".admin-stat-value",
+  ".admin-inline-flow",
+  ".admin-inline-flow-actions",
 ]) {
   const selectorCount = countOccurrences(
     adminCss,

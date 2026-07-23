@@ -4069,13 +4069,13 @@
 
 .admin-inline-flow {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.8rem;
   margin-top: 0.65rem;
   min-width: min(100%, 280px);
-  border: 1px solid rgba(47, 125, 246, 0.16);
-  border-radius: 8px;
-  background: #f8fbff;
-  padding: 0.65rem;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: var(--admin-radius-lg);
+  background: linear-gradient(135deg, #ffffff, #f7fbff);
+  padding: 1rem;
 }
 
 .admin-inline-flow label {
@@ -4100,7 +4100,9 @@
 
 .admin-inline-flow-actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
+  justify-content: flex-start;
   gap: 0.45rem;
 }
 
@@ -6933,14 +6935,6 @@
   display: none;
 }
 
-.admin-inline-flow {
-  border: 1px solid rgba(47, 125, 246, 0.14);
-  border-radius: var(--admin-radius-lg);
-  background: linear-gradient(135deg, #ffffff, #f7fbff);
-  padding: 1rem;
-}
-
-.admin-inline-flow-actions,
 .admin-dashboard-header-actions,
 .admin-pricing-actions,
 .admin-order-action-row,
@@ -7090,15 +7084,6 @@
 .admin-data-table th,
 .admin-data-table td {
   vertical-align: top;
-}
-
-.admin-inline-flow {
-  display: grid;
-  gap: 0.8rem;
-}
-
-.admin-inline-flow-actions {
-  justify-content: flex-start;
 }
 
 .admin-dashboard-panel article,
