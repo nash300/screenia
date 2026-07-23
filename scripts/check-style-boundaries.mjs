@@ -224,6 +224,10 @@ for (const { token, message } of retiredAdminTokenNames) {
   }
 }
 
+if (adminCss.includes('content: "Screenia Admin"')) {
+  problems.push("src/app/admin/admin.css contains the retired generated page-shell titlebar. Use the real admin layout titlebar instead.");
+}
+
 const retiredAdminButtonPatterns = [
   {
     pattern: ".admin-layout .bg-slate-950",
