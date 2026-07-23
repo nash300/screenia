@@ -3207,6 +3207,208 @@
   color: #ffffff;
 }
 
+.admin-customer-material-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-customer-material-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-customer-material-title {
+  font-size: 1rem;
+}
+
+.admin-customer-material-intro {
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+}
+
+.admin-customer-preview-panel {
+  margin-top: 1.25rem;
+  border: 1px solid rgba(8, 184, 238, 0.22);
+  border-radius: 14px;
+  background: rgba(236, 254, 255, 0.72);
+  padding: 0.9rem;
+}
+
+.admin-customer-preview-header,
+.admin-customer-material-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-customer-preview-header {
+  align-items: flex-start;
+}
+
+.admin-customer-preview-header h3 {
+  margin: 0;
+  color: #061942;
+  font-size: 1rem;
+  font-weight: 850;
+}
+
+.admin-customer-preview-header p {
+  margin: 0.25rem 0 0;
+  color: #52627a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.admin-customer-preview-status {
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 0.25rem 0.65rem;
+  color: #155e75;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.admin-customer-preview-grid,
+.admin-customer-material-review-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-customer-preview-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
+}
+
+.admin-customer-material-review-grid {
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+}
+
+.admin-customer-material-field {
+  display: grid;
+  gap: 0.35rem;
+  color: #334155;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.admin-customer-material-control {
+  width: 100%;
+  min-height: 2.45rem;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 0.55rem 0.7rem;
+  color: #061942;
+  font: inherit;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.admin-customer-material-control:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12);
+}
+
+.admin-customer-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-customer-preview-actions p {
+  max-width: 42rem;
+  margin: 0;
+  color: #52627a;
+  font-size: 0.75rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.admin-customer-preview-feedback {
+  margin: 0.75rem 0 0;
+  border: 1px solid rgba(217, 119, 6, 0.24);
+  border-radius: 10px;
+  background: rgba(255, 251, 235, 0.9);
+  padding: 0.55rem 0.7rem;
+  color: #78350f;
+  font-size: 0.82rem;
+}
+
+.admin-customer-material-empty,
+.admin-customer-material-list {
+  margin-top: 1rem;
+}
+
+.admin-customer-material-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.admin-customer-material-card {
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.85rem;
+}
+
+.admin-customer-material-card-header {
+  align-items: flex-start;
+}
+
+.admin-customer-material-name {
+  margin: 0;
+  color: #061942;
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.admin-customer-material-meta,
+.admin-customer-material-description {
+  color: #52627a;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.admin-customer-material-meta {
+  margin: 0.25rem 0 0;
+}
+
+.admin-customer-material-description {
+  margin: 0.75rem 0 0;
+  white-space: pre-wrap;
+}
+
+.admin-customer-material-review {
+  margin-top: 1rem;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 14px;
+  background: rgba(248, 251, 255, 0.82);
+  padding: 0.9rem;
+}
+
+.admin-customer-material-reason-field {
+  margin-top: 0.75rem;
+}
+
+.admin-customer-material-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-customer-material-review-actions span {
+  color: #52627a;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
 .admin-customer-device-panel {
   padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
@@ -3462,6 +3664,8 @@
   }
 
   .admin-customer-device-slots,
+  .admin-customer-preview-grid,
+  .admin-customer-material-review-grid,
   .admin-customer-stock-filter-grid,
   .admin-customer-stock-list,
   .admin-customer-stock-detail-grid {

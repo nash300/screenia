@@ -3012,42 +3012,42 @@ export default function CustomerDetailPage({
           Customer Display Material
       ============================== */}
       {activeSection === "communication" && communicationView === "uploads" && (
-      <div className="admin-card p-6">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+      <div className="admin-card admin-customer-material-panel">
+        <div className="admin-customer-material-header">
           <div>
-            <h2 className="admin-card-title text-xl">Display material</h2>
-            <p className="admin-muted mt-2 text-sm">
+            <h2 className="admin-card-title admin-customer-material-title">Display material</h2>
+            <p className="admin-muted admin-customer-material-intro">
               Material uploaded from onboarding and the customer portal.
             </p>
           </div>
         </div>
 
-        <div className="mt-5 rounded-2xl border border-cyan-200 bg-cyan-50/70 p-4">
-          <div className="flex flex-col justify-between gap-2 md:flex-row md:items-start">
+        <div className="admin-customer-preview-panel">
+          <div className="admin-customer-preview-header">
             <div>
-              <h3 className="font-semibold text-slate-950">Customer design preview</h3>
-              <p className="mt-1 text-sm text-slate-600">
+              <h3>Customer design preview</h3>
+              <p>
                 Publish a view-only Canva or web preview. The customer can approve it or
                 request changes from the portal.
               </p>
             </div>
-            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-cyan-800">
+            <span className="admin-customer-preview-status">
               {customer?.preview_status
                 ? customer.preview_status.replaceAll("_", " ")
                 : "not published"}
             </span>
           </div>
-          <div className="mt-4 grid gap-3 md:grid-cols-[1fr_320px]">
-            <label className="text-sm font-semibold text-slate-700">
+          <div className="admin-customer-preview-grid">
+            <label className="admin-customer-material-field">
               View-only preview URL
               <input
                 value={previewUrlDraft}
                 onChange={(event) => setPreviewUrlDraft(event.target.value)}
                 placeholder="https://www.canva.com/design/.../view"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-material-control"
               />
             </label>
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="admin-customer-material-field">
               Reason and verification *
               <textarea
                 value={previewPublishReason}
@@ -3055,12 +3055,12 @@ export default function CustomerDetailPage({
                 rows={2}
                 maxLength={1000}
                 placeholder="Example: View-only link checked and first draft ready for review."
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                className="admin-customer-material-control"
               />
             </label>
           </div>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-2xl text-xs font-semibold text-slate-600">
+          <div className="admin-customer-preview-actions">
+            <p>
               Warning: verify that the link has no edit permission and exposes no other
               customer data. Publishing resets earlier feedback and emails the customer.
               Paid, active service access is required.
@@ -3075,33 +3075,33 @@ export default function CustomerDetailPage({
                 !previewUrlDraft.trim() ||
                 previewPublishReason.trim().length < 5
               }
-              className="admin-button-primary disabled:opacity-50"
+              className="admin-button-primary"
             >
               {saving ? "Publishing..." : customer?.preview_url ? "Update preview" : "Publish preview"}
             </button>
           </div>
           {customer?.preview_feedback && (
-            <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            <p className="admin-customer-preview-feedback">
               Latest customer feedback: {customer.preview_feedback}
             </p>
           )}
         </div>
 
         {assets.length === 0 ? (
-          <p className="admin-muted mt-4">No display material yet.</p>
+          <p className="admin-muted admin-customer-material-empty">No display material yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-3">
+          <div className="admin-scroll-region admin-customer-material-list">
             {assets.map((asset) => (
               <div
                 key={asset.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-customer-material-card"
               >
-                <div className="flex flex-col justify-between gap-2 md:flex-row">
+                <div className="admin-customer-material-card-header">
                   <div>
-                    <p className="font-semibold text-slate-950">
+                    <p className="admin-customer-material-name">
                       {asset.fileName || "Text material"}
                     </p>
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="admin-customer-material-meta">
                       {new Date(asset.createdAt).toLocaleString("sv-SE")} |{" "}
                       {asset.category} | {asset.source} | {asset.status}
                     </p>
@@ -3117,13 +3117,13 @@ export default function CustomerDetailPage({
                   )}
                 </div>
                 {asset.description && (
-                  <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+                  <p className="admin-customer-material-description">
                     {asset.description}
                   </p>
                 )}
-                <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="grid gap-3 md:grid-cols-[220px_1fr]">
-                    <label className="text-sm font-semibold text-slate-700">
+                <div className="admin-customer-material-review">
+                  <div className="admin-customer-material-review-grid">
+                    <label className="admin-customer-material-field">
                       Review status
                       <select
                         id={`asset-status-${asset.id}`}
@@ -3140,14 +3140,14 @@ export default function CustomerDetailPage({
                             },
                           }))
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-material-control"
                       >
                         <option value="new">New</option>
                         <option value="reviewed">Reviewed</option>
                         <option value="archived">Archived</option>
                       </select>
                     </label>
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="admin-customer-material-field">
                       Internal review note
                       <textarea
                         id={`asset-admin-note-${asset.id}`}
@@ -3166,11 +3166,11 @@ export default function CustomerDetailPage({
                         rows={3}
                         maxLength={1000}
                         placeholder="Record review outcome, content risks, or next action."
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-material-control"
                       />
                     </label>
                   </div>
-                  <label className="mt-3 block text-sm font-semibold text-slate-700">
+                  <label className="admin-customer-material-field admin-customer-material-reason-field">
                     Reason for updating this display material review *
                     <textarea
                       value={assetDrafts[asset.id]?.reason || ""}
@@ -3188,25 +3188,25 @@ export default function CustomerDetailPage({
                       }
                       rows={2}
                       placeholder="Example: Uploaded display material reviewed for publishing."
-                      className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                      className="admin-customer-material-control"
                     />
                   </label>
-                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="admin-customer-material-review-actions">
                     <button
                       type="button"
                       onClick={() => updateCustomerAsset(asset)}
                       disabled={saving || !(assetDrafts[asset.id]?.reason || "").trim()}
-                      className="admin-button-primary disabled:opacity-50"
+                      className="admin-button-primary"
                     >
                       {saving ? "Saving..." : "Save material review"}
                     </button>
                     {asset.reviewedAt && (
-                      <span className="text-xs font-semibold text-slate-500">
+                      <span>
                         Reviewed {new Date(asset.reviewedAt).toLocaleString("sv-SE")}
                       </span>
                     )}
                     {asset.adminNoteUpdatedAt && (
-                      <span className="text-xs font-semibold text-slate-500">
+                      <span>
                         Note updated {new Date(asset.adminNoteUpdatedAt).toLocaleString("sv-SE")}
                       </span>
                     )}
