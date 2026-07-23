@@ -1087,8 +1087,16 @@
   overflow: hidden;
   padding: 8.5rem clamp(1rem, 4vw, 4.5rem) 5rem;
   background:
-    linear-gradient(115deg, rgba(6, 25, 66, 0.98) 0 42%, rgba(11, 68, 147, 0.94) 42% 58%, rgba(237, 245, 255, 0.96) 58% 100%),
-    url("/landing/section-art/platform-workflow.jpg") center / cover;
+    radial-gradient(circle at 10% 10%, rgba(109, 141, 255, 0.32), transparent 28%),
+    radial-gradient(ellipse at 80% 8%, rgba(232, 244, 255, 0.5), transparent 34%),
+    radial-gradient(circle at 78% 78%, rgba(47, 125, 246, 0.2), transparent 34%),
+    linear-gradient(
+      118deg,
+      rgba(5, 20, 55, 0.96) 0 39%,
+      rgba(21, 94, 232, 0.78) 39% 54%,
+      rgba(236, 246, 255, 0.96) 54% 100%
+    ),
+    url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover;
 }
 
 .contact-main::before {
@@ -1200,12 +1208,28 @@
 }
 
 .contact-form-wrap {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
   min-height: 42rem;
-  border: 1px solid rgba(112, 143, 187, 0.34);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 32px 80px rgba(3, 19, 52, 0.24);
-  backdrop-filter: blur(20px);
+  border: 1px solid rgba(218, 236, 255, 0.28);
+  border-radius: 18px;
+  background: var(--screenia-glass-soft);
+  box-shadow:
+    0 34px 90px rgba(0, 10, 32, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
+}
+
+.contact-form-wrap::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #44d7ff, #2f7df6 58%, #ffd21f);
+  content: "";
 }
 
 .contact-form,
@@ -1227,6 +1251,7 @@
 .contact-form-heading h2,
 .contact-success h2 {
   margin: 0.45rem 0 0.35rem;
+  color: #061942;
   font-family: var(--font-special-elite), Georgia, serif;
   font-size: 2.1rem;
   line-height: 1.15;
@@ -1264,9 +1289,12 @@
 .contact-form-grid textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #b8c9df;
-  border-radius: 6px;
-  background: #fff;
+  border: 1px solid rgba(70, 111, 171, 0.28);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow:
+    0 10px 24px rgba(6, 25, 66, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   color: #102033;
   font: inherit;
   font-weight: 600;
@@ -1457,6 +1485,9 @@
 @media (max-width: 640px) {
   .contact-main {
     padding: 6.7rem 0.75rem 2.5rem;
+    background:
+      linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
+      url("/landing/section-art/platform-workflow.jpg") center / cover;
   }
 
   .contact-intro-copy {
@@ -1470,6 +1501,10 @@
   .contact-form-wrap,
   .contact-success {
     min-height: 0;
+  }
+
+  .contact-form-wrap {
+    border-radius: 14px;
   }
 
   .contact-form-grid {
@@ -7343,60 +7378,11 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
-.contact-main {
-  background:
-    linear-gradient(
-      115deg,
-      rgba(9, 13, 18, 0.97) 0 44%,
-      rgba(21, 94, 232, 0.78) 44% 58%,
-      rgba(226, 222, 211, 0.96) 58% 100%
-    ),
-    url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover !important;
-}
-
-.contact-form-wrap,
-.contact-success {
-  position: relative;
-  z-index: 1;
-}
-
-.contact-form-wrap {
-  border: 1px solid rgba(218, 236, 255, 0.28) !important;
-  border-radius: 18px !important;
-  background: var(--screenia-glass-panel) !important;
-  box-shadow:
-    0 34px 90px rgba(0, 10, 32, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
-  backdrop-filter: blur(24px) saturate(130%);
-  -webkit-backdrop-filter: blur(24px) saturate(130%);
-}
-
-.contact-form-wrap {
-  overflow: hidden;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(231, 242, 255, 0.88)),
-    rgba(255, 255, 255, 0.92) !important;
-}
-
-.contact-form-wrap::before {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 5px;
-  background: linear-gradient(90deg, #44d7ff, #2f7df6 58%, #ffd21f);
-  content: "";
-}
-
-.contact-form-heading h2,
-.contact-success h2,
 .flow-card h2,
 .flow-card h3 {
   color: #061942 !important;
 }
 
-.contact-form-grid input,
-.contact-form-grid textarea,
 .flow-form-grid input,
 .flow-material textarea,
 .flow-material input[type="file"],
@@ -7442,7 +7428,6 @@
     grid-template-rows: auto;
   }
 
-  .contact-main,
   .flow-page {
     background:
       linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
@@ -7458,7 +7443,6 @@
     margin-bottom: 14px;
   }
 
-  .contact-form-wrap,
   .flow-shell {
     border-radius: 14px !important;
   }
@@ -7512,8 +7496,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.24) !important;
 }
 
-.landing-page main > .landing-pricing,
-.contact-main {
+.landing-page main > .landing-pricing {
   background:
     radial-gradient(circle at 10% 10%, rgba(109, 141, 255, 0.32), transparent 28%),
     radial-gradient(ellipse at 80% 8%, rgba(232, 244, 255, 0.5), transparent 34%),
@@ -7533,14 +7516,8 @@
     rgba(5, 20, 55, 0.56) !important;
 }
 
-.contact-form-wrap,
-.contact-form-wrap {
-  background: var(--screenia-glass-soft) !important;
-}
-
 @media (max-width: 900px) {
   .landing-page main > .landing-section-surface,
-  .contact-main,
   .flow-page {
     background:
       radial-gradient(circle at 14% 8%, rgba(109, 141, 255, 0.28), transparent 30%),

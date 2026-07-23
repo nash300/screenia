@@ -601,6 +601,9 @@ for (const singleOwnerLandingSelector of [
   ".landing-footer nav",
   ".landing-footer a",
   ".landing-footer p",
+  ".contact-main",
+  ".contact-form-wrap",
+  ".contact-form-wrap::before",
   ".flow-page",
   ".flow-shell",
   ".flow-shell::before",
@@ -661,6 +664,18 @@ for (const retiredFlowOverride of [
 ]) {
   if (landingCss.includes(retiredFlowOverride)) {
     problems.push(`src/app/landing.css must not keep retired flow shell override pattern: ${retiredFlowOverride}`);
+  }
+}
+
+for (const retiredContactOverride of [
+  ".contact-form-wrap,\n.contact-form-wrap",
+  ".landing-page main > .landing-pricing,\n.contact-main",
+  ".contact-main {\n  background:\n    linear-gradient(\n      115deg,",
+  ".contact-form-wrap {\n  border: 1px solid rgba(218, 236, 255, 0.28) !important;",
+  ".contact-form-grid input,\n.contact-form-grid textarea,\n.flow-form-grid input",
+]) {
+  if (landingCss.includes(retiredContactOverride)) {
+    problems.push(`src/app/landing.css must not keep retired contact override pattern: ${retiredContactOverride}`);
   }
 }
 
