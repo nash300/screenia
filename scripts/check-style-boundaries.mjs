@@ -538,6 +538,10 @@ if (/\.landing-page\s+(?:input|textarea|select)(?=[\s:{,\[])/.test(landingCss)) 
   problems.push("src/app/landing.css must not style all public form controls through .landing-page. Use explicit form, account, contact, or onboarding control classes.");
 }
 
+if (/\.landing-page\s+(?:p|li|summary|label|dt|dd)(?=[\s:{,\[])/.test(landingCss)) {
+  problems.push("src/app/landing.css must not style all public text elements through .landing-page. Use explicit content, form, account, contact, or onboarding text classes.");
+}
+
 if (!landingCss.includes(".landing-links.landing-links-open")) {
   problems.push("src/app/landing.css must define the explicit landing-links-open menu state selector.");
 }
