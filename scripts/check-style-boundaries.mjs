@@ -1235,6 +1235,20 @@ for (const selector of [
   }
 }
 
+for (const selector of [
+  ".landing-feature",
+  ".landing-feature-icon",
+]) {
+  const unscopedFeatureOwner = new RegExp(
+    `(^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|:|\\{|>|,)`,
+  );
+  if (unscopedFeatureOwner.test(landingCss)) {
+    problems.push(
+      `src/app/landing.css must scope active feature-card ownership through .landing-platform ${selector}.`,
+    );
+  }
+}
+
 if (customerDetailPageSource.includes('"is-active"')) {
   problems.push("The admin customer detail page must use explicit workflow state class names instead of generic is-active.");
 }
