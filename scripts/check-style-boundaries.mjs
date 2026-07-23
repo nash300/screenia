@@ -1217,6 +1217,10 @@ if (adminButtonBaseCount > 1) {
 }
 
 for (const singleOwnerAdminSelector of [
+  ".admin-window-titlebar",
+  ".admin-sidebar",
+  ".admin-sidebar-kicker",
+  ".admin-page",
   ".admin-sidebar-logo-card",
   ".admin-sidebar-logo-card .screenia-logo",
   ".admin-sidebar-logo-card .screenia-logo-wordmark",

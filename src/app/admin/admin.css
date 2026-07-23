@@ -40,19 +40,16 @@
 
 .admin-window-titlebar {
   display: flex;
-  min-height: 28px;
+  min-height: 34px;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin: 3px;
+  margin: 0.5rem;
   padding: 5px 8px;
-  border-radius: var(--admin-radius-sm);
-  background: linear-gradient(
-    90deg,
-    var(--admin-titlebar-start),
-    var(--admin-titlebar-end)
-  );
+  border-radius: var(--admin-radius-md);
+  background: linear-gradient(135deg, var(--admin-text), var(--admin-blue));
   color: var(--admin-surface-title-text);
+  box-shadow: 0 10px 24px rgba(47, 125, 246, 0.18);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -68,26 +65,33 @@
    SIDEBAR / NAVIGATION PANEL
 ========================================= */
 .admin-sidebar {
-  background: var(--admin-surface-face);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  width: 18rem;
+  height: 100vh;
+  flex-direction: column;
+  overflow: hidden;
+  border: 0;
+  border-right: 1px solid var(--admin-border);
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.94)),
+    #ffffff;
+  padding: 0.75rem !important;
   color: var(--admin-surface-text);
-  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
-    var(--admin-surface-highlight);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: 0 var(--admin-radius-lg) var(--admin-radius-lg) 0;
-  box-shadow:
-    inset -1px -1px 0 var(--admin-surface-face-dark),
-    inset 1px 1px 0 var(--admin-surface-face-light),
-    2px 0 14px rgba(0, 0, 0, 0.18);
+  box-shadow: 10px 0 34px rgba(7, 31, 84, 0.08);
 }
 
 .admin-sidebar-kicker {
   margin: 0;
-  font-size: 0.7rem;
+  color: var(--admin-text);
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--admin-surface-title);
 }
 
 .admin-sidebar-description {
@@ -500,7 +504,7 @@
 ========================================= */
 .admin-page {
   min-height: 100vh;
-  padding: 0.75rem;
+  padding: clamp(0.85rem, 1.55vw, 1.35rem) clamp(1rem, 2vw, 1.6rem);
 }
 
 .admin-order-toolbar {
@@ -6450,36 +6454,9 @@
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 }
 
-.admin-sidebar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 40;
-  display: flex;
-  width: 18rem;
-  height: 100vh;
-  flex-direction: column;
-  overflow: hidden;
-  border: 0;
-  border-right: 1px solid var(--admin-border);
-  border-radius: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.94)),
-    #ffffff;
-  box-shadow: 10px 0 34px rgba(7, 31, 84, 0.08);
-}
-
 .admin-main {
   min-height: 100vh;
   margin-left: 18rem;
-}
-
-.admin-window-titlebar {
-  min-height: 34px;
-  margin: 0.5rem;
-  border-radius: var(--admin-radius-md);
-  background: linear-gradient(135deg, var(--admin-text), var(--admin-blue));
-  box-shadow: 0 10px 24px rgba(47, 125, 246, 0.18);
 }
 
 .admin-sidebar-logo-card {
@@ -6502,12 +6479,6 @@
 .admin-sidebar-logo-card .screenia-logo-wordmark {
   width: min(11.5rem, 82%);
   filter: none;
-}
-
-.admin-sidebar-kicker {
-  color: var(--admin-text);
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
 }
 
 .admin-sidebar-description,
@@ -6578,10 +6549,6 @@
 .admin-nav-link.admin-nav-link-active .admin-nav-icon {
   background: #ffffff;
   color: var(--admin-blue);
-}
-
-.admin-page {
-  padding: 1rem clamp(1rem, 2.2vw, 2rem);
 }
 
 .admin-breadcrumbs {
@@ -6990,14 +6957,6 @@
 .admin-layout {
   --admin-content-max: 1360px;
   --admin-space-md: 1rem;
-}
-
-.admin-sidebar {
-  padding: 0.75rem !important;
-}
-
-.admin-page {
-  padding: clamp(0.85rem, 1.55vw, 1.35rem) clamp(1rem, 2vw, 1.6rem);
 }
 
 .admin-breadcrumbs,
