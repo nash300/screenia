@@ -158,6 +158,7 @@ const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
+const compliancePageSource = read("src/app/admin/compliance/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -511,6 +512,22 @@ if (/\b(?:p-6|rounded-2xl|rounded-xl|border-slate-200|bg-slate-50|text-slate-)\b
 
 if (!contactInquiriesPageSource.includes("admin-contact-panel")) {
   problems.push("The admin contact-inquiries page must expose the explicit admin-contact-panel class.");
+}
+
+if (/\b(?:p-6|text-xl)\b/.test(compliancePageSource)) {
+  problems.push("The admin compliance page must use explicit admin-compliance-* classes instead of broad utility class styling.");
+}
+
+for (const className of ["admin-compliance-panel", "admin-compliance-title"]) {
+  if (!compliancePageSource.includes(className)) {
+    problems.push(`The admin compliance page must expose the explicit ${className} class.`);
+  }
+}
+
+for (const selector of [".admin-compliance-panel", ".admin-compliance-title"]) {
+  if (!adminCss.includes(selector)) {
+    problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
+  }
 }
 
 if (!emailEventsPageSource.includes("admin-email-filter-active")) {

@@ -595,6 +595,14 @@
   gap: 0.35rem;
 }
 
+.admin-compliance-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-compliance-title {
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+}
+
 .admin-compliance-summary p {
   max-width: 760px;
 }

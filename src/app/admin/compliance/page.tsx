@@ -38,10 +38,10 @@ export default function AdminCompliancePage() {
         </p>
       </div>
 
-      <section className="admin-compliance-summary admin-card p-6">
+      <section className="admin-compliance-summary admin-card admin-compliance-panel">
         <div>
           <p className="admin-operation-kicker">Business control</p>
-          <h2 className="admin-card-title text-xl">Evidence without clutter</h2>
+          <h2 className="admin-card-title admin-compliance-title">Evidence without clutter</h2>
           <p className="admin-muted">
             These workflows support launch readiness, GDPR, accounting, and
             operational evidence without crowding daily customer work.
@@ -51,10 +51,10 @@ export default function AdminCompliancePage() {
 
       <div className="admin-compliance-grid">
         {groups.map((group) => (
-          <section key={group.title} className="admin-card admin-compliance-group p-6">
+          <section key={group.title} className="admin-card admin-compliance-group admin-compliance-panel">
             <div className="admin-compliance-group-header">
               <div>
-                <h2 className="admin-card-title text-xl">{group.title}</h2>
+                <h2 className="admin-card-title admin-compliance-title">{group.title}</h2>
                 <p className="admin-muted">{group.description}</p>
               </div>
             </div>
