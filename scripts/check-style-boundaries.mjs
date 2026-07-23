@@ -341,6 +341,14 @@ if (!adminCss.includes(".admin-inventory-item.admin-inventory-item-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-inventory-item-active selector.");
 }
 
+if (adminCss.includes("admin-contact-filters")) {
+  problems.push("src/app/admin/admin.css still contains retired admin-contact-filters button styling. Visitor messages use admin-list-selects now.");
+}
+
+if (adminCss.includes(".admin-contact-filters button.is-active")) {
+  problems.push("src/app/admin/admin.css must not keep retired contact filter is-active styling.");
+}
+
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
 if (duplicateAdminTokens.length) {
   problems.push(

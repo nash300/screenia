@@ -252,29 +252,6 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12);
 }
 
-.admin-contact-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.admin-contact-filters button {
-  min-height: 2.25rem;
-  border: 1px solid #c4d0df;
-  border-radius: 4px;
-  background: #f7f9fc;
-  padding: 0.45rem 0.75rem;
-  color: #42566e;
-  font-size: 0.76rem;
-  font-weight: 800;
-}
-
-.admin-contact-filters button.is-active {
-  border-color: #1e64d0;
-  background: #eaf2ff;
-  color: #124da9;
-}
-
 .admin-contact-list {
   margin-top: 1.2rem;
   border-top: 1px solid #d9e2ed;
