@@ -1206,6 +1206,16 @@ if (
   problems.push("src/app/admin/admin.css must not keep retired admin-surface theme or form control overrides.");
 }
 
+const adminButtonBaseSelector =
+  ".admin-layout .admin-button-primary,\n.admin-layout .admin-button-secondary,\n.admin-layout .admin-button-danger,\n.admin-layout .admin-button-warning,\n.admin-layout .admin-button-success,\n.admin-layout a.admin-button-primary,\n.admin-layout a.admin-button-secondary";
+const adminButtonBaseCount = countOccurrences(
+  adminCss,
+  new RegExp(adminButtonBaseSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
+);
+if (adminButtonBaseCount > 1) {
+  problems.push("src/app/admin/admin.css must keep admin button base sizing in one selector block.");
+}
+
 if (adminCss.includes('content: "Screenia Admin"')) {
   problems.push("src/app/admin/admin.css contains the retired generated page-shell titlebar. Use the real admin layout titlebar instead.");
 }

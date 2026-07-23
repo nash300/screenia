@@ -6972,12 +6972,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 38px;
+  gap: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 36px;
   border-radius: var(--admin-radius-md);
   padding: 0.55rem 0.85rem;
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
   font-size: 0.84rem;
   font-weight: 850;
+  letter-spacing: 0;
   line-height: 1.1;
   text-decoration: none;
   white-space: nowrap;
@@ -7240,29 +7244,6 @@
 .admin-priority-item {
   min-height: 44px;
   padding: 0.65rem 0.75rem;
-}
-
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout .admin-button-danger,
-.admin-layout .admin-button-warning,
-.admin-layout .admin-button-success,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary {
-  gap: 0.45rem;
-  min-width: 0;
-  max-width: 100%;
-  letter-spacing: 0;
-}
-
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout .admin-button-danger,
-.admin-layout .admin-button-warning,
-.admin-layout .admin-button-success,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary {
-  min-height: 36px;
 }
 
 .admin-table,
