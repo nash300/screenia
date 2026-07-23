@@ -4782,14 +4782,6 @@
   }
 }
 
-.landing-pricing .landing-price-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  width: 100%;
-  max-width: 100%;
-  margin: 26px 0 0;
-  justify-content: stretch;
-}
-
 .landing-pricing .landing-plan-card-top {
   min-height: 24px;
 }
@@ -4831,27 +4823,6 @@
 
 .landing-pricing .landing-plan-price strong {
   font-size: clamp(1.8rem, 2.5vw, 2.2rem);
-}
-
-.landing-pricing .landing-price-row {
-  min-height: 44px;
-  padding: 8px 11px;
-}
-
-.landing-pricing .landing-price-mini-grid {
-  display: grid;
-  align-content: start;
-  min-height: 96px;
-  padding-top: 8px;
-}
-
-.landing-pricing .landing-package-builder {
-  margin-top: 18px;
-  padding: 18px;
-}
-
-.landing-pricing .landing-package-builder-heading {
-  padding-bottom: 12px;
 }
 
 .landing-pricing .landing-package-lines,
@@ -5640,15 +5611,18 @@
 }
 
 .landing-pricing .landing-package-builder {
+  margin-top: 18px;
   border-color: rgba(218, 236, 255, 0.24);
   border-radius: 18px;
   background:
     linear-gradient(150deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.055)),
     rgba(4, 18, 48, 0.34);
+  padding: 18px;
 }
 
 .landing-pricing .landing-package-builder-heading {
   border-bottom-color: rgba(218, 236, 255, 0.16);
+  padding-bottom: 12px;
 }
 
 .landing-pricing .landing-package-builder-heading > span {

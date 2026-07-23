@@ -719,16 +719,21 @@ for (const retiredUnscopedPricingOwner of [
   }
 }
 
-for (const scopedPricingQuantityOwner of [
+for (const scopedPricingSingleOwner of [
+  ".landing-pricing .landing-price-grid",
+  ".landing-pricing .landing-price-mini-grid",
+  ".landing-pricing .landing-price-row",
+  ".landing-pricing .landing-package-builder",
+  ".landing-pricing .landing-package-builder-heading",
   ".landing-pricing .landing-plan-quantity",
   ".landing-pricing .landing-quantity-stepper",
 ]) {
   const ownerCount = countOccurrences(
     landingCss,
-    new RegExp(`^${scopedPricingQuantityOwner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
+    new RegExp(`^${scopedPricingSingleOwner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
   );
   if (ownerCount !== 1) {
-    problems.push(`src/app/landing.css must keep exactly one base owner for ${scopedPricingQuantityOwner}; found ${ownerCount}.`);
+    problems.push(`src/app/landing.css must keep exactly one base owner for ${scopedPricingSingleOwner}; found ${ownerCount}.`);
   }
 }
 
