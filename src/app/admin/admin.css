@@ -6906,7 +6906,6 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card),
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
@@ -6929,7 +6928,6 @@
 }
 
 .admin-layout .admin-button-primary,
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):not(.admin-button-secondary):not(.admin-button-danger):not(.admin-button-warning):not(.admin-button-success),
 .admin-layout a.admin-button-primary {
   border: 1px solid transparent;
   background: linear-gradient(135deg, var(--admin-blue), var(--admin-blue-dark));
@@ -6963,7 +6961,6 @@
   color: #ffffff;
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):hover,
 .admin-layout .admin-button-primary:hover,
 .admin-layout .admin-button-secondary:hover,
 .admin-layout .admin-button-danger:hover,
@@ -6975,7 +6972,6 @@
   transform: translateY(-1px);
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):disabled,
 .admin-layout .admin-button-primary:disabled,
 .admin-layout .admin-button-secondary:disabled,
 .admin-layout .admin-button-danger:disabled,
@@ -6986,7 +6982,6 @@
   transform: none;
 }
 
-.admin-layout button::after,
 .admin-layout .admin-button-primary::after,
 .admin-layout .admin-button-secondary::after,
 .admin-layout .admin-button-danger::after,
@@ -7191,7 +7186,6 @@
   padding: 0.65rem 0.75rem;
 }
 
-.admin-layout button,
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
@@ -7205,7 +7199,6 @@
   letter-spacing: 0;
 }
 
-.admin-layout button:not(.admin-document-list-item):not(.admin-operation-card),
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
@@ -7676,7 +7669,6 @@
     flex-direction: column;
   }
 
-  .admin-layout button,
   .admin-layout .admin-button-primary,
   .admin-layout .admin-button-secondary,
   .admin-layout .admin-button-danger,

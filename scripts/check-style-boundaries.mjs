@@ -360,6 +360,10 @@ if (/\.admin-layout\s+\.(?:rounded|shadow)|\.admin-card\s*>\s*\.rounded/.test(ad
   problems.push("src/app/admin/admin.css must not style Tailwind-style rounded/shadow utility classes. Use explicit admin-* component classes.");
 }
 
+if (/\.admin-layout\s+button(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style all admin buttons through .admin-layout button. Use admin-button-* or explicit component button classes.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
