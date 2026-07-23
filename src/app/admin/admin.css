@@ -6562,7 +6562,7 @@
   }
 }
 
-/* Last-resort contrast guard for custom button-like rows. */
+/* Document list contrast guard for custom button-like rows. */
 .admin-layout button.admin-document-list-item {
   background: #ffffff !important;
   background-image: none !important;

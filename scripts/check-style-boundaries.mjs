@@ -29,6 +29,50 @@ function countOccurrences(text, pattern) {
   return (text.match(pattern) || []).length;
 }
 
+function stripAtRuleBlocks(cssText) {
+  let output = "";
+  for (let index = 0; index < cssText.length; index += 1) {
+    if (cssText[index] !== "@") {
+      output += cssText[index];
+      continue;
+    }
+
+    const nextBrace = cssText.indexOf("{", index);
+    const nextSemicolon = cssText.indexOf(";", index);
+    if (nextSemicolon !== -1 && (nextBrace === -1 || nextSemicolon < nextBrace)) {
+      index = nextSemicolon;
+      continue;
+    }
+    if (nextBrace === -1) {
+      output += cssText[index];
+      continue;
+    }
+
+    let depth = 0;
+    for (let blockIndex = nextBrace; blockIndex < cssText.length; blockIndex += 1) {
+      if (cssText[blockIndex] === "{") depth += 1;
+      if (cssText[blockIndex] === "}") depth -= 1;
+      if (depth === 0) {
+        index = blockIndex;
+        break;
+      }
+    }
+  }
+  return output;
+}
+
+function findDuplicateBaseSelectors(cssText) {
+  const baseCss = stripAtRuleBlocks(cssText);
+  const selectors = [...baseCss.matchAll(/(^|\n)\s*([^{}@][^{}]*)\s*\{/g)].map((match) =>
+    match[2].trim(),
+  );
+  const counts = new Map();
+  for (const selector of selectors) {
+    counts.set(selector, (counts.get(selector) || 0) + 1);
+  }
+  return [...counts.entries()].filter(([, count]) => count > 1);
+}
+
 const retiredPublicInfoFile = ["standalone", "public.css"].join("-");
 const retiredBrandPattern = new RegExp(["info", "sync"].join(""), "i");
 
@@ -87,6 +131,16 @@ for (const file of walk("public").filter((item) => !/\.pdf$/i.test(item))) {
 }
 
 const globals = read("src/app/globals.css");
+const temporaryCssSectionLabelPattern = /\b(?:REFRESH|POLISH|PASS|FINAL LAYER|LAST-RESORT|HACK|TODO|FIXME)\b/i;
+const cssFiles = expectedAppStylesheets;
+
+for (const file of cssFiles) {
+  const text = read(file);
+  if (temporaryCssSectionLabelPattern.test(text)) {
+    problems.push(`${file} contains temporary cleanup wording in a CSS section label or comment.`);
+  }
+}
+
 const globalImportantLines = globals
   .split(/\r?\n/)
   .map((line, index) => ({ line, index: index + 1 }))
@@ -119,6 +173,17 @@ for (const selector of bannedGlobalSelectors) {
 const publicInfo = read("src/app/public-info.css");
 if (publicInfo.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
+}
+
+for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
+  const duplicates = findDuplicateBaseSelectors(read(file));
+  if (duplicates.length) {
+    problems.push(
+      `${file} contains duplicate base selectors: ${duplicates
+        .map(([selector, count]) => `${selector} (${count})`)
+        .join(", ")}. Merge base styles and keep responsive overrides inside media queries.`,
+    );
+  }
 }
 
 const adminCss = read("src/app/admin/admin.css");
