@@ -1947,33 +1947,6 @@
   height: 24px;
 }
 
-.landing-workflow-banner {
-  display: block;
-  width: 100%;
-  height: auto;
-  min-height: min(52vw, 420px);
-  object-fit: cover;
-  object-position: center;
-}
-
-.landing-timeline {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 34px;
-}
-
-.landing-workflow-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.34fr);
-  gap: 22px;
-  align-items: stretch;
-}
-
-.landing-workflow-layout .landing-timeline {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
 .landing-step {
   position: relative;
   overflow: hidden;
@@ -3392,14 +3365,8 @@
 
   .landing-feature-grid,
   .landing-illustration-grid,
-  .landing-timeline,
-  .landing-workflow-layout,
   .landing-faq-layout {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .landing-workflow-layout .landing-timeline {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -3567,8 +3534,6 @@
   .account-grid,
   .landing-feature-grid,
   .landing-illustration-grid,
-  .landing-workflow-layout,
-  .landing-timeline,
   .landing-price-grid,
   .landing-gallery-grid,
   .landing-faq-layout,
@@ -4750,11 +4715,6 @@
 .landing-feature p {
   color: #526579;
   line-height: 1.68;
-}
-
-.landing-workflow-banner {
-  border-radius: 8px;
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.32);
 }
 
 .landing-price-grid {
