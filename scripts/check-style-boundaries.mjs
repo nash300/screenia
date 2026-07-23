@@ -522,6 +522,10 @@ if (landingCss.includes(".landing-links.open")) {
   problems.push("src/app/landing.css must style landing-links-open instead of generic .landing-links.open.");
 }
 
+if (/\.landing-page\s+button(?=[\s:{,\[])/.test(landingCss)) {
+  problems.push("src/app/landing.css must not style all public buttons through .landing-page button. Use landing-button or explicit component button classes.");
+}
+
 if (!landingCss.includes(".landing-links.landing-links-open")) {
   problems.push("src/app/landing.css must define the explicit landing-links-open menu state selector.");
 }

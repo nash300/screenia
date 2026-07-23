@@ -320,17 +320,6 @@
   text-decoration: none;
 }
 
-.landing-page button {
-  border: 0;
-  cursor: pointer;
-  font: inherit;
-}
-
-.landing-page button:disabled {
-  cursor: wait;
-  opacity: 0.72;
-}
-
 .landing-nav {
   position: fixed;
   top: 0;
@@ -6828,7 +6817,6 @@
   }
 }
 
-.landing-page button,
 .landing-page input,
 .landing-page textarea,
 .landing-page select {
