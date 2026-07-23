@@ -527,7 +527,7 @@ if (/\.landing-page\s+:is\(\s*h1\s*,\s*h2\s*,\s*h3\s*,\s*h4\s*,\s*h5\s*,\s*h6\s*
 }
 
 const explicitLandingHeadingMatch = landingCss.match(
-  /(^|\n)\.landing-hero-copy h1,\s*\.landing-hero-copy-main h1,\s*\.landing-section-heading h2,\s*\.landing-workflow-heading h2,\s*\.landing-service-film-copy h2,\s*\.landing-contact h2\s*\{([\s\S]*?)\n\}/,
+  /(^|\n)\.landing-hero-copy h1,\s*\.landing-hero-copy-main h1,\s*\.landing-section-heading h2,\s*\.landing-page \.landing-workflow-heading h2,\s*\.landing-service-film-copy h2,\s*\.landing-contact h2\s*\{([\s\S]*?)\n\}/,
 );
 const explicitLandingHeadingBody = explicitLandingHeadingMatch?.[2] || "";
 
@@ -1219,6 +1219,22 @@ for (const retiredLandingClass of [
   }
 }
 
+for (const selector of [
+  ".landing-workflow-panel",
+  ".landing-workflow-heading",
+  ".landing-workflow-grid",
+  ".landing-workflow-step",
+]) {
+  const unscopedWorkflowOwner = new RegExp(
+    `(^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|:|\\{|>)`,
+  );
+  if (unscopedWorkflowOwner.test(landingCss)) {
+    problems.push(
+      `src/app/landing.css must scope active workflow ownership through .landing-page ${selector}.`,
+    );
+  }
+}
+
 if (customerDetailPageSource.includes('"is-active"')) {
   problems.push("The admin customer detail page must use explicit workflow state class names instead of generic is-active.");
 }
@@ -1731,8 +1747,16 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
     message: "must stay text-sized instead of inheriting button widths.",
   },
   {
+    includes: "min-width: 0;",
+    message: "must not inherit button-like minimum widths.",
+  },
+  {
     includes: "background: transparent;",
     message: "must not inherit button-like backgrounds.",
+  },
+  {
+    includes: "background-image: none;",
+    message: "must not inherit button-like gradients.",
   },
   {
     includes: "cursor: pointer;",
@@ -1749,6 +1773,29 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
   {
     includes: "border-radius: 0;",
     message: "must remain text-link shaped instead of pill shaped.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:visited,\n.landing-nav-primary .landing-nav-link:focus,\n.landing-nav-primary .landing-nav-link:focus:not(:focus-visible),\n.landing-nav-primary .landing-nav-link:active", [
+  {
+    includes: "background-image: none;",
+    message: "must not let clicked or visited primary nav links inherit button gradients.",
+  },
+  {
+    includes: "border-width: 0;",
+    message: "must not let clicked or visited primary nav links inherit button borders.",
+  },
+  {
+    includes: "min-width: 0;",
+    message: "must not let clicked or visited primary nav links inherit button widths.",
+  },
+  {
+    includes: "padding: 0;",
+    message: "must not let clicked or visited primary nav links inherit button padding.",
+  },
+  {
+    includes: "border-radius: 0;",
+    message: "must not let clicked or visited primary nav links become pill shaped.",
   },
 ]);
 
@@ -1776,6 +1823,14 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:hover", [
     message: "must not use a hover background that makes primary nav links look like buttons.",
   },
   {
+    includes: "background-image: none;",
+    message: "must not use a hover gradient that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "border-width: 0;",
+    message: "must not use a hover border that makes primary nav links look like buttons.",
+  },
+  {
     includes: "box-shadow: none;",
     message: "must not use a hover shadow that makes primary nav links look like buttons.",
   },
@@ -1785,6 +1840,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus", [
   {
     includes: "background: transparent;",
     message: "must not use a focus background that makes clicked primary nav links look like buttons.",
+  },
+  {
+    includes: "background-image: none;",
+    message: "must not use a focus gradient that makes clicked primary nav links look like buttons.",
   },
   {
     includes: "border-radius: 0;",
@@ -1804,6 +1863,14 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:active", [
   {
     includes: "background: transparent;",
     message: "must not use an active background that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "background-image: none;",
+    message: "must not use an active gradient that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "border-width: 0;",
+    message: "must not use an active border that makes primary nav links look like buttons.",
   },
   {
     includes: "border-radius: 0;",
@@ -1827,6 +1894,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
   {
     includes: "background: transparent;",
     message: "must not use a background that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "background-image: none;",
+    message: "must not use a gradient that makes primary nav links look like buttons.",
   },
   {
     includes: "box-shadow: none;",
