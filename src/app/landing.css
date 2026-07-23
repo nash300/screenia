@@ -5522,15 +5522,15 @@
   will-change: opacity, transform, filter;
 }
 
-.landing-reveal-target.from-scroll-up {
+.landing-reveal-target.landing-reveal-from-scroll-up {
   --reveal-y: -28px;
 }
 
-.landing-reveal-target.from-scroll-down {
+.landing-reveal-target.landing-reveal-from-scroll-down {
   --reveal-y: 34px;
 }
 
-.landing-reveal-target.is-visible {
+.landing-reveal-target.landing-reveal-visible {
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
@@ -5574,11 +5574,11 @@
     transition-duration: 360ms;
   }
 
-  .landing-reveal-target.from-scroll-up {
+  .landing-reveal-target.landing-reveal-from-scroll-up {
     --reveal-y: -14px;
   }
 
-  .landing-reveal-target.is-visible {
+  .landing-reveal-target.landing-reveal-visible {
     opacity: 1;
     transform: translateY(0) scale(1);
     filter: none;

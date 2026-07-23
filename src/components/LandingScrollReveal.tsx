@@ -33,6 +33,13 @@ type LandingScrollRevealProps = {
   selectors?: string[];
 };
 
+const revealClassNames = {
+  target: "landing-reveal-target",
+  visible: "landing-reveal-visible",
+  fromScrollDown: "landing-reveal-from-scroll-down",
+  fromScrollUp: "landing-reveal-from-scroll-up",
+} as const;
+
 export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScrollRevealProps) {
   useEffect(() => {
     const elements = Array.from(
@@ -41,7 +48,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     let lastScrollY = window.scrollY;
 
     elements.forEach((element, index) => {
-      element.classList.add("landing-reveal-target");
+      element.classList.add(revealClassNames.target);
       element.style.setProperty("--reveal-index", String(index % 6));
     });
 
@@ -52,9 +59,9 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
 
         entries.forEach((entry) => {
           const target = entry.target as HTMLElement;
-          target.classList.toggle("from-scroll-down", isScrollingDown);
-          target.classList.toggle("from-scroll-up", !isScrollingDown);
-          target.classList.toggle("is-visible", entry.isIntersecting);
+          target.classList.toggle(revealClassNames.fromScrollDown, isScrollingDown);
+          target.classList.toggle(revealClassNames.fromScrollUp, !isScrollingDown);
+          target.classList.toggle(revealClassNames.visible, entry.isIntersecting);
         });
       },
       {
@@ -70,7 +77,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
         const isInInitialViewport = rect.top < window.innerHeight * 0.96 && rect.bottom > 0;
 
         if (isInInitialViewport) {
-          element.classList.add("from-scroll-down", "is-visible");
+          element.classList.add(revealClassNames.fromScrollDown, revealClassNames.visible);
         }
       });
     };
@@ -82,10 +89,10 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
       observer.disconnect();
       elements.forEach((element) => {
         element.classList.remove(
-          "landing-reveal-target",
-          "is-visible",
-          "from-scroll-down",
-          "from-scroll-up",
+          revealClassNames.target,
+          revealClassNames.visible,
+          revealClassNames.fromScrollDown,
+          revealClassNames.fromScrollUp,
         );
         element.style.removeProperty("--reveal-index");
       });

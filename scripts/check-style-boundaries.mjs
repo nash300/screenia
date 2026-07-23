@@ -146,6 +146,60 @@ for (const file of sourceFiles) {
   }
 }
 
+const globals = read("src/app/globals.css");
+const adminCss = read("src/app/admin/admin.css");
+const landingCss = read("src/app/landing.css");
+const publicInfoCss = read("src/app/public-info.css");
+const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
+const landingNavSource = read("src/components/LandingNav.tsx");
+const landingScrollRevealSource = read("src/components/LandingScrollReveal.tsx");
+const landingPageSource = read("src/app/page.tsx");
+const accountPageSource = read("src/app/account/page.tsx");
+const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
+const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
+const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
+const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
+const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
+const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
+const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
+
+for (const retiredRevealClassName of [
+  '"is-visible"',
+  '"from-scroll-down"',
+  '"from-scroll-up"',
+]) {
+  if (landingScrollRevealSource.includes(retiredRevealClassName)) {
+    problems.push(
+      `LandingScrollReveal must use explicit landing-reveal-* state classes instead of ${retiredRevealClassName}.`,
+    );
+  }
+}
+
+for (const requiredRevealClassName of [
+  "landing-reveal-visible",
+  "landing-reveal-from-scroll-down",
+  "landing-reveal-from-scroll-up",
+]) {
+  if (!landingScrollRevealSource.includes(requiredRevealClassName)) {
+    problems.push(`LandingScrollReveal must define ${requiredRevealClassName}.`);
+  }
+  if (!landingCss.includes(requiredRevealClassName)) {
+    problems.push(`src/app/landing.css must style ${requiredRevealClassName}.`);
+  }
+}
+
+for (const retiredRevealSelector of [
+  ".landing-reveal-target.is-visible",
+  ".landing-reveal-target.from-scroll-down",
+  ".landing-reveal-target.from-scroll-up",
+]) {
+  if (landingCss.includes(retiredRevealSelector)) {
+    problems.push(
+      `src/app/landing.css must not keep generic reveal selector ${retiredRevealSelector}.`,
+    );
+  }
+}
+
 for (const file of publicFiles.filter((item) => !/\.pdf$/i.test(item))) {
   const text = read(file);
   if (retiredBrandPattern.test(text)) {
@@ -153,7 +207,6 @@ for (const file of publicFiles.filter((item) => !/\.pdf$/i.test(item))) {
   }
 }
 
-const globals = read("src/app/globals.css");
 const temporaryCssSectionLabelPattern = /\b(?:REFRESH|POLISH|PASS|FINAL LAYER|LAST-RESORT|HACK|TODO|FIXME)\b/i;
 const cssFiles = expectedAppStylesheets;
 
@@ -193,8 +246,7 @@ for (const selector of bannedGlobalSelectors) {
   }
 }
 
-const publicInfo = read("src/app/public-info.css");
-if (publicInfo.includes("!important")) {
+if (publicInfoCss.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
 }
 
@@ -208,20 +260,6 @@ for (const file of ["src/app/globals.css", "src/app/public-info.css"]) {
     );
   }
 }
-
-const adminCss = read("src/app/admin/admin.css");
-const landingCss = read("src/app/landing.css");
-const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
-const landingNavSource = read("src/components/LandingNav.tsx");
-const landingPageSource = read("src/app/page.tsx");
-const accountPageSource = read("src/app/account/page.tsx");
-const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
-const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
-const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
-const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
-const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
-const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
-const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
