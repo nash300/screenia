@@ -4516,6 +4516,16 @@
   margin: 0.15rem 0 0;
 }
 
+.admin-customers-loading-panel {
+  display: grid;
+  min-height: 92px;
+  align-content: center;
+}
+
+.admin-customers-panel-title {
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+}
+
 .admin-customers-total,
 .admin-customers-list-heading > span {
   flex: 0 0 auto;
@@ -4611,18 +4621,71 @@
   gap: 0.75rem;
 }
 
-.admin-customers-create-body > label {
+.admin-customers-create-field {
   display: grid;
   gap: 0.35rem;
+  color: #334155;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.admin-customers-create-control {
+  width: 100%;
+  margin-top: 0.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  color: #0f172a;
+  outline: none;
 }
 
 .admin-customers-create-body textarea {
   min-height: 72px;
 }
 
-.admin-customers-create-body .admin-button-primary {
+.admin-customers-create-submit {
   width: fit-content;
   margin-top: 0 !important;
+}
+
+.admin-customer-status-active {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.admin-customer-status-new-request {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-customer-status-invited {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.admin-customer-status-paid {
+  background: #cffafe;
+  color: #155e75;
+}
+
+.admin-customer-status-content-pending {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.admin-customer-status-content-received {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+
+.admin-customer-status-suspended {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.admin-customer-status-default {
+  background: #f1f5f9;
+  color: #334155;
 }
 
 .admin-customers-list-panel {

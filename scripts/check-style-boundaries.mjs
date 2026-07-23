@@ -173,6 +173,7 @@ const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
 const newDevicePageSource = read("src/app/admin/devices/new/page.tsx");
+const customersPageSource = read("src/app/admin/customers/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
@@ -341,6 +342,27 @@ if (
   adminCss.includes(".admin-customers-search .")
 ) {
   problems.push("src/app/admin/admin.css must not keep retired admin-customers-search wrapper styling. Use admin-customers-toolbar/search-row.");
+}
+
+if (/\b(?:admin-card p-6|admin-card-title text-xl|mt-1|mt-4|w-full|rounded-xl|border-slate-200|px-3|py-2|text-slate-|disabled:opacity-50|text-sm font-semibold)\b/.test(customersPageSource)) {
+  problems.push("The admin customers page must use explicit admin-customers-* classes instead of broad utility class styling.");
+}
+
+for (const className of [
+  "admin-customers-loading-panel",
+  "admin-customers-panel-title",
+  "admin-customers-create-field",
+  "admin-customers-create-control",
+  "admin-customers-create-submit",
+  "admin-customer-status-active",
+  "admin-customer-status-default",
+]) {
+  if (!customersPageSource.includes(className)) {
+    problems.push(`The admin customers page must expose the explicit ${className} class.`);
+  }
+  if (!adminCss.includes(`.${className}`)) {
+    problems.push(`src/app/admin/admin.css must define the explicit .${className} selector.`);
+  }
 }
 
 if (!adminCss.includes(".admin-operation-card.admin-operation-card-selected")) {

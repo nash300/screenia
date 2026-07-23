@@ -70,7 +70,7 @@ export default function CustomersPage() {
   return (
     <Suspense
       fallback={
-        <div className="admin-card p-6">
+        <div className="admin-card admin-customers-loading-panel">
           <p className="admin-muted">Loading customers...</p>
         </div>
       }
@@ -327,14 +327,14 @@ function CustomersContent() {
     customers.filter((customer) => matchesCustomerFilter(customer, filter)).length;
 
   const getStatusClass = (status: string | null) => {
-    if (status === "active") return "bg-green-100 text-green-700";
-    if (status === "new_request") return "bg-amber-100 text-amber-800";
-    if (status === "invited") return "bg-blue-100 text-blue-700";
-    if (status === "paid") return "bg-cyan-100 text-cyan-800";
-    if (status === "content_pending") return "bg-orange-100 text-orange-800";
-    if (status === "content_received") return "bg-purple-100 text-purple-800";
-    if (status === "suspended") return "bg-red-100 text-red-700";
-    return "bg-slate-100 text-slate-700";
+    if (status === "active") return "admin-customer-status-active";
+    if (status === "new_request") return "admin-customer-status-new-request";
+    if (status === "invited") return "admin-customer-status-invited";
+    if (status === "paid") return "admin-customer-status-paid";
+    if (status === "content_pending") return "admin-customer-status-content-pending";
+    if (status === "content_received") return "admin-customer-status-content-received";
+    if (status === "suspended") return "admin-customer-status-suspended";
+    return "admin-customer-status-default";
   };
 
   const formatDate = (value: string | null | undefined) => {
@@ -413,7 +413,7 @@ function CustomersContent() {
       <section className="admin-card admin-customers-toolbar">
         <div className="admin-customers-toolbar-heading">
           <div>
-            <h2 className="admin-card-title text-xl">Find customer work</h2>
+            <h2 className="admin-card-title admin-customers-panel-title">Find customer work</h2>
             <p className="admin-muted">Search directly or open a common queue.</p>
           </div>
           <span className="admin-customers-total">
@@ -477,30 +477,30 @@ function CustomersContent() {
             Use this only when a customer contacted Screenia outside the website.
           </p>
           <div className="admin-customers-create-grid">
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="admin-customers-create-field">
               Company name *
               <input
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Example: Salon Bella"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                className="admin-customers-create-control"
               />
             </label>
-            <label className="text-sm font-semibold text-slate-700">
+            <label className="admin-customers-create-field">
               Contact email *
               <input
                 type="email"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="customer@example.com"
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none"
+                className="admin-customers-create-control"
               />
             </label>
           </div>
           <button
             onClick={createCustomer}
             disabled={saving}
-            className="admin-button-primary mt-4 disabled:opacity-50"
+            className="admin-button-primary admin-customers-create-submit"
           >
             {saving ? "Creating..." : "Create customer draft"}
           </button>
@@ -509,7 +509,7 @@ function CustomersContent() {
 
       <section className="admin-card admin-customers-list-panel">
         <div className="admin-customers-list-heading">
-          <h2 className="admin-card-title text-xl">Customer queue</h2>
+          <h2 className="admin-card-title admin-customers-panel-title">Customer queue</h2>
           <span>{loading ? "Loading" : `${filteredCustomers.length} records`}</span>
         </div>
         <div className="admin-customer-table-wrap">
