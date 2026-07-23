@@ -831,28 +831,6 @@
   color: #9ba9bd;
 }
 
-/* =========================================
-   PAGE HEADER
-========================================= */
-.admin-page-header {
-  margin: 0.75rem 0;
-  padding: 0.55rem 0.65rem;
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-md);
-  background: #ffffff;
-}
-
-.admin-title {
-  margin: 0;
-  color: var(--admin-surface-text);
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
 .admin-subtitle {
   margin: 0.2rem 0 0;
   color: var(--admin-surface-muted);
@@ -869,29 +847,6 @@
 /* =========================================
    CARDS / PANELS
 ========================================= */
-.admin-card {
-  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
-    var(--admin-surface-highlight);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-md);
-  background: var(--admin-surface-face);
-  box-shadow:
-    inset -1px -1px 0 var(--admin-surface-face-dark),
-    inset 1px 1px 0 var(--admin-surface-face-light),
-    var(--admin-shadow-soft);
-  color: var(--admin-surface-text);
-}
-
-.admin-card-title {
-  margin-bottom: 0.45rem;
-  border-bottom: 2px solid var(--admin-section-header-border);
-  padding-bottom: 0.35rem;
-  color: var(--admin-titlebar-start);
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
 .admin-pricing-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1500,27 +1455,6 @@
   border-left-color: #2f7df6;
 }
 
-.admin-stat-card {
-  position: relative;
-  display: block;
-  min-height: 118px;
-  overflow: hidden;
-  padding: 0.8rem !important;
-  color: var(--admin-surface-text);
-}
-
-.admin-stat-card::after {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 86px;
-  height: 86px;
-  border: 2px solid rgba(17, 53, 111, 0.12);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.24);
-  content: "";
-}
-
 .admin-stat-icon {
   display: block;
   width: 24px;
@@ -1555,16 +1489,6 @@
   color: var(--admin-titlebar-start);
   font-weight: 700;
   text-transform: uppercase;
-}
-
-.admin-stat-value {
-  position: relative;
-  z-index: 1;
-  margin: 0.25rem 0 0.15rem;
-  color: var(--admin-surface-text);
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1;
 }
 
 .admin-dashboard-grid {
@@ -6697,23 +6621,26 @@
 
 .admin-page-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin: 0 0 1rem;
+  margin: 0;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius-lg);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 247, 255, 0.86)),
     #ffffff;
-  padding: 1rem;
+  padding: clamp(0.85rem, 1.6vw, 1.1rem);
   box-shadow: var(--admin-shadow-soft);
 }
 
 .admin-title {
+  margin: 0 0 0.28rem;
   color: var(--admin-text);
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
   font-size: clamp(1.25rem, 2vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: 0;
   line-height: 1.15;
 }
 
@@ -6733,11 +6660,18 @@
 }
 
 .admin-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0 0 0.85rem;
   border-bottom: 1px solid rgba(47, 125, 246, 0.16);
   color: var(--admin-text);
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
   font-size: 1rem;
+  font-weight: 700;
   letter-spacing: 0;
+  padding-bottom: 0.65rem;
 }
 
 .admin-action-grid {
@@ -6786,9 +6720,11 @@
 
 .admin-stat-card {
   position: relative;
-  min-height: 132px;
+  display: block;
+  min-height: 118px;
   padding: 1rem;
   overflow: hidden;
+  color: var(--admin-text);
 }
 
 .admin-stat-card::after {
@@ -6810,9 +6746,14 @@
 }
 
 .admin-stat-value {
+  position: relative;
+  z-index: 1;
+  margin: 0.25rem 0 0.15rem;
   color: var(--admin-text);
   font-size: clamp(2rem, 4vw, 3.2rem);
+  font-weight: 800;
   line-height: 0.95;
+  letter-spacing: 0;
 }
 
 .admin-status-row,
@@ -7083,18 +7024,8 @@
   padding: clamp(0.9rem, 1.7vw, 1.25rem);
 }
 
-.admin-page-header {
-  align-items: center;
-  margin-bottom: 0;
-  padding: clamp(0.85rem, 1.6vw, 1.1rem);
-}
-
 .admin-page-header > div:first-child {
   min-width: 0;
-}
-
-.admin-title {
-  margin-bottom: 0.28rem;
 }
 
 .admin-subtitle,
@@ -7123,15 +7054,6 @@
   padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
 
-.admin-card-title {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin: 0 0 0.85rem;
-  padding-bottom: 0.65rem;
-}
-
 .admin-dashboard-kpis {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -7147,14 +7069,6 @@
   display: flex;
   min-height: 0;
   flex-direction: column;
-}
-
-.admin-stat-card {
-  min-height: 118px;
-}
-
-.admin-stat-value {
-  letter-spacing: 0;
 }
 
 .admin-status-row,

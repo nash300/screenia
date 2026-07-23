@@ -1223,6 +1223,12 @@ for (const singleOwnerAdminSelector of [
   ".admin-nav-link",
   ".admin-nav-link span:last-child",
   ".admin-nav-icon",
+  ".admin-page-header",
+  ".admin-title",
+  ".admin-card",
+  ".admin-card-title",
+  ".admin-stat-card",
+  ".admin-stat-value",
 ]) {
   const selectorCount = countOccurrences(
     adminCss,
