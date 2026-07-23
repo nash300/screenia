@@ -388,6 +388,10 @@ if (/\.admin-layout\s+\.admin-action-(?:card|warning|danger|info)(?=[\s:{,\[])/.
   problems.push("src/app/admin/admin.css must keep admin action card styles class-owned without admin-layout descendant chaining.");
 }
 
+if (/\.admin-layout\s+(?:a\.)?\.?admin-button-(?:primary|secondary|danger|warning|success)(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must keep admin button styles class-owned without admin-layout descendant chaining.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
@@ -1458,7 +1462,7 @@ for (const retiredAdminInventoryOverride of [
 }
 
 const adminButtonBaseSelector =
-  ".admin-layout .admin-button-primary,\n.admin-layout .admin-button-secondary,\n.admin-layout .admin-button-danger,\n.admin-layout .admin-button-warning,\n.admin-layout .admin-button-success,\n.admin-layout a.admin-button-primary,\n.admin-layout a.admin-button-secondary";
+  ".admin-button-primary,\n.admin-button-secondary,\n.admin-button-danger,\n.admin-button-warning,\n.admin-button-success,\na.admin-button-primary,\na.admin-button-secondary";
 const adminButtonBaseCount = countOccurrences(
   adminCss,
   new RegExp(adminButtonBaseSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),

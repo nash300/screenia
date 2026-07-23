@@ -6681,13 +6681,13 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
 }
 
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout .admin-button-danger,
-.admin-layout .admin-button-warning,
-.admin-layout .admin-button-success,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary {
+.admin-button-primary,
+.admin-button-secondary,
+.admin-button-danger,
+.admin-button-warning,
+.admin-button-success,
+a.admin-button-primary,
+a.admin-button-secondary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6706,68 +6706,68 @@
   white-space: nowrap;
 }
 
-.admin-layout .admin-button-primary,
-.admin-layout a.admin-button-primary {
+.admin-button-primary,
+a.admin-button-primary {
   border: 1px solid transparent;
   background: linear-gradient(135deg, var(--admin-blue), var(--admin-blue-dark));
   color: #ffffff;
   box-shadow: 0 10px 22px rgba(47, 125, 246, 0.2);
 }
 
-.admin-layout .admin-button-secondary,
-.admin-layout a.admin-button-secondary {
+.admin-button-secondary,
+a.admin-button-secondary {
   border: 1px solid rgba(47, 125, 246, 0.18);
   background: #ffffff;
   color: var(--admin-text);
   box-shadow: 0 8px 18px rgba(7, 31, 84, 0.06);
 }
 
-.admin-layout .admin-button-danger {
+.admin-button-danger {
   border: 1px solid transparent;
   background: linear-gradient(135deg, #e3545a, #b72b31);
   color: #ffffff;
 }
 
-.admin-layout .admin-button-warning {
+.admin-button-warning {
   border: 1px solid transparent;
   background: linear-gradient(135deg, #f2b84b, #c47a0c);
   color: #ffffff;
 }
 
-.admin-layout .admin-button-success {
+.admin-button-success {
   border: 1px solid transparent;
   background: linear-gradient(135deg, #29b879, #188756);
   color: #ffffff;
 }
 
-.admin-layout .admin-button-primary:hover,
-.admin-layout .admin-button-secondary:hover,
-.admin-layout .admin-button-danger:hover,
-.admin-layout .admin-button-warning:hover,
-.admin-layout .admin-button-success:hover,
-.admin-layout a.admin-button-primary:hover,
-.admin-layout a.admin-button-secondary:hover {
+.admin-button-primary:hover,
+.admin-button-secondary:hover,
+.admin-button-danger:hover,
+.admin-button-warning:hover,
+.admin-button-success:hover,
+a.admin-button-primary:hover,
+a.admin-button-secondary:hover {
   filter: none;
   transform: translateY(-1px);
 }
 
-.admin-layout .admin-button-primary:disabled,
-.admin-layout .admin-button-secondary:disabled,
-.admin-layout .admin-button-danger:disabled,
-.admin-layout .admin-button-warning:disabled,
-.admin-layout .admin-button-success:disabled {
+.admin-button-primary:disabled,
+.admin-button-secondary:disabled,
+.admin-button-danger:disabled,
+.admin-button-warning:disabled,
+.admin-button-success:disabled {
   cursor: not-allowed;
   opacity: 0.58;
   transform: none;
 }
 
-.admin-layout .admin-button-primary::after,
-.admin-layout .admin-button-secondary::after,
-.admin-layout .admin-button-danger::after,
-.admin-layout .admin-button-warning::after,
-.admin-layout .admin-button-success::after,
-.admin-layout a.admin-button-primary::after,
-.admin-layout a.admin-button-secondary::after,
+.admin-button-primary::after,
+.admin-button-secondary::after,
+.admin-button-danger::after,
+.admin-button-warning::after,
+.admin-button-success::after,
+a.admin-button-primary::after,
+a.admin-button-secondary::after,
 .admin-action-card::after {
   display: none;
 }
@@ -7272,13 +7272,13 @@
     flex-direction: column;
   }
 
-  .admin-layout .admin-button-primary,
-  .admin-layout .admin-button-secondary,
-  .admin-layout .admin-button-danger,
-  .admin-layout .admin-button-warning,
-  .admin-layout .admin-button-success,
-  .admin-layout a.admin-button-primary,
-  .admin-layout a.admin-button-secondary {
+  .admin-button-primary,
+  .admin-button-secondary,
+  .admin-button-danger,
+  .admin-button-warning,
+  .admin-button-success,
+  a.admin-button-primary,
+  a.admin-button-secondary {
     width: 100%;
     white-space: normal;
   }
