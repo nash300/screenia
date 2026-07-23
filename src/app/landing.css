@@ -6971,68 +6971,14 @@
   padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2));
 }
 
-.landing-page main > .landing-platform::before,
-.landing-page main > .landing-workflow::before,
-.landing-page main > .landing-pricing::before,
-.landing-page main > .landing-examples::before,
-.landing-page main > .landing-service-film::before,
-.landing-page main > .landing-faq::before,
-.landing-page main > .landing-contact::before,
-.landing-page main > .landing-platform::after,
-.landing-page main > .landing-workflow::after,
-.landing-page main > .landing-pricing::after,
-.landing-page main > .landing-examples::after,
-.landing-page main > .landing-service-film::after,
-.landing-page main > .landing-faq::after,
-.landing-page main > .landing-contact::after {
-  display: none;
-}
-
-.landing-page main > .landing-platform {
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(8, 40, 91, 0.76)),
-    url("/landing/section-art/digital-menu-board.jpg") !important;
-}
-
-.landing-page main > .landing-workflow {
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.9), rgba(9, 45, 102, 0.74)),
-    url("/landing/hero-slides/02/image.png") !important;
-}
-
-.landing-page main > .landing-pricing {
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.91), rgba(12, 52, 108, 0.75)),
-    url("/landing/section-art/salon-service-window.jpg") !important;
-}
-
-.landing-page main > .landing-examples {
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.91), rgba(8, 42, 96, 0.74)),
-    url("/landing/section-art/restaurant-menu-screens.jpg") !important;
-}
-
-.landing-page main > .landing-service-film {
-  display: flex;
-  align-items: center;
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(11, 46, 103, 0.73)),
-    url("/landing/hero-slides/03/image.png") !important;
-}
-
-.landing-page main > .landing-faq {
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.92), rgba(10, 44, 98, 0.76)),
-    url("/window_screen1.jpg") !important;
-}
-
+.landing-page main > .landing-service-film,
 .landing-page main > .landing-contact {
   display: flex;
   align-items: center;
+}
+
+.landing-page main > .landing-contact {
   box-shadow: none;
-  background-image:
-    linear-gradient(115deg, rgba(3, 14, 38, 0.93), rgba(13, 55, 115, 0.76)),
-    url("/salon4.jpg") !important;
 }
 
 .landing-section-panel,

@@ -372,6 +372,10 @@ if (/\.admin-layout\s+(?:input|select|textarea|label)(?=[\s:{,\[])/.test(adminCs
   problems.push("src/app/admin/admin.css must not style all admin form elements through .admin-layout. Use admin-field, admin-* control classes, or explicit component containers.");
 }
 
+if (/\.admin-layout\s+(?:table|th|td)(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style all admin table elements through .admin-layout. Use admin-table or admin-data-table selectors.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
@@ -1135,6 +1139,23 @@ for (const retiredLandingGlassPattern of [
 ]) {
   if (landingCss.includes(retiredLandingGlassPattern)) {
     problems.push(`src/app/landing.css must not keep retired duplicate glass override pattern: ${retiredLandingGlassPattern}.`);
+  }
+}
+
+for (const sectionClass of [
+  "landing-platform",
+  "landing-workflow",
+  "landing-examples",
+  "landing-service-film",
+  "landing-faq",
+  "landing-contact",
+]) {
+  const retiredBackgroundPattern = new RegExp(
+    `\\.landing-page\\s+main\\s*>\\s*\\.${sectionClass}\\s*\\{[^}]*background-image:`,
+    "s",
+  );
+  if (retiredBackgroundPattern.test(landingCss)) {
+    problems.push(`src/app/landing.css must not keep retired individual ${sectionClass} background-image ownership. Use the shared landing section background layer.`);
   }
 }
 

@@ -7274,14 +7274,17 @@
   min-height: 36px;
 }
 
-.admin-layout table {
+.admin-table,
+.admin-data-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
 }
 
-.admin-layout th,
-.admin-layout td {
+.admin-table th,
+.admin-table td,
+.admin-data-table th,
+.admin-data-table td {
   vertical-align: top;
 }
 
