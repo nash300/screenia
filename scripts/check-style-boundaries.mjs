@@ -609,6 +609,14 @@ for (const singleOwnerLandingSelector of [
   ".flow-shell::before",
   ".flow-shell-wide",
   ".flow-shell h1",
+  ".flow-result-page",
+  ".flow-result-shell",
+  ".flow-result-copy",
+  ".flow-result-copy::before",
+  ".flow-result-visual",
+  ".flow-result-icon",
+  ".flow-state-panel",
+  ".flow-state-mark",
 ]) {
   const selectorCount = countOccurrences(
     stripAtRuleBlocks(landingCss),
@@ -661,6 +669,9 @@ for (const retiredFlowOverride of [
   ".contact-form-wrap,\n.contact-success,\n.flow-shell",
   ".flow-shell {\n  border: 1px solid rgba(70, 111, 171, 0.17);",
   ".flow-page {\n  min-height: 100vh;\n  background:\n    linear-gradient(90deg, rgba(70, 111, 171, 0.08)",
+  ".flow-result-page {\n  background:\n    linear-gradient(90deg, rgba(255, 255, 255, 0.07)",
+  ".flow-result-shell {\n  overflow: hidden;\n  border: 1px solid rgba(255, 255, 255, 0.4);",
+  ".flow-state-panel {\n  border-radius: 10px;\n  background:",
 ]) {
   if (landingCss.includes(retiredFlowOverride)) {
     problems.push(`src/app/landing.css must not keep retired flow shell override pattern: ${retiredFlowOverride}`);
