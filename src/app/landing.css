@@ -7472,26 +7472,26 @@
 
 .landing-pricing .landing-plan-badge,
 .landing-pricing .landing-plan-badge-spacer {
-  border-radius: 999px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: rgba(238, 245, 255, 0.9) !important;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(238, 245, 255, 0.9);
   box-shadow: inset 0 0 0 1px rgba(221, 238, 255, 0.18);
 }
 
 .landing-pricing .landing-price-card.featured .landing-plan-badge {
-  background: linear-gradient(135deg, #ffe37a, #ffad20) !important;
-  color: #2b2100 !important;
+  background: linear-gradient(135deg, #ffe37a, #ffad20);
+  color: #2b2100;
   box-shadow:
     0 12px 28px rgba(255, 190, 54, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
 .landing-pricing .landing-plan-heading h3 {
-  font-size: clamp(1.22rem, 1.7vw, 1.48rem) !important;
+  font-size: clamp(1.22rem, 1.7vw, 1.48rem);
 }
 
 .landing-pricing .landing-plan-heading {
-  min-height: 34px !important;
+  min-height: 34px;
   align-items: center;
   margin-bottom: 10px;
 }
@@ -7499,7 +7499,7 @@
 .landing-pricing .landing-plan-heading > span {
   background:
     linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
-  color: #ffffff !important;
+  color: #ffffff;
   box-shadow: inset 0 0 0 1px rgba(221, 238, 255, 0.16);
 }
 
