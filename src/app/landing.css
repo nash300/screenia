@@ -411,8 +411,7 @@
 .landing-nav-primary .landing-nav-link:visited,
 .landing-nav-primary .landing-nav-link:focus,
 .landing-nav-primary .landing-nav-link:focus:not(:focus-visible),
-.landing-nav-primary .landing-nav-link:active,
-.landing-nav-primary .landing-nav-link.landing-nav-link-active {
+.landing-nav-primary .landing-nav-link:active {
   min-height: auto;
   border: 0;
   border-radius: 0;
@@ -443,23 +442,6 @@
   transform: none;
 }
 
-.landing-nav-primary .landing-nav-link.landing-nav-link-active {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-  box-shadow: none;
-  color: var(--screenia-logo-deep);
-  font-weight: 750;
-  text-decoration: none;
-  transform: none;
-}
-
-.landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
-  display: none;
-  content: none;
-}
-
 .landing-nav-primary .landing-nav-link:active {
   border: 0;
   background: transparent;
@@ -469,7 +451,8 @@
 }
 
 .landing-nav-primary .landing-nav-link:focus-visible {
-  outline: 0;
+  outline: 2px solid rgba(47, 125, 246, 0.42);
+  outline-offset: 7px;
   background: transparent;
   box-shadow: none;
   color: var(--screenia-logo-deep);
@@ -2863,7 +2846,18 @@
 
 .flow-page {
   min-height: 100vh;
-  padding: 24px;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(109, 141, 255, 0.32), transparent 28%),
+    radial-gradient(ellipse at 80% 8%, rgba(232, 244, 255, 0.5), transparent 34%),
+    radial-gradient(circle at 78% 78%, rgba(47, 125, 246, 0.2), transparent 34%),
+    linear-gradient(
+      118deg,
+      rgba(5, 20, 55, 0.96) 0 39%,
+      rgba(21, 94, 232, 0.78) 39% 54%,
+      rgba(236, 246, 255, 0.96) 54% 100%
+    ),
+    url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover;
+  padding: clamp(96px, 10vw, 126px) 24px 24px;
 }
 
 .flow-select-label {
@@ -2900,17 +2894,31 @@
 }
 
 .flow-shell {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
   width: min(860px, 100%);
+  overflow: hidden;
   margin: 0 auto;
-  border: 1px solid rgba(24, 213, 255, 0.16);
-  border-radius: 30px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 248, 255, 0.98));
+  border: 1px solid rgba(218, 236, 255, 0.28);
+  border-radius: 18px;
+  background: var(--screenia-glass-soft);
   padding: clamp(24px, 5vw, 48px);
-  box-shadow: 0 34px 90px rgba(7, 24, 47, 0.28);
+  box-shadow:
+    0 34px 90px rgba(0, 10, 32, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
 }
 
-.flow-shell-wide {
-  width: min(1080px, 100%);
+.flow-shell::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #44d7ff, #2f7df6 58%, #ffd21f);
+  content: "";
 }
 
 .flow-hero {
@@ -2928,11 +2936,11 @@
 
 .flow-shell h1 {
   margin: 0;
-  color: var(--landing-blue-950);
+  color: #061942;
   font-family: var(--landing-font-ui);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
   font-weight: 950;
-  line-height: 1.05;
+  line-height: 1.08;
 }
 
 .flow-steps {
@@ -3815,19 +3823,8 @@
 
 }
 
-/* Customer setup link layout */
-.flow-page {
-  padding: clamp(16px, 3vw, 34px);
-}
-
 .flow-nav {
   display: none;
-}
-
-.flow-shell {
-  width: min(900px, 100%);
-  border-radius: 28px;
-  padding: clamp(20px, 4vw, 38px);
 }
 
 .flow-shell-wide {
@@ -3853,12 +3850,6 @@
   object-fit: contain;
   object-position: bottom center;
   filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.28));
-}
-
-.flow-shell h1 {
-  color: #ffffff;
-  font-size: clamp(1.9rem, 3.4vw, 2.75rem);
-  line-height: 1.08;
 }
 
 .flow-hero p {
@@ -4832,7 +4823,6 @@
 .landing-page .landing-section,
 .landing-page .landing-contact,
 .landing-page .landing-footer,
-.landing-page .flow-shell,
 .landing-page .account-shell {
   position: relative;
   isolation: isolate;
@@ -5530,23 +5520,6 @@
 .landing-request-checkbox {
   border-radius: 7px !important;
   background: #edf4ff;
-}
-
-/* Onboarding, legal and payment outcomes */
-.flow-page {
-  min-height: 100vh;
-  background:
-    linear-gradient(90deg, rgba(70, 111, 171, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(70, 111, 171, 0.08) 1px, transparent 1px),
-    linear-gradient(145deg, #eaf2ff, #f9fbff 45%, #edf7fa);
-  background-size: 64px 64px, 64px 64px, auto;
-}
-
-.flow-shell {
-  border: 1px solid rgba(70, 111, 171, 0.17);
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--screenia-shadow);
 }
 
 .flow-hero {
@@ -7370,8 +7343,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
-.contact-main,
-.flow-page {
+.contact-main {
   background:
     linear-gradient(
       115deg,
@@ -7383,14 +7355,12 @@
 }
 
 .contact-form-wrap,
-.contact-success,
-.flow-shell {
+.contact-success {
   position: relative;
   z-index: 1;
 }
 
-.contact-form-wrap,
-.flow-shell {
+.contact-form-wrap {
   border: 1px solid rgba(218, 236, 255, 0.28) !important;
   border-radius: 18px !important;
   background: var(--screenia-glass-panel) !important;
@@ -7408,8 +7378,7 @@
     rgba(255, 255, 255, 0.92) !important;
 }
 
-.contact-form-wrap::before,
-.flow-shell::before {
+.contact-form-wrap::before {
   position: absolute;
   top: 0;
   right: 0;
@@ -7421,7 +7390,6 @@
 
 .contact-form-heading h2,
 .contact-success h2,
-.flow-shell h1,
 .flow-card h2,
 .flow-card h3 {
   color: #061942 !important;
@@ -7439,16 +7407,6 @@
   box-shadow:
     0 10px 24px rgba(6, 25, 66, 0.06),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
-}
-
-.flow-page {
-  padding-top: clamp(96px, 10vw, 126px);
-}
-
-.flow-shell {
-  position: relative;
-  overflow: hidden;
-  background: var(--screenia-glass-soft) !important;
 }
 
 .flow-card,
@@ -7555,8 +7513,7 @@
 }
 
 .landing-page main > .landing-pricing,
-.contact-main,
-.flow-page {
+.contact-main {
   background:
     radial-gradient(circle at 10% 10%, rgba(109, 141, 255, 0.32), transparent 28%),
     radial-gradient(ellipse at 80% 8%, rgba(232, 244, 255, 0.5), transparent 34%),
@@ -7577,7 +7534,7 @@
 }
 
 .contact-form-wrap,
-.flow-shell {
+.contact-form-wrap {
   background: var(--screenia-glass-soft) !important;
 }
 

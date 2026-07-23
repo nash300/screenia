@@ -57,20 +57,12 @@ export function LandingNav({
         <div className="landing-nav-primary">
           {navItems.map((item) => {
             const href = isHome ? item.homeHref : item.href;
-            const active =
-              (currentPath === "/sa-fungerar-det" &&
-                item.href === "/sa-fungerar-det") ||
-              (currentPath === "/om-oss" && item.href === "/om-oss");
 
             return (
               <Link
                 key={item.href}
                 href={href}
-                className={
-                  active
-                    ? "landing-nav-link landing-nav-link-active"
-                    : "landing-nav-link"
-                }
+                className="landing-nav-link"
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}

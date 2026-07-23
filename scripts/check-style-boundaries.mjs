@@ -462,15 +462,15 @@ if (!adminCss.includes(".admin-nav-link.admin-nav-link-active")) {
 }
 
 if (landingNavSource.includes('"is-active"')) {
-  problems.push("LandingNav must use landing-nav-link-active instead of generic is-active state naming.");
+  problems.push("LandingNav must not use generic is-active state naming for public navigation.");
 }
 
 if (landingNavSource.includes("landing-links open")) {
   problems.push("LandingNav must use landing-links-open instead of a generic open state class.");
 }
 
-if (!landingNavSource.includes("landing-nav-link-active")) {
-  problems.push("LandingNav must expose the explicit landing-nav-link-active state class.");
+if (landingNavSource.includes("landing-nav-link-active")) {
+  problems.push("LandingNav must keep primary navigation links text-only and must not add landing-nav-link-active state classes.");
 }
 
 if (!landingNavSource.includes("landing-nav-link")) {
@@ -601,6 +601,11 @@ for (const singleOwnerLandingSelector of [
   ".landing-footer nav",
   ".landing-footer a",
   ".landing-footer p",
+  ".flow-page",
+  ".flow-shell",
+  ".flow-shell::before",
+  ".flow-shell-wide",
+  ".flow-shell h1",
 ]) {
   const selectorCount = countOccurrences(
     stripAtRuleBlocks(landingCss),
@@ -644,6 +649,18 @@ for (const retiredIllustrationSelector of [
 ]) {
   if (landingCss.includes(retiredIllustrationSelector)) {
     problems.push(`src/app/landing.css must not keep retired illustration override ${retiredIllustrationSelector}.`);
+  }
+}
+
+for (const retiredFlowOverride of [
+  ".landing-page .flow-shell",
+  ".contact-form-wrap,\n.flow-shell",
+  ".contact-form-wrap,\n.contact-success,\n.flow-shell",
+  ".flow-shell {\n  border: 1px solid rgba(70, 111, 171, 0.17);",
+  ".flow-page {\n  min-height: 100vh;\n  background:\n    linear-gradient(90deg, rgba(70, 111, 171, 0.08)",
+]) {
+  if (landingCss.includes(retiredFlowOverride)) {
+    problems.push(`src/app/landing.css must not keep retired flow shell override pattern: ${retiredFlowOverride}`);
   }
 }
 
@@ -1594,8 +1611,8 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:active", [
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visible", [
   {
-    includes: "outline: 0;",
-    message: "must replace the global rectangle focus ring with the nav underline.",
+    includes: "outline: 2px solid rgba(47, 125, 246, 0.42);",
+    message: "must keep an accessible focus ring without using a button background.",
   },
   {
     includes: "background: transparent;",
@@ -1611,51 +1628,15 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active", [
-  {
-    includes: "background: transparent;",
-    message: "must keep active links text-only without a button background.",
-  },
-  {
-    includes: "box-shadow: none;",
-    message: "must keep active links shadow-free.",
-  },
-  {
-    includes: "border: 0;",
-    message: "must keep active primary nav links border-free.",
-  },
-  {
-    includes: "border-radius: 0;",
-    message: "must keep active primary nav links text shaped.",
-  },
-  {
-    includes: "padding: 0;",
-    message: "must not make active primary nav links button sized.",
-  },
-  {
-    includes: "text-decoration: none;",
-    message: "must show the active state as text color/weight rather than an underline or button treatment.",
-  },
-  {
-    includes: "font-weight: 750;",
-    message: "must keep active primary nav links the same weight as the other nav links.",
-  },
-  {
-    includes: "transform: none;",
-    message: "must not animate active primary nav links like pressed buttons.",
-  },
-]);
-
-requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active::after", [
-  {
-    includes: "display: none;",
-    message: "must disable the active nav pseudo-element.",
-  },
-  {
-    includes: "content: none;",
-    message: "must keep active public nav links text-only.",
-  },
-]);
+for (const retiredActiveNavSelector of [
+  ".landing-nav-link-active",
+  ".landing-nav-primary .landing-nav-link.landing-nav-link-active",
+  ".landing-nav-primary .landing-nav-link.landing-nav-link-active::after",
+]) {
+  if (landingCss.includes(retiredActiveNavSelector)) {
+    problems.push(`src/app/landing.css must not keep retired active primary nav selector: ${retiredActiveNavSelector}`);
+  }
+}
 
 if (!read("src/app/sa-fungerar-det/page.tsx").includes('import "../public-info.css";')) {
   problems.push("/sa-fungerar-det must import public-info.css for its scoped page styles.");
