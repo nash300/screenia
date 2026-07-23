@@ -7429,22 +7429,22 @@
 }
 
 .landing-pricing .landing-price-grid {
-  grid-template-columns: repeat(2, minmax(300px, 390px)) !important;
+  grid-template-columns: repeat(2, minmax(300px, 390px));
   align-items: stretch;
-  justify-content: center !important;
+  justify-content: center;
   gap: clamp(18px, 2vw, 26px);
-  width: min(100%, 832px) !important;
-  margin-inline: auto !important;
+  width: min(100%, 832px);
+  margin-inline: auto;
 }
 
 .landing-pricing .landing-price-card {
-  display: flex !important;
-  min-height: 0 !important;
-  padding: clamp(16px, 1.7vw, 20px) !important;
+  display: flex;
+  min-height: 0;
+  padding: clamp(16px, 1.7vw, 20px);
   flex-direction: column;
   overflow: hidden;
-  border-color: rgba(209, 231, 255, 0.3) !important;
-  border-radius: 18px !important;
+  border-color: rgba(209, 231, 255, 0.3);
+  border-radius: 18px;
   background:
     linear-gradient(180deg, rgba(13, 46, 101, 0.94), rgba(6, 22, 55, 0.9)),
     rgba(5, 24, 60, 0.78) !important;
