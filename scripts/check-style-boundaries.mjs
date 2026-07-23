@@ -384,6 +384,10 @@ if (/\.admin-layout\s+\.admin-queue-pagination\s+button(?=[\s:{,\[])/.test(admin
   problems.push("src/app/admin/admin.css must style admin-queue-pagination-button instead of every button inside admin-queue-pagination.");
 }
 
+if (/\.admin-layout\s+\.admin-action-(?:card|warning|danger|info)(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must keep admin action card styles class-owned without admin-layout descendant chaining.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
@@ -1031,6 +1035,10 @@ if (adminCss.includes(".admin-email-filter-row button.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-email-filter-active instead of generic email filter is-active.");
 }
 
+if (adminCss.includes(".admin-layout .admin-email-filter-row .admin-email-filter-button")) {
+  problems.push("src/app/admin/admin.css must keep email filter button styles class-owned without admin-layout descendant chaining.");
+}
+
 if (!adminCss.includes(".admin-email-filter-button.admin-email-filter-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-email-filter-button admin-email-filter-active selector.");
 }
@@ -1541,6 +1549,17 @@ const adminPageShellCount = countOccurrences(
 );
 if (adminPageShellCount > 1) {
   problems.push("src/app/admin/admin.css must keep shared admin page-shell layout in one grouped selector block.");
+}
+
+const adminActionCardOwnerCount = countOccurrences(adminCss, /^\.admin-action-card\s*\{/gm);
+if (adminActionCardOwnerCount !== 1) {
+  problems.push(
+    `src/app/admin/admin.css must keep exactly one base .admin-action-card owner block; found ${adminActionCardOwnerCount}.`,
+  );
+}
+
+if (/\.admin-card,\s*\n\.admin-action-card,/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not include .admin-action-card in the shared admin-card surface group; action cards own their surface separately.");
 }
 
 for (const retiredCustomerCreateSelector of [
