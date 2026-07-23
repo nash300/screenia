@@ -289,6 +289,10 @@ if (!landingCss.includes(".flow-step.flow-step-active")) {
   problems.push("src/app/landing.css must define the explicit flow-step-active selector.");
 }
 
+if (landingCss.includes("account-category-tabs")) {
+  problems.push("src/app/landing.css still contains retired account-category-tabs styling. The account upload UI no longer emits that tab layer.");
+}
+
 if (emailEventsPageSource.includes('"is-active"')) {
   problems.push("The admin email-events page must use admin-email-filter-active instead of generic is-active.");
 }

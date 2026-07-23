@@ -3997,30 +3997,6 @@
   gap: 12px;
 }
 
-.account-category-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.account-category-tabs button {
-  border: 1px solid var(--landing-line);
-  border-radius: 999px;
-  background: #ffffff;
-  color: var(--landing-blue-900);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 900;
-  padding: 9px 14px;
-}
-
-.account-category-tabs button.is-active {
-  border-color: transparent;
-  background: linear-gradient(135deg, var(--landing-primary), #5ea0ff);
-  color: #ffffff;
-  box-shadow: 0 12px 28px rgba(47, 125, 246, 0.18);
-}
-
 .account-upload-builder {
   display: grid;
   gap: 14px;
