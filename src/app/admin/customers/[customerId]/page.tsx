@@ -2028,9 +2028,11 @@ export default function CustomerDetailPage({
             key={section.id}
             type="button"
             onClick={() => navigateToSection(section.id)}
-            className={`admin-customer-workflow-step ${
-              activeSection === section.id ? "is-active" : ""
-            }`}
+            className={
+              activeSection === section.id
+                ? "admin-customer-workflow-step admin-customer-workflow-step-active"
+                : "admin-customer-workflow-step"
+            }
           >
             <span>{section.stage}</span>
             <strong>
@@ -2800,9 +2802,11 @@ export default function CustomerDetailPage({
                 key={item.id}
                 type="button"
                 onClick={() => navigateCommunicationView(item.id)}
-                className={`admin-communication-workflow-step ${
-                  communicationView === item.id ? "is-active" : ""
-                }`}
+                className={
+                  communicationView === item.id
+                    ? "admin-communication-workflow-step admin-communication-workflow-step-active"
+                    : "admin-communication-workflow-step"
+                }
               >
                 <span>{item.stage}</span>
                 <strong>

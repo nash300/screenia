@@ -219,6 +219,7 @@ const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
+const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -360,6 +361,31 @@ for (const retiredFilterClass of [
 ]) {
   if (adminCss.includes(retiredFilterClass)) {
     problems.push(`src/app/admin/admin.css still contains retired ${retiredFilterClass} button-filter styling. Use current select/list controls instead.`);
+  }
+}
+
+if (customerDetailPageSource.includes('"is-active"')) {
+  problems.push("The admin customer detail page must use explicit workflow state class names instead of generic is-active.");
+}
+
+for (const className of [
+  "admin-customer-workflow-step-active",
+  "admin-communication-workflow-step-active",
+]) {
+  if (!customerDetailPageSource.includes(className)) {
+    problems.push(`The admin customer detail page must expose the explicit ${className} state class.`);
+  }
+  if (!adminCss.includes(className)) {
+    problems.push(`src/app/admin/admin.css must define the explicit ${className} selector.`);
+  }
+}
+
+for (const retiredSelector of [
+  ".admin-customer-workflow-step.is-active",
+  ".admin-communication-workflow-step.is-active",
+]) {
+  if (adminCss.includes(retiredSelector)) {
+    problems.push(`src/app/admin/admin.css must not keep generic workflow selector ${retiredSelector}.`);
   }
 }
 

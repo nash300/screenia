@@ -3200,7 +3200,7 @@
   box-shadow: 0 18px 34px rgba(7, 31, 84, 0.1);
 }
 
-.admin-customer-workflow-step.is-active {
+.admin-customer-workflow-step.admin-customer-workflow-step-active {
   border-color: rgba(47, 125, 246, 0.5);
   background: linear-gradient(135deg, #061942, #2f7df6);
   color: #ffffff;
@@ -3219,7 +3219,7 @@
   font-weight: 950;
 }
 
-.admin-customer-workflow-step.is-active span {
+.admin-customer-workflow-step.admin-customer-workflow-step-active span {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
@@ -3247,7 +3247,7 @@
   font-weight: 950;
 }
 
-.admin-customer-workflow-step.is-active strong em {
+.admin-customer-workflow-step.admin-customer-workflow-step-active strong em {
   background: rgba(255, 255, 255, 0.18);
 }
 
@@ -3259,7 +3259,7 @@
   line-height: 1.25;
 }
 
-.admin-customer-workflow-step.is-active small {
+.admin-customer-workflow-step.admin-customer-workflow-step-active small {
   color: rgba(255, 255, 255, 0.78);
 }
 
@@ -3482,7 +3482,7 @@
   box-shadow: 0 18px 34px rgba(7, 31, 84, 0.1);
 }
 
-.admin-communication-workflow-step.is-active {
+.admin-communication-workflow-step.admin-communication-workflow-step-active {
   border-color: rgba(47, 125, 246, 0.5);
   background: linear-gradient(135deg, #061942, #2f7df6);
   color: #ffffff;
@@ -3501,7 +3501,7 @@
   font-weight: 950;
 }
 
-.admin-communication-workflow-step.is-active > span {
+.admin-communication-workflow-step.admin-communication-workflow-step-active > span {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
@@ -3529,7 +3529,7 @@
   font-weight: 950;
 }
 
-.admin-communication-workflow-step.is-active strong em {
+.admin-communication-workflow-step.admin-communication-workflow-step-active strong em {
   background: rgba(255, 255, 255, 0.18);
 }
 
@@ -3541,7 +3541,7 @@
   line-height: 1.25;
 }
 
-.admin-communication-workflow-step.is-active small {
+.admin-communication-workflow-step.admin-communication-workflow-step-active small {
   color: rgba(255, 255, 255, 0.78);
 }
 
@@ -5738,7 +5738,7 @@
   box-shadow: 0 12px 24px rgba(7, 31, 84, 0.06) !important;
 }
 
-.admin-layout .admin-customer-workflow-step.is-active {
+.admin-layout .admin-customer-workflow-step.admin-customer-workflow-step-active {
   background: linear-gradient(135deg, #061942, #2f7df6) !important;
   color: #ffffff !important;
 }
