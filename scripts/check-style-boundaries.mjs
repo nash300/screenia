@@ -453,10 +453,37 @@ if (landingCss.includes(".landing-hero-dots button.is-active")) {
   problems.push("src/app/landing.css must style landing-hero-dot-active instead of generic hero dot is-active.");
 }
 
-if (landingCss.includes(".landing-page :is(h2, h3, h4, h5, h6)")) {
+if (/\.landing-page\s+:is\(\s*h1\s*,\s*h2\s*,\s*h3\s*,\s*h4\s*,\s*h5\s*,\s*h6\s*\)/s.test(landingCss)) {
   problems.push(
     "src/app/landing.css must not keep the retired broad h2-h6 UI-font override. Customer-facing headings use the shared display heading rule.",
   );
+}
+
+const explicitLandingHeadingSelector = `.landing-hero-copy h1,
+.landing-hero-copy-main h1,
+.landing-section-heading h2,
+.landing-workflow-heading h2,
+.landing-service-film-copy h2,
+.landing-contact h2,
+.landing-modal h2`;
+const explicitLandingHeadingStart = landingCss.indexOf(`${explicitLandingHeadingSelector} {`);
+const explicitLandingHeadingEnd =
+  explicitLandingHeadingStart === -1 ? -1 : landingCss.indexOf("}", explicitLandingHeadingStart);
+const explicitLandingHeadingBody =
+  explicitLandingHeadingEnd === -1
+    ? ""
+    : landingCss.slice(explicitLandingHeadingStart, explicitLandingHeadingEnd);
+
+if (
+  !explicitLandingHeadingBody.includes("font-family: var(--landing-font-display);") ||
+  !explicitLandingHeadingBody.includes("font-weight: 400;") ||
+  !explicitLandingHeadingBody.includes("letter-spacing: 0;")
+) {
+  problems.push("src/app/landing.css must define customer-facing display typography through explicit heading selectors.");
+}
+
+if (explicitLandingHeadingBody.includes("!important")) {
+  problems.push("src/app/landing.css must not rely on important heading overrides for customer-facing display typography.");
 }
 
 if (/\.active\b/.test(landingCss)) {

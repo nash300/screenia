@@ -6838,13 +6838,16 @@
   line-height: 1.68;
 }
 
-.landing-page :is(h1, h2, h3, h4, h5, h6),
-.landing-page .landing-section-heading h2,
-.landing-page .landing-contact h2,
-.landing-page .landing-service-film-copy h2 {
-  font-family: var(--landing-font-display) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
+.landing-hero-copy h1,
+.landing-hero-copy-main h1,
+.landing-section-heading h2,
+.landing-workflow-heading h2,
+.landing-service-film-copy h2,
+.landing-contact h2,
+.landing-modal h2 {
+  font-family: var(--landing-font-display);
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .landing-page .landing-nav,
