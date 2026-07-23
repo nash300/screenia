@@ -1221,6 +1221,9 @@ for (const singleOwnerAdminSelector of [
   ".admin-sidebar",
   ".admin-sidebar-kicker",
   ".admin-page",
+  ".admin-order-toolbar",
+  ".admin-order-list",
+  ".admin-breadcrumbs",
   ".admin-sidebar-logo-card",
   ".admin-sidebar-logo-card .screenia-logo",
   ".admin-sidebar-logo-card .screenia-logo-wordmark",
@@ -1243,6 +1246,12 @@ for (const singleOwnerAdminSelector of [
   if (selectorCount > 1) {
     problems.push(`src/app/admin/admin.css must keep ${singleOwnerAdminSelector} in one owner block.`);
   }
+}
+
+if (
+  /admin-dashboard-page,[\s\S]*?\.admin-order-list,[\s\S]*?admin-customers-page/.test(adminCss)
+) {
+  problems.push("src/app/admin/admin.css must not include .admin-order-list in page-shell grouped layout selectors; it is the scrollable order queue list.");
 }
 
 if (adminCss.includes('content: "Screenia Admin"')) {

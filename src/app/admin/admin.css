@@ -509,7 +509,7 @@
 
 .admin-order-toolbar {
   display: grid;
-  gap: 16px;
+  gap: 0.7rem;
 }
 
 .admin-compliance-page {
@@ -629,7 +629,11 @@
 
 .admin-order-list {
   display: grid;
-  gap: 16px;
+  gap: 0.5rem;
+  max-height: min(62vh, 680px);
+  overflow: auto;
+  padding-right: 0.35rem;
+  scrollbar-gutter: stable;
 }
 
 .admin-order-card {
@@ -801,15 +805,15 @@
 
 .admin-breadcrumbs {
   display: flex;
-  width: min(100%, 1180px);
+  width: min(100%, var(--admin-content-max));
   flex-wrap: wrap;
   gap: 0.35rem;
-  margin: 0 auto 0.75rem;
-  border: 1px solid rgba(47, 125, 246, 0.14);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.78);
+  margin: 0 auto 1rem;
+  border: 1px solid var(--admin-border);
+  border-radius: var(--admin-radius-md);
+  background: rgba(255, 255, 255, 0.82);
   padding: 0.55rem 0.75rem;
-  box-shadow: 0 12px 26px rgba(7, 31, 84, 0.07);
+  box-shadow: var(--admin-shadow-soft);
 }
 
 .admin-breadcrumb-item {
@@ -6551,15 +6555,6 @@
   color: var(--admin-blue);
 }
 
-.admin-breadcrumbs {
-  width: min(100%, 1280px);
-  margin-bottom: 1rem;
-  border: 1px solid var(--admin-border);
-  border-radius: var(--admin-radius-md);
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: var(--admin-shadow-soft);
-}
-
 .admin-page > div,
 .admin-page > main {
   width: min(100%, 1280px);
@@ -6581,7 +6576,6 @@
 .admin-dashboard-page,
 .admin-compliance-page,
 .admin-inventory-page,
-.admin-order-list,
 .admin-customer-detail-page,
 .admin-devices-page,
 .admin-customers-page {
@@ -6959,7 +6953,6 @@
   --admin-space-md: 1rem;
 }
 
-.admin-breadcrumbs,
 .admin-page > div,
 .admin-page > main {
   width: min(100%, var(--admin-content-max));
@@ -6968,7 +6961,6 @@
 .admin-dashboard-page,
 .admin-compliance-page,
 .admin-inventory-page,
-.admin-order-list,
 .admin-customer-detail-page,
 .admin-devices-page,
 .admin-customers-page {
@@ -7632,10 +7624,6 @@
   padding: clamp(0.95rem, 1.6vw, 1.25rem) !important;
 }
 
-.admin-order-toolbar {
-  gap: 0.7rem;
-}
-
 .admin-orders-toolbar-heading,
 .admin-orders-list-heading {
   display: flex;
@@ -7665,14 +7653,6 @@
 .admin-orders-search-row input,
 .admin-orders-search-row select {
   width: 100%;
-}
-
-.admin-order-list {
-  gap: 0.5rem;
-  max-height: min(62vh, 680px);
-  overflow: auto;
-  padding-right: 0.35rem;
-  scrollbar-gutter: stable;
 }
 
 .admin-orders-page .admin-order-card {
