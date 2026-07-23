@@ -1226,6 +1226,9 @@ for (const retiredLandingClass of [
   "landing-workflow-banner",
   "landing-workflow-layout",
   "landing-pricing-note",
+  "landing-film-gradient",
+  "landing-film-caption",
+  "landing-film-scene",
   "landing-timeline",
   "landing-checkout-visual",
   "landing-comparison",
@@ -1265,6 +1268,21 @@ for (const selector of [
   if (unscopedFeatureOwner.test(landingCss)) {
     problems.push(
       `src/app/landing.css must scope active feature-card ownership through .landing-platform ${selector}.`,
+    );
+  }
+}
+
+for (const selector of [
+  ".landing-film-stage",
+  ".landing-film-screen",
+  ".landing-film-progress",
+]) {
+  const unscopedFilmOwner = new RegExp(
+    `(^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|:|\\{|>)`,
+  );
+  if (unscopedFilmOwner.test(landingCss)) {
+    problems.push(
+      `src/app/landing.css must scope active film ownership through .landing-service-film ${selector}.`,
     );
   }
 }
