@@ -3808,34 +3808,6 @@
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif !important;
 }
 
-.admin-nav-link {
-  min-height: 44px;
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  border-radius: 14px;
-  background: #ffffff !important;
-  color: #061942;
-  box-shadow: 0 8px 20px rgba(7, 31, 84, 0.06);
-}
-
-.admin-nav-link:hover,
-.admin-nav-link.is-active {
-  background: linear-gradient(135deg, #2f7df6, #5ea0ff) !important;
-  color: #ffffff;
-}
-
-.admin-nav-icon {
-  border: 0;
-  border-radius: 10px;
-  background: rgba(47, 125, 246, 0.12);
-  color: #2f7df6;
-}
-
-.admin-nav-link.is-active .admin-nav-icon,
-.admin-nav-link:hover .admin-nav-icon {
-  background: #ffffff;
-  color: #2f7df6;
-}
-
 .admin-page-header,
 .page-header,
 .admin-status-row,
