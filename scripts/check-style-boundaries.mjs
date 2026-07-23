@@ -602,6 +602,7 @@ for (const singleOwnerLandingSelector of [
   ".landing-footer a",
   ".landing-footer p",
   ".landing-page main > .landing-section-surface",
+  ".landing-page main > .landing-pricing > .landing-section-panel",
   ".contact-main",
   ".contact-form-wrap",
   ".contact-form-wrap::before",
@@ -717,6 +718,20 @@ for (const retiredPublicThemeOverride of [
   ".landing-workflow-step:hover {\n  border-color: rgba(255, 210, 31, 0.34) !important;",
   "linear-gradient(145deg, #6d8dff, #2f7df6 64%, #0a3eaa) !important;",
   "rgba(5, 20, 55, 0.56) !important;",
+  ".landing-pricing .landing-section-panel {\n  overflow: hidden;",
+  ".landing-pricing .landing-section-panel {\n  max-width: 1180px;",
+  ".landing-pricing .landing-section-panel {\n  background:\n    linear-gradient(145deg, rgba(10, 45, 108, 0.82)",
+  ".landing-pricing .landing-section-panel {\n  border-color: rgba(221, 238, 255, 0.34) !important;",
+  ".landing-plan-badge,\n.landing-price-row,\n.landing-hero-benefit,\n.landing-logo-tile {\n  border-radius: var(--landing-radius-sm) !important;",
+  ".landing-plan-badge,\n.landing-plan-badge-spacer {\n  border-radius: 4px !important;",
+  ".landing-price-row {\n  border-radius: 6px !important;",
+  ".landing-pricing-note {\n  position: relative;\n  overflow: hidden;\n  border: 0 !important;",
+  ".landing-pricing-note {\n  display: grid;\n  grid-template-columns: repeat(3, minmax(0, 1fr));\n  gap: 12px 22px;\n  margin-top: 16px;\n  padding: 18px 20px !important;",
+  ".landing-pricing .landing-price-grid {\n    grid-template-columns: 1fr !important;",
+  ".landing-pricing .landing-price-card {\n    width: 100% !important;",
+  ".landing-pricing .landing-plan-device {\n    min-height: 96px !important;",
+  ".landing-pricing .landing-plan-device img {\n    height: 92px !important;",
+  ".landing-pricing .landing-price-card ul {\n    min-height: 0 !important;",
 ]) {
   if (landingCss.includes(retiredPublicThemeOverride)) {
     problems.push(`src/app/landing.css must not keep retired public theme override pattern: ${retiredPublicThemeOverride}`);
@@ -1296,12 +1311,12 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 30,
+    max: 26,
   },
   {
     file: "src/app/landing.css",
     css: landingCss,
-    max: 123,
+    max: 22,
   },
 ];
 

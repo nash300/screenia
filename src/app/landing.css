@@ -4452,7 +4452,7 @@
 .landing-price-row,
 .landing-hero-benefit,
 .landing-logo-tile {
-  border-radius: var(--landing-radius-sm) !important;
+  border-radius: var(--landing-radius-sm);
 }
 
 .landing-modal input,
@@ -4750,7 +4750,7 @@
 
 .landing-plan-badge,
 .landing-plan-badge-spacer {
-  border-radius: 4px !important;
+  border-radius: 4px;
 }
 
 .landing-plan-device {
@@ -4767,18 +4767,18 @@
 }
 
 .landing-price-row {
-  border-radius: 6px !important;
+  border-radius: 6px;
   background: #f1f6fd;
 }
 
 .landing-pricing-note {
   position: relative;
   overflow: hidden;
-  border: 0 !important;
-  border-radius: 8px !important;
-  background: var(--screenia-navy) !important;
+  border: 0;
+  border-radius: 8px;
+  background: var(--screenia-navy);
   color: #ffffff;
-  box-shadow: var(--screenia-shadow) !important;
+  box-shadow: var(--screenia-shadow);
 }
 
 .landing-pricing-note::before {
@@ -5491,12 +5491,6 @@
   }
 }
 
-/* Compact pricing composition and keep supporting services inside the section. */
-.landing-pricing .landing-section-panel {
-  overflow: hidden;
-  padding: clamp(24px, 3vw, 38px);
-}
-
 .landing-pricing .landing-price-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
@@ -5620,7 +5614,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px 22px;
   margin-top: 16px;
-  padding: 18px 20px !important;
+  padding: 18px 20px;
 }
 
 .landing-pricing-note h3 {
@@ -6111,15 +6105,17 @@
     0 0 18px rgba(255, 210, 31, 0.18);
 }
 
-.landing-pricing .landing-section-panel {
+.landing-page main > .landing-pricing > .landing-section-panel {
+  overflow: hidden;
   max-width: 1180px;
-  border-color: rgba(221, 238, 255, 0.34) !important;
+  border-color: rgba(221, 238, 255, 0.34);
   background:
-    linear-gradient(145deg, rgba(10, 45, 108, 0.84), rgba(10, 13, 18, 0.68)),
-    rgba(12, 19, 22, 0.56) !important;
+    linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(5, 20, 55, 0.66)),
+    rgba(5, 20, 55, 0.56);
   box-shadow:
     0 34px 90px rgba(0, 10, 32, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  padding: clamp(24px, 3vw, 38px);
 }
 
 .landing-pricing .landing-section-heading {
@@ -6435,26 +6431,26 @@
   }
 
   .landing-pricing .landing-price-grid {
-    grid-template-columns: 1fr !important;
-    width: 100% !important;
-    justify-items: stretch !important;
+    grid-template-columns: 1fr;
+    width: 100%;
+    justify-items: stretch;
   }
 
   .landing-pricing .landing-price-card {
-    width: 100% !important;
-    min-width: 0 !important;
+    width: 100%;
+    min-width: 0;
   }
 
   .landing-pricing .landing-plan-device {
-    min-height: 96px !important;
+    min-height: 96px;
   }
 
   .landing-pricing .landing-plan-device img {
-    height: 92px !important;
+    height: 92px;
   }
 
   .landing-pricing .landing-price-card ul {
-    min-height: 0 !important;
+    min-height: 0;
   }
 }
 
@@ -7035,12 +7031,6 @@
       rgba(236, 246, 255, 0.96) 54% 100%
     ),
     url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover;
-}
-
-.landing-pricing .landing-section-panel {
-  background:
-    linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(5, 20, 55, 0.66)),
-    rgba(5, 20, 55, 0.56);
 }
 
 @media (max-width: 900px) {
