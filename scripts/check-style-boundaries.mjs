@@ -1105,7 +1105,7 @@ const importantRatchets = [
   {
     file: "src/app/landing.css",
     css: landingCss,
-    max: 145,
+    max: 127,
   },
 ];
 
@@ -1136,6 +1136,9 @@ for (const { token, message } of retiredAdminTokenNames) {
 for (const retiredLandingGlassPattern of [
   ".landing-page :is(.landing-section, .landing-contact, .landing-footer, .flow-shell, .account-shell)",
   ".landing-page :is(.landing-section-panel, .landing-contact-panel)",
+  ".landing-page main > .landing-platform,\n.landing-page main > .landing-workflow",
+  ".landing-page main > .landing-platform::before,\n.landing-page main > .landing-workflow::before",
+  ".landing-page main > .landing-platform > .landing-section-panel",
   "background-color: rgba(10, 19, 22, 0.5)",
   "rgba(217, 234, 255, 0.32)",
   "rgba(217, 234, 255, 0.24)",
@@ -1160,6 +1163,25 @@ for (const sectionClass of [
   );
   if (retiredBackgroundPattern.test(landingCss)) {
     problems.push(`src/app/landing.css must not keep retired individual ${sectionClass} background-image ownership. Use the shared landing section background layer.`);
+  }
+
+  const retiredPseudoImagePattern = new RegExp(
+    `\\.${sectionClass}::(?:before|after)\\s*\\{[^}]*url\\(`,
+    "s",
+  );
+  if (retiredPseudoImagePattern.test(landingCss)) {
+    problems.push(`src/app/landing.css must not keep retired individual ${sectionClass} pseudo-element image ownership. Use landing-section-surface.`);
+  }
+}
+
+for (const requiredSurfaceClass of [
+  "landing-section landing-section-surface landing-workflow",
+  "landing-section landing-section-surface landing-service-film",
+  "landing-section-surface landing-contact",
+  "landing-section landing-section-surface landing-${id}",
+]) {
+  if (!landingPageSource.includes(requiredSurfaceClass)) {
+    problems.push(`src/app/page.tsx must mark shared landing sections with ${requiredSurfaceClass}.`);
   }
 }
 

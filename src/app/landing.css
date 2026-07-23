@@ -1738,53 +1738,6 @@
   padding: 86px max(48px, calc((100vw - 1180px) / 2));
 }
 
-.landing-platform,
-.landing-pricing,
-.landing-gallery,
-.landing-faq {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border-radius: 0;
-  background:
-    linear-gradient(135deg, rgba(47, 125, 246, 0.08), transparent 30%),
-    #ffffff;
-  padding: 72px max(48px, calc((100vw - 1180px) / 2));
-  box-shadow: 0 28px 70px rgba(7, 31, 84, 0.08);
-}
-
-.landing-platform::before,
-.landing-pricing::before,
-.landing-gallery::before,
-.landing-faq::before,
-.landing-workflow::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background-position: center;
-  background-size: cover;
-  content: "";
-  filter: blur(10px) saturate(0.85);
-  opacity: 0.16;
-  transform: scale(1.04);
-}
-
-.landing-platform::before {
-  background-image: url("/window_screen2.jpg");
-}
-
-.landing-pricing::before {
-  background-image: url("/salon1.jpg");
-}
-
-.landing-gallery::before {
-  background-image: url("/window_screen1.jpg");
-}
-
-.landing-faq::before {
-  display: none;
-}
-
 .landing-section-heading {
   max-width: 720px;
 }
@@ -1956,22 +1909,6 @@
   width: 42px;
   height: 7px;
   background: var(--landing-blue-700);
-}
-
-.landing-workflow {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: #ffffff;
-  padding: 0;
-  box-shadow: 0 24px 70px rgba(7, 31, 84, 0.08);
-}
-
-.landing-workflow::before {
-  content: none;
-  display: none;
 }
 
 .landing-workflow-banner {
@@ -4772,69 +4709,6 @@
     linear-gradient(180deg, #f8fbff, #edf5ff 64%, #ffffff);
 }
 
-/* =========================================
-   LANDING SECTION VISUAL UPGRADE
-========================================= */
-.landing-platform,
-.landing-pricing,
-.landing-gallery,
-.landing-examples,
-.landing-faq {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(242, 247, 255, 0.94)),
-    #f8fbff !important;
-}
-
-.landing-platform::after,
-.landing-pricing::after,
-.landing-gallery::after,
-.landing-examples::after,
-.landing-faq::after {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.04) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(6, 25, 66, 0.035) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(180deg, transparent, #000 18%, #000 82%, transparent);
-  opacity: 0.52;
-  content: "";
-}
-
-.landing-platform::before {
-  background-image:
-    linear-gradient(90deg, rgba(248, 251, 255, 0.9), rgba(248, 251, 255, 0.62)),
-    url("/landing/section-art/digital-menu-board.jpg") !important;
-  filter: saturate(0.92) contrast(0.96);
-  opacity: 0.2;
-}
-
-.landing-pricing::before {
-  background-image:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(255, 249, 238, 0.74)),
-    url("/landing/section-art/salon-service-window.jpg") !important;
-  filter: saturate(0.88) contrast(0.96);
-  opacity: 0.24;
-}
-
-.landing-gallery::before {
-  background-image:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.84), rgba(6, 25, 66, 0.36)),
-    url("/landing/section-art/restaurant-menu-screens.jpg") !important;
-  filter: saturate(0.95);
-  opacity: 0.72;
-}
-
-.landing-examples::before {
-  background-image:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.86), rgba(6, 25, 66, 0.42)),
-    url("/landing/section-art/restaurant-menu-screens.jpg") !important;
-  filter: saturate(0.95);
-  opacity: 0.7;
-}
-
 .landing-plan-description,
 .landing-price-card li,
 .landing-plan-device span,
@@ -5039,16 +4913,6 @@
     url("/landing/section-art/digital-menu-board.jpg") center / cover !important;
 }
 
-.landing-contact::before {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.9), rgba(6, 25, 66, 0.34)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent);
-  content: "";
-}
-
 @media (max-width: 640px) {
   .landing-examples {
     padding-right: 26px !important;
@@ -5185,51 +5049,6 @@
   letter-spacing: 0.13em;
 }
 
-/* Home sections */
-.landing-platform,
-.landing-pricing,
-.landing-faq {
-  overflow: hidden;
-  background: var(--screenia-paper) !important;
-}
-
-.landing-platform::after,
-.landing-pricing::after,
-.landing-examples::after,
-.landing-faq::after {
-  z-index: -2;
-  background:
-    linear-gradient(90deg, var(--screenia-line) 1px, transparent 1px),
-    linear-gradient(180deg, var(--screenia-line) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
-  opacity: 0.22;
-}
-
-.landing-platform::before,
-.landing-pricing::before,
-.landing-faq::before {
-  inset: 0 0 0 56%;
-  z-index: -1;
-  background-position: center !important;
-  background-size: cover !important;
-  clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
-  filter: saturate(0.8) contrast(1.02);
-  opacity: 0.11;
-}
-
-.landing-platform::before {
-  background-image:
-    linear-gradient(90deg, var(--screenia-paper), rgba(247, 250, 255, 0.3)),
-    url("/landing/section-art/digital-menu-board.jpg") !important;
-}
-
-.landing-pricing::before {
-  background-image:
-    linear-gradient(90deg, var(--screenia-paper), rgba(247, 250, 255, 0.38)),
-    url("/landing/section-art/salon-service-window.jpg") !important;
-}
-
 .landing-platform .landing-feature-grid {
   counter-reset: screenia-feature;
 }
@@ -5309,22 +5128,6 @@
 .landing-illustration-icon {
   border-radius: 8px;
   background: rgba(6, 25, 66, 0.92);
-}
-
-.landing-workflow {
-  overflow: hidden;
-  background:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.94), rgba(13, 49, 115, 0.88)),
-    url("/landing/section-art/restaurant-menu-screens.jpg") center / cover !important;
-}
-
-.landing-workflow::before {
-  position: absolute;
-  inset: 18px;
-  z-index: -1;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  content: "";
-  pointer-events: none;
 }
 
 .landing-workflow-banner {
@@ -5912,23 +5715,6 @@
   }
 }
 
-.landing-examples {
-  overflow: hidden;
-  background:
-    linear-gradient(120deg, rgba(6, 25, 66, 0.98), rgba(9, 43, 106, 0.93)),
-    url("/landing/section-art/restaurant-menu-screens.jpg") center / cover !important;
-}
-
-.landing-examples::before {
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(90deg, transparent 74%, rgba(25, 169, 213, 0.12) 74%),
-    linear-gradient(180deg, transparent 82%, rgba(240, 180, 60, 0.11) 82%) !important;
-  background-size: 130px 130px !important;
-  opacity: 1;
-}
-
 .landing-examples .landing-section-heading h2 {
   color: #ffffff;
 }
@@ -5966,31 +5752,6 @@
   color: var(--screenia-navy);
 }
 
-.landing-service-film {
-  display: grid;
-  grid-template-columns: minmax(0, 0.78fr) minmax(380px, 1.22fr);
-  gap: clamp(30px, 6vw, 88px);
-  align-items: center;
-  overflow: hidden;
-  background:
-    linear-gradient(110deg, #eaf2ff, #ffffff 56%, #eef8fb) !important;
-}
-
-.landing-service-film::after {
-  position: absolute;
-  right: -6%;
-  bottom: 0;
-  z-index: -1;
-  width: 54%;
-  height: 100%;
-  background:
-    linear-gradient(90deg, rgba(21, 94, 232, 0.08) 1px, transparent 1px),
-    linear-gradient(180deg, rgba(21, 94, 232, 0.08) 1px, transparent 1px);
-  background-size: 38px 38px;
-  clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%);
-  content: "";
-}
-
 .landing-service-film-copy h2 {
   max-width: 12ch;
   color: var(--screenia-navy);
@@ -6009,12 +5770,6 @@
   border-radius: 10px;
   background: var(--screenia-navy);
   box-shadow: var(--screenia-shadow);
-}
-
-.landing-faq {
-  background:
-    linear-gradient(90deg, rgba(247, 250, 255, 0.97), rgba(234, 242, 255, 0.9)),
-    url("/brand/screenia-symbol-glow.png") 95% 50% / 360px auto no-repeat !important;
 }
 
 .landing-faq-layout {
@@ -6036,26 +5791,6 @@
   border-radius: 6px;
   background: var(--screenia-mist);
   color: var(--screenia-blue);
-}
-
-.landing-contact {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 34px;
-  align-items: center;
-  border-radius: 0 !important;
-  background:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.98) 0%, rgba(6, 25, 66, 0.9) 58%, rgba(6, 25, 66, 0.52) 100%),
-    url("/landing/section-art/digital-menu-board.jpg") center / cover !important;
-  box-shadow: none;
-}
-
-.landing-contact::after {
-  position: absolute;
-  inset: 20px;
-  z-index: -1;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  content: "";
 }
 
 .landing-contact h2 {
@@ -6440,14 +6175,6 @@
     grid-template-columns: 1fr;
   }
 
-  .landing-platform::before,
-  .landing-pricing::before,
-  .landing-faq::before {
-    inset: 58% 0 0;
-    clip-path: none;
-    opacity: 0.08;
-  }
-
   .landing-contact .landing-button {
     width: fit-content;
   }
@@ -6462,11 +6189,6 @@
 
   .landing-feature {
     min-height: auto;
-  }
-
-  .landing-workflow::before,
-  .landing-contact::after {
-    inset: 10px;
   }
 
   .landing-service-film {
@@ -6954,13 +6676,7 @@
   font-family: var(--landing-font-body);
 }
 
-.landing-page main > .landing-platform,
-.landing-page main > .landing-workflow,
-.landing-page main > .landing-pricing,
-.landing-page main > .landing-examples,
-.landing-page main > .landing-service-film,
-.landing-page main > .landing-faq,
-.landing-page main > .landing-contact {
+.landing-page main > .landing-section-surface {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -6971,13 +6687,13 @@
   padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2));
 }
 
-.landing-page main > .landing-service-film,
-.landing-page main > .landing-contact {
+.landing-page main > .landing-section-surface.landing-service-film,
+.landing-page main > .landing-section-surface.landing-contact {
   display: flex;
   align-items: center;
 }
 
-.landing-page main > .landing-contact {
+.landing-page main > .landing-section-surface.landing-contact {
   box-shadow: none;
 }
 
@@ -7227,13 +6943,7 @@
 }
 
 @media (max-width: 560px) {
-  .landing-page main > .landing-platform,
-  .landing-page main > .landing-workflow,
-  .landing-page main > .landing-pricing,
-  .landing-page main > .landing-examples,
-  .landing-page main > .landing-service-film,
-  .landing-page main > .landing-faq,
-  .landing-page main > .landing-contact {
+  .landing-page main > .landing-section-surface {
     min-height: auto;
     padding: 28px 14px !important;
   }
@@ -7332,13 +7042,7 @@
 }
 
 /* Landing section texture base; final color/image ownership lives in the visual theme layer. */
-.landing-page main > .landing-platform::before,
-.landing-page main > .landing-workflow::before,
-.landing-page main > .landing-pricing::before,
-.landing-page main > .landing-examples::before,
-.landing-page main > .landing-service-film::before,
-.landing-page main > .landing-faq::before,
-.landing-page main > .landing-contact::before {
+.landing-page main > .landing-section-surface::before {
   position: absolute;
   inset: 0;
   z-index: -1;
@@ -7352,13 +7056,7 @@
   transform: none;
 }
 
-.landing-page main > .landing-platform::after,
-.landing-page main > .landing-workflow::after,
-.landing-page main > .landing-pricing::after,
-.landing-page main > .landing-examples::after,
-.landing-page main > .landing-service-film::after,
-.landing-page main > .landing-faq::after,
-.landing-page main > .landing-contact::after {
+.landing-page main > .landing-section-surface::after {
   content: none;
 }
 
@@ -8014,13 +7712,7 @@
 }
 
 @media (max-width: 780px) {
-  .landing-page main > .landing-platform,
-  .landing-page main > .landing-workflow,
-  .landing-page main > .landing-pricing,
-  .landing-page main > .landing-examples,
-  .landing-page main > .landing-service-film,
-  .landing-page main > .landing-faq,
-  .landing-page main > .landing-contact {
+  .landing-page main > .landing-section-surface {
     background:
       linear-gradient(160deg, #061942 0 40%, #1d6ff2 40% 51%, #eaf4ff 51% 100%),
       url("/landing/section-art/platform-workflow.jpg") center / cover !important;
@@ -8047,30 +7739,12 @@
   --screenia-glow-gold: rgba(242, 196, 109, 0.3);
 }
 
-.landing-page main > .landing-platform,
-.landing-page main > .landing-workflow,
-.landing-page main > .landing-pricing,
-.landing-page main > .landing-examples,
-.landing-page main > .landing-service-film,
-.landing-page main > .landing-faq,
-.landing-page main > .landing-contact {
+.landing-page main > .landing-section-surface {
   position: relative;
 }
 
-.landing-page main > .landing-platform > .landing-section-panel,
-.landing-page main > .landing-workflow > .landing-section-panel,
-.landing-page main > .landing-pricing > .landing-section-panel,
-.landing-page main > .landing-examples > .landing-section-panel,
-.landing-page main > .landing-service-film > .landing-section-panel,
-.landing-page main > .landing-faq > .landing-section-panel,
-.landing-page main > .landing-contact > .landing-section-panel,
-.landing-page main > .landing-platform > .landing-contact-panel,
-.landing-page main > .landing-workflow > .landing-contact-panel,
-.landing-page main > .landing-pricing > .landing-contact-panel,
-.landing-page main > .landing-examples > .landing-contact-panel,
-.landing-page main > .landing-service-film > .landing-contact-panel,
-.landing-page main > .landing-faq > .landing-contact-panel,
-.landing-page main > .landing-contact > .landing-contact-panel {
+.landing-page main > .landing-section-surface > .landing-section-panel,
+.landing-page main > .landing-section-surface > .landing-contact-panel {
   border-color: rgba(211, 229, 255, 0.38);
   background: var(--screenia-glass-panel);
   box-shadow:
@@ -8079,20 +7753,8 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-.landing-page main > .landing-platform > .landing-section-panel::before,
-.landing-page main > .landing-workflow > .landing-section-panel::before,
-.landing-page main > .landing-pricing > .landing-section-panel::before,
-.landing-page main > .landing-examples > .landing-section-panel::before,
-.landing-page main > .landing-service-film > .landing-section-panel::before,
-.landing-page main > .landing-faq > .landing-section-panel::before,
-.landing-page main > .landing-contact > .landing-section-panel::before,
-.landing-page main > .landing-platform > .landing-contact-panel::before,
-.landing-page main > .landing-workflow > .landing-contact-panel::before,
-.landing-page main > .landing-pricing > .landing-contact-panel::before,
-.landing-page main > .landing-examples > .landing-contact-panel::before,
-.landing-page main > .landing-service-film > .landing-contact-panel::before,
-.landing-page main > .landing-faq > .landing-contact-panel::before,
-.landing-page main > .landing-contact > .landing-contact-panel::before {
+.landing-page main > .landing-section-surface > .landing-section-panel::before,
+.landing-page main > .landing-section-surface > .landing-contact-panel::before {
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -8475,13 +8137,7 @@
   --screenia-logo-gold: #f2c46d;
 }
 
-.landing-page main > .landing-platform,
-.landing-page main > .landing-workflow,
-.landing-page main > .landing-pricing,
-.landing-page main > .landing-examples,
-.landing-page main > .landing-service-film,
-.landing-page main > .landing-faq,
-.landing-page main > .landing-contact {
+.landing-page main > .landing-section-surface {
   background:
     radial-gradient(circle at 8% 12%, rgba(109, 141, 255, 0.36), transparent 28%),
     radial-gradient(ellipse at 78% 8%, rgba(232, 244, 255, 0.52), transparent 34%),
@@ -8495,13 +8151,7 @@
     url("/landing/section-art/platform-workflow.jpg") no-repeat center / cover !important;
 }
 
-.landing-page main > .landing-platform::before,
-.landing-page main > .landing-workflow::before,
-.landing-page main > .landing-pricing::before,
-.landing-page main > .landing-examples::before,
-.landing-page main > .landing-service-film::before,
-.landing-page main > .landing-faq::before,
-.landing-page main > .landing-contact::before {
+.landing-page main > .landing-section-surface::before {
   background:
     radial-gradient(ellipse at 12% 18%, rgba(255, 255, 255, 0.14), transparent 26%),
     radial-gradient(ellipse at 58% 2%, rgba(109, 141, 255, 0.16), transparent 32%),
@@ -8595,13 +8245,7 @@
 }
 
 @media (max-width: 900px) {
-  .landing-page main > .landing-platform,
-  .landing-page main > .landing-workflow,
-  .landing-page main > .landing-pricing,
-  .landing-page main > .landing-examples,
-  .landing-page main > .landing-service-film,
-  .landing-page main > .landing-faq,
-  .landing-page main > .landing-contact,
+  .landing-page main > .landing-section-surface,
   .contact-main,
   .flow-page {
     background:

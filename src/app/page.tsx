@@ -883,7 +883,7 @@ export default function Home() {
           </div>
         </LandingSection>
 
-        <section id="workflow" className="landing-section landing-workflow">
+        <section id="workflow" className="landing-section landing-section-surface landing-workflow">
           <div className="landing-section-panel landing-workflow-panel">
             <div className="landing-workflow-heading">
               <h2>{t.workflowTitle}</h2>
@@ -1108,7 +1108,7 @@ export default function Home() {
           </div>
         </LandingSection>
 
-        <section className="landing-section landing-service-film" aria-label="Screenia servicefilm">
+        <section className="landing-section landing-section-surface landing-service-film" aria-label="Screenia servicefilm">
           <div className="landing-section-panel landing-service-film-panel">
             <div className="landing-service-film-copy">
               <p className="landing-eyebrow">20 sekunder</p>
@@ -1147,7 +1147,7 @@ export default function Home() {
           </div>
         </LandingSection>
 
-        <section id="contact" className="landing-contact">
+        <section id="contact" className="landing-section-surface landing-contact">
           <div className="landing-contact-panel">
             <div>
               <p className="landing-eyebrow">{t.contactEyebrow}</p>
@@ -1344,7 +1344,7 @@ function LandingSection({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className={`landing-section landing-${id}`}>
+    <section id={id} className={`landing-section landing-section-surface landing-${id}`}>
       <div className="landing-section-panel">
         <SectionHeading title={title} text={text} />
         {children}
