@@ -937,8 +937,8 @@
 }
 
 .admin-eyebrow {
-  color: var(--admin-surface-title) !important;
-  font-size: 0.72rem !important;
+  color: var(--admin-surface-title);
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -948,15 +948,15 @@
 ========================================= */
 .admin-card {
   border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
-    var(--admin-surface-highlight) !important;
-  border-style: solid !important;
-  border-width: 2px !important;
-  border-radius: var(--admin-radius-md) !important;
-  background: var(--admin-surface-face) !important;
+    var(--admin-surface-highlight);
+  border-style: solid;
+  border-width: 2px;
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-surface-face);
   box-shadow:
     inset -1px -1px 0 var(--admin-surface-face-dark),
     inset 1px 1px 0 var(--admin-surface-face-light),
-    var(--admin-shadow-soft) !important;
+    var(--admin-shadow-soft);
   color: var(--admin-surface-text);
 }
 
