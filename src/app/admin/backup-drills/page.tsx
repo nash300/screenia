@@ -238,8 +238,8 @@ export default function AdminBackupDrillsPage() {
         </div>
       </div>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Backup test workflow</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Backup test workflow</h2>
         <div className="admin-backup-workflow" aria-label="Backup test workflow">
           {recoveryWorkflow.map((item) => (
             <div key={item.stage} className="admin-backup-workflow-step">
@@ -252,7 +252,7 @@ export default function AdminBackupDrillsPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitDrill}>
+        <form className="admin-record-form" onSubmit={submitDrill}>
           <label className="admin-field">
             <span>Provider</span>
             <select
@@ -345,9 +345,9 @@ export default function AdminBackupDrillsPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Recovery test cases</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Recovery test cases</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -380,7 +380,7 @@ export default function AdminBackupDrillsPage() {
                   <td>{formatDateTime(drill.last_successful_backup_at)}</td>
                   <td>{formatDateTime(drill.restore_tested_at)}</td>
                   <td>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="admin-record-actions">
                       <button
                         type="button"
                         className="admin-button-secondary"
