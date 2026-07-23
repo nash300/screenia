@@ -420,6 +420,7 @@
 
 .landing-nav-primary .landing-nav-link {
   position: relative;
+  appearance: none;
   display: inline-flex;
   align-items: center;
   min-height: auto;
@@ -430,6 +431,20 @@
   box-shadow: none;
   outline-offset: 6px;
   line-height: 1.35;
+}
+
+.landing-nav-primary .landing-nav-link:visited,
+.landing-nav-primary .landing-nav-link:focus:not(:focus-visible),
+.landing-nav-primary .landing-nav-link:active,
+.landing-nav-primary .landing-nav-link.landing-nav-link-active {
+  min-height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  text-decoration: none;
+  transform: none;
 }
 
 .landing-nav-primary .landing-nav-link:hover {
@@ -7504,8 +7519,8 @@
 }
 
 .landing-pricing .landing-plan-device {
-  min-height: clamp(108px, 10vw, 124px) !important;
-  margin: 0 0 12px !important;
+  min-height: clamp(108px, 10vw, 124px);
+  margin: 0 0 12px;
   border: 1px solid rgba(221, 238, 255, 0.22);
   border-radius: 14px;
   background:
@@ -7517,7 +7532,7 @@
 }
 
 .landing-pricing .landing-plan-device img {
-  height: clamp(98px, 9vw, 116px) !important;
+  height: clamp(98px, 9vw, 116px);
 }
 
 .landing-pricing .landing-price-card-gold .landing-plan-device {
@@ -7532,21 +7547,21 @@
 }
 
 .landing-pricing .landing-plan-description {
-  min-height: 42px !important;
-  margin: 0 0 10px !important;
+  min-height: 42px;
+  margin: 0 0 10px;
   justify-content: flex-start;
-  color: rgba(234, 244, 255, 0.84) !important;
+  color: rgba(234, 244, 255, 0.84);
   text-align: left;
 }
 
 .landing-pricing .landing-price-card ul {
-  min-height: 138px !important;
-  margin: 0 0 12px !important;
-  gap: 6px !important;
+  min-height: 138px;
+  margin: 0 0 12px;
+  gap: 6px;
 }
 
 .landing-pricing .landing-price-card li {
-  color: rgba(232, 242, 255, 0.84) !important;
+  color: rgba(232, 242, 255, 0.84);
 }
 
 .landing-pricing .landing-plan-price {
