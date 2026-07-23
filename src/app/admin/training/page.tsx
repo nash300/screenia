@@ -47,6 +47,36 @@ export default function AdminTrainingPage() {
             image, apply the storage MIME migration before live use.
           </p>
         </article>
+        <article className="admin-training-entry">
+          <div>
+            <p className="admin-operation-kicker">Customer order</p>
+            <h3>Restaurant orders 1 Premium 4K and 4 Standard FHD screens</h3>
+          </div>
+          <p>
+            Use when a customer combines several screen types and exceeds the
+            three-screen setup and shipping thresholds. Confirm Stripe, customer
+            billing, and admin quote preview all show the same first payment.
+          </p>
+          <p>
+            Click path: landing pricing form, admin Customer work, customer
+            profile, Request & quote, Gmail quote check, onboarding link, Stripe
+            Checkout, Gmail activation email, customer password setup, customer
+            portal, Device allocation, display endpoint.
+          </p>
+          <p>
+            Evidence: order with `4 x Standard FHD + 1 x Premium 4K`, first
+            payment `6 149 kr`, monthly price `1 345 kr`, setup `2 097 kr`,
+            shipping `157 kr`, included VAT `1 229,80 kr`, paid Stripe
+            subscription, activated customer account, five display endpoints,
+            and visible `/display/[code]` media playback.
+          </p>
+          <p>
+            Useful notes: mixed-package emails and pages must not collapse the
+            order into the first package. If an existing paid subscription is
+            being viewed, the admin preview should use stored paid totals rather
+            than recalculating the quote as a new add-on.
+          </p>
+        </article>
       </section>
     </div>
   );
