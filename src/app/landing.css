@@ -4710,11 +4710,8 @@
   font-size: clamp(1rem, 1.4vw, 1.15rem);
 }
 
-.landing-feature,
 .landing-price-card,
 .landing-gallery-card,
-.landing-faq-item,
-.landing-pricing-note,
 .landing-modal,
 .landing-footer-card,
 .landing-footer-company,
@@ -4727,19 +4724,14 @@
   box-shadow: var(--landing-shadow-sm) !important;
 }
 
-.landing-feature,
-.landing-price-card,
-.landing-faq-item,
-.landing-pricing-note {
+.landing-price-card {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 255, 0.92)),
     #ffffff !important;
 }
 
-.landing-feature:hover,
 .landing-price-card:hover,
-.landing-gallery-card:hover,
-.landing-faq-item:hover {
+.landing-gallery-card:hover {
   border-color: rgba(47, 125, 246, 0.28) !important;
   box-shadow: var(--landing-shadow-md) !important;
   transform: translateY(-2px);
@@ -6037,14 +6029,14 @@
 }
 
 .landing-faq-item {
-  border: 1px solid rgba(70, 111, 171, 0.18) !important;
-  border-radius: 8px !important;
-  background: rgba(255, 255, 255, 0.94) !important;
-  box-shadow: 0 10px 30px rgba(6, 25, 66, 0.06) !important;
+  border: 1px solid rgba(70, 111, 171, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 30px rgba(6, 25, 66, 0.06);
 }
 
 .landing-faq-item[open] {
-  border-left: 5px solid var(--screenia-blue) !important;
+  border-left: 5px solid var(--screenia-blue);
 }
 
 .landing-faq-item summary::after {
@@ -8075,7 +8067,7 @@
 .landing-page main > .landing-service-film,
 .landing-page main > .landing-faq,
 .landing-page main > .landing-contact {
-  position: relative !important;
+  position: relative;
 }
 
 .landing-page main > .landing-platform > .landing-section-panel,
@@ -8092,12 +8084,12 @@
 .landing-page main > .landing-service-film > .landing-contact-panel,
 .landing-page main > .landing-faq > .landing-contact-panel,
 .landing-page main > .landing-contact > .landing-contact-panel {
-  border-color: rgba(211, 229, 255, 0.38) !important;
-  background: var(--screenia-glass-panel) !important;
+  border-color: rgba(211, 229, 255, 0.38);
+  background: var(--screenia-glass-panel);
   box-shadow:
     0 34px 90px rgba(3, 18, 52, 0.34),
     0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .landing-page main > .landing-platform > .landing-section-panel::before,
@@ -8117,7 +8109,7 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 55%, #f2c46d) !important;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 55%, #f2c46d);
   box-shadow: 0 0 28px rgba(109, 141, 255, 0.22);
   content: "";
   pointer-events: none;
@@ -8159,11 +8151,11 @@
 .landing-page .landing-pricing-note {
   position: relative;
   overflow: hidden;
-  border-color: rgba(211, 229, 255, 0.28) !important;
-  background: var(--screenia-glass-card) !important;
+  border-color: rgba(211, 229, 255, 0.28);
+  background: var(--screenia-glass-card);
   box-shadow:
     0 20px 54px rgba(3, 18, 52, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .landing-page .landing-feature::after,
@@ -8174,7 +8166,7 @@
   position: absolute;
   inset: auto 0 0;
   height: 3px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d) !important;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
   content: "";
   opacity: 0.74;
   transform: scaleX(0.28);
@@ -8652,13 +8644,26 @@
   transform: none;
 }
 
-.landing-page .landing-nav .landing-nav-primary > .landing-nav-link::after,
-.landing-page .landing-nav .landing-nav-primary > .landing-nav-link.landing-nav-link-active::after {
+.landing-page .landing-nav .landing-nav-primary > .landing-nav-link::after {
   display: none;
   content: none;
 }
 
+.landing-page .landing-nav .landing-nav-primary > .landing-nav-link.landing-nav-link-active::after {
+  position: absolute;
+  right: 0;
+  bottom: -7px;
+  left: 0;
+  display: block;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff);
+  content: "";
+  opacity: 0.82;
+  box-shadow: none;
+}
+
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus-visible {
-  outline: 2px solid rgba(47, 125, 246, 0.34);
-  outline-offset: 7px;
+  outline: 2px solid rgba(47, 125, 246, 0.26);
+  outline-offset: 8px;
 }
