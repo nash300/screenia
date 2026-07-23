@@ -262,6 +262,10 @@ if (landingCss.includes(".landing-hero-dots button.is-active")) {
   problems.push("src/app/landing.css must style landing-hero-dot-active instead of generic hero dot is-active.");
 }
 
+if (/\.active\b/.test(landingCss)) {
+  problems.push("src/app/landing.css must not contain generic .active selectors. Use explicit component state class names.");
+}
+
 if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {
   problems.push("src/app/landing.css must define the explicit landing-hero-dot-active selector.");
 }
@@ -366,6 +370,21 @@ for (const retiredFilterClass of [
 ]) {
   if (adminCss.includes(retiredFilterClass)) {
     problems.push(`src/app/admin/admin.css still contains retired ${retiredFilterClass} button-filter styling. Use current select/list controls instead.`);
+  }
+}
+
+for (const retiredLandingClass of [
+  "landing-language-switch",
+  "landing-flag",
+  "landing-flag-sv",
+  "landing-flag-en",
+  "landing-hero-media",
+  "landing-slide-caption",
+  "landing-slide-controls",
+  "landing-panel-status",
+]) {
+  if (landingCss.includes(retiredLandingClass)) {
+    problems.push(`src/app/landing.css still contains retired ${retiredLandingClass} styling. Remove dead landing UI layers instead of keeping override-prone CSS.`);
   }
 }
 

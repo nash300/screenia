@@ -402,88 +402,6 @@
   gap: 10px;
 }
 
-.landing-language-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 4px;
-}
-
-.landing-language-switch button {
-  display: inline-grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 999px;
-  background: transparent;
-  font-size: 0;
-  transition:
-    background 160ms ease,
-    transform 160ms ease;
-}
-
-.landing-language-switch button:hover,
-.landing-language-switch button.active {
-  background: #ffffff;
-  transform: translateY(-1px);
-}
-
-.landing-flag {
-  display: block;
-  width: 22px;
-  height: 22px;
-  overflow: hidden;
-  border: 1px solid rgba(7, 24, 47, 0.18);
-  border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(7, 24, 47, 0.16);
-}
-
-.landing-language-switch button::before {
-  display: block;
-  width: 22px;
-  height: 22px;
-  overflow: hidden;
-  border: 1px solid rgba(7, 24, 47, 0.18);
-  border-radius: 999px;
-  box-shadow: 0 4px 10px rgba(7, 24, 47, 0.16);
-  content: "";
-}
-
-.landing-language-switch button[aria-label="Svenska"]::before {
-  background:
-    linear-gradient(90deg, transparent 0 31%, #fecc00 31% 43%, transparent 43%),
-    linear-gradient(180deg, transparent 0 40%, #fecc00 40% 56%, transparent 56%),
-    #006aa7;
-}
-
-.landing-language-switch button[aria-label="English"]::before {
-  background:
-    linear-gradient(33deg, transparent 0 43%, #ffffff 43% 48%, #c8102e 48% 52%, #ffffff 52% 57%, transparent 57%),
-    linear-gradient(147deg, transparent 0 43%, #ffffff 43% 48%, #c8102e 48% 52%, #ffffff 52% 57%, transparent 57%),
-    linear-gradient(90deg, transparent 0 42%, #ffffff 42% 47%, #c8102e 47% 53%, #ffffff 53% 58%, transparent 58%),
-    linear-gradient(180deg, transparent 0 39%, #ffffff 39% 45%, #c8102e 45% 55%, #ffffff 55% 61%, transparent 61%),
-    #012169;
-}
-
-.landing-flag-sv {
-  background:
-    linear-gradient(90deg, transparent 0 31%, #fecc00 31% 43%, transparent 43%),
-    linear-gradient(180deg, transparent 0 40%, #fecc00 40% 56%, transparent 56%),
-    #006aa7;
-}
-
-.landing-flag-en {
-  background:
-    linear-gradient(33deg, transparent 0 43%, #ffffff 43% 48%, #c8102e 48% 52%, #ffffff 52% 57%, transparent 57%),
-    linear-gradient(147deg, transparent 0 43%, #ffffff 43% 48%, #c8102e 48% 52%, #ffffff 52% 57%, transparent 57%),
-    linear-gradient(90deg, transparent 0 42%, #ffffff 42% 47%, #c8102e 47% 53%, #ffffff 53% 58%, transparent 58%),
-    linear-gradient(180deg, transparent 0 39%, #ffffff 39% 45%, #c8102e 45% 55%, #ffffff 55% 61%, transparent 61%),
-    #012169;
-}
-
 .landing-links a {
   color: var(--landing-text);
   font-family: var(--landing-font-ui);
@@ -1798,63 +1716,6 @@
   display: none;
 }
 
-.landing-hero-media {
-  position: relative;
-  min-height: 620px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 26px;
-  background:
-    linear-gradient(135deg, rgba(24, 213, 255, 0.08), transparent),
-    rgba(255, 255, 255, 0.08);
-  box-shadow: 0 32px 80px rgba(0, 12, 52, 0.28);
-  backdrop-filter: blur(12px);
-}
-
-.landing-hero-media img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 620px;
-  display: block;
-  object-fit: cover;
-  opacity: 0;
-  transform: scale(1.035);
-  transition:
-    opacity 360ms ease,
-    transform 720ms ease;
-}
-
-.landing-hero-media img.active {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.landing-hero-media::after {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(7, 24, 47, 0.48), rgba(20, 93, 160, 0.1)),
-    radial-gradient(circle at 28% 24%, rgba(24, 213, 255, 0.18), transparent 24%);
-  content: "";
-}
-
-.landing-slide-caption {
-  position: absolute;
-  right: 28px;
-  bottom: 28px;
-  z-index: 2;
-  width: min(340px, calc(100% - 56px));
-  border: 1px solid rgba(24, 213, 255, 0.36);
-  border-radius: 18px;
-  background: rgba(4, 28, 83, 0.78);
-  padding: 18px;
-  box-shadow: 0 18px 42px rgba(7, 24, 47, 0.22);
-  backdrop-filter: blur(18px);
-}
-
-.landing-panel-status,
 .landing-plan-badge {
   display: inline-flex;
   border-radius: 999px;
@@ -1864,47 +1725,6 @@
   padding: 5px 10px;
   font-size: 0.74rem;
   font-weight: 900;
-}
-
-.landing-slide-caption span {
-  display: inline-flex;
-  border-radius: 999px;
-  background: rgba(24, 213, 255, 0.14);
-  color: var(--landing-cyan);
-  padding: 5px 10px;
-  font-size: 0.72rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.landing-slide-caption strong {
-  display: block;
-  margin-top: 12px;
-  color: #ffffff;
-  font-size: 1.05rem;
-  line-height: 1.35;
-}
-
-.landing-slide-controls {
-  position: absolute;
-  left: 28px;
-  bottom: 28px;
-  z-index: 3;
-  display: flex;
-  gap: 8px;
-}
-
-.landing-slide-controls button {
-  width: 34px;
-  height: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-}
-
-.landing-slide-controls button.active {
-  border-color: var(--landing-cyan);
-  background: var(--landing-cyan);
 }
 
 .landing-section {
@@ -4147,10 +3967,6 @@
     margin-left: 0;
   }
 
-  .landing-hero-media {
-    border-radius: 24px;
-  }
-
   .landing-feature-grid,
   .landing-illustration-grid,
   .landing-timeline,
@@ -4378,11 +4194,6 @@
     grid-template-columns: 1fr;
   }
 
-  .landing-hero-media,
-  .landing-hero-media img {
-    min-height: 420px;
-  }
-
   .landing-section {
     min-height: auto;
     padding: 58px 0;
@@ -4441,10 +4252,6 @@
 
   .landing-request-form {
     grid-template-columns: 1fr;
-  }
-
-  .landing-language-switch {
-    justify-self: start;
   }
 
   .account-page {
