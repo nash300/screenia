@@ -4863,7 +4863,7 @@
 .landing-package-breakdown-list,
 .landing-package-empty,
 .landing-pricing-note p {
-  font-weight: 400 !important;
+  font-weight: 400;
 }
 
 .landing-gallery,
@@ -7621,6 +7621,10 @@
   color: #ffd21f;
   font-size: 1.02rem;
   text-shadow: 0 0 18px rgba(255, 210, 31, 0.2);
+}
+
+.landing-pricing .landing-price-mini-grid span {
+  font-weight: 400;
 }
 
 .landing-pricing .landing-plan-quantity {
