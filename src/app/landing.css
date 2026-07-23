@@ -5087,26 +5087,26 @@
 
 .landing-nav {
   border-bottom: 1px solid rgba(47, 125, 246, 0.14);
-  background: rgba(255, 255, 255, 0.9) !important;
+  background: rgba(255, 255, 255, 0.9);
   box-shadow: 0 10px 34px rgba(6, 25, 66, 0.08);
   backdrop-filter: blur(18px);
 }
 
 .landing-button {
   min-height: 44px;
-  border-radius: var(--landing-radius-sm) !important;
+  border-radius: var(--landing-radius-sm);
   box-shadow: var(--landing-shadow-sm);
 }
 
 .landing-button-primary {
-  background: linear-gradient(135deg, #2f7df6, #155ee8) !important;
-  color: #ffffff !important;
+  background: linear-gradient(135deg, #2f7df6, #155ee8);
+  color: #ffffff;
 }
 
 .landing-button-secondary {
-  border: 1px solid rgba(47, 125, 246, 0.18) !important;
-  background: rgba(255, 255, 255, 0.92) !important;
-  color: var(--landing-text) !important;
+  border: 1px solid rgba(47, 125, 246, 0.18);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--landing-text);
 }
 
 .landing-button:hover {
