@@ -759,6 +759,24 @@ requireCssBlock(landingCss, ".landing-nav-primary a", [
   },
 ]);
 
+requireCssBlock(landingCss, ".landing-links .landing-nav-login", [
+  {
+    includes: "color: var(--landing-text);",
+    message: "must own login color through scoped specificity instead of !important.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-links .landing-nav-cta", [
+  {
+    includes: "color: #ffffff;",
+    message: "must own CTA color through scoped specificity instead of !important.",
+  },
+]);
+
+if (/(^|\n)\.landing-nav-login\s*\{/.test(landingCss)) {
+  problems.push("src/app/landing.css must scope landing-nav-login resets to their page or parent container.");
+}
+
 requireCssBlock(landingCss, ".landing-nav-primary a:hover", [
   {
     includes: "background: transparent;",
