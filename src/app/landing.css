@@ -7364,10 +7364,10 @@
   isolation: isolate;
   overflow: hidden;
   min-height: calc(100svh - 76px);
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2)) !important;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: clamp(54px, 7vw, 96px) max(22px, calc((100vw - 1260px) / 2));
 }
 
 .landing-page main > :is(
@@ -7388,7 +7388,7 @@
   .landing-faq,
   .landing-contact
 )::after {
-  display: none !important;
+  display: none;
 }
 
 .landing-page main > .landing-platform {
@@ -7979,7 +7979,7 @@
       rgba(21, 94, 232, 0.78) 46% 59%,
       rgba(226, 222, 211, 0.92) 59% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+    url("/landing/section-art/platform-workflow.jpg") no-repeat center / cover !important;
 }
 
 .landing-pricing .landing-section-panel {
@@ -8917,7 +8917,7 @@
       rgba(21, 94, 232, 0.78) 44% 58%,
       rgba(226, 222, 211, 0.96) 58% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
+    url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover !important;
 }
 
 .contact-form-wrap,
@@ -9073,7 +9073,7 @@
       rgba(21, 94, 232, 0.8) 39% 54%,
       rgba(236, 246, 255, 0.96) 54% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+    url("/landing/section-art/platform-workflow.jpg") no-repeat center / cover !important;
 }
 
 .landing-page main > :is(
@@ -9178,7 +9178,7 @@
       rgba(21, 94, 232, 0.78) 39% 54%,
       rgba(236, 246, 255, 0.96) 54% 100%
     ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover fixed !important;
+    url("/landing/section-art/platform-workflow.jpg") no-repeat fixed center / cover !important;
 }
 
 .landing-pricing .landing-section-panel {
