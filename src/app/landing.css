@@ -4853,7 +4853,6 @@
 .landing-plan-description,
 .landing-price-card li,
 .landing-plan-device span,
-.landing-plan-price span,
 .landing-price-mini-grid span,
 .landing-plan-quantity span,
 .landing-package-lines small,
@@ -7525,7 +7524,7 @@
   border-radius: 14px;
   background:
     radial-gradient(circle at 54% 38%, rgba(255, 255, 255, 0.36), transparent 30%),
-    linear-gradient(135deg, rgba(233, 243, 255, 0.96), rgba(188, 218, 255, 0.82) 58%, rgba(47, 125, 246, 0.3)) !important;
+    linear-gradient(135deg, rgba(233, 243, 255, 0.96), rgba(188, 218, 255, 0.82) 58%, rgba(47, 125, 246, 0.3));
   box-shadow:
     0 18px 38px rgba(0, 10, 32, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.7);
@@ -7538,12 +7537,12 @@
 .landing-pricing .landing-price-card-gold .landing-plan-device {
   background:
     radial-gradient(circle at 52% 38%, rgba(255, 255, 255, 0.34), transparent 30%),
-    linear-gradient(135deg, rgba(255, 210, 31, 0.9), rgba(47, 125, 246, 0.86) 62%, rgba(9, 42, 105, 0.78)) !important;
+    linear-gradient(135deg, rgba(255, 210, 31, 0.9), rgba(47, 125, 246, 0.86) 62%, rgba(9, 42, 105, 0.78));
 }
 
 .landing-pricing .landing-plan-device span {
   background: rgba(4, 18, 48, 0.86);
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
 .landing-pricing .landing-plan-description {
@@ -7565,17 +7564,17 @@
 }
 
 .landing-pricing .landing-plan-price {
-  margin: auto 0 10px !important;
-  padding: 11px 13px !important;
+  margin: auto 0 10px;
+  padding: 11px 13px;
   border: 1px solid rgba(221, 238, 255, 0.18);
   border-left: 4px solid #44d7ff;
   border-radius: 12px;
   background:
     linear-gradient(135deg, rgba(68, 215, 255, 0.16), rgba(255, 255, 255, 0.06)),
-    rgba(255, 255, 255, 0.1) !important;
+    rgba(255, 255, 255, 0.1);
   box-shadow:
     0 14px 30px rgba(0, 10, 32, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .landing-pricing .landing-price-card.featured .landing-plan-price {
@@ -7583,21 +7582,21 @@
 }
 
 .landing-pricing .landing-plan-price strong {
-  color: #ffd21f !important;
+  color: #ffd21f;
   text-shadow: 0 0 20px rgba(255, 210, 31, 0.18);
 }
 
 .landing-pricing .landing-plan-price span {
-  color: rgba(238, 245, 255, 0.82) !important;
-  font-weight: 500 !important;
+  color: rgba(238, 245, 255, 0.82);
+  font-weight: 500;
 }
 
 .landing-pricing .landing-price-mini-grid {
-  min-height: auto !important;
+  min-height: auto;
   gap: 8px;
   border: 0;
-  background: transparent !important;
-  padding-top: 0 !important;
+  background: transparent;
+  padding-top: 0;
 }
 
 .landing-pricing .landing-price-row {
