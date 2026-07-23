@@ -192,6 +192,10 @@
   font-size: 0.75rem;
 }
 
+.admin-contact-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
 .admin-contact-toolbar {
   display: grid;
   gap: 0.9rem;

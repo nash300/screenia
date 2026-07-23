@@ -157,6 +157,7 @@ const landingPageSource = read("src/app/page.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
+const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -487,6 +488,14 @@ if (landingCss.includes("account-category-tabs")) {
 
 if (emailEventsPageSource.includes('"is-active"')) {
   problems.push("The admin email-events page must use admin-email-filter-active instead of generic is-active.");
+}
+
+if (/\b(?:p-6|rounded-2xl|rounded-xl|border-slate-200|bg-slate-50|text-slate-)\b/.test(contactInquiriesPageSource)) {
+  problems.push("The admin contact-inquiries page must use explicit admin-contact-* classes instead of broad utility class styling.");
+}
+
+if (!contactInquiriesPageSource.includes("admin-contact-panel")) {
+  problems.push("The admin contact-inquiries page must expose the explicit admin-contact-panel class.");
 }
 
 if (!emailEventsPageSource.includes("admin-email-filter-active")) {

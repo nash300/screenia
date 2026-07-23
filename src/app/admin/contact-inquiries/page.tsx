@@ -217,7 +217,7 @@ export default function AdminContactInquiriesPage() {
         <div><span>Total</span><strong>{counts.all}</strong><small>Full retained history</small></div>
       </section>
 
-      <section className="admin-card p-6">
+      <section className="admin-card admin-contact-panel">
         <div className="admin-contact-toolbar">
           <input
             value={query}
