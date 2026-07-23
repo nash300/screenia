@@ -585,13 +585,29 @@ for (const singleOwnerLandingSelector of [
   ".landing-modal-close:hover",
   ".landing-modal-close:active",
   ".landing-modal-close:focus-visible",
+  ".landing-footer",
+  ".landing-footer .screenia-logo-footer",
+  ".landing-footer .screenia-logo-wordmark",
+  ".landing-footer nav",
+  ".landing-footer a",
+  ".landing-footer p",
 ]) {
   const selectorCount = countOccurrences(
-    landingCss,
+    stripAtRuleBlocks(landingCss),
     new RegExp(`^${singleOwnerLandingSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
   );
   if (selectorCount > 1) {
     problems.push(`src/app/landing.css must keep ${singleOwnerLandingSelector} in one owner block.`);
+  }
+}
+
+for (const retiredFooterSelector of [
+  "landing-footer-company",
+  "landing-footer-card",
+  "landing-company-details",
+]) {
+  if (landingCss.includes(retiredFooterSelector) || landingScrollRevealSource.includes(retiredFooterSelector)) {
+    problems.push(`Retired landing footer helper ${retiredFooterSelector} must not return; use the real landing-footer element.`);
   }
 }
 
