@@ -233,7 +233,11 @@ export default function LegalDocumentsPage() {
               <button
                 type="button"
                 key={item.type}
-                className={`admin-document-list-item ${selectedType === item.type ? "is-active" : ""}`}
+                className={
+                  selectedType === item.type
+                    ? "admin-document-list-item admin-document-list-item-active"
+                    : "admin-document-list-item"
+                }
                 onClick={() => selectDocumentType(item.type)}
               >
                 <strong>{legalDocumentLabels[item.type]}</strong>

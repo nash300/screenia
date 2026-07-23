@@ -4721,7 +4721,7 @@
   cursor: pointer;
 }
 
-.admin-document-list-item.is-active {
+.admin-document-list-item.admin-document-list-item-active {
   outline: 2px solid var(--admin-surface-title);
   outline-offset: -4px;
 }
@@ -4741,7 +4741,7 @@
 }
 
 .admin-layout .admin-document-list-item:hover,
-.admin-layout .admin-document-list-item.is-active {
+.admin-layout .admin-document-list-item.admin-document-list-item-active {
   border-color: rgba(47, 125, 246, 0.44) !important;
   background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
   color: var(--admin-text) !important;
@@ -4820,7 +4820,7 @@
 }
 
 .admin-layout .admin-document-list-item:hover,
-.admin-layout .admin-document-list-item.is-active {
+.admin-layout .admin-document-list-item.admin-document-list-item-active {
   border-color: rgba(47, 125, 246, 0.44) !important;
   background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
   color: var(--admin-text) !important;
@@ -6437,7 +6437,7 @@
 }
 
 .admin-layout button.admin-document-list-item:hover,
-.admin-layout button.admin-document-list-item.is-active {
+.admin-layout button.admin-document-list-item.admin-document-list-item-active {
   background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
   color: var(--admin-text) !important;
 }

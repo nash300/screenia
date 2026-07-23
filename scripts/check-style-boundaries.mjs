@@ -217,6 +217,7 @@ const landingPageSource = read("src/app/page.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
+const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -301,6 +302,26 @@ if (adminCss.includes(".admin-email-filter-row button.is-active")) {
 
 if (!adminCss.includes(".admin-email-filter-row button.admin-email-filter-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-email-filter-active selector.");
+}
+
+if (legalDocumentsPageSource.includes('"is-active"')) {
+  problems.push("The admin legal-documents page must use admin-document-list-item-active instead of generic is-active.");
+}
+
+if (!legalDocumentsPageSource.includes("admin-document-list-item-active")) {
+  problems.push("The admin legal-documents page must expose the explicit admin-document-list-item-active state class.");
+}
+
+if (adminCss.includes(".admin-document-list-item.is-active")) {
+  problems.push("src/app/admin/admin.css must style admin-document-list-item-active instead of generic document list is-active.");
+}
+
+if (adminCss.includes("button.admin-document-list-item.is-active")) {
+  problems.push("src/app/admin/admin.css must style button.admin-document-list-item-active instead of generic document list is-active.");
+}
+
+if (!adminCss.includes(".admin-document-list-item.admin-document-list-item-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-document-list-item-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
