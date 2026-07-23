@@ -3717,7 +3717,7 @@
   box-shadow: 0 16px 34px rgba(47, 125, 246, 0.24);
 }
 
-.flow-result-icon.warning {
+.flow-result-icon.flow-result-icon-warning {
   background: linear-gradient(135deg, #f2b84b, #d68a06);
 }
 

@@ -438,6 +438,14 @@ if (!landingCss.includes(".flow-step.flow-step-active")) {
   problems.push("src/app/landing.css must define the explicit flow-step-active selector.");
 }
 
+if (landingCss.includes(".flow-result-icon.warning")) {
+  problems.push("src/app/landing.css must use flow-result-icon-warning instead of generic .flow-result-icon.warning.");
+}
+
+if (read("src/app/onboarding/payment-cancelled/page.tsx").includes('"flow-result-icon warning"')) {
+  problems.push("The cancelled payment page must emit flow-result-icon-warning instead of generic warning.");
+}
+
 if (landingCss.includes("account-category-tabs")) {
   problems.push("src/app/landing.css still contains retired account-category-tabs styling. The account upload UI no longer emits that tab layer.");
 }

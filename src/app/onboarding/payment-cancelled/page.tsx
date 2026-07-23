@@ -16,7 +16,7 @@ export default async function PaymentCancelledPage({
     <div className="landing-page flow-page flow-result-page">
       <main className="flow-shell flow-result-shell flow-result-shell-warning">
         <section className="flow-result-copy" aria-labelledby="payment-cancelled-title">
-          <span className="flow-result-icon warning">!</span>
+          <span className="flow-result-icon flow-result-icon-warning">!</span>
           <p className="landing-eyebrow">Betalning avbruten</p>
           <h1 id="payment-cancelled-title">Betalningen avbr&ouml;ts</h1>
           <p>
