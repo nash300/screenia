@@ -4926,7 +4926,7 @@
   gap: 10px;
 }
 
-.account-file-list.is-compact {
+.account-file-list.account-file-list-compact {
   gap: 8px;
 }
 

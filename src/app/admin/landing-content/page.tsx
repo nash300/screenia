@@ -203,7 +203,12 @@ function SlideEditor({ item, isNew = false, working, onChange, onUpload, onSave,
       <label><span className="admin-landing-field-label">Yellow highlight words</span><input value={highlightText} maxLength={500} disabled={working} placeholder="Example: kunder, unikt, fler besokare" onChange={(event) => onChange({ ...item, highlight_terms: parseHighlightTerms(event.target.value) })} /></label>
       <p className="admin-landing-field-help">Separate words or short phrases with commas. Matching text in the hero heading will be highlighted in yellow.</p>
       <label><span className="admin-landing-field-label">Image path</span><input value={item.image_url} maxLength={2000} disabled={working} placeholder="/landing/hero-slides/01/image.png" onChange={(event) => onChange({ ...item, image_url: event.target.value })} /></label>
-      <label className={`admin-landing-upload ${working ? "is-disabled" : ""}`} aria-disabled={working}>
+      <label
+        className={`admin-landing-upload ${
+          working ? "admin-landing-upload-disabled" : ""
+        }`}
+        aria-disabled={working}
+      >
         <span>{item.image_url ? "Replace image" : "Upload image"}</span>
         <input className="admin-landing-file-input" type="file" accept="image/png,image/jpeg,image/webp" disabled={working} onChange={(event) => { const file = event.target.files?.[0]; if (file) onUpload(file, (imageUrl) => onChange({ ...item, image_url: imageUrl })); event.currentTarget.value = ""; }} />
       </label>

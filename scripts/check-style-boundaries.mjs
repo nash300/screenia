@@ -218,6 +218,7 @@ const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
+const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
@@ -306,6 +307,10 @@ if (accountPageSource.includes('"is-done"')) {
   problems.push("The account page must use account-status-step-done instead of generic is-done.");
 }
 
+if (accountPageSource.includes("account-file-list is-compact")) {
+  problems.push("The account page must use account-file-list-compact instead of generic is-compact.");
+}
+
 for (const className of ["account-menu-button-active", "account-card-active"]) {
   if (!accountPageSource.includes(className)) {
     problems.push(`The account page must expose the explicit ${className} state class.`);
@@ -334,6 +339,18 @@ if (!landingCss.includes(".account-status-step.account-status-step-done")) {
 
 if (landingCss.includes(".account-status-step.is-done")) {
   problems.push("src/app/landing.css must not keep generic account status selector .account-status-step.is-done.");
+}
+
+if (!accountPageSource.includes("account-file-list-compact")) {
+  problems.push("The account page must expose the explicit account-file-list-compact state class.");
+}
+
+if (!landingCss.includes(".account-file-list.account-file-list-compact")) {
+  problems.push("src/app/landing.css must define the explicit .account-file-list.account-file-list-compact selector.");
+}
+
+if (landingCss.includes(".account-file-list.is-compact")) {
+  problems.push("src/app/landing.css must not keep generic account file-list selector .account-file-list.is-compact.");
 }
 
 for (const retiredSelector of [".account-policy-card.is-open", ".account-policy-card.is-locked"]) {
@@ -380,6 +397,22 @@ if (!adminCss.includes(".admin-email-filter-row button.admin-email-filter-active
 
 if (legalDocumentsPageSource.includes('"is-active"')) {
   problems.push("The admin legal-documents page must use admin-document-list-item-active instead of generic is-active.");
+}
+
+if (landingContentPageSource.includes('"is-disabled"')) {
+  problems.push("The admin landing-content page must use admin-landing-upload-disabled instead of generic is-disabled.");
+}
+
+if (!landingContentPageSource.includes("admin-landing-upload-disabled")) {
+  problems.push("The admin landing-content page must expose the explicit admin-landing-upload-disabled state class.");
+}
+
+if (!adminCss.includes(".admin-landing-upload.admin-landing-upload-disabled")) {
+  problems.push("src/app/admin/admin.css must define the explicit .admin-landing-upload.admin-landing-upload-disabled selector.");
+}
+
+if (adminCss.includes(".admin-landing-upload.is-disabled")) {
+  problems.push("src/app/admin/admin.css must not keep generic admin upload selector .admin-landing-upload.is-disabled.");
 }
 
 if (!legalDocumentsPageSource.includes("admin-document-list-item-active")) {

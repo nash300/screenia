@@ -1474,7 +1474,7 @@ export default function AccountPage() {
                   Bifoga filer
                 </label>
                 {messageFiles.length > 0 && (
-                  <div className="account-file-list is-compact">
+                  <div className="account-file-list account-file-list-compact">
                     {messageFiles.map((file, index) => (
                       <div key={`${file.name}-${index}`} className="account-file-row">
                         <span className="account-file-icon">FILE</span>

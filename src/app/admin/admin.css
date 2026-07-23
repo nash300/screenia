@@ -4510,7 +4510,7 @@
   background: #f8fafc;
 }
 
-.admin-landing-upload.is-disabled span {
+.admin-landing-upload.admin-landing-upload-disabled span {
   cursor: not-allowed;
   opacity: 0.58;
 }
