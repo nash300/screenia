@@ -558,6 +558,11 @@ for (const singleOwnerLandingSelector of [
   ".landing-nav",
   ".landing-button-primary",
   ".landing-button-secondary",
+  ".landing-faq-layout",
+  ".landing-faq-grid",
+  ".landing-faq-item",
+  ".landing-faq-item summary",
+  ".landing-faq-item summary::after",
 ]) {
   const selectorCount = countOccurrences(
     landingCss,

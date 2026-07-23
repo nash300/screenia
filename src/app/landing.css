@@ -2401,14 +2401,15 @@
 }
 
 .landing-faq-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 24px;
+  display: block !important;
+  column-count: 2;
+  column-gap: clamp(16px, 2vw, 26px);
+  margin-top: 18px;
 }
 
 .landing-faq-layout {
   display: block;
+  max-width: 980px;
 }
 
 .landing-faq-visual {
@@ -2439,15 +2440,28 @@
 }
 
 .landing-faq-item {
-  border: 1px solid rgba(47, 125, 246, 0.14);
+  position: relative;
+  display: block;
+  overflow: hidden;
+  break-inside: avoid;
+  margin: 0 0 14px;
+  border: 1px solid rgba(211, 229, 255, 0.28);
   border-radius: 14px;
-  background: #ffffff;
-  box-shadow: 0 10px 24px rgba(7, 31, 84, 0.06);
+  background: var(--screenia-glass-card);
+  box-shadow:
+    0 20px 54px rgba(3, 18, 52, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(14px);
 }
 
 .landing-faq-item summary {
+  display: grid;
+  min-height: 58px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
   cursor: pointer;
-  color: var(--landing-text);
+  color: #ffffff;
   font-family: var(--landing-font-ui);
   font-weight: 900;
   list-style: none;
@@ -2459,8 +2473,13 @@
 }
 
 .landing-faq-item summary::after {
-  float: right;
-  color: var(--landing-blue-700);
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--screenia-mist);
+  color: var(--screenia-blue);
   content: "+";
   font-weight: 950;
 }
@@ -2472,10 +2491,36 @@
 .landing-faq-item p {
   margin: 0;
   border-top: 1px solid rgba(47, 125, 246, 0.1);
-  color: var(--landing-muted);
+  color: rgba(232, 242, 255, 0.82);
   font-size: 0.88rem;
   line-height: 1.65;
   padding: 12px 16px 16px;
+}
+
+.landing-faq-item[open] {
+  border-left: 5px solid var(--screenia-blue);
+  border-color: rgba(68, 215, 255, 0.34);
+  box-shadow:
+    0 24px 60px rgba(0, 10, 32, 0.24),
+    0 0 0 1px rgba(68, 215, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.landing-faq-item::after {
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
+  content: "";
+  opacity: 0.74;
+  transform: scaleX(0.28);
+  transform-origin: left;
+  transition: transform 260ms ease, opacity 260ms ease;
+}
+
+.landing-faq-item:hover::after {
+  opacity: 1;
+  transform: scaleX(1);
 }
 
 .landing-company {
@@ -4803,33 +4848,6 @@
   content: "";
 }
 
-.landing-faq-grid {
-  gap: 16px;
-}
-
-.landing-faq-item {
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(14px);
-}
-
-.landing-faq-item summary {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
-  align-items: center;
-}
-
-.landing-faq-item summary::after {
-  display: grid;
-  float: none;
-  width: 30px;
-  height: 30px;
-  place-items: center;
-  border-radius: 8px;
-  background: rgba(47, 125, 246, 0.1);
-}
-
 @media (max-width: 640px) {
   .landing-examples {
     padding-right: 26px !important;
@@ -5689,27 +5707,6 @@
   box-shadow: var(--screenia-shadow);
 }
 
-.landing-faq-layout {
-  max-width: 980px;
-}
-
-.landing-faq-item {
-  border: 1px solid rgba(70, 111, 171, 0.18);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 10px 30px rgba(6, 25, 66, 0.06);
-}
-
-.landing-faq-item[open] {
-  border-left: 5px solid var(--screenia-blue);
-}
-
-.landing-faq-item summary::after {
-  border-radius: 6px;
-  background: var(--screenia-mist);
-  color: var(--screenia-blue);
-}
-
 .landing-contact h2 {
   max-width: 18ch;
   color: #ffffff;
@@ -6213,24 +6210,6 @@
   .account-dialog-actions .landing-button {
     width: 100%;
   }
-}
-
-/* Compact FAQ: opened answers should not stretch neighbouring cards. */
-.landing-faq-grid {
-  display: block !important;
-  column-count: 2;
-  column-gap: 16px;
-  margin-top: 18px;
-}
-
-.landing-faq-item {
-  display: block;
-  break-inside: avoid;
-  margin: 0 0 12px;
-}
-
-.landing-faq-item summary {
-  min-height: 48px;
 }
 
 @media (max-width: 780px) {
@@ -7702,7 +7681,6 @@
 .landing-page .landing-illustration,
 .landing-page .landing-workflow-step,
 .landing-page .landing-gallery-card,
-.landing-page .landing-faq-item,
 .landing-page .landing-price-card,
 .landing-page .landing-package-builder,
 .landing-page .landing-pricing-note {
@@ -7718,8 +7696,7 @@
 .landing-page .landing-feature::after,
 .landing-page .landing-illustration::after,
 .landing-page .landing-workflow-step::after,
-.landing-page .landing-gallery-card::after,
-.landing-page .landing-faq-item::after {
+.landing-page .landing-gallery-card::after {
   position: absolute;
   inset: auto 0 0;
   height: 3px;
@@ -7734,8 +7711,7 @@
 .landing-page .landing-feature:hover::after,
 .landing-page .landing-illustration:hover::after,
 .landing-page .landing-workflow-step:hover::after,
-.landing-page .landing-gallery-card:hover::after,
-.landing-page .landing-faq-item:hover::after {
+.landing-page .landing-gallery-card:hover::after {
   opacity: 1;
   transform: scaleX(1);
 }
@@ -7765,15 +7741,13 @@
 
 .landing-platform .landing-feature h3,
 .landing-platform .landing-illustration h3,
-.landing-gallery-content h3,
-.landing-faq-item summary {
+.landing-gallery-content h3 {
   color: #ffffff;
 }
 
 .landing-platform .landing-feature p,
 .landing-platform .landing-illustration p,
-.landing-gallery-content p,
-.landing-faq-item p {
+.landing-gallery-content p {
   color: rgba(232, 242, 255, 0.82);
 }
 
@@ -7857,32 +7831,6 @@
 
 .landing-film-screen {
   border-radius: 18px;
-}
-
-.landing-faq-layout {
-  display: block;
-}
-
-.landing-faq-grid {
-  column-gap: clamp(16px, 2vw, 26px);
-}
-
-.landing-faq-item {
-  border-radius: 14px !important;
-  margin-bottom: 14px !important;
-}
-
-.landing-faq-item summary {
-  min-height: 58px;
-  align-items: center;
-}
-
-.landing-faq-item[open] {
-  border-color: rgba(68, 215, 255, 0.34) !important;
-  box-shadow:
-    0 24px 60px rgba(0, 10, 32, 0.24),
-    0 0 0 1px rgba(68, 215, 255, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
 }
 
 .landing-contact-panel {
