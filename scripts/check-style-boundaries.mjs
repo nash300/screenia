@@ -880,6 +880,14 @@ if (deviceDetailPageSource.includes('"is-selected"')) {
   problems.push("The admin device detail page must use admin-operation-card-selected instead of generic is-selected.");
 }
 
+if (
+  /\b(?:admin-card p-6|admin-card-title text-xl|mt-[0-9]|mb-[0-9]|rounded-|border-slate|bg-slate|bg-green|bg-red|bg-white|text-slate-|text-white|text-black|w-full|h-full|px-[0-9]|py-[0-9]|p-[0-9]|gap-[0-9]|md:flex-row|md:items|md:grid-cols|flex flex-col|grid gap|space-y-[0-9]|disabled:opacity-50|focus:ring|focus:border|aspect-video|shadow-xl|border-0|break-all|font-mono)\b/.test(
+    deviceDetailPageSource,
+  )
+) {
+  problems.push("The admin device detail page must use explicit admin-device-detail/admin-device-preview classes instead of inline utility styling.");
+}
+
 if (!deviceDetailPageSource.includes("admin-display-workflow-step-active")) {
   problems.push("The admin device detail page must expose the explicit admin-display-workflow-step-active state class.");
 }
@@ -890,6 +898,27 @@ if (adminCss.includes(".admin-display-workflow-step.is-active")) {
 
 if (!adminCss.includes("admin-display-workflow-step-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-display-workflow-step-active selector.");
+}
+
+for (const className of [
+  "admin-device-detail-loading-panel",
+  "admin-device-detail-back-link",
+  "admin-device-detail-header-main",
+  "admin-device-detail-status",
+  "admin-device-detail-panel",
+  "admin-device-detail-title",
+  "admin-device-detail-control",
+  "admin-device-preview-shell",
+  "admin-device-playlist-item",
+  "admin-device-url-card",
+  "admin-device-info-row",
+]) {
+  if (!deviceDetailPageSource.includes(className)) {
+    problems.push(`The admin device detail page must expose the explicit ${className} class.`);
+  }
+  if (!adminCss.includes(className)) {
+    problems.push(`src/app/admin/admin.css must define the explicit ${className} selector.`);
+  }
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");
@@ -1170,8 +1199,8 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-
     message: "must not make active primary nav links button sized.",
   },
   {
-    includes: "text-decoration: underline;",
-    message: "must show the active state as a text underline rather than a button treatment.",
+    includes: "text-decoration: none;",
+    message: "must show the active state as text color/weight rather than an underline or button treatment.",
   },
 ]);
 

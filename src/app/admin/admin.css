@@ -3331,6 +3331,281 @@
   margin-top: 1.25rem;
 }
 
+.admin-device-detail-loading-panel {
+  display: grid;
+  min-height: 92px;
+  align-content: center;
+}
+
+.admin-device-detail-back-link {
+  color: var(--admin-focus);
+  font-size: 0.875rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.admin-device-detail-header-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-device-detail-status {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 850;
+}
+
+.admin-device-detail-status-active {
+  background: rgba(41, 184, 121, 0.16);
+  color: #16623f;
+}
+
+.admin-device-detail-status-inactive {
+  background: rgba(227, 84, 90, 0.14);
+  color: #9a1c1c;
+}
+
+.admin-device-detail-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-device-detail-stacked-panel {
+  margin-top: 1.5rem;
+}
+
+.admin-device-detail-title {
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+}
+
+.admin-device-detail-summary-grid,
+.admin-device-detail-form-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+.admin-device-info-row,
+.admin-device-detail-notes-card,
+.admin-device-url-card {
+  border-radius: var(--admin-radius-lg);
+  background: #f8fafc;
+  padding: 1rem;
+}
+
+.admin-device-info-label,
+.admin-device-detail-notes-label {
+  margin: 0;
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-device-info-value,
+.admin-device-detail-notes-value {
+  margin: 0.25rem 0 0;
+  color: var(--admin-text);
+  font-size: 0.875rem;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.admin-device-detail-notes-card,
+.admin-device-detail-operation-panel {
+  margin-top: 1rem;
+}
+
+.admin-device-detail-copy {
+  margin-top: 0.5rem;
+}
+
+.admin-device-detail-rename-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-device-detail-field {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.admin-device-detail-field label {
+  color: var(--admin-text);
+  font-size: 0.875rem;
+  font-weight: 850;
+}
+
+.admin-device-detail-control {
+  width: 100%;
+  border: 1px solid rgba(47, 125, 246, 0.2);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  padding: 0.55rem 0.75rem;
+  color: var(--admin-text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-device-detail-control:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
+}
+
+.admin-device-detail-textarea {
+  margin-top: 1rem;
+}
+
+.admin-device-detail-save-button {
+  margin-top: 1rem;
+}
+
+.admin-device-preview-shell {
+  border: 1px solid #1e293b;
+  border-radius: var(--admin-radius-xl);
+  background: #000000;
+  padding: 0.75rem;
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.2);
+}
+
+.admin-device-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+  color: #ffffff;
+}
+
+.admin-device-preview-kicker {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-device-preview-title {
+  margin: 0;
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 850;
+}
+
+.admin-device-preview-link {
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  padding: 0.5rem 0.75rem;
+  color: #000000;
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.admin-device-preview-frame {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--admin-radius-lg);
+  background: #000000;
+}
+
+.admin-device-preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.admin-device-playlist-empty {
+  margin-top: 0.75rem;
+}
+
+.admin-device-playlist-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-device-playlist-item {
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+  padding: 1rem;
+}
+
+.admin-device-playlist-order {
+  margin: 0 0 0.5rem;
+  color: var(--admin-muted-text);
+  font-size: 0.875rem;
+  font-weight: 850;
+}
+
+.admin-device-playlist-video {
+  width: 100%;
+  border-radius: var(--admin-radius-md);
+}
+
+.admin-device-playlist-remove {
+  margin-top: 0.75rem;
+}
+
+.admin-device-url-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.admin-device-url-path {
+  color: var(--admin-text);
+  font-family: Consolas, monospace;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-device-url-preview {
+  border-radius: var(--admin-radius-md);
+  background: #020617;
+  padding: 0.5rem 0.75rem;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 850;
+  text-decoration: none;
+}
+
+@media (min-width: 768px) {
+  .admin-device-detail-header-main,
+  .admin-device-detail-rename-row,
+  .admin-device-url-card {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .admin-device-detail-summary-grid,
+  .admin-device-detail-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .admin-device-preview-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .admin-device-media-flow,
 .admin-device-remove-flow {
   display: grid;

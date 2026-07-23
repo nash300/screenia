@@ -389,7 +389,7 @@ export default function AdminDevicePage({
 
   if (loading) {
     return (
-      <div className="admin-card p-6">
+      <div className="admin-card admin-device-detail-loading-panel">
         <p className="admin-muted">Loading display...</p>
       </div>
     );
@@ -414,22 +414,22 @@ export default function AdminDevicePage({
       <div className="admin-page-header">
         <Link
           href="/admin/devices"
-          className="text-sm font-semibold text-[var(--admin-focus)] no-underline"
+          className="admin-device-detail-back-link"
         >
           Back to displays
         </Link>
 
-        <div className="mt-4 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <div className="admin-device-detail-header-main">
           <div>
             <h1 className="admin-title">{deviceName}</h1>
             <p className="admin-subtitle">Display code: {deviceId}</p>
           </div>
 
           <span
-            className={`inline-flex w-fit rounded-full px-3 py-1 text-sm font-semibold ${
+            className={`admin-device-detail-status ${
               isActive
-                ? "bg-green-100 text-green-700"
-                : "bg-red-100 text-red-700"
+                ? "admin-device-detail-status-active"
+                : "admin-device-detail-status-inactive"
             }`}
           >
             {isActive ? "Active" : "Inactive"}
@@ -463,10 +463,10 @@ export default function AdminDevicePage({
 
       {/* Display Summary */}
       {activeSection === "overview" && device && (
-        <div className="admin-card p-6">
-          <h2 className="admin-card-title text-xl">Display summary</h2>
+        <div className="admin-card admin-device-detail-panel">
+          <h2 className="admin-card-title admin-device-detail-title">Display summary</h2>
 
-          <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
+          <div className="admin-device-detail-summary-grid">
             <InfoRow label="Display name" value={deviceName} />
             <InfoRow label="Display code" value={deviceId} />
             <InfoRow label="Location" value={device.location || "Not set"} />
@@ -477,16 +477,16 @@ export default function AdminDevicePage({
             <InfoRow label="Content items" value={playlist.length} />
           </div>
 
-          <div className="mt-4 rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <div className="admin-device-detail-notes-card">
+            <p className="admin-device-detail-notes-label">
               Notes
             </p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">
+            <p className="admin-device-detail-notes-value">
               {device.internal_notes || "None"}
             </p>
           </div>
 
-          <div className="admin-operation-panel mt-5">
+          <div className="admin-operation-panel admin-device-detail-operation-panel">
             <div className="admin-operation-header">
               <div>
                 <p className="admin-operation-kicker">Display endpoint action</p>
@@ -655,20 +655,20 @@ export default function AdminDevicePage({
 
       {/* Rename */}
       {activeSection === "details" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Rename display</h2>
+      <div className="admin-card admin-device-detail-panel">
+        <h2 className="admin-card-title admin-device-detail-title">Rename display</h2>
 
-        <div className="mt-4 flex flex-col gap-3 md:flex-row">
+        <div className="admin-device-detail-rename-row">
           <input
             value={newDeviceName}
             onChange={(e) => setNewDeviceName(e.target.value)}
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+            className="admin-device-detail-control"
           />
 
           <button
             onClick={renameDevice}
             disabled={renaming || !renameReason.trim()}
-            className="admin-button-primary disabled:opacity-50"
+            className="admin-button-primary"
           >
             {renaming ? "Saving..." : "Save"}
           </button>
@@ -687,16 +687,16 @@ export default function AdminDevicePage({
 
       {/* Display Details Form */}
       {activeSection === "details" && (
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Display details</h2>
+      <div className="admin-card admin-device-detail-panel admin-device-detail-stacked-panel">
+        <h2 className="admin-card-title admin-device-detail-title">Display details</h2>
 
-        <p className="admin-muted mt-2">
+        <p className="admin-muted admin-device-detail-copy">
           Use this section for the customer-facing display endpoint. Purchase,
           serial number, supplier, warranty, repair, and return status belong in
           Hardware stock.
         </p>
 
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <div className="admin-device-detail-form-grid">
           <Input
             label="Location"
             value={editLocation}
@@ -708,7 +708,7 @@ export default function AdminDevicePage({
           value={editInternalNotes}
           onChange={(e) => setEditInternalNotes(e.target.value)}
           placeholder="Internal notes"
-          className="mt-4 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+          className="admin-device-detail-control admin-device-detail-textarea"
           rows={3}
         />
 
@@ -725,7 +725,7 @@ export default function AdminDevicePage({
         <button
           onClick={saveDeviceDetails}
           disabled={saving || !detailsReason.trim()}
-          className="admin-button-primary mt-4 disabled:opacity-50"
+          className="admin-button-primary admin-device-detail-save-button"
         >
           {saving ? "Saving..." : "Save display details"}
         </button>
@@ -734,28 +734,28 @@ export default function AdminDevicePage({
 
       {/* Live Preview */}
       {activeSection === "preview" && (
-      <div className="rounded-3xl border border-slate-800 bg-black p-3 shadow-xl">
-        <div className="mb-3 flex items-center justify-between text-white">
+      <div className="admin-device-preview-shell">
+        <div className="admin-device-preview-header">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+            <p className="admin-device-preview-kicker">
               Live display check
             </p>
-            <h2 className="text-sm font-semibold">Screen preview</h2>
+            <h2 className="admin-device-preview-title">Screen preview</h2>
           </div>
 
           <a
             href={`/display/${deviceId}`}
             target="_blank"
-            className="rounded-xl bg-white px-3 py-2 text-xs font-semibold text-black no-underline"
+            className="admin-device-preview-link"
           >
             Open full screen
           </a>
         </div>
 
-        <div className="aspect-video overflow-hidden rounded-2xl bg-black">
+        <div className="admin-device-preview-frame">
           <iframe
             src={`/display/${deviceId}`}
-            className="h-full w-full border-0"
+            className="admin-device-preview-iframe"
             title="Display preview"
           />
         </div>
@@ -810,7 +810,7 @@ export default function AdminDevicePage({
               type="button"
               onClick={uploadVideo}
               disabled={saving || !videoFile}
-              className="admin-button-primary disabled:opacity-50"
+              className="admin-button-primary"
             >
               {saving ? "Uploading..." : "Upload and add to playlist"}
             </button>
@@ -821,7 +821,7 @@ export default function AdminDevicePage({
                 setVideoUploadReason("");
               }}
               disabled={saving || (!videoFile && !videoUploadReason)}
-              className="admin-button-secondary disabled:opacity-50"
+              className="admin-button-secondary"
             >
               Clear
             </button>
@@ -832,23 +832,23 @@ export default function AdminDevicePage({
 
       {/* Playlist */}
       {activeSection === "media" && (
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Current playlist</h2>
+      <div className="admin-card admin-device-detail-panel admin-device-detail-stacked-panel">
+        <h2 className="admin-card-title admin-device-detail-title">Current playlist</h2>
 
         {playlist.length === 0 ? (
-          <p className="admin-muted mt-3">No videos assigned yet.</p>
+          <p className="admin-muted admin-device-playlist-empty">No videos assigned yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-4">
+          <div className="admin-scroll-region admin-device-playlist-list">
             {playlist.map((item) => (
               <div
                 key={item.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-device-playlist-item"
               >
-                <p className="mb-2 text-sm font-semibold text-slate-500">
+                <p className="admin-device-playlist-order">
                   Order: {item.order_index}
                 </p>
 
-                <video src={item.src} controls className="w-full rounded-xl" />
+                <video src={item.src} controls className="admin-device-playlist-video" />
 
                 {removingPlaylistId === item.id ? (
                   <div className="admin-device-remove-flow">
@@ -897,7 +897,7 @@ export default function AdminDevicePage({
                   <button
                     type="button"
                     onClick={() => startRemoveVideo(item.id)}
-                    className="admin-button-danger mt-3"
+                    className="admin-button-danger admin-device-playlist-remove"
                   >
                     Remove from playlist
                   </button>
@@ -911,18 +911,18 @@ export default function AdminDevicePage({
 
       {/* Display URL */}
       {activeSection === "display" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Display URL</h2>
+      <div className="admin-card admin-device-detail-panel">
+        <h2 className="admin-card-title admin-device-detail-title">Display URL</h2>
 
-        <div className="mt-3 flex flex-col justify-between gap-3 rounded-2xl bg-slate-50 p-4 md:flex-row md:items-center">
-          <span className="break-all font-mono text-xs text-slate-700">
+        <div className="admin-device-url-card">
+          <span className="admin-device-url-path">
             /display/{deviceId}
           </span>
 
           <a
             href={`/display/${deviceId}`}
             target="_blank"
-            className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white no-underline"
+            className="admin-device-url-preview"
           >
             Preview
           </a>
@@ -935,11 +935,11 @@ export default function AdminDevicePage({
 
 function InfoRow({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-2xl bg-slate-50 p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+    <div className="admin-device-info-row">
+      <p className="admin-device-info-label">
         {label}
       </p>
-      <p className="mt-1 break-all text-sm font-semibold text-slate-900">
+      <p className="admin-device-info-value">
         {value}
       </p>
     </div>
@@ -958,13 +958,13 @@ function Input({
   type?: string;
 }) {
   return (
-    <div>
-      <label className="text-sm font-semibold text-slate-700">{label}</label>
+    <div className="admin-device-detail-field">
+      <label>{label}</label>
       <input
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+        className="admin-device-detail-control"
       />
     </div>
   );
