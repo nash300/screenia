@@ -218,6 +218,7 @@ const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
+const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -322,6 +323,22 @@ if (adminCss.includes("button.admin-document-list-item.is-active")) {
 
 if (!adminCss.includes(".admin-document-list-item.admin-document-list-item-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-document-list-item-active selector.");
+}
+
+if (inventoryPageSource.includes('"is-active"')) {
+  problems.push("The admin inventory page must use admin-inventory-item-active instead of generic is-active.");
+}
+
+if (!inventoryPageSource.includes("admin-inventory-item-active")) {
+  problems.push("The admin inventory page must expose the explicit admin-inventory-item-active state class.");
+}
+
+if (adminCss.includes(".admin-inventory-item.is-active")) {
+  problems.push("src/app/admin/admin.css must style admin-inventory-item-active instead of generic inventory item is-active.");
+}
+
+if (!adminCss.includes(".admin-inventory-item.admin-inventory-item-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-inventory-item-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");

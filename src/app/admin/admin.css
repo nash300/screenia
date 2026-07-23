@@ -4026,7 +4026,7 @@
 }
 
 .admin-inventory-item:hover,
-.admin-inventory-item.is-active {
+.admin-inventory-item.admin-inventory-item-active {
   background: linear-gradient(135deg, #ffffff, #eef5ff) !important;
   box-shadow: 0 12px 28px rgba(7, 31, 84, 0.08) !important;
 }

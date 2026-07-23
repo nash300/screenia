@@ -548,9 +548,11 @@ export default function AdminInventoryPage() {
                   key={item.id}
                   type="button"
                   onClick={() => setSelectedId(item.id)}
-                  className={`admin-inventory-item ${
-                    selectedId === item.id ? "is-active" : ""
-                  }`}
+                  className={
+                    selectedId === item.id
+                      ? "admin-inventory-item admin-inventory-item-active"
+                      : "admin-inventory-item"
+                  }
                 >
                   <div>
                     <span className={`admin-inventory-status admin-inventory-status-${item.status}`}>
