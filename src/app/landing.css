@@ -493,11 +493,22 @@
 
 .landing-nav-primary a {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.landing-nav-primary a:hover {
+  background: transparent;
+  box-shadow: none;
 }
 
 .landing-nav-primary a:focus-visible {
   outline: 0;
+  background: transparent;
+  box-shadow: none;
   color: var(--screenia-logo-deep);
 }
 

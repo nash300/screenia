@@ -562,8 +562,31 @@ requireCssBlock(landingCss, ".landing-nav-primary a", [
     message: "must own positioning for the underline indicator.",
   },
   {
+    includes: "display: inline-flex;",
+    message: "must stay as a text-sized inline link instead of a block button.",
+  },
+  {
+    includes: "background: transparent;",
+    message: "must not inherit button-like backgrounds.",
+  },
+  {
+    includes: "box-shadow: none;",
+    message: "must not inherit button-like shadows.",
+  },
+  {
     includes: "border-radius: 0;",
     message: "must remain text-link shaped instead of pill shaped.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary a:hover", [
+  {
+    includes: "background: transparent;",
+    message: "must not use a hover background that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "box-shadow: none;",
+    message: "must not use a hover shadow that makes primary nav links look like buttons.",
   },
 ]);
 
@@ -573,11 +596,11 @@ requireCssBlock(landingCss, ".landing-nav-primary a:focus-visible", [
     message: "must replace the global rectangle focus ring with the nav underline.",
   },
   {
-    rejects: "background:",
+    includes: "background: transparent;",
     message: "must not use a background that makes primary nav links look like buttons.",
   },
   {
-    rejects: "box-shadow:",
+    includes: "box-shadow: none;",
     message: "must not use a box shadow that makes primary nav links look like buttons.",
   },
   {
