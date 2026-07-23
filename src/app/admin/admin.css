@@ -924,7 +924,7 @@
   font-size: 0.78rem;
 }
 
-.eyebrow {
+.admin-eyebrow {
   color: var(--admin-surface-title) !important;
   font-size: 0.72rem !important;
   font-weight: 700;
@@ -934,8 +934,7 @@
 /* =========================================
    CARDS / PANELS
 ========================================= */
-.admin-card,
-.card {
+.admin-card {
   border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
     var(--admin-surface-highlight) !important;
   border-style: solid !important;
@@ -949,8 +948,7 @@
   color: var(--admin-surface-text);
 }
 
-.admin-card-title,
-.card h2 {
+.admin-card-title {
   margin-bottom: 0.45rem;
   border-bottom: 2px solid var(--admin-section-header-border);
   padding-bottom: 0.35rem;
@@ -3532,9 +3530,8 @@
 }
 
 .admin-sidebar-kicker,
-.eyebrow,
 .admin-card-title,
-.card h2,
+.admin-eyebrow,
 .admin-stat-label,
 .admin-priority-title,
 .admin-progress-header strong,
@@ -4733,7 +4730,6 @@
 }
 
 .admin-card,
-.card,
 .admin-action-card,
 .admin-stat-card,
 .admin-order-card,
@@ -4748,8 +4744,7 @@
   box-shadow: var(--admin-shadow-soft) !important;
 }
 
-.admin-card-title,
-.card h2 {
+.admin-card-title {
   border-bottom: 1px solid rgba(47, 125, 246, 0.16);
   color: var(--admin-text) !important;
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;

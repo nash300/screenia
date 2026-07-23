@@ -281,6 +281,24 @@ if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
 
+if (/(^|\n)\.card(\s|,|\{|:|>)/.test(adminCss) || /\.card\s+h[1-6]\b/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not keep the retired generic card alias. Use admin-card.");
+}
+
+if (/(^|\n)\.eyebrow(\s|,|\{|:)/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not keep the retired generic eyebrow alias. Use admin-eyebrow.");
+}
+
+if (
+  sourceFiles.some(
+    (file) =>
+      file.startsWith("src/app/admin/") &&
+      /className=(?:"(?:[^"]*\s)?(?:card|eyebrow)(?:\s[^"]*)?"|`(?:[^`]*\s)?(?:card|eyebrow)(?:\s[^`]*)?`)/.test(read(file)),
+  )
+) {
+  problems.push("Admin pages must use explicit admin-card/admin-eyebrow class names instead of generic card or eyebrow.");
+}
+
 if (adminCss.includes(".is-active")) {
   problems.push("src/app/admin/admin.css must not contain generic .is-active selectors. Use explicit component state class names.");
 }

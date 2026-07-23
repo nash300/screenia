@@ -328,7 +328,7 @@ export default function PricingPage() {
   return (
     <main>
       <div className="admin-page-header">
-        <p className="eyebrow">Screenia Admin</p>
+        <p className="admin-eyebrow">Screenia Admin</p>
         <h1 className="admin-title">Pricing</h1>
         <p className="admin-subtitle">
           Edit live package prices, then sync matching Stripe products and
@@ -344,7 +344,7 @@ export default function PricingPage() {
       )}
 
       {loading ? (
-        <section className="card">
+        <section className="admin-card">
           <p className="admin-muted">Loading pricing plans...</p>
         </section>
       ) : (
@@ -386,10 +386,10 @@ export default function PricingPage() {
             const syncing = syncingPlanId === plan.id;
 
             return (
-              <section key={plan.id} className="card admin-pricing-card">
+              <section key={plan.id} className="admin-card admin-pricing-card">
                 <div className="admin-pricing-card-header">
                   <div>
-                    <p className="eyebrow">{plan.code}</p>
+                    <p className="admin-eyebrow">{plan.code}</p>
                     <h2>
                       {plan.name} ({plan.resolution})
                     </h2>

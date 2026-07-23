@@ -153,7 +153,7 @@ export default function LandingContentPage() {
 
       {migrationRequired && <div className="admin-pricing-notice admin-pricing-notice-info">The current published content is shown below. Apply the landing-content database migration before editing, adding, deleting, or uploading content.</div>}
 
-      {loading ? <section className="card"><p className="admin-muted">Loading landing content...</p></section> : (
+      {loading ? <section className="admin-card"><p className="admin-muted">Loading landing content...</p></section> : (
         <div className="admin-landing-content-grid">
           <section className="admin-landing-content-section">
             <div className="admin-landing-content-heading">
