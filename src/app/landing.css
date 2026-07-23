@@ -5034,12 +5034,6 @@
   margin-top: 12px;
 }
 
-.landing-page :is(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--landing-font-display) !important;
-  font-weight: 400 !important;
-  letter-spacing: 0;
-}
-
 @media (max-width: 1040px) {
   .account-dashboard,
   .account-grid,
@@ -5081,14 +5075,6 @@
   .account-dropzone {
     min-height: 230px;
   }
-}
-
-.landing-page :is(h2, h3, h4, h5, h6),
-.landing-section-heading h2,
-.landing-contact h2 {
-  font-family: var(--landing-font-ui) !important;
-  font-weight: 900 !important;
-  letter-spacing: 0 !important;
 }
 
 .landing-hero-copy h1,

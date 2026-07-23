@@ -317,6 +317,12 @@ if (landingCss.includes(".landing-hero-dots button.is-active")) {
   problems.push("src/app/landing.css must style landing-hero-dot-active instead of generic hero dot is-active.");
 }
 
+if (landingCss.includes(".landing-page :is(h2, h3, h4, h5, h6)")) {
+  problems.push(
+    "src/app/landing.css must not keep the retired broad h2-h6 UI-font override. Customer-facing headings use the shared display heading rule.",
+  );
+}
+
 if (/\.active\b/.test(landingCss)) {
   problems.push("src/app/landing.css must not contain generic .active selectors. Use explicit component state class names.");
 }
