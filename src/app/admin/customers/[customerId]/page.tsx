@@ -2242,32 +2242,32 @@ export default function CustomerDetailPage({
           Onboarding
       ============================== */}
       {activeSection === "onboarding" && (
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Onboarding</h2>
+      <div className="admin-card admin-customer-onboarding-panel">
+        <h2 className="admin-card-title admin-customer-onboarding-title">Onboarding</h2>
 
-        <div className="mt-4 rounded-3xl border border-blue-100 bg-white/80 p-5 shadow-sm">
-          <div className="flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
+        <div className="admin-customer-quote-panel">
+          <div className="admin-customer-quote-header">
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+              <p className="admin-customer-quote-kicker">
                 Quote and onboarding workflow
               </p>
-              <h3 className="mt-2 text-lg font-black text-slate-950">
+              <h3>
                 Send quote, setup link, material upload, and payment in one flow
               </h3>
             </div>
 
             {currentOnboardingLink && (
-              <span className="rounded-full bg-blue-50 px-3 py-2 text-xs font-black text-blue-700">
+              <span className="admin-customer-quote-status">
                 Link ready
               </span>
             )}
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.85fr)]">
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold text-slate-700">
+          <div className="admin-customer-quote-layout">
+            <div className="admin-customer-quote-form">
+              <div className="admin-customer-quote-lines">
+                <div className="admin-customer-quote-lines-header">
+                  <p>
                     Screens / package lines
                   </p>
                   <button
@@ -2282,7 +2282,7 @@ export default function CustomerDetailPage({
                         },
                       ])
                     }
-                    className="rounded-full bg-blue-600 px-3 py-2 text-xs font-black text-white"
+                    className="admin-customer-quote-add"
                   >
                     + Add screen package
                   </button>
@@ -2291,9 +2291,9 @@ export default function CustomerDetailPage({
                 {quoteItems.map((item, index) => (
                   <div
                     key={item.id}
-                    className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 md:grid-cols-[minmax(0,1fr)_120px_auto]"
+                    className="admin-customer-quote-line"
                   >
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="admin-customer-onboarding-field">
                       Package
                       <select
                         value={item.pricingPlanCode}
@@ -2308,7 +2308,7 @@ export default function CustomerDetailPage({
                             ),
                           );
                         }}
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-onboarding-control"
                       >
                         {pricingPlans.map((plan) => (
                           <option key={plan.id} value={plan.code}>
@@ -2319,7 +2319,7 @@ export default function CustomerDetailPage({
                       </select>
                     </label>
 
-                    <label className="text-sm font-semibold text-slate-700">
+                    <label className="admin-customer-onboarding-field">
                       Quantity
                       <input
                         type="number"
@@ -2344,7 +2344,7 @@ export default function CustomerDetailPage({
                             ),
                           )
                         }
-                        className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                        className="admin-customer-onboarding-control"
                       />
                     </label>
 
@@ -2358,7 +2358,7 @@ export default function CustomerDetailPage({
                         )
                       }
                       disabled={quoteItems.length === 1}
-                      className="admin-button-danger self-end"
+                      className="admin-button-danger admin-customer-quote-remove"
                     >
                       Remove
                     </button>
@@ -2366,8 +2366,8 @@ export default function CustomerDetailPage({
                 ))}
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-semibold text-slate-700">
+              <div className="admin-customer-quote-discount-grid">
+                <label className="admin-customer-onboarding-field">
                   Introductory discount %
                   <input
                     type="number"
@@ -2382,11 +2382,11 @@ export default function CustomerDetailPage({
                         ),
                       )
                     }
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                    className="admin-customer-onboarding-control"
                   />
                 </label>
 
-                <label className="text-sm font-semibold text-slate-700">
+                <label className="admin-customer-onboarding-field">
                   Discount months
                   <input
                     type="number"
@@ -2401,25 +2401,25 @@ export default function CustomerDetailPage({
                         ),
                       )
                     }
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                    className="admin-customer-onboarding-control"
                   />
                 </label>
               </div>
 
-              <p className="rounded-2xl bg-blue-50 p-3 text-xs font-semibold text-blue-800">
+              <p className="admin-customer-quote-discount-note">
                 The introductory discount only reduces the monthly subscription
                 for the selected number of months. The first payment, setup,
                 devices, and shipping are never discounted here.
               </p>
 
-              <label className="text-sm font-semibold text-slate-700">
+              <label className="admin-customer-onboarding-field">
                 Message on quote email
                 <textarea
                   value={quoteNotes}
                   onChange={(event) => setQuoteNotes(event.target.value)}
                   rows={3}
                   placeholder="Optional internal/customer-facing note for this quote"
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100"
+                  className="admin-customer-onboarding-control"
                 />
               </label>
 
@@ -2427,7 +2427,7 @@ export default function CustomerDetailPage({
                 type="button"
                 onClick={prepareQuoteAndOnboarding}
                 disabled={saving || quoteLines.length === 0}
-                className="admin-button-primary disabled:opacity-50"
+                className="admin-button-primary"
               >
                 {saving
                   ? hasPreparedQuote
@@ -2439,7 +2439,7 @@ export default function CustomerDetailPage({
               </button>
 
               {hasPreparedQuote && (
-                <p className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs font-semibold text-amber-900">
+                <p className="admin-customer-quote-resend-warning">
                   Resending keeps the current order and prices, creates a new
                   14-day secure link, and makes the previous link invalid.
                   Confirm the email address before continuing.
@@ -2447,52 +2447,52 @@ export default function CustomerDetailPage({
               )}
 
               {(quoteResultUrl || currentOnboardingLink) && (
-                <p className="break-all rounded-2xl bg-slate-100 p-4 text-sm text-slate-700">
+                <p className="admin-customer-quote-link">
                   Onboarding link: {quoteResultUrl || currentOnboardingLink}
                 </p>
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+            <div className="admin-customer-quote-preview">
+              <p className="admin-customer-quote-preview-kicker">
                 Quote preview
               </p>
               {primaryQuotePlan ? (
-                <div className="mt-3 space-y-2 text-sm text-slate-700">
+                <div className="admin-customer-quote-preview-lines">
                   {quoteLines.map((line) => (
                     <div
                       key={line.id}
-                      className="rounded-xl bg-white/80 p-3 text-slate-700"
+                      className="admin-customer-quote-preview-card"
                     >
-                      <div className="flex justify-between gap-3">
+                      <div className="admin-customer-quote-preview-row">
                         <span>
                           {line.plan?.name} {line.plan?.resolution}
                         </span>
                         <strong>x {line.quantity}</strong>
                       </div>
-                      <div className="mt-1 flex justify-between gap-3 text-xs">
+                      <div className="admin-customer-quote-preview-row admin-customer-quote-preview-row-small">
                         <span>Device</span>
                         <strong>{formatSek(line.deviceSubtotal)}</strong>
                   </div>
-                  <div className="mt-1 flex justify-between gap-3 text-xs">
+                  <div className="admin-customer-quote-preview-row admin-customer-quote-preview-row-small">
                     <span>Monthly incl. VAT</span>
                     <strong>{formatSek(line.monthlySubtotal)} / month</strong>
                   </div>
                     </div>
                   ))}
-                  <div className="flex justify-between gap-3">
+                  <div className="admin-customer-quote-preview-row">
                     <span>Setup fee incl. VAT</span>
                     <strong>{formatSek(quoteSetupSubtotal)}</strong>
                   </div>
-                  <div className="flex justify-between gap-3">
+                  <div className="admin-customer-quote-preview-row">
                     <span>Shipping incl. VAT</span>
                     <strong>{formatSek(quoteShippingSubtotal)}</strong>
                   </div>
-                  <div className="flex justify-between gap-3">
+                  <div className="admin-customer-quote-preview-row">
                     <span>Monthly incl. VAT</span>
                     <strong>{formatSek(quoteMonthlySubtotal)} / month</strong>
                   </div>
-                  <div className="flex justify-between gap-3">
+                  <div className="admin-customer-quote-preview-row">
                     <span>Monthly discount</span>
                     <strong>
                       {quoteDiscountMonths > 0
@@ -2500,15 +2500,15 @@ export default function CustomerDetailPage({
                         : "No recurring discount"}
                     </strong>
                   </div>
-                  <div className="flex justify-between gap-3 border-t border-slate-200 pt-2">
+                  <div className="admin-customer-quote-preview-row admin-customer-quote-preview-total">
                     <span>Initial payment incl. VAT</span>
                     <strong>{formatSek(quoteStartupTotal)}</strong>
                   </div>
-                  <div className="flex justify-between gap-3 text-xs text-slate-500">
+                  <div className="admin-customer-quote-preview-row admin-customer-quote-preview-row-small">
                     <span>Included VAT</span>
                     <strong>{formatSek(quoteStartupVat.vat)}</strong>
                   </div>
-                  <p className="text-xs text-slate-500">
+                  <p className="admin-customer-quote-preview-note">
                     New screens in this quote: {quoteScreenQuantity}. Already
                     paid screen entitlement: {paidDeviceQuantity}. Free trial:{" "}
                     {primaryQuotePlan.trial_days} days. Monthly
@@ -2518,7 +2518,7 @@ export default function CustomerDetailPage({
                   </p>
                 </div>
               ) : (
-                <p className="admin-muted mt-3 text-sm">
+                <p className="admin-muted admin-customer-quote-preview-empty">
                   No active pricing plans found.
                 </p>
               )}
@@ -2526,7 +2526,7 @@ export default function CustomerDetailPage({
           </div>
         </div>
 
-        <div className="admin-table-wrap mt-4">
+        <div className="admin-table-wrap admin-customer-onboarding-table-wrap">
           <table className="admin-data-table">
             <thead>
               <tr>
