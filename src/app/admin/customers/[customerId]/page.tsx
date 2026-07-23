@@ -2605,7 +2605,7 @@ export default function CustomerDetailPage({
           </table>
         </div>
 
-        <div className="admin-operation-panel mt-6">
+        <div className="admin-operation-panel admin-customer-operation-panel">
           <div className="admin-operation-header">
             <div>
               <p className="admin-operation-kicker">Customer operation flow</p>
@@ -3768,11 +3768,11 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 
 function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white/80 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-400">
+    <div className="admin-customer-info-tile">
+      <p className="admin-customer-info-tile-label">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-black text-slate-950">{value}</p>
+      <p className="admin-customer-info-tile-value">{value}</p>
     </div>
   );
 }

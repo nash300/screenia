@@ -17,7 +17,7 @@ export default function AdminSidebarNav() {
       {adminNavGroups.map((group) => (
         <section key={group.title} className="admin-nav-group">
           <p className="admin-nav-group-title">{group.title}</p>
-          <div className="space-y-2">
+          <div className="admin-nav-list">
             {adminNavItems
               .filter((item) => group.hrefs.includes(item.href))
               .map((item) => {

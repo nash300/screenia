@@ -27,7 +27,7 @@ export default function AdminLayout({
             </div>
           </Link>
 
-          <div className="mt-5">
+          <div className="admin-sidebar-intro">
             <p className="admin-sidebar-kicker">Admin Panel</p>
             <p className="admin-sidebar-description">
               Manage the customer journey, payments, device allocation, screen

@@ -153,6 +153,15 @@
   margin-bottom: 0.85rem;
 }
 
+.admin-nav-list {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.admin-sidebar-intro {
+  margin-top: 1.25rem;
+}
+
 /* Visitor contact cases */
 .admin-contact-summary {
   display: grid;
@@ -1471,8 +1480,7 @@
 }
 
 .admin-layout .space-y-4 > :not([hidden]) ~ :not([hidden]),
-.admin-layout .space-y-3 > :not([hidden]) ~ :not([hidden]),
-.admin-layout .space-y-2 > :not([hidden]) ~ :not([hidden]) {
+.admin-layout .space-y-3 > :not([hidden]) ~ :not([hidden]) {
   margin-top: 0.45rem !important;
 }
 
@@ -3006,6 +3014,30 @@
   overflow-wrap: anywhere;
 }
 
+.admin-customer-info-tile {
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.9rem;
+}
+
+.admin-customer-info-tile-label {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.admin-customer-info-tile-value {
+  margin: 0.5rem 0 0;
+  color: #061942;
+  font-size: 1.45rem;
+  font-weight: 950;
+  line-height: 1.1;
+}
+
 .admin-customer-orders-panel {
   padding: clamp(0.95rem, 1.6vw, 1.25rem);
 }
@@ -3908,6 +3940,10 @@
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.72);
   padding: 0.8rem;
+}
+
+.admin-customer-operation-panel {
+  margin-top: 1.5rem;
 }
 
 .admin-operation-header {
