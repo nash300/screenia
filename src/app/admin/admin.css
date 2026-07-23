@@ -1379,16 +1379,6 @@
   text-decoration: none;
 }
 
-.admin-layout iframe,
-.admin-layout video {
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-md);
-  background: #000000;
-}
-
 /* =========================================
    GLOBAL ADMIN TOASTS
 ========================================= */
@@ -4697,7 +4687,12 @@
 .admin-device-preview-iframe {
   width: 100%;
   height: 100%;
-  border: 0;
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
+  border-style: solid;
+  border-width: 2px;
+  border-radius: var(--admin-radius-md);
+  background: #000000;
 }
 
 .admin-device-playlist-empty {
@@ -4726,7 +4721,12 @@
 
 .admin-device-playlist-video {
   width: 100%;
+  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
+    var(--admin-surface-highlight) var(--admin-surface-shadow);
+  border-style: solid;
+  border-width: 2px;
   border-radius: var(--admin-radius-md);
+  background: #000000;
 }
 
 .admin-device-playlist-remove {

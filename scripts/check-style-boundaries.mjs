@@ -376,6 +376,10 @@ if (/\.admin-layout\s+(?:table|th|td)(?=[\s:{,\[])/.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not style all admin table elements through .admin-layout. Use admin-table or admin-data-table selectors.");
 }
 
+if (/\.admin-layout\s+(?:iframe|video)(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style all admin media embeds through .admin-layout. Use explicit device preview or playlist media classes.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }
