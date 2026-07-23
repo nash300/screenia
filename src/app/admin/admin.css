@@ -1277,21 +1277,21 @@
   gap: 0.5rem;
 }
 
-.admin-email-filter-row button {
+.admin-layout .admin-email-filter-row .admin-email-filter-button {
   min-height: 38px;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-radius: 999px !important;
-  background: #ffffff !important;
-  color: #061942 !important;
-  padding: 0.45rem 0.75rem !important;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: 999px;
+  background: #ffffff;
+  color: #061942;
+  padding: 0.45rem 0.75rem;
   font-size: 0.78rem;
   font-weight: 900;
 }
 
-.admin-email-filter-row button:hover,
-.admin-email-filter-row button.admin-email-filter-active {
-  background: linear-gradient(135deg, #2f7df6, #66a5ff) !important;
-  color: #ffffff !important;
+.admin-layout .admin-email-filter-row .admin-email-filter-button:hover,
+.admin-layout .admin-email-filter-row .admin-email-filter-button.admin-email-filter-active {
+  background: linear-gradient(135deg, #2f7df6, #66a5ff);
+  color: #ffffff;
 }
 
 .admin-email-status {

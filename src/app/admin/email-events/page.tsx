@@ -206,8 +206,8 @@ export default function AdminEmailEventsPage() {
                 onClick={() => setActiveFilter(filter.id)}
                 className={
                   activeFilter === filter.id
-                    ? "admin-email-filter-active"
-                    : undefined
+                    ? "admin-email-filter-button admin-email-filter-active"
+                    : "admin-email-filter-button"
                 }
               >
                 {filter.label} ({filterCounts[filter.id]})

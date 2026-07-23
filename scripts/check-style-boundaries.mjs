@@ -765,8 +765,8 @@ if (adminCss.includes(".admin-email-filter-row button.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-email-filter-active instead of generic email filter is-active.");
 }
 
-if (!adminCss.includes(".admin-email-filter-row button.admin-email-filter-active")) {
-  problems.push("src/app/admin/admin.css must define the explicit admin-email-filter-active selector.");
+if (!adminCss.includes(".admin-email-filter-button.admin-email-filter-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-email-filter-button admin-email-filter-active selector.");
 }
 
 if (legalDocumentsPageSource.includes('"is-active"')) {
@@ -1056,7 +1056,7 @@ const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
     css: adminCss,
-    max: 72,
+    max: 65,
   },
   {
     file: "src/app/landing.css",
