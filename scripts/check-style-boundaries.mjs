@@ -1362,6 +1362,10 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-
     message: "must show the active state as text color/weight rather than an underline or button treatment.",
   },
   {
+    includes: "font-weight: 750;",
+    message: "must keep active primary nav links the same weight as the other nav links.",
+  },
+  {
     includes: "transform: none;",
     message: "must not animate active primary nav links like pressed buttons.",
   },

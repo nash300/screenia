@@ -430,6 +430,7 @@
   background: transparent;
   padding: 0;
   box-shadow: none;
+  font-weight: 750;
   text-decoration: none;
   transform: none;
 }
@@ -449,7 +450,7 @@
   padding: 0;
   box-shadow: none;
   color: var(--screenia-logo-deep);
-  font-weight: 850;
+  font-weight: 750;
   text-decoration: none;
   transform: none;
 }
@@ -8631,6 +8632,7 @@
   padding: 0;
   box-shadow: none;
   color: var(--screenia-logo-deep);
+  font-weight: 750;
   text-decoration: none;
   transform: none;
 }
