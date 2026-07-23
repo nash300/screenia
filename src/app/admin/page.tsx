@@ -412,8 +412,8 @@ export default function AdminHomePage() {
       </div>
 
       <div className="admin-dashboard-grid">
-        <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Account health</h2>
+        <section className="admin-card admin-dashboard-panel">
+          <h2 className="admin-card-title admin-dashboard-panel-title">Account health</h2>
 
           <div className="admin-status-list">
             <StatusRow label="Active" value={activeCustomerCount} tone="success" />
@@ -429,8 +429,8 @@ export default function AdminHomePage() {
           </div>
         </section>
 
-        <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Setup health</h2>
+        <section className="admin-card admin-dashboard-panel">
+          <h2 className="admin-card-title admin-dashboard-panel-title">Setup health</h2>
 
           <div className="admin-progress-block">
             <div className="admin-progress-header">
@@ -460,22 +460,22 @@ export default function AdminHomePage() {
           </div>
         </section>
 
-        <section className="admin-card admin-dashboard-panel p-6">
-          <h2 className="admin-card-title text-xl">Material review</h2>
+        <section className="admin-card admin-dashboard-panel">
+          <h2 className="admin-card-title admin-dashboard-panel-title">Material review</h2>
           <div className="admin-status-list">
             <StatusRow label="New material" value={newMaterialCount} tone="warning" />
             <StatusRow label="Total attention" value={attentionCount + newMaterialCount} tone="info" />
           </div>
         </section>
 
-        <section className="admin-card admin-dashboard-panel p-6">
-          <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-            <h2 className="admin-card-title text-xl">Notifications</h2>
+        <section className="admin-card admin-dashboard-panel">
+          <div className="admin-dashboard-panel-heading">
+            <h2 className="admin-card-title admin-dashboard-panel-title">Notifications</h2>
             <button
               type="button"
               onClick={() => setShowMarkAllReadFlow((current) => !current)}
               disabled={savingNotification || unreadNotificationCount === 0}
-              className="admin-button-secondary disabled:opacity-50"
+              className="admin-button-secondary"
             >
               Mark all read
             </button>
@@ -517,33 +517,33 @@ export default function AdminHomePage() {
             <StatusRow label="Unread" value={unreadNotificationCount} tone="warning" />
           </div>
 
-          <div className="mt-4 space-y-3">
+          <div className="admin-dashboard-notification-list">
             {notifications.length ? (
               notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`rounded-2xl border p-3 text-sm ${
+                  className={`admin-dashboard-notification ${
                     notification.resolved_at
-                      ? "border-emerald-200 bg-emerald-50/70"
+                      ? "admin-dashboard-notification-resolved"
                       : notification.read_at
-                      ? "border-slate-200 bg-white/60"
-                      : "border-amber-200 bg-amber-50/70"
+                      ? "admin-dashboard-notification-read"
+                      : "admin-dashboard-notification-unread"
                   }`}
                 >
                   <Link
                     href={notificationHref(notification)}
-                    className="block text-sm no-underline"
+                    className="admin-dashboard-notification-link"
                   >
-                    <strong className="block text-slate-950">
+                    <strong>
                       {notification.title}
                     </strong>
-                    <span className="mt-1 block text-slate-600">
+                    <span className="admin-dashboard-notification-message">
                       {notificationCustomerName(notification)
                         ? `${notificationCustomerName(notification)} - `
                         : ""}
                       {notification.message}
                     </span>
-                    <span className="mt-2 block text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                    <span className="admin-dashboard-notification-meta">
                       {notification.resolved_at
                         ? `Resolved ${new Date(notification.resolved_at).toLocaleString("sv-SE")}`
                         : `${notification.priority} | ${notification.read_at
@@ -560,14 +560,14 @@ export default function AdminHomePage() {
                       )
                     }
                     disabled={savingNotification}
-                    className="admin-button-secondary mt-3 disabled:opacity-50"
+                    className="admin-button-secondary admin-dashboard-notification-action"
                   >
                     {notification.read_at ? "Mark unread" : "Mark read"}
                   </button>
                 </div>
               ))
             ) : (
-              <p className="admin-muted mt-3 text-sm">No notifications yet.</p>
+              <p className="admin-muted admin-dashboard-notification-empty">No notifications yet.</p>
             )}
           </div>
         </section>

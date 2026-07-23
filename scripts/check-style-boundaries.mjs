@@ -156,6 +156,7 @@ const landingScrollRevealSource = read("src/components/LandingScrollReveal.tsx")
 const landingPageSource = read("src/app/page.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
+const adminDashboardPageSource = read("src/app/admin/page.tsx");
 const ordersPageSource = read("src/app/admin/orders/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
@@ -549,6 +550,26 @@ if (!ordersPageSource.includes("admin-orders-loading-panel")) {
 
 if (!adminCss.includes(".admin-orders-loading-panel")) {
   problems.push("src/app/admin/admin.css must define the explicit .admin-orders-loading-panel selector.");
+}
+
+if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex flex-col|md:flex-row|md:items-start|gap-3|space-y-3|rounded-2xl|border-emerald-200|border-slate-200|border-amber-200|bg-emerald-50|bg-white\/60|bg-amber-50|text-slate-|disabled:opacity-50)\b/.test(adminDashboardPageSource)) {
+  problems.push("The admin dashboard page must use explicit admin-dashboard-* classes instead of broad utility class styling.");
+}
+
+for (const className of [
+  "admin-dashboard-panel-title",
+  "admin-dashboard-panel-heading",
+  "admin-dashboard-notification-list",
+  "admin-dashboard-notification",
+  "admin-dashboard-notification-link",
+  "admin-dashboard-notification-action",
+]) {
+  if (!adminDashboardPageSource.includes(className)) {
+    problems.push(`The admin dashboard page must expose the explicit ${className} class.`);
+  }
+  if (!adminCss.includes(`.${className}`)) {
+    problems.push(`src/app/admin/admin.css must define the explicit .${className} selector.`);
+  }
 }
 
 for (const [pageName, pageSource] of [
