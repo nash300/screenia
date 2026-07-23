@@ -8830,15 +8830,15 @@
 ========================================= */
 .landing-page {
   --screenia-glass-panel:
-    linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(10, 13, 18, 0.64)),
-    rgba(12, 19, 22, 0.54);
+    linear-gradient(145deg, rgba(10, 45, 108, 0.76), rgba(5, 20, 55, 0.58)),
+    rgba(5, 20, 55, 0.42);
   --screenia-glass-card:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.055)),
-    rgba(12, 19, 22, 0.38);
+    linear-gradient(150deg, rgba(255, 255, 255, 0.2), rgba(232, 244, 255, 0.07)),
+    rgba(7, 30, 78, 0.34);
   --screenia-glass-soft:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.92), rgba(232, 244, 255, 0.84)),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.94), rgba(232, 244, 255, 0.84)),
     rgba(255, 255, 255, 0.9);
-  --screenia-glass-border: rgba(205, 232, 224, 0.3);
+  --screenia-glass-border: rgba(211, 229, 255, 0.34);
   --screenia-glow-blue: rgba(109, 141, 255, 0.24);
   --screenia-glow-cyan: rgba(109, 141, 255, 0.26);
   --screenia-glow-gold: rgba(242, 196, 109, 0.3);
@@ -9264,16 +9264,6 @@
   --screenia-logo-ice: #eaf4ff;
   --screenia-logo-soft: #f6fbff;
   --screenia-logo-gold: #f2c46d;
-  --screenia-glass-panel:
-    linear-gradient(145deg, rgba(10, 45, 108, 0.76), rgba(5, 20, 55, 0.58)),
-    rgba(5, 20, 55, 0.42);
-  --screenia-glass-card:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.2), rgba(232, 244, 255, 0.07)),
-    rgba(7, 30, 78, 0.34);
-  --screenia-glass-soft:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.94), rgba(232, 244, 255, 0.84)),
-    rgba(255, 255, 255, 0.9);
-  --screenia-glass-border: rgba(211, 229, 255, 0.34);
 }
 
 .landing-page main > :is(
