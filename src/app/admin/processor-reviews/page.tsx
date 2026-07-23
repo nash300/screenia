@@ -251,8 +251,8 @@ export default function AdminProcessorReviewsPage() {
         </div>
       </div>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Vendor approval workflow</h2>
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Vendor approval workflow</h2>
         <div className="admin-processor-workflow" aria-label="Processor vendor approval workflow">
           {processorWorkflow.map((item) => (
             <div key={item.stage} className="admin-processor-workflow-step">
@@ -265,7 +265,7 @@ export default function AdminProcessorReviewsPage() {
             </div>
           ))}
         </div>
-        <form className="mt-4 grid gap-4 lg:grid-cols-2" onSubmit={submitReview}>
+        <form className="admin-record-form" onSubmit={submitReview}>
           <label className="admin-field">
             <span>Provider</span>
             <select
@@ -333,7 +333,7 @@ export default function AdminProcessorReviewsPage() {
               }
             />
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.dpa_verified}
@@ -343,7 +343,7 @@ export default function AdminProcessorReviewsPage() {
             />
             DPA verified
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.security_reviewed}
@@ -353,7 +353,7 @@ export default function AdminProcessorReviewsPage() {
             />
             Security reviewed
           </label>
-          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+          <label className="admin-record-check">
             <input
               type="checkbox"
               checked={form.account_owner_verified}
@@ -391,9 +391,9 @@ export default function AdminProcessorReviewsPage() {
         </form>
       </section>
 
-      <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Vendor review cases</h2>
-        <div className="admin-table-wrap mt-4">
+      <section className="admin-card admin-record-panel">
+        <h2 className="admin-card-title admin-record-title">Vendor review cases</h2>
+        <div className="admin-table-wrap admin-record-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>
@@ -432,7 +432,7 @@ export default function AdminProcessorReviewsPage() {
                     review.account_owner_verified ? (
                       <span className="admin-muted">Approved</span>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="admin-record-actions">
                         <button
                           type="button"
                           className="admin-button-secondary"
