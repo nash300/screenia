@@ -25,6 +25,10 @@ function walk(dir, files = []) {
   return files;
 }
 
+function countOccurrences(text, pattern) {
+  return (text.match(pattern) || []).length;
+}
+
 const retiredPublicInfoFile = ["standalone", "public.css"].join("-");
 const retiredBrandPattern = new RegExp(["info", "sync"].join(""), "i");
 
@@ -33,6 +37,19 @@ if (exists(`src/app/${retiredPublicInfoFile}`)) {
 }
 
 const sourceFiles = walk("src").filter((file) => /\.(css|tsx?|jsx?)$/.test(file));
+const appStylesheets = sourceFiles.filter((file) => file.startsWith("src/app/") && file.endsWith(".css")).sort();
+const expectedAppStylesheets = [
+  "src/app/admin/admin.css",
+  "src/app/globals.css",
+  "src/app/landing.css",
+  "src/app/public-info.css",
+];
+if (appStylesheets.join("\n") !== expectedAppStylesheets.join("\n")) {
+  problems.push(
+    `Unexpected app stylesheet set. Keep CSS ownership in ${expectedAppStylesheets.join(", ")}. Found: ${appStylesheets.join(", ")}`,
+  );
+}
+
 const retiredAdminThemePattern = new RegExp(["win", "95"].join(""), "i");
 for (const file of sourceFiles) {
   const text = read(file);
@@ -105,6 +122,26 @@ if (publicInfo.includes("!important")) {
 }
 
 const adminCss = read("src/app/admin/admin.css");
+const importantRatchets = [
+  {
+    file: "src/app/admin/admin.css",
+    css: adminCss,
+    max: 276,
+  },
+  {
+    file: "src/app/landing.css",
+    css: read("src/app/landing.css"),
+    max: 408,
+  },
+];
+
+for (const { file, css, max } of importantRatchets) {
+  const count = countOccurrences(css, /!important/g);
+  if (count > max) {
+    problems.push(`${file} uses ${count} !important rules; keep the count at or below ${max} while cleanup continues.`);
+  }
+}
+
 const retiredAdminTokenNames = [
   {
     token: ["admin", "classic"].join("-"),

@@ -1433,7 +1433,7 @@
 }
 
 /* =========================================
-   COMMON UTILITY OVERRIDES INSIDE ADMIN
+   ADMIN SCOPED UTILITY STYLES
 ========================================= */
 .admin-layout .rounded-xl,
 .admin-layout .rounded-2xl,
@@ -3719,7 +3719,7 @@
 }
 
 /* =========================================
-   SCREENIA BRAND REFRESH
+   SCREENIA ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
   --admin-surface-face: #ffffff;
@@ -4968,7 +4968,7 @@
 }
 
 /* =========================================
-   SCREENIA OPERATIONS UI POLISH
+   SCREENIA OPERATIONS UI
 ========================================= */
 .admin-layout {
   --admin-bg: #f5f8fd;
@@ -5443,7 +5443,7 @@
 }
 
 /* =========================================
-   ADMIN PROFESSIONAL LAYOUT PASS
+   ADMIN RESPONSIVE LAYOUT
 ========================================= */
 .admin-layout {
   --admin-content-max: 1360px;
