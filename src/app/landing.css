@@ -4782,47 +4782,9 @@
   }
 }
 
-.landing-pricing .landing-plan-card-top {
-  min-height: 24px;
-}
-
 .landing-pricing .landing-plan-badge,
 .landing-pricing .landing-plan-badge-spacer {
   padding: 6px 9px;
-}
-
-.landing-pricing .landing-plan-heading {
-  min-height: 40px;
-}
-
-.landing-pricing .landing-plan-device {
-  min-height: 124px;
-  margin: 8px -4px;
-}
-
-.landing-pricing .landing-plan-device img {
-  height: 118px;
-}
-
-.landing-pricing .landing-plan-device span {
-  bottom: 9px;
-  left: 12px;
-  padding: 5px 8px;
-}
-
-.landing-pricing .landing-price-card ul {
-  gap: 5px;
-  min-height: 158px;
-  margin: 2px 0 6px;
-}
-
-.landing-pricing .landing-plan-price {
-  margin: 6px 0;
-  padding: 10px 13px;
-}
-
-.landing-pricing .landing-plan-price strong {
-  font-size: clamp(1.8rem, 2.5vw, 2.2rem);
 }
 
 .landing-pricing .landing-package-lines,
@@ -5356,7 +5318,7 @@
   display: flex;
   justify-content: space-between;
   gap: 14px;
-  min-height: 34px;
+  min-height: 40px;
   align-items: center;
   margin-bottom: 10px;
 }
@@ -5378,9 +5340,9 @@
 .landing-pricing .landing-plan-device {
   position: relative;
   display: grid;
-  min-height: clamp(108px, 10vw, 124px);
+  min-height: 124px;
   place-items: center;
-  margin: 0 0 12px;
+  margin: 8px -4px;
   overflow: hidden;
   border: 1px solid rgba(221, 238, 255, 0.22);
   border-radius: 14px;
@@ -5407,7 +5369,7 @@
   position: relative;
   z-index: 1;
   width: min(72%, 270px);
-  height: clamp(98px, 9vw, 116px);
+  height: 118px;
   object-fit: contain;
   filter: drop-shadow(0 18px 22px rgba(5, 18, 45, 0.26));
 }
@@ -5420,13 +5382,13 @@
 
 .landing-pricing .landing-plan-device span {
   position: absolute;
-  left: 16px;
-  bottom: 12px;
+  left: 12px;
+  bottom: 9px;
   z-index: 2;
   border-radius: 999px;
   background: rgba(4, 18, 48, 0.86);
   color: #ffffff;
-  padding: 6px 10px;
+  padding: 5px 8px;
   font-size: 0.62rem;
   font-weight: 900;
   letter-spacing: 0.05em;
@@ -5448,10 +5410,10 @@
 .landing-pricing .landing-price-card ul {
   display: grid;
   align-content: start;
-  min-height: 138px;
-  margin: 0 0 12px;
+  min-height: 158px;
+  margin: 2px 0 6px;
   padding: 0;
-  gap: 6px;
+  gap: 5px;
   list-style: none;
   text-align: left;
 }
@@ -5465,8 +5427,8 @@
 }
 
 .landing-pricing .landing-plan-price {
-  margin: auto 0 10px;
-  padding: 11px 13px;
+  margin: 6px 0;
+  padding: 10px 13px;
   border: 1px solid rgba(221, 238, 255, 0.18);
   border-left: 4px solid #44d7ff;
   border-radius: 12px;
@@ -5485,7 +5447,7 @@
 .landing-pricing .landing-plan-price strong {
   display: block;
   color: #ffd21f;
-  font-size: clamp(2rem, 3vw, 2.5rem);
+  font-size: clamp(1.8rem, 2.5vw, 2.2rem);
   font-weight: 950;
   line-height: 1;
   text-shadow: 0 0 20px rgba(255, 210, 31, 0.18);
