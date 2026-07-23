@@ -6829,16 +6829,25 @@
   }
 }
 
-.landing-page :is(button, input, textarea, select) {
+.landing-page button,
+.landing-page input,
+.landing-page textarea,
+.landing-page select {
   font-family: var(--landing-font-body);
   letter-spacing: 0;
 }
 
-.landing-page :is(p, li, summary, label, dt, dd) {
+.landing-page p,
+.landing-page li,
+.landing-page summary,
+.landing-page label,
+.landing-page dt,
+.landing-page dd {
   letter-spacing: 0;
 }
 
-.landing-page :is(p, li) {
+.landing-page p,
+.landing-page li {
   line-height: 1.68;
 }
 
@@ -7110,7 +7119,9 @@
   -webkit-backdrop-filter: blur(18px);
 }
 
-.landing-footer :is(h2, strong, span),
+.landing-footer h2,
+.landing-footer strong,
+.landing-footer span,
 .landing-footer .landing-company-details,
 .landing-footer p {
   color: #ffffff;
@@ -8101,12 +8112,16 @@
   pointer-events: none;
 }
 
-.landing-page :is(.landing-section-heading, .landing-workflow-heading, .landing-service-film-copy) {
+.landing-page .landing-section-heading,
+.landing-page .landing-workflow-heading,
+.landing-page .landing-service-film-copy {
   position: relative;
   z-index: 1;
 }
 
-.landing-page :is(.landing-section-heading, .landing-workflow-heading, .landing-service-film-copy)::before {
+.landing-page .landing-section-heading::before,
+.landing-page .landing-workflow-heading::before,
+.landing-page .landing-service-film-copy::before {
   display: block;
   width: 74px;
   height: 4px;
@@ -8117,20 +8132,20 @@
   content: "";
 }
 
-.landing-page :is(.landing-section-heading, .landing-workflow-heading, .landing-service-film-copy) h2 {
+.landing-page .landing-section-heading h2,
+.landing-page .landing-workflow-heading h2,
+.landing-page .landing-service-film-copy h2 {
   text-shadow: 0 14px 36px rgba(0, 10, 32, 0.28);
 }
 
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-workflow-step,
-  .landing-gallery-card,
-  .landing-faq-item,
-  .landing-price-card,
-  .landing-package-builder,
-  .landing-pricing-note
-) {
+.landing-page .landing-feature,
+.landing-page .landing-illustration,
+.landing-page .landing-workflow-step,
+.landing-page .landing-gallery-card,
+.landing-page .landing-faq-item,
+.landing-page .landing-price-card,
+.landing-page .landing-package-builder,
+.landing-page .landing-pricing-note {
   position: relative;
   overflow: hidden;
   border-color: rgba(211, 229, 255, 0.28) !important;
@@ -8140,13 +8155,11 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-workflow-step,
-  .landing-gallery-card,
-  .landing-faq-item
-)::after {
+.landing-page .landing-feature::after,
+.landing-page .landing-illustration::after,
+.landing-page .landing-workflow-step::after,
+.landing-page .landing-gallery-card::after,
+.landing-page .landing-faq-item::after {
   position: absolute;
   inset: auto 0 0;
   height: 3px;
@@ -8158,13 +8171,11 @@
   transition: transform 260ms ease, opacity 260ms ease;
 }
 
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-workflow-step,
-  .landing-gallery-card,
-  .landing-faq-item
-):hover::after {
+.landing-page .landing-feature:hover::after,
+.landing-page .landing-illustration:hover::after,
+.landing-page .landing-workflow-step:hover::after,
+.landing-page .landing-gallery-card:hover::after,
+.landing-page .landing-faq-item:hover::after {
   opacity: 1;
   transform: scaleX(1);
 }
@@ -8449,7 +8460,9 @@
 }
 
 @media (max-width: 560px) {
-  .landing-page :is(.landing-section-heading, .landing-workflow-heading, .landing-service-film-copy)::before {
+  .landing-page .landing-section-heading::before,
+  .landing-page .landing-workflow-heading::before,
+  .landing-page .landing-service-film-copy::before {
     width: 56px;
     margin-bottom: 14px;
   }
