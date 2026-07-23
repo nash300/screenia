@@ -364,6 +364,10 @@ if (/\.admin-layout\s+button(?=[\s:{,\[])/.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not style all admin buttons through .admin-layout button. Use admin-button-* or explicit component button classes.");
 }
 
+if (/\.admin-layout\s+(?:input|select|textarea|label)(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style all admin form elements through .admin-layout. Use admin-field, admin-* control classes, or explicit component containers.");
+}
+
 if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
   problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
 }

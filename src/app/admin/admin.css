@@ -6887,9 +6887,32 @@
   background: var(--admin-blue);
 }
 
-.admin-layout input,
-.admin-layout select,
-.admin-layout textarea {
+.admin-field {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--admin-text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.admin-field input:not([type="checkbox"]):not([type="file"]),
+.admin-field select,
+.admin-field textarea,
+.admin-inline-flow label input:not([type="checkbox"]):not([type="file"]),
+.admin-inline-flow label select,
+.admin-inline-flow label textarea,
+.admin-operation-fields input:not([type="checkbox"]):not([type="file"]),
+.admin-operation-fields select,
+.admin-operation-reason textarea,
+.admin-order-operation-picker select,
+.admin-list-selects select,
+.admin-document-form-grid input:not([type="checkbox"]):not([type="file"]),
+.admin-document-form-grid select,
+.admin-document-field textarea,
+.admin-pricing-fields input:not([type="checkbox"]):not([type="file"]),
+.admin-landing-editor-fields input:not([type="checkbox"]):not([type="file"]),
+.admin-landing-editor-fields textarea {
+  width: 100%;
   min-height: 40px;
   border: 1px solid rgba(47, 125, 246, 0.2);
   border-radius: var(--admin-radius-md);
@@ -6899,9 +6922,23 @@
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
 }
 
-.admin-layout input:focus,
-.admin-layout select:focus,
-.admin-layout textarea:focus {
+.admin-field input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-field select:focus,
+.admin-field textarea:focus,
+.admin-inline-flow label input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-inline-flow label select:focus,
+.admin-inline-flow label textarea:focus,
+.admin-operation-fields input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-operation-fields select:focus,
+.admin-operation-reason textarea:focus,
+.admin-order-operation-picker select:focus,
+.admin-list-selects select:focus,
+.admin-document-form-grid input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-document-form-grid select:focus,
+.admin-document-field textarea:focus,
+.admin-pricing-fields input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-landing-editor-fields input:not([type="checkbox"]):not([type="file"]):focus,
+.admin-landing-editor-fields textarea:focus {
   border-color: rgba(47, 125, 246, 0.65);
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
 }
@@ -7218,17 +7255,6 @@
 .admin-layout th,
 .admin-layout td {
   vertical-align: top;
-}
-
-.admin-layout label {
-  color: var(--admin-text);
-  font-weight: 800;
-}
-
-.admin-layout input,
-.admin-layout select,
-.admin-layout textarea {
-  width: 100%;
 }
 
 .admin-inline-flow {
