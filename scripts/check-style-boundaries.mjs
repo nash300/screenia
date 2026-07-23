@@ -25,25 +25,32 @@ function walk(dir, files = []) {
   return files;
 }
 
-if (exists("src/app/standalone-public.css")) {
-  problems.push("Use src/app/public-info.css instead of the old standalone-public.css name.");
+const retiredPublicInfoFile = ["standalone", "public.css"].join("-");
+const retiredBrandPattern = new RegExp(["info", "sync"].join(""), "i");
+
+if (exists(`src/app/${retiredPublicInfoFile}`)) {
+  problems.push("Use src/app/public-info.css instead of the retired public info stylesheet name.");
 }
 
 const sourceFiles = walk("src").filter((file) => /\.(css|tsx?|jsx?)$/.test(file));
+const retiredAdminThemePattern = new RegExp(["win", "95"].join(""), "i");
 for (const file of sourceFiles) {
   const text = read(file);
-  if (text.includes("standalone-public.css")) {
-    problems.push(`${file} still imports or references standalone-public.css.`);
+  if (text.includes(retiredPublicInfoFile)) {
+    problems.push(`${file} still imports or references the retired public info stylesheet name.`);
   }
-  if (/infosync/i.test(text)) {
-    problems.push(`${file} still contains the old InfoSync name.`);
+  if (retiredBrandPattern.test(text)) {
+    problems.push(`${file} still contains the retired company name.`);
+  }
+  if (retiredAdminThemePattern.test(text)) {
+    problems.push(`${file} still contains a retired admin theme token name.`);
   }
 }
 
 for (const file of walk("public").filter((item) => !/\.pdf$/i.test(item))) {
   const text = read(file);
-  if (/infosync/i.test(text)) {
-    problems.push(`${file} still contains the old InfoSync name.`);
+  if (retiredBrandPattern.test(text)) {
+    problems.push(`${file} still contains the retired company name.`);
   }
 }
 

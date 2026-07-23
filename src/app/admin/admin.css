@@ -1,19 +1,19 @@
 /* =========================================
-   WINDOWS 95 ADMIN THEME
+   ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
-  --win95-desktop: #008080;
-  --win95-face: #c0c0c0;
-  --win95-face-light: #dfdfdf;
-  --win95-face-dark: #808080;
-  --win95-shadow: #404040;
-  --win95-highlight: #ffffff;
-  --win95-title: #000080;
-  --win95-title-text: #ffffff;
-  --win95-text: #000000;
-  --win95-muted: #303030;
-  --win95-link: #000080;
-  --admin-cyan: var(--win95-title);
+  --admin-classic-desktop: #008080;
+  --admin-classic-face: #c0c0c0;
+  --admin-classic-face-light: #dfdfdf;
+  --admin-classic-face-dark: #808080;
+  --admin-classic-shadow: #404040;
+  --admin-classic-highlight: #ffffff;
+  --admin-classic-title: #000080;
+  --admin-classic-title-text: #ffffff;
+  --admin-classic-text: #000000;
+  --admin-classic-muted: #303030;
+  --admin-classic-link: #000080;
+  --admin-cyan: var(--admin-classic-title);
   --admin-orange: #ffff00;
   --admin-panel-shadow: 2px 2px 0 rgba(0, 0, 0, 0.22);
   --admin-titlebar-start: #11356f;
@@ -43,7 +43,7 @@
     linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
     #0b7f7f;
   background-size: auto, 18px 18px, 18px 18px;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
   font-size: 13px;
 }
@@ -55,15 +55,15 @@
 }
 
 .admin-window-border {
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-lg);
-  background: var(--win95-face);
+  background: var(--admin-classic-face);
   box-shadow:
-    inset -1px -1px 0 var(--win95-face-dark),
-    inset 1px 1px 0 var(--win95-face-light),
+    inset -1px -1px 0 var(--admin-classic-face-dark),
+    inset 1px 1px 0 var(--admin-classic-face-light),
     var(--admin-shadow-soft);
 }
 
@@ -81,7 +81,7 @@
     var(--admin-titlebar-start),
     var(--admin-titlebar-end)
   );
-  color: var(--win95-title-text);
+  color: var(--admin-classic-title-text);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -97,16 +97,16 @@
    SIDEBAR / NAVIGATION PANEL
 ========================================= */
 .admin-sidebar {
-  background: var(--win95-face);
-  color: var(--win95-text);
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight);
+  background: var(--admin-classic-face);
+  color: var(--admin-classic-text);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: 0 var(--admin-radius-lg) var(--admin-radius-lg) 0;
   box-shadow:
-    inset -1px -1px 0 var(--win95-face-dark),
-    inset 1px 1px 0 var(--win95-face-light),
+    inset -1px -1px 0 var(--admin-classic-face-dark),
+    inset 1px 1px 0 var(--admin-classic-face-light),
     2px 0 14px rgba(0, 0, 0, 0.18);
 }
 
@@ -131,13 +131,13 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
-  color: var(--win95-title);
+  color: var(--admin-classic-title);
 }
 
 .admin-sidebar-description {
   margin-top: 0.45rem;
   font-size: 0.78rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
 }
 
 .admin-sidebar-footer {
@@ -150,7 +150,7 @@
 .admin-sidebar-version {
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
 }
 
 .admin-sidebar-signout {
@@ -174,8 +174,8 @@
   margin-top: 0.75rem;
   height: 0.8rem;
   padding: 2px;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -577,8 +577,8 @@
   gap: 0.6rem;
   min-height: 40px;
   margin-bottom: 0.25rem;
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -587,7 +587,7 @@
     var(--admin-button-top),
     var(--admin-button-bottom)
   );
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 700;
@@ -605,14 +605,14 @@
     var(--admin-button-primary-top),
     var(--admin-button-primary-bottom)
   );
-  color: var(--win95-title-text);
+  color: var(--admin-classic-title-text);
   text-decoration: none;
   box-shadow: 0 4px 10px rgba(17, 53, 111, 0.24);
 }
 
 .admin-nav-link:active {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   padding: calc(0.45rem + 1px) calc(0.55rem - 1px) calc(0.45rem - 1px)
     calc(0.55rem + 1px);
 }
@@ -624,8 +624,8 @@
   flex: 0 0 22px;
   align-items: center;
   justify-content: center;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -634,7 +634,7 @@
 }
 
 .admin-nav-link:hover .admin-nav-icon {
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
 }
 
 /* =========================================
@@ -700,14 +700,14 @@
   align-items: center;
   gap: 0.65rem;
   min-height: 64px;
-  border-color: var(--win95-highlight) var(--win95-shadow)
-    var(--win95-shadow) var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow)
+    var(--admin-classic-shadow) var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
   background: linear-gradient(var(--admin-button-top), var(--admin-button-bottom));
   padding: 0.6rem;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   text-decoration: none;
 }
 
@@ -716,7 +716,7 @@
     var(--admin-button-primary-top),
     var(--admin-button-primary-bottom)
   );
-  color: var(--win95-title-text);
+  color: var(--admin-classic-title-text);
   text-decoration: none;
 }
 
@@ -1002,15 +1002,15 @@
   width: min(100%, 1180px);
   margin-right: auto;
   margin-left: auto;
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-lg);
-  background: var(--win95-face);
+  background: var(--admin-classic-face);
   box-shadow:
-    inset -1px -1px 0 var(--win95-face-dark),
-    inset 1px 1px 0 var(--win95-face-light),
+    inset -1px -1px 0 var(--admin-classic-face-dark),
+    inset 1px 1px 0 var(--admin-classic-face-light),
     var(--admin-shadow-panel);
 }
 
@@ -1027,7 +1027,7 @@
     var(--admin-titlebar-start),
     var(--admin-titlebar-end)
   );
-  color: var(--win95-title-text);
+  color: var(--admin-classic-title-text);
   content: "Screenia Admin";
   font-weight: 700;
   line-height: 1;
@@ -1045,8 +1045,8 @@
 .page-header {
   margin: 0.75rem 0;
   padding: 0.55rem 0.65rem;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -1056,7 +1056,7 @@
 .admin-title,
 .page-header h1 {
   margin: 0;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0;
@@ -1065,12 +1065,12 @@
 .admin-subtitle,
 .page-header p {
   margin: 0.2rem 0 0;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.78rem;
 }
 
 .eyebrow {
-  color: var(--win95-title) !important;
+  color: var(--admin-classic-title) !important;
   font-size: 0.72rem !important;
   font-weight: 700;
   text-transform: uppercase;
@@ -1081,17 +1081,17 @@
 ========================================= */
 .admin-card,
 .card {
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight) !important;
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-md) !important;
-  background: var(--win95-face) !important;
+  background: var(--admin-classic-face) !important;
   box-shadow:
-    inset -1px -1px 0 var(--win95-face-dark),
-    inset 1px 1px 0 var(--win95-face-light),
+    inset -1px -1px 0 var(--admin-classic-face-dark),
+    inset 1px 1px 0 var(--admin-classic-face-light),
     var(--admin-shadow-soft) !important;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
 }
 
 .admin-card-title,
@@ -1186,20 +1186,20 @@
 .admin-pricing-toggle {
   display: grid;
   gap: 0.28rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-weight: 800;
 }
 
 .admin-pricing-fields input {
   width: 100%;
   min-height: 38px;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   padding: 0.4rem 0.5rem;
 }
 
@@ -1207,7 +1207,7 @@
   grid-template-columns: auto 1fr;
   align-items: center;
   width: fit-content;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
 }
 
 .admin-pricing-toggle input {
@@ -1223,8 +1223,8 @@
 
 .admin-pricing-summary div,
 .admin-pricing-stripe-list {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -1234,7 +1234,7 @@
 
 .admin-pricing-summary span {
   display: block;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.72rem;
   font-weight: 800;
 }
@@ -1251,7 +1251,7 @@
 
 .admin-pricing-stripe-list summary {
   cursor: pointer;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -1414,7 +1414,7 @@
 }
 
 .admin-muted {
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
 }
 
 /* =========================================
@@ -1423,13 +1423,13 @@
 .admin-layout input,
 .admin-layout select,
 .admin-layout textarea {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow) !important;
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-sm) !important;
   background: #ffffff !important;
-  color: var(--win95-text) !important;
+  color: var(--admin-classic-text) !important;
   font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
   font-size: 13px !important;
   min-height: 28px;
@@ -1448,8 +1448,8 @@
   align-items: center;
   justify-content: center;
   min-height: 30px;
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight) !important;
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-sm) !important;
@@ -1458,7 +1458,7 @@
     var(--admin-button-top),
     var(--admin-button-bottom)
   ) !important;
-  color: var(--win95-text) !important;
+  color: var(--admin-classic-text) !important;
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.75),
     0 2px 5px rgba(0, 0, 0, 0.16) !important;
@@ -1539,8 +1539,8 @@
 .admin-layout button:active,
 .admin-layout .admin-button-primary:active,
 .admin-layout .admin-button-secondary:active {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow) !important;
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
   padding: calc(0.3rem + 1px) calc(0.65rem - 1px) calc(0.3rem - 1px)
     calc(0.65rem + 1px) !important;
   box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.28) !important;
@@ -1548,8 +1548,8 @@
 
 .admin-layout button:disabled,
 .admin-layout .disabled\:opacity-50:disabled {
-  color: var(--win95-face-dark) !important;
-  text-shadow: 1px 1px 0 var(--win95-highlight);
+  color: var(--admin-classic-face-dark) !important;
+  text-shadow: 1px 1px 0 var(--admin-classic-highlight);
 }
 
 /* =========================================
@@ -1578,7 +1578,7 @@
 }
 
 .admin-layout a {
-  color: var(--win95-link);
+  color: var(--admin-classic-link);
   text-decoration: none;
 }
 
@@ -1588,8 +1588,8 @@
 
 .admin-layout iframe,
 .admin-layout video {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-md);
@@ -1611,14 +1611,14 @@
 .admin-layout .text-slate-950,
 .admin-layout .text-slate-900,
 .admin-layout .text-gray-900 {
-  color: var(--win95-text) !important;
+  color: var(--admin-classic-text) !important;
 }
 
 .admin-layout .text-slate-500,
 .admin-layout .text-slate-600,
 .admin-layout .text-gray-500,
 .admin-layout .text-gray-600 {
-  color: var(--win95-muted) !important;
+  color: var(--admin-classic-muted) !important;
 }
 
 .admin-layout .ring-2,
@@ -1630,8 +1630,8 @@
 .admin-layout .border-slate-200,
 .admin-layout .border-slate-300,
 .admin-layout .border-slate-800 {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow) !important;
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
   border-style: solid !important;
   border-width: 2px !important;
   border-radius: var(--admin-radius-sm) !important;
@@ -1720,7 +1720,7 @@
     rgba(30, 30, 30, 0.62) rgba(255, 255, 255, 0.9);
   border-radius: var(--admin-radius-lg);
   padding: 0.75rem 0.85rem;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.72),
     0 14px 34px rgba(0, 0, 0, 0.28);
@@ -1911,7 +1911,7 @@
   min-height: 118px;
   overflow: hidden;
   padding: 0.8rem !important;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
 }
 
 .admin-stat-card::after {
@@ -1952,7 +1952,7 @@
 .admin-stat-meta,
 .admin-priority-description {
   margin: 0;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.76rem;
 }
 
@@ -1966,7 +1966,7 @@
   position: relative;
   z-index: 1;
   margin: 0.25rem 0 0.15rem;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-size: 2rem;
   font-weight: 800;
   line-height: 1;
@@ -1989,12 +1989,12 @@
   gap: 0.4rem;
   min-height: 30px;
   border: 2px solid;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
   padding: 0.3rem 0.55rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -2068,7 +2068,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -2082,8 +2082,8 @@
   margin-top: 0.45rem;
   overflow: hidden;
   border: 2px solid;
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-radius: var(--admin-radius-sm);
   background: #ffffff;
 }
@@ -2108,7 +2108,7 @@
   border-radius: var(--admin-radius-md);
   background: rgba(255, 255, 255, 0.68);
   padding: 0.6rem;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   box-shadow:
     inset 1px 1px 0 rgba(255, 255, 255, 0.7),
     0 3px 8px rgba(0, 0, 0, 0.12);
@@ -2142,14 +2142,14 @@
   align-items: center;
   justify-content: center;
   border: 2px solid;
-  border-color: var(--win95-highlight) var(--win95-shadow)
-    var(--win95-shadow) var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow)
+    var(--admin-classic-shadow) var(--admin-classic-highlight);
   border-radius: var(--admin-radius-sm);
   background: linear-gradient(
     var(--admin-button-top),
     var(--admin-button-bottom)
   );
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-weight: 800;
 }
 
@@ -2226,7 +2226,7 @@
   border-radius: var(--admin-radius-md);
   background: rgba(255, 255, 255, 0.62);
   padding: 0.75rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.82rem;
   box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.7);
 }
@@ -2243,8 +2243,8 @@
 }
 
 .admin-customer-list::-webkit-scrollbar-track {
-  border-color: var(--win95-shadow) var(--win95-highlight)
-    var(--win95-highlight) var(--win95-shadow);
+  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
+    var(--admin-classic-highlight) var(--admin-classic-shadow);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
@@ -2252,12 +2252,12 @@
 }
 
 .admin-customer-list::-webkit-scrollbar-thumb {
-  border-color: var(--win95-highlight) var(--win95-shadow) var(--win95-shadow)
-    var(--win95-highlight);
+  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
+    var(--admin-classic-highlight);
   border-style: solid;
   border-width: 2px;
   border-radius: var(--admin-radius-sm);
-  background: var(--win95-face);
+  background: var(--admin-classic-face);
 }
 
 .admin-table-wrap,
@@ -3842,17 +3842,17 @@
    SCREENIA BRAND REFRESH
 ========================================= */
 .admin-layout {
-  --win95-desktop: #f4f8ff;
-  --win95-face: #ffffff;
-  --win95-face-light: #ffffff;
-  --win95-face-dark: #d7e3f7;
-  --win95-shadow: #b7c6df;
-  --win95-highlight: #ffffff;
-  --win95-title: #061942;
-  --win95-title-text: #ffffff;
-  --win95-text: #061942;
-  --win95-muted: #51617f;
-  --win95-link: #2f7df6;
+  --admin-classic-desktop: #f4f8ff;
+  --admin-classic-face: #ffffff;
+  --admin-classic-face-light: #ffffff;
+  --admin-classic-face-dark: #d7e3f7;
+  --admin-classic-shadow: #b7c6df;
+  --admin-classic-highlight: #ffffff;
+  --admin-classic-title: #061942;
+  --admin-classic-title-text: #ffffff;
+  --admin-classic-text: #061942;
+  --admin-classic-muted: #51617f;
+  --admin-classic-link: #2f7df6;
   --admin-cyan: #2f7df6;
   --admin-orange: #f47a20;
   --admin-titlebar-start: #061942;
@@ -3872,7 +3872,7 @@
   background:
     radial-gradient(circle at 8% 0%, rgba(47, 125, 246, 0.12), transparent 26%),
     linear-gradient(180deg, #ffffff 0%, #f4f8ff 54%, #eaf2ff 100%);
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-family: "Open Sans", Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
@@ -4821,7 +4821,7 @@
   display: grid;
   gap: 0.35rem;
   min-width: 0;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-size: 0.76rem;
   font-weight: 800;
 }
@@ -4840,7 +4840,7 @@
 
 .admin-landing-field-help {
   margin: -0.2rem 0 0;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.72rem;
   line-height: 1.35;
 }
@@ -4853,10 +4853,10 @@
 
 .admin-landing-content-section {
   min-width: 0;
-  border: 2px solid var(--win95-highlight);
-  border-right-color: var(--win95-shadow);
-  border-bottom-color: var(--win95-shadow);
-  background: var(--win95-face-light);
+  border: 2px solid var(--admin-classic-highlight);
+  border-right-color: var(--admin-classic-shadow);
+  border-bottom-color: var(--admin-classic-shadow);
+  background: var(--admin-classic-face-light);
   padding: 0.75rem;
 }
 
@@ -4870,13 +4870,13 @@
 
 .admin-landing-content-heading h2 {
   margin: 0;
-  color: var(--win95-title);
+  color: var(--admin-classic-title);
   font-size: 1rem;
 }
 
 .admin-landing-content-heading p {
   margin: 0.25rem 0 0;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.76rem;
 }
 
@@ -4893,10 +4893,10 @@
   display: grid;
   grid-template-columns: minmax(160px, 34%) minmax(0, 1fr);
   overflow: hidden;
-  border: 2px solid var(--win95-highlight);
-  border-right-color: var(--win95-shadow);
-  border-bottom-color: var(--win95-shadow);
-  background: var(--win95-face);
+  border: 2px solid var(--admin-classic-highlight);
+  border-right-color: var(--admin-classic-shadow);
+  border-bottom-color: var(--admin-classic-shadow);
+  background: var(--admin-classic-face);
 }
 
 .admin-landing-benefit-editor {
@@ -4940,11 +4940,11 @@
   min-height: 32px;
   align-items: center;
   justify-content: center;
-  border: 2px solid var(--win95-highlight);
-  border-right-color: var(--win95-shadow);
-  border-bottom-color: var(--win95-shadow);
-  background: var(--win95-face);
-  color: var(--win95-text);
+  border: 2px solid var(--admin-classic-highlight);
+  border-right-color: var(--admin-classic-shadow);
+  border-bottom-color: var(--admin-classic-shadow);
+  background: var(--admin-classic-face);
+  color: var(--admin-classic-text);
   cursor: pointer;
   font-size: 0.76rem;
   font-weight: 800;
@@ -4992,11 +4992,11 @@
   display: flex;
   min-width: 0;
   gap: 0.75rem;
-  border: 2px solid var(--win95-highlight);
-  border-right-color: var(--win95-shadow);
-  border-bottom-color: var(--win95-shadow);
-  background: var(--win95-face);
-  color: var(--win95-text);
+  border: 2px solid var(--admin-classic-highlight);
+  border-right-color: var(--admin-classic-shadow);
+  border-bottom-color: var(--admin-classic-shadow);
+  background: var(--admin-classic-face);
+  color: var(--admin-classic-text);
   text-align: left;
   text-decoration: none;
 }
@@ -5009,7 +5009,7 @@
 .admin-content-hub-card strong,
 .admin-document-list-item strong {
   display: block;
-  color: var(--win95-title);
+  color: var(--admin-classic-title);
 }
 
 .admin-content-hub-card small,
@@ -5017,7 +5017,7 @@
 .admin-document-list-item span {
   display: block;
   margin-top: 0.18rem;
-  color: var(--win95-muted);
+  color: var(--admin-classic-muted);
   font-size: 0.76rem;
   line-height: 1.35;
 }
@@ -5039,7 +5039,7 @@
   display: grid;
   gap: 0.35rem;
   min-width: 0;
-  color: var(--win95-text);
+  color: var(--admin-classic-text);
   font-size: 0.76rem;
   font-weight: 800;
 }
@@ -5076,7 +5076,7 @@
 }
 
 .admin-document-list-item.is-active {
-  outline: 2px solid var(--win95-title);
+  outline: 2px solid var(--admin-classic-title);
   outline-offset: -4px;
 }
 
