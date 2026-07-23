@@ -220,6 +220,7 @@ const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
+const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -387,6 +388,22 @@ for (const retiredSelector of [
   if (adminCss.includes(retiredSelector)) {
     problems.push(`src/app/admin/admin.css must not keep generic workflow selector ${retiredSelector}.`);
   }
+}
+
+if (deviceDetailPageSource.includes('"is-active"')) {
+  problems.push("The admin device detail page must use admin-display-workflow-step-active instead of generic is-active.");
+}
+
+if (!deviceDetailPageSource.includes("admin-display-workflow-step-active")) {
+  problems.push("The admin device detail page must expose the explicit admin-display-workflow-step-active state class.");
+}
+
+if (adminCss.includes(".admin-display-workflow-step.is-active")) {
+  problems.push("src/app/admin/admin.css must not keep generic display workflow selector .admin-display-workflow-step.is-active.");
+}
+
+if (!adminCss.includes("admin-display-workflow-step-active")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-display-workflow-step-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");

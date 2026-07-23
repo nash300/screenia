@@ -3388,7 +3388,7 @@
   box-shadow: 0 18px 34px rgba(7, 31, 84, 0.1);
 }
 
-.admin-display-workflow-step.is-active {
+.admin-display-workflow-step.admin-display-workflow-step-active {
   border-color: rgba(47, 125, 246, 0.5);
   background: linear-gradient(135deg, #061942, #2f7df6);
   color: #ffffff;
@@ -3407,7 +3407,7 @@
   font-weight: 950;
 }
 
-.admin-display-workflow-step.is-active > span {
+.admin-display-workflow-step.admin-display-workflow-step-active > span {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff;
 }
@@ -3435,7 +3435,7 @@
   font-weight: 950;
 }
 
-.admin-display-workflow-step.is-active strong em {
+.admin-display-workflow-step.admin-display-workflow-step-active strong em {
   background: rgba(255, 255, 255, 0.18);
 }
 
@@ -3447,7 +3447,7 @@
   line-height: 1.25;
 }
 
-.admin-display-workflow-step.is-active small {
+.admin-display-workflow-step.admin-display-workflow-step-active small {
   color: rgba(255, 255, 255, 0.78);
 }
 

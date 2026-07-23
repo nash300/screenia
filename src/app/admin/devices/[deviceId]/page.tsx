@@ -443,9 +443,11 @@ export default function AdminDevicePage({
             key={section.id}
             type="button"
             onClick={() => navigateToSection(section.id)}
-            className={`admin-display-workflow-step ${
-              activeSection === section.id ? "is-active" : ""
-            }`}
+            className={
+              activeSection === section.id
+                ? "admin-display-workflow-step admin-display-workflow-step-active"
+                : "admin-display-workflow-step"
+            }
           >
             <span>{section.stage}</span>
             <strong>
