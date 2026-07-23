@@ -234,6 +234,10 @@ if (adminCss.includes(".admin-nav-link.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-nav-link-active instead of generic admin-nav-link.is-active.");
 }
 
+if (adminCss.includes(".is-active")) {
+  problems.push("src/app/admin/admin.css must not contain generic .is-active selectors. Use explicit component state class names.");
+}
+
 if (!adminCss.includes(".admin-nav-link.admin-nav-link-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-nav-link-active selector.");
 }

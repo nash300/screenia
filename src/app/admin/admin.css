@@ -855,12 +855,6 @@
   min-height: 38px;
 }
 
-.admin-order-action-row .admin-button-secondary.is-active {
-  border-color: rgba(47, 125, 246, 0.45);
-  background: #2f7df6;
-  color: #ffffff;
-}
-
 .admin-order-operation-panel {
   margin-top: 14px;
 }
@@ -3162,11 +3156,6 @@
   box-shadow: 0 10px 22px rgba(7, 31, 84, 0.06) !important;
 }
 
-.admin-section-tab.is-active {
-  background: linear-gradient(135deg, #061942, #2f7df6) !important;
-  color: #ffffff !important;
-}
-
 .admin-customer-workflow {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -3293,12 +3282,6 @@
   box-shadow: 0 18px 34px rgba(7, 31, 84, 0.1);
 }
 
-.admin-order-workflow-step.is-active {
-  border-color: rgba(47, 125, 246, 0.5);
-  background: linear-gradient(135deg, #061942, #2f7df6);
-  color: #ffffff;
-}
-
 .admin-order-workflow-step > span {
   display: grid;
   grid-row: span 2;
@@ -3310,11 +3293,6 @@
   color: #061942;
   font-size: 0.78rem;
   font-weight: 950;
-}
-
-.admin-order-workflow-step.is-active > span {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
 }
 
 .admin-order-workflow-step strong {
@@ -3340,20 +3318,12 @@
   font-weight: 950;
 }
 
-.admin-order-workflow-step.is-active strong em {
-  background: rgba(255, 255, 255, 0.18);
-}
-
 .admin-order-workflow-step small {
   grid-column: 2;
   color: #54627d;
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1.25;
-}
-
-.admin-order-workflow-step.is-active small {
-  color: rgba(255, 255, 255, 0.78);
 }
 
 .admin-display-workflow {
@@ -4321,11 +4291,6 @@
   border-radius: 999px;
   background: rgba(47, 125, 246, 0.12);
   font-size: 0.7rem;
-}
-
-.admin-customers-quick-filters button.is-active span {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
 }
 
 .admin-customers-create {
