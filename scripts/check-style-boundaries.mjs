@@ -1403,6 +1403,25 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:hover", [
   },
 ]);
 
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus", [
+  {
+    includes: "background: transparent;",
+    message: "must not use a focus background that makes clicked primary nav links look like buttons.",
+  },
+  {
+    includes: "border-radius: 0;",
+    message: "must not use a focus radius that makes clicked primary nav links look like pills.",
+  },
+  {
+    includes: "box-shadow: none;",
+    message: "must not use a focus shadow that makes clicked primary nav links look like buttons.",
+  },
+  {
+    includes: "outline: 0;",
+    message: "must not use a rectangle focus ring on clicked primary nav links.",
+  },
+]);
+
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:active", [
   {
     includes: "background: transparent;",

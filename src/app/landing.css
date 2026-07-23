@@ -409,6 +409,7 @@
 }
 
 .landing-nav-primary .landing-nav-link:visited,
+.landing-nav-primary .landing-nav-link:focus,
 .landing-nav-primary .landing-nav-link:focus:not(:focus-visible),
 .landing-nav-primary .landing-nav-link:active,
 .landing-nav-primary .landing-nav-link.landing-nav-link-active {
@@ -418,6 +419,7 @@
   background: transparent;
   padding: 0;
   box-shadow: none;
+  outline: 0;
   font-weight: 750;
   text-decoration: none;
   transform: none;
@@ -428,6 +430,16 @@
   background: transparent;
   border-radius: 0;
   box-shadow: none;
+  transform: none;
+}
+
+.landing-nav-primary .landing-nav-link:focus {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  outline: 0;
   transform: none;
 }
 
@@ -8175,6 +8187,7 @@
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link,
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link:visited,
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link:hover,
+.landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus,
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link:active,
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link:focus:not(:focus-visible),
 .landing-page .landing-nav .landing-nav-primary > .landing-nav-link.landing-nav-link-active {
@@ -8186,6 +8199,7 @@
   box-shadow: none;
   color: var(--screenia-logo-deep);
   font-weight: 750;
+  outline: 0;
   text-decoration: none;
   transform: none;
 }
