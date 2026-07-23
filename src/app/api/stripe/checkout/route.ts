@@ -440,7 +440,7 @@ export async function POST(request: Request) {
     const { data: quotedOrder, error: quotedOrderError } = await supabaseAdmin
       .from("customer_subscriptions")
       .select(
-        "id, order_number, screen_quantity, device_discount_percent, device_discount_months, quote_items, pricing_plan_id, pricing_plans(*)",
+        "id, order_number, screen_quantity, setup_fee_sek, base_setup_fee_sek, setup_included_screens, additional_setup_fee_per_screen_sek, additional_setup_screen_count, shipping_fee_sek, base_shipping_fee_sek, shipping_included_devices, additional_shipping_fee_per_device_sek, additional_shipping_device_count, device_discount_percent, device_discount_months, quote_items, pricing_plan_id, pricing_plans(*)",
       )
       .eq("customer_id", customerId)
       .in("status", ["quote_prepared", "quote_sent", "checkout_started"])
@@ -531,7 +531,10 @@ export async function POST(request: Request) {
       configuredPlan?.hardwareFeeSek ??
       0;
     const baseShippingFeeSek =
-      plan.shipping_fee_sek ?? configuredPlan?.shippingFeeSek ?? 99;
+      Number(quotedOrder?.base_shipping_fee_sek) ||
+      plan.shipping_fee_sek ||
+      configuredPlan?.shippingFeeSek ||
+      99;
     const currency = plan.currency || "sek";
     const priceTaxBehavior =
       plan.tax_behavior === "exclusive"
@@ -598,10 +601,7 @@ export async function POST(request: Request) {
         resolution: itemPlan.resolution,
         quantity,
         hardwareFeeSek: itemHardwareFee,
-        discountedHardwareFeeSek: Math.max(
-          0,
-          Math.round(itemHardwareFee * (1 - deviceDiscountPercent / 100)),
-        ),
+        discountedHardwareFeeSek: itemHardwareFee,
         monthlyFeeSek: item.monthlyFeeSek ?? itemPlan.monthly_fee_sek,
         stripeHardwarePriceId: itemPlan.stripe_hardware_price_id,
         stripeMonthlyPriceId: itemPlan.stripe_monthly_price_id,
@@ -611,35 +611,50 @@ export async function POST(request: Request) {
       (sum, item) => sum + item.quantity,
       0,
     );
-    const baseSetupFeeSek = plan.setup_fee_sek;
+    const baseSetupFeeSek = quotedOrder
+      ? Number(quotedOrder.base_setup_fee_sek) || 0
+      : plan.setup_fee_sek;
     const setupIncludedScreens =
-      plan.setup_included_screens ?? INCLUDED_SETUP_SCREEN_COUNT;
+      Number(quotedOrder?.setup_included_screens) ||
+      plan.setup_included_screens ||
+      INCLUDED_SETUP_SCREEN_COUNT;
     const additionalSetupFeeSek =
-      plan.additional_setup_fee_sek ?? ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK;
-    const additionalSetupScreens = additionalSetupScreenCount(
-      checkoutScreenQuantity,
-      setupIncludedScreens,
-    );
-    const setupFeeSek = calculateSetupFeeSek(
-      checkoutScreenQuantity,
-      baseSetupFeeSek,
-      setupIncludedScreens,
-      additionalSetupFeeSek,
-    );
+      Number(quotedOrder?.additional_setup_fee_per_screen_sek) ||
+      plan.additional_setup_fee_sek ||
+      ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK;
+    const additionalSetupScreens = quotedOrder
+      ? Number(quotedOrder.additional_setup_screen_count) || 0
+      : additionalSetupScreenCount(checkoutScreenQuantity, setupIncludedScreens);
+    const setupFeeSek = quotedOrder
+      ? Number(quotedOrder.setup_fee_sek) || 0
+      : calculateSetupFeeSek(
+          checkoutScreenQuantity,
+          baseSetupFeeSek,
+          setupIncludedScreens,
+          additionalSetupFeeSek,
+        );
     const shippingIncludedDevices =
-      plan.shipping_included_devices ?? INCLUDED_SHIPPING_DEVICE_COUNT;
+      Number(quotedOrder?.shipping_included_devices) ||
+      plan.shipping_included_devices ||
+      INCLUDED_SHIPPING_DEVICE_COUNT;
     const additionalShippingFeeSek =
-      plan.additional_shipping_fee_sek ?? ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK;
-    const additionalShippingDevices = additionalShippingDeviceCount(
-      checkoutScreenQuantity,
-      shippingIncludedDevices,
-    );
-    const shippingFeeSek = calculateShippingFeeSek(
-      checkoutScreenQuantity,
-      baseShippingFeeSek,
-      shippingIncludedDevices,
-      additionalShippingFeeSek,
-    );
+      Number(quotedOrder?.additional_shipping_fee_per_device_sek) ||
+      plan.additional_shipping_fee_sek ||
+      ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK;
+    const additionalShippingDevices = quotedOrder
+      ? Number(quotedOrder.additional_shipping_device_count) || 0
+      : additionalShippingDeviceCount(
+          checkoutScreenQuantity,
+          shippingIncludedDevices,
+        );
+    const shippingFeeSek = quotedOrder
+      ? Number(quotedOrder.shipping_fee_sek) || 0
+      : calculateShippingFeeSek(
+          checkoutScreenQuantity,
+          baseShippingFeeSek,
+          shippingIncludedDevices,
+          additionalShippingFeeSek,
+        );
     const expectedInitialPaymentSek =
       setupFeeSek +
       checkoutQuoteItems.reduce(
@@ -838,7 +853,8 @@ export async function POST(request: Request) {
     failureContext.stripeCustomerId = stripeCustomer.id;
 
     const setupLineItem =
-      staticPriceLineItem({
+      baseSetupFeeSek > 0
+        ? staticPriceLineItem({
         priceId: plan.stripe_setup_price_id,
         expectedAmountSek: baseSetupFeeSek,
         actualAmountSek: baseSetupFeeSek,
@@ -856,7 +872,7 @@ export async function POST(request: Request) {
           },
         },
         quantity: 1,
-      };
+      } : null;
 
     const additionalSetupLineItem =
       additionalSetupScreens > 0
@@ -881,7 +897,7 @@ export async function POST(request: Request) {
         : null;
 
     const checkoutLineItems: CheckoutLineItem[] = [
-      setupLineItem,
+      ...(setupLineItem ? [setupLineItem] : []),
       ...(additionalSetupLineItem ? [additionalSetupLineItem] : []),
       staticPriceLineItem({
         priceId: plan.stripe_shipping_price_id,

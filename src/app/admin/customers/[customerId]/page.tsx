@@ -8,7 +8,7 @@ import { showAdminNotification } from "@/lib/admin/notifications";
 import { getCustomerWorkflowAction } from "@/lib/admin/customer-workflow";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
-import { calculateSetupFeeSek } from "@/lib/pricing/setup-fee";
+import { calculateIncrementalSetupFeeSek } from "@/lib/pricing/setup-fee";
 import {
   ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
   INCLUDED_SHIPPING_DEVICE_COUNT,
@@ -116,7 +116,6 @@ export default function CustomerDetailPage({
   );
   const [quotePlanCode, setQuotePlanCode] = useState("");
   const [quoteNotes, setQuoteNotes] = useState("");
-  const [quoteReason, setQuoteReason] = useState("");
   const [quoteResultUrl, setQuoteResultUrl] = useState("");
   const [quoteItems, setQuoteItems] = useState<QuoteItem[]>([
     { id: "quote-item-1", pricingPlanCode: "", quantity: 1 },
@@ -1367,15 +1366,6 @@ export default function CustomerDetailPage({
       return;
     }
 
-    const reason = quoteReason.trim();
-    if (reason.length < 5) {
-      showAdminNotification(
-        "error",
-        "Add a quote preparation reason of at least 5 characters.",
-      );
-      return;
-    }
-
     setSaving(true);
     setQuoteResultUrl("");
 
@@ -1395,7 +1385,6 @@ export default function CustomerDetailPage({
         ),
         deviceDiscountPercent: quoteDiscountPercent,
         deviceDiscountMonths: quoteDiscountMonths,
-        reason,
       }),
     });
 
@@ -1417,7 +1406,6 @@ export default function CustomerDetailPage({
 
     setQuoteResultUrl(data.onboardingUrl || "");
     setQuoteNotes("");
-    setQuoteReason("");
     await loadData();
     showAdminNotification(
       data.emailSent ? "success" : "warning",
@@ -1746,20 +1734,18 @@ export default function CustomerDetailPage({
     (sum, item) => sum + item.monthlySubtotal,
     0,
   );
-  const quoteDeviceDiscountAmount = Math.round(
-    quoteDeviceSubtotal * (quoteDiscountPercent / 100),
-  );
   const quoteMonthlyDiscountAmount = Math.round(
     quoteMonthlySubtotal * (quoteDiscountPercent / 100),
   );
-  const quoteStartupTotal = primaryQuotePlan
-    ? calculateSetupFeeSek(
+  const quoteSetupSubtotal = primaryQuotePlan
+    ? calculateIncrementalSetupFeeSek(
+        paidDeviceQuantity,
         quoteScreenQuantity,
         primaryQuotePlan.setup_fee_sek,
-      ) +
-      quoteDeviceSubtotal -
-      quoteDeviceDiscountAmount +
-      quoteShippingSubtotal
+      )
+    : 0;
+  const quoteStartupTotal = primaryQuotePlan
+    ? quoteSetupSubtotal + quoteDeviceSubtotal + quoteShippingSubtotal
     : 0;
   const quoteStartupVat = includedVatFromGross(quoteStartupTotal);
   const quoteMonthlyVat = includedVatFromGross(
@@ -2416,9 +2402,9 @@ export default function CustomerDetailPage({
               </div>
 
               <p className="rounded-2xl bg-blue-50 p-3 text-xs font-semibold text-blue-800">
-                The discount reduces the device charge now and the monthly
-                service for the selected number of months. The setup fee and
-                shipping are never discounted.
+                The introductory discount only reduces the monthly subscription
+                for the selected number of months. The first payment, setup,
+                devices, and shipping are never discounted here.
               </p>
 
               <label className="text-sm font-semibold text-slate-700">
@@ -2432,27 +2418,10 @@ export default function CustomerDetailPage({
                 />
               </label>
 
-              <label className="text-sm font-semibold text-slate-700">
-                {hasPreparedQuote
-                  ? "Reason for resending this offer and replacing its secure link *"
-                  : "Reason for preparing this quote and onboarding link *"}
-                <textarea
-                  value={quoteReason}
-                  onChange={(event) => setQuoteReason(event.target.value)}
-                  rows={2}
-                  placeholder={
-                    hasPreparedQuote
-                      ? "Example: Customer confirmed the email was not received; address and offer were rechecked."
-                      : "Example: Customer requested this package and pricing has been reviewed."
-                  }
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-cyan)] focus:ring-2 focus:ring-cyan-100"
-                />
-              </label>
-
               <button
                 type="button"
                 onClick={prepareQuoteAndOnboarding}
-                disabled={saving || quoteLines.length === 0 || !quoteReason.trim()}
+                disabled={saving || quoteLines.length === 0}
                 className="admin-button-primary disabled:opacity-50"
               >
                 {saving
@@ -2508,11 +2477,7 @@ export default function CustomerDetailPage({
                   ))}
                   <div className="flex justify-between gap-3">
                     <span>Setup fee incl. VAT</span>
-                    <strong>{formatSek(primaryQuotePlan.setup_fee_sek)}</strong>
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    <span>Device discount</span>
-                    <strong>-{formatSek(quoteDeviceDiscountAmount)}</strong>
+                    <strong>{formatSek(quoteSetupSubtotal)}</strong>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span>Shipping incl. VAT</span>
@@ -2539,7 +2504,8 @@ export default function CustomerDetailPage({
                     <strong>{formatSek(quoteStartupVat.vat)}</strong>
                   </div>
                   <p className="text-xs text-slate-500">
-                    Screens: {quoteScreenQuantity}. Free trial:{" "}
+                    New screens in this quote: {quoteScreenQuantity}. Already
+                    paid screen entitlement: {paidDeviceQuantity}. Free trial:{" "}
                     {primaryQuotePlan.trial_days} days. Monthly
                     discount duration: {quoteDiscountMonths} months. Monthly
                     VAT included: {formatSek(quoteMonthlyVat.vat)}. Stripe
@@ -3317,9 +3283,8 @@ export default function CustomerDetailPage({
                       Device: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
                     </p>
                     <p>
-                      Device discount:{" "}
-                      {subscription.device_discount_percent || 0}%{" "}
-                      ({formatSek(subscription.device_discount_amount_sek || 0)})
+                      First payment discount:{" "}
+                      {formatSek(subscription.device_discount_amount_sek || 0)}
                     </p>
                     <p>
                       Shipping:{" "}

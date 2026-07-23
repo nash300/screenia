@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
+import ScreeniaLogo from "@/components/ScreeniaLogo";
 import {
   ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
   INCLUDED_SETUP_SCREEN_COUNT,
@@ -48,13 +49,13 @@ const copy = {
     ],
     workflowTitle: "Från paketval till fungerande skärm",
     workflowText:
-      "Startguiden är en säker sida för bekräftelse av uppgifter, villkor och betalning. Material samlas in efter betalningen för att hålla den inledande förfrågan enkel.",
+      "Processen är byggd för att vara enkel för kunden och tydlig för Screenia. Varje steg har ett konkret syfte: rätt paket, rätt innehåll, rätt enhet och en skärm som kan börja visa färdigt material.",
     steps: [
-      ["01", "Välj skärmar", "Ange önskat antal Full HD- och 4K-skärmar. Båda typerna kan kombineras i samma förfrågan.", "Förfrågan är inte en bindande beställning. Uppgifterna används för att skapa en personlig startguide."],
-      ["02", "Färdigställ uppgifter och betala", "I startguiden bekräftas företagsuppgifter och villkor innan betalningen genomförs.", "Logotyp, meny och bilder behöver inte förberedas före betalningen."],
-      ["03", "Skicka innehåll efter betalning", "Efter betalningen kan material laddas upp, en Screenia-mall väljas eller innehållet skickas senare.", "Meny, prislista, logotyp, bilder eller enkla instruktioner är tillräckligt som underlag."],
-      ["04", "Vi bygger layouten", "Screenia tar fram det första skärmförslaget, förbereder hårdvaran och skickar enheten när arbetet är klart.", "Aktuell status visas i kundportalen."],
-      ["05", "Koppla in och starta", "Vid leverans ansluts enheten till TV och Wi-Fi enligt medföljande instruktioner.", "Därefter börjar skärmen visa det färdigställda innehållet."],
+      ["1", "Välj paket & skicka förfrågan", "Önskad skärmlösning väljs direkt på webbplatsen. Förfrågan ger Screenia de uppgifter som behövs för att kontrollera paket, antal skärmar och nästa steg.", "Enkel start utan onödigt långa formulär."],
+      ["2", "Vi planerar & designar", "Screenia går igenom behovet, tar fram en tydlig plan och förbereder innehåll som passar verksamhetens miljö, erbjudanden och mål.", "Design, justeringar och personlig planeringshjälp ingår."],
+      ["3", "Vi förbereder & skickar din enhet", "När upplägget är klart förbereds skärmenheten, kopplas till rätt kundmiljö och skickas med tydliga instruktioner.", "Enheten levereras redo för enkel installation."],
+      ["4", "Du kopplar in & ansluter", "Enheten kopplas till skärmen och internet enligt instruktionerna. Screenia kan hjälpa till om något behöver kontrolleras vid start.", "Ingen avancerad teknisk installation krävs."],
+      ["5", "Klar att visa – och sälja mer!", "När enheten är ansluten börjar skärmen visa det färdiga innehållet. Budskap, menyer och kampanjer kan därefter uppdateras vid behov.", "Skärmen blir en aktiv sälj- och informationsyta."],
     ],
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
@@ -85,10 +86,17 @@ const copy = {
       ["Vilket material behövs?", "Inget material behövs före betalningen. Därefter kan meny, prislista, logotyp och bilder laddas upp eller en Screenia-mall väljas."],
       ["Hur lång är uppstartstiden?", "Efter betalningen samlas innehållet in. Screenia tar därefter fram den första layouten, förbereder hårdvaran och skickar enheten när arbetet är klart."],
       ["Vilken TV eller skärm krävs?", "En Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi krävs."],
+      ["När börjar abonnemanget debiteras?", "Månadsabonnemanget börjar först efter den kostnadsfria provperioden. Första betalningen avser uppstart, valda enheter och frakt."],
+      ["Går det att kombinera Full HD och 4K?", "Ja. Full HD- och 4K-enheter kan kombineras i samma förfrågan och Screenia kontrollerar att kombinationen passar innehållet och användningen."],
+      ["Vilken upplösning bör väljas?", "Full HD passar enklare innehåll och mindre skärmar. 4K rekommenderas när menyer, små texter, detaljerade bilder eller större skärmar ska vara extra tydliga."],
       ["Kan kampanjer och priser visas samtidigt?", "Ja. En layout kan innehålla prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
       ["Kan innehållet ändras senare?", "Ja. Nytt material och uppdaterade priser kan skickas till Screenia för publicering på skärmen."],
+      ["Kan flera skärmar visa olika innehåll?", "Ja. Flera skärmar kan planeras med samma eller olika innehåll beroende på placering, målgrupp och vald lösning."],
+      ["Behövs ett eget tekniskt system?", "Nej. Screenia hanterar skärmupplägg, publicering och uppföljning så att kunden inte behöver bygga ett eget system."],
+      ["Vad händer om internetanslutningen bryts?", "Skärmen behöver nätverk för uppdateringar och normal drift. Vid problem kontaktas Screenia för felsökning och nästa åtgärd."],
       ["Hur levereras enheten?", "Lämpligt leveranssätt väljs utifrån adress, paketstorlek och ledtid. Leveransinformation och instruktioner skickas när enheten lämnar Screenia."],
-      ["Vad ingår i startavgiften", "Start- och konfigurationsavgiften är 1 599 kr (upp till 3 skärmar). I avgiften ingår personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen. Från den fjärde skärmen tillkommer 249 kr per skärm. Avgiften återbetalas inte efter att layout- eller produktionsarbetet har påbörjats."],
+      ["Vad ingår i startavgiften?", "I start- och konfigurationsavgiften ingår personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen. Aktuella belopp visas i prisverktyget innan förfrågan skickas. Avgiften återbetalas inte efter att layout- eller produktionsarbetet har påbörjats."],
+      ["Kan beställningen avbrytas?", "En förfrågan är inte bindande. Efter betalning beror återbetalning och avbrytande på om layout- eller produktionsarbete har startat."],
     ],
     companyTitle: "Företagsinformation",
     companyText:
@@ -141,13 +149,13 @@ const copy = {
     ],
     workflowTitle: "From package choice to working screen",
     workflowText:
-      "The setup guide provides a secure page for confirming details, accepting terms, and completing payment. Material is collected after payment to keep the initial request straightforward.",
+      "The process is designed to be simple for the customer and clear for Screenia. Each step has a practical purpose: the right package, the right content, the right device, and a screen ready to show finished material.",
     steps: [
-      ["01", "Choose screens", "Specify the required quantities of Full HD and 4K screens. Both types can be combined in one request.", "The request is not a binding order. The information is used to create a personal setup guide."],
-      ["02", "Complete details and pay", "Company details and terms are confirmed in the setup guide before payment is completed.", "A logo, menu, and images do not need to be prepared before payment."],
-      ["03", "Submit content after payment", "After payment, material can be uploaded, a Screenia template selected, or content submitted later.", "A menu, price list, logo, images, or brief instructions provide sufficient material."],
-      ["04", "We build the layout", "Screenia creates the first screen proposal, prepares the hardware, and ships the device when the work is complete.", "Current progress is shown in the customer portal."],
-      ["05", "Connect and start", "On delivery, the device is connected to the TV and Wi-Fi according to the supplied instructions.", "The screen then begins displaying the completed content."],
+      ["1", "Choose package & send request", "The preferred screen solution is selected on the website. The request gives Screenia the details needed to review the package, number of screens, and next step.", "A simple start without unnecessarily long forms."],
+      ["2", "We plan & design", "Screenia reviews the need, prepares a clear plan, and creates content suited to the business environment, offers, and goals.", "Design, changes, and personal planning support are included."],
+      ["3", "We prepare & ship the device", "When the setup is ready, the screen device is prepared, connected to the correct customer environment, and shipped with clear instructions.", "The device is delivered ready for easy installation."],
+      ["4", "Connect & go online", "The device is connected to the screen and internet according to the instructions. Screenia can help if anything needs checking at startup.", "No advanced technical installation is required."],
+      ["5", "Ready to show — and sell more!", "When the device is connected, the screen starts showing finished content. Messages, menus, and campaigns can then be updated when needed.", "The screen becomes an active sales and information surface."],
     ],
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
@@ -178,10 +186,17 @@ const copy = {
       ["What material is required?", "No material is required before payment. A menu, price list, logo, and images can then be uploaded, or a Screenia template can be selected."],
       ["How long does setup take?", "After payment, the content is collected. Screenia then creates the first layout, prepares the hardware, and ships the device when the work is complete."],
       ["What type of TV or screen is required?", "A Smart TV or screen with an HDMI input and Wi-Fi access is required."],
+      ["When does subscription billing start?", "The monthly subscription starts only after the free trial period. The first payment covers setup, selected devices, and shipping."],
+      ["Can Full HD and 4K be combined?", "Yes. Full HD and 4K devices can be combined in one request, and Screenia checks that the combination fits the content and use case."],
+      ["Which resolution should be selected?", "Full HD suits simpler content and smaller screens. 4K is recommended when menus, small text, detailed images, or larger screens need extra clarity."],
       ["Can campaigns and prices be displayed together?", "Yes. A layout can include price lists, offers, opening hours, QR codes, and imagery in the same presentation."],
       ["Can the content be changed later?", "Yes. New material and updated prices can be submitted to Screenia for publication on the screen."],
+      ["Can several screens show different content?", "Yes. Several screens can be planned with the same or different content depending on location, audience, and selected solution."],
+      ["Is a separate technical system required?", "No. Screenia handles screen setup, publishing, and follow-up so the customer does not need to build a separate system."],
+      ["What happens if the internet connection fails?", "The screen needs network access for updates and normal operation. If a problem occurs, Screenia can help troubleshoot and agree the next action."],
       ["How is the device shipped?", "A suitable delivery option is selected according to the address, parcel size, and lead time. Delivery information and instructions are sent when the device leaves Screenia."],
-      ["What is included in the setup fee", "The 1,599 SEK setup fee (up to 3 screens) includes personal planning support, layout creation, and agreed adjustments during the setup phase. Each additional screen adds 249 SEK."],
+      ["What is included in the setup fee?", "The setup and configuration fee includes personal planning support, layout creation, and agreed adjustments during the setup phase. Current amounts are shown in the pricing tool before the request is submitted."],
+      ["Can the order be cancelled?", "A request is not binding. After payment, cancellation and refunds depend on whether layout or production work has started."],
     ],
     companyTitle: "Company information",
     companyText:
@@ -258,9 +273,8 @@ const planCopy = {
         "För mindre skärmar och standardinnehåll i Full HD.",
       features: [
         "Uppspelning i Full HD (1080p)",
-        "Rekommenderas för skärmar upp till 43 tum",
+        "Rekommenderas för skärmar under 55 tum",
         "Passar kampanjer, erbjudanden och informationsskärmar",
-        "Bäst för salonger, väntrum och mindre butiker",
         "Personlig planeringshjälp, layoutdesign och överenskomna ändringar ingår i startavgiften",
         "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
@@ -272,7 +286,6 @@ const planCopy = {
         "Uppspelning i äkta 4K (3840×2160)",
         "Rekommenderas för skärmar från 55 tum",
         "Skarpare text, menyer och detaljerade bilder",
-        "Bäst för restauranger, butiker och premiumvisning",
         "Personlig planeringshjälp, layoutdesign och överenskomna ändringar ingår i startavgiften",
         "3 veckors kostnadsfri provperiod",
         "Ingen bindningstid",
@@ -285,9 +298,8 @@ const planCopy = {
         "For one screen showing campaigns, offers, and information in Full HD.",
       features: [
         "Full HD playback (1080p)",
-        "Recommended for screens up to 43 inches",
+        "Recommended for screens under 55 inches",
         "Fits campaigns, offers, and information screens",
-        "Best for salons, waiting rooms, and smaller shops",
         "Personal planning support, layout design, and agreed revisions are included in the setup fee",
         "3-week free trial",
         "No commitment",
@@ -299,7 +311,6 @@ const planCopy = {
         "True 4K playback (3840×2160)",
         "Recommended for screens from 55 inches",
         "Sharper text, menus, and detailed images",
-        "Best for restaurants, shops, and premium display",
         "Personal planning support, layout design, and agreed revisions are included in the setup fee",
         "3-week free trial",
         "No commitment",
@@ -322,6 +333,15 @@ const visualImages = [
   "/landing/section-art/restaurant-menu-screens.jpg",
   "/landing/section-art/salon-service-window.jpg",
 ] as const;
+
+const workflowImages = [
+  "/landing/workflow/01-package-request.png",
+  "/landing/workflow/02-design-planning.png",
+  "/landing/workflow/03-device-shipping.png",
+  "/landing/workflow/04-connect-device.png",
+  "/landing/workflow/05-live-display.png",
+] as const;
+
 const visualCopy = {
   sv: [
     ["Planera innehåll", "Meny, kampanj och logotyp samlas på ett ställe."],
@@ -352,6 +372,7 @@ type LandingAsset = {
 type HeroSlideAsset = LandingAsset & {
   id: string;
   mediaType: "image" | "video";
+  highlightTerms?: string[];
   sv: {
     eyebrow: string;
     title: string;
@@ -364,6 +385,16 @@ type HeroSlideAsset = LandingAsset & {
   };
 };
 
+type HeroBenefit = {
+  id: string;
+  title: string;
+  body: string;
+};
+
+const fallbackHeroBenefits: HeroBenefit[] = heroBenefits.map(
+  ([title, body], index) => ({ id: `fallback-${index + 1}`, title, body }),
+);
+
 const heroHighlightWords: Record<string, string[]> = {
   "01": ["kunder", "unikt", "fler besökare"],
   "02": ["befintliga skärm", "allt som behövs", "olika storlekar"],
@@ -371,15 +402,16 @@ const heroHighlightWords: Record<string, string[]> = {
 };
 
 function renderHighlightedText(text: string, words: string[]) {
-  if (!words.length) return text;
+  const terms = words.map((word) => word.trim()).filter(Boolean);
+  if (!terms.length) return text;
 
-  const escapedWords = words.map((word) =>
+  const escapedWords = terms.map((word) =>
     word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
   );
   const pattern = new RegExp(`(${escapedWords.join("|")})`, "gi");
 
   return text.split(pattern).map((part, index) => {
-    const isHighlighted = words.some(
+    const isHighlighted = terms.some(
       (word) => word.toLowerCase() === part.toLowerCase(),
     );
 
@@ -423,6 +455,8 @@ export default function Home() {
   >("idle");
   const [requestMessage, setRequestMessage] = useState("");
   const [heroSlides, setHeroSlides] = useState<HeroSlideAsset[]>([]);
+  const [managedHeroBenefits, setManagedHeroBenefits] =
+    useState<HeroBenefit[]>(fallbackHeroBenefits);
   const [activeHeroSlide, setActiveHeroSlide] = useState(0);
   const [heroSlideDirection, setHeroSlideDirection] = useState<"next" | "previous">("next");
   const [heroInteractionKey, setHeroInteractionKey] = useState(0);
@@ -430,20 +464,10 @@ export default function Home() {
 
   const t = copy.sv;
   const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se";
-  const companyDetails = [
-    process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME || "Screenia",
-    process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER
-      ? `Organisationsnummer: ${process.env.NEXT_PUBLIC_COMPANY_ORG_NUMBER}`
-      : "",
-    process.env.NEXT_PUBLIC_COMPANY_ADDRESS || "",
-  ].filter(Boolean);
   const footerLinks = [
-    { label: "Om Screenia", href: "/om-oss" },
-    { label: "Användarvillkor", href: "/terms" },
-    { label: "Integritetspolicy", href: "/privacy" },
-    { label: "Cookiepolicy", href: "/cookie-policy" },
-    { label: "Abonnemang och betalning", href: "/subscription-billing-policy" },
-    { label: "Support och service", href: "/support-service-policy" },
+    { label: "Integritet", href: "/privacy" },
+    { label: "Villkor", href: "/terms" },
+    { label: "Kundinloggning", href: "/login" },
     { label: "Kontakt", href: "/kontakt" },
   ];
   const structuredData = [
@@ -541,6 +565,7 @@ export default function Home() {
 
         const data = (await response.json()) as {
           heroSlides: HeroSlideAsset[];
+          heroBenefits?: HeroBenefit[];
           serviceLogos: LandingAsset[];
         };
 
@@ -549,6 +574,10 @@ export default function Home() {
         if (data.heroSlides?.length) {
           setHeroSlides(data.heroSlides);
           setActiveHeroSlide(0);
+        }
+
+        if (data.heroBenefits?.length) {
+          setManagedHeroBenefits(data.heroBenefits);
         }
 
         setServiceLogos(data.serviceLogos || []);
@@ -634,7 +663,9 @@ export default function Home() {
     heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
   const currentHeroIndex = heroSlideCount > 0 ? activeHeroSlide % heroSlideCount : 0;
   const currentHighlightWords = currentHeroMedia
-    ? heroHighlightWords[currentHeroMedia.id] || []
+    ? currentHeroMedia.highlightTerms?.length
+      ? currentHeroMedia.highlightTerms
+      : heroHighlightWords[currentHeroMedia.id] || []
     : ["Professionellt", "tydlig plattform"];
   const heroSlideMotionClass = `landing-hero-slide-motion landing-hero-slide-motion-${heroSlideDirection} landing-hero-slide-motion-${heroSlideDirection}-${currentHeroIndex}`;
   const heroSlideMotionKey = `${heroSlideDirection}-${currentHeroIndex}-${heroInteractionKey}`;
@@ -678,7 +709,6 @@ export default function Home() {
       ".landing-section-heading",
       ".landing-feature",
       ".landing-price-card",
-      ".landing-pricing-note",
       ".landing-gallery-card",
       ".landing-service-film-copy",
       ".landing-film-stage",
@@ -837,19 +867,11 @@ export default function Home() {
             className="landing-hero-benefits"
             aria-label="Screenia benefits"
           >
-            {heroBenefits.map(([title, text, highlight]) => (
-              <div key={title} className="landing-hero-benefit">
-                <span className="landing-hero-benefit-icon" aria-hidden="true" />
+            {managedHeroBenefits.map((benefit) => (
+              <div key={benefit.id} className="landing-hero-benefit">
                 <span>
-                  <strong>{title}</strong>
-                  {highlight ? (
-                    <small>
-                      <span className="landing-benefit-old">{text}</span>
-                      <span className="landing-benefit-new">{highlight}</span>
-                    </small>
-                  ) : (
-                    <small>{text}</small>
-                  )}
+                  <strong>{benefit.title}</strong>
+                  <small>{benefit.body}</small>
                 </span>
               </div>
             ))}
@@ -920,12 +942,23 @@ export default function Home() {
               <p>{t.workflowText}</p>
             </div>
             <div className="landing-workflow-grid">
-              {t.steps.map(([number, title, text, note]) => (
+              {t.steps.map(([number, title, text, note], index) => (
                 <article key={number} className="landing-workflow-step">
-                  <span>{number}</span>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                  <small>{note}</small>
+                  {index < t.steps.length - 1 && <span className="landing-workflow-arrow" aria-hidden="true" />}
+                  <div className="landing-workflow-image-wrap">
+                    <Image
+                      src={workflowImages[index]}
+                      alt=""
+                      fill
+                      sizes="(max-width: 780px) 42vw, (max-width: 1180px) 30vw, 18vw"
+                    />
+                  </div>
+                  <div className="landing-workflow-step-copy">
+                    <span>{number}</span>
+                    <h3>{title}</h3>
+                    <p>{text}</p>
+                    <small>{note}</small>
+                  </div>
                 </article>
               ))}
             </div>
@@ -1019,6 +1052,7 @@ export default function Home() {
               );
             })}
           </div>
+          {selectedScreenCount > 0 ? (
           <section className="landing-package-builder" aria-live="polite">
             <div className="landing-package-builder-heading">
               <div>
@@ -1078,21 +1112,7 @@ export default function Home() {
               </p>
             )}
           </section>
-          <div className="landing-pricing-note">
-            <h3>Välj rätt teknisk nivå</h3>
-            <p>Samtliga priser anges inklusive svensk moms. I betalningssteget redovisas momsbeloppet separat utan att totalsumman förändras.</p>
-            <p>
-              Startavgiften är 1 599 kr för upp till tre skärmar. Därefter
-              tillkommer 249 kr per extra skärm. Frakten är 99 kr för upp till
-              tre enheter och därefter 29 kr per extra enhet.
-            </p>
-            <p>
-              För skärmar på 50 tum kan både Full HD och 4K fungera bra
-              beroende på innehållet. Om skärmen visar mycket text, menyer
-              eller detaljerade bilder rekommenderar vi 4K för bästa skärpa och
-              läsbarhet.
-            </p>
-          </div>
+          ) : null}
           {serviceLogos.length > 0 && (
             <div className="landing-logo-rail landing-pricing-logo-rail" aria-label="Betalning och leverans">
               <div className="landing-logo-track">
@@ -1194,31 +1214,20 @@ export default function Home() {
       </main>
 
       <footer className="landing-footer">
-        <div className="landing-footer-company">
-          <p className="landing-eyebrow">Screenia</p>
-          <h2>{t.companyTitle}</h2>
-          <p>{t.companyText}</p>
-          <ul className="landing-company-details">
-            {companyDetails.map((detail) => (
-              <li key={detail}>{detail}</li>
-            ))}
-            <li>
-              <a href={`mailto:${companyEmail}`}>{companyEmail}</a>
-            </li>
-          </ul>
-        </div>
-        <div className="landing-footer-card">
-          <span>Screenia</span>
-          <strong>Digital skyltning för lokala företag i Sverige</strong>
-          <nav>
-            {footerLinks.map((link) => (
-              <a key={link.href} href={link.href}>
-                {link.label}
-              </a>
-            ))}
-          </nav>
-          <p>{new Date().getFullYear()} Screenia. {t.legal[2]}</p>
-        </div>
+        <Link href="/" aria-label="Screenia startsida">
+          <ScreeniaLogo className="screenia-logo-footer" />
+        </Link>
+        <p>
+          Digital skyltning, tydligt hanterad.{" "}
+          <a href={`mailto:${companyEmail}`}>{companyEmail}</a>
+        </p>
+        <nav aria-label="Sidfot">
+          {footerLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </footer>
 
       <script

@@ -221,7 +221,7 @@ export default function AdminBackupDrillsPage() {
     <div className="admin-dashboard-page">
       <div className="admin-page-header admin-dashboard-header">
         <div>
-          <h1 className="admin-title">Recovery readiness</h1>
+          <h1 className="admin-title">Backup tests</h1>
           <p className="admin-subtitle">
             Verify backup coverage, restore tests, evidence references, and
             follow-up risks before live customer operations.
@@ -239,8 +239,8 @@ export default function AdminBackupDrillsPage() {
       </div>
 
       <section className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Recovery readiness workflow</h2>
-        <div className="admin-backup-workflow" aria-label="Recovery readiness workflow">
+        <h2 className="admin-card-title text-xl">Backup test workflow</h2>
+        <div className="admin-backup-workflow" aria-label="Backup test workflow">
           {recoveryWorkflow.map((item) => (
             <div key={item.stage} className="admin-backup-workflow-step">
               <span>{item.stage}</span>

@@ -8,8 +8,8 @@ import { includedVatFromGross } from "@/lib/pricing/vat";
 import {
   ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
   INCLUDED_SETUP_SCREEN_COUNT,
-  additionalSetupScreenCount,
-  calculateSetupFeeSek,
+  calculateIncrementalSetupFeeSek,
+  incrementalAdditionalSetupScreenCount,
 } from "@/lib/pricing/setup-fee";
 import {
   ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
@@ -68,8 +68,28 @@ type QuoteItemInput = {
   quantity?: number;
 };
 
-function cleanReason(value: unknown) {
-  return String(value || "").trim().slice(0, 1200);
+const paidSubscriptionStatuses = new Set([
+  "active",
+  "paid",
+  "trialing",
+  "content_received",
+  "layout_started",
+]);
+
+const paidStripeStatuses = new Set(["paid", "trialing", "active"]);
+
+type ExistingSubscriptionRow = {
+  id: string;
+  status: string | null;
+  stripe_payment_status: string | null;
+  screen_quantity: number | null;
+};
+
+function subscriptionCountsTowardPaidScreens(subscription: ExistingSubscriptionRow) {
+  const status = String(subscription.status || "").toLowerCase();
+  const stripeStatus = String(subscription.stripe_payment_status || "").toLowerCase();
+
+  return paidSubscriptionStatuses.has(status) || paidStripeStatuses.has(stripeStatus);
 }
 
 export async function POST(request: Request) {
@@ -86,7 +106,6 @@ export async function POST(request: Request) {
   const customerId = String(body.customerId || "");
   const pricingPlanCode = String(body.pricingPlanCode || "");
   const quoteNotes = String(body.quoteNotes || "").trim();
-  const reason = cleanReason(body.reason);
   const rawQuoteItems: QuoteItemInput[] = Array.isArray(body.quoteItems)
     ? body.quoteItems
     : [];
@@ -121,13 +140,6 @@ export async function POST(request: Request) {
   if (!customerId || !primaryPlanCode) {
     return NextResponse.json(
       { error: "Customer and pricing plan are required." },
-      { status: 400 },
-    );
-  }
-
-  if (reason.length < 5) {
-    return NextResponse.json(
-      { error: "A reason of at least 5 characters is required." },
       { status: 400 },
     );
   }
@@ -218,9 +230,7 @@ export async function POST(request: Request) {
     (sum, item) => sum + item.monthlyFeeSek * item.quantity,
     0,
   );
-  const deviceDiscountAmountSek = Math.round(
-    deviceSubtotalSek * (deviceDiscountPercent / 100),
-  );
+  const deviceDiscountAmountSek = 0;
   const monthlyDiscountAmountSek =
     deviceDiscountMonths > 0
       ? Math.round(monthlySubtotalSek * (deviceDiscountPercent / 100))
@@ -243,21 +253,37 @@ export async function POST(request: Request) {
   const setupIncludedScreens = plan.setup_included_screens ?? INCLUDED_SETUP_SCREEN_COUNT;
   const additionalSetupFeeSek =
     plan.additional_setup_fee_sek ?? ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK;
-  const setupFeeSek = calculateSetupFeeSek(
+  const { data: existingPaidSubscriptions } = await supabaseAdmin
+    .from("customer_subscriptions")
+    .select("id, status, stripe_payment_status, screen_quantity")
+    .eq("customer_id", customer.id);
+  const existingPaidScreenQuantity = ((existingPaidSubscriptions || []) as ExistingSubscriptionRow[])
+    .filter(subscriptionCountsTowardPaidScreens)
+    .reduce(
+      (sum, subscription) =>
+        sum + Math.max(0, Number(subscription.screen_quantity) || 0),
+      0,
+    );
+  const setupFeeSek = calculateIncrementalSetupFeeSek(
+    existingPaidScreenQuantity,
     screenQuantity,
     baseSetupFeeSek,
     setupIncludedScreens,
     additionalSetupFeeSek,
   );
-  const additionalSetupScreens = additionalSetupScreenCount(
+  const additionalSetupScreens = incrementalAdditionalSetupScreenCount(
+    existingPaidScreenQuantity,
     screenQuantity,
     setupIncludedScreens,
   );
+  const baseSetupChargedSek =
+    existingPaidScreenQuantity <= 0 && screenQuantity > 0 ? baseSetupFeeSek : 0;
+  const orderType =
+    existingPaidScreenQuantity > 0 ? "existing_customer_add_on" : "new_setup";
   const firstPaymentGrossSek =
     setupFeeSek +
     deviceSubtotalSek +
-    shippingSubtotalSek -
-    deviceDiscountAmountSek;
+    shippingSubtotalSek;
   const firstPaymentVat = includedVatFromGross(firstPaymentGrossSek);
   const monthlyGrossSek = monthlySubtotalSek - monthlyDiscountAmountSek;
   const monthlyVat = includedVatFromGross(monthlyGrossSek);
@@ -278,7 +304,7 @@ export async function POST(request: Request) {
     status: "quote_prepared",
     currency,
     setup_fee_sek: setupFeeSek,
-    base_setup_fee_sek: baseSetupFeeSek,
+    base_setup_fee_sek: baseSetupChargedSek,
     setup_included_screens: setupIncludedScreens,
     additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
     additional_setup_screen_count: additionalSetupScreens,
@@ -299,7 +325,11 @@ export async function POST(request: Request) {
     device_discount_amount_sek: deviceDiscountAmountSek,
     monthly_discount_amount_sek: monthlyDiscountAmountSek,
     quote_notes: quoteNotes || null,
-    quote_items: quoteItemDetails,
+    quote_items: quoteItemDetails.map((item) => ({
+      ...item,
+      orderType,
+      existingPaidScreenQuantity,
+    })),
   };
 
   const { data: order, error: orderError } = existingOrder
@@ -346,11 +376,17 @@ export async function POST(request: Request) {
     `Quote prepared: ${new Date().toISOString()}`,
     `Quoted plan: ${plan.name} ${plan.resolution} (${plan.code})`,
     `Quoted screens/devices: ${screenQuantity}`,
+    existingPaidScreenQuantity > 0
+      ? `Existing paid screens/devices before this quote: ${existingPaidScreenQuantity}`
+      : "",
+    existingPaidScreenQuantity > 0
+      ? `Add-on setup charged only for marginal setup: ${formatSek(setupFeeSek)}`
+      : "",
     `Quote items: ${quoteItemDetails
       .map((item) => `${item.quantity} x ${item.name} ${item.resolution}`)
       .join(", ")}`,
     deviceDiscountPercent > 0
-      ? `Device discount: ${deviceDiscountPercent}% for ${deviceDiscountMonths} months`
+      ? `Monthly introductory discount: ${deviceDiscountPercent}% for ${deviceDiscountMonths} months`
       : "",
     `Quote order: ${order.order_number}`,
     quoteNotes ? `Quote note: ${quoteNotes}` : "",
@@ -388,7 +424,7 @@ export async function POST(request: Request) {
       orderNumber: order.order_number,
       pricingPlanCode: plan.code,
       expiresAt: expiresAt.toISOString(),
-      reason,
+      actionSource: "admin_request_quote_workflow",
     },
     ipAddress,
     userAgent,
@@ -470,6 +506,14 @@ export async function POST(request: Request) {
 
   const safeCustomerName = escapeHtml(customer.name);
   const safeQuoteNotes = quoteNotes ? escapeHtml(quoteNotes) : "";
+  const setupExplanationText =
+    existingPaidScreenQuantity > 0
+      ? `Tidigare betalda skärmar/enheter: ${existingPaidScreenQuantity}. Denna offert debiterar endast marginalkostnad för setup av nya extra skärmar: ${formatSek(setupFeeSek)}.`
+      : `Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${setupIncludedScreens} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(additionalSetupFeeSek)} per skärm` : ""}.`;
+  const setupExplanationHtml =
+    existingPaidScreenQuantity > 0
+      ? `Tidigare betalda sk&auml;rmar/enheter: ${existingPaidScreenQuantity}. Denna offert debiterar endast marginalkostnad f&ouml;r setup av nya extra sk&auml;rmar: ${formatSek(setupFeeSek)}.`
+      : `Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${setupIncludedScreens} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(additionalSetupFeeSek)}` : ""}.`;
 
   const emailResult = await sendTransactionalEmail({
       to: customer.email,
@@ -480,13 +524,13 @@ Här är din Screenia-offert.
 
 Paket: ${plan.name} ${plan.resolution}
 Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
-Grundavgiften ${formatSek(baseSetupFeeSek)} täcker upp till ${setupIncludedScreens} skärmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra skärm${additionalSetupScreens === 1 ? "" : "ar"} kostar ${formatSek(additionalSetupFeeSek)} per skärm` : ""}.
+${setupExplanationText}
 Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
 Frakt: ${formatSek(shippingSubtotalSek)} inkl. moms
 Fraktregel: ${formatSek(shippingFeeSek)} för upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} à ${formatSek(additionalShippingFeeSek)}` : ""}
 Screens/devices: ${screenQuantity}
-Device discount: ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})
 Månadsabonnemang: ${formatSek(monthlySubtotalSek)} inkl. moms per månad
+Månadsrabatt: ${deviceDiscountMonths > 0 ? `${deviceDiscountPercent}% i ${deviceDiscountMonths} månader` : "Ingen"}
 Kostnadsfri provperiod: ${plan.trial_days} dagar
 Priserna ovan är totalsummor kunden betalar inklusive svensk moms.
 Initial betalning (startavgift + skärmenhet + frakt): ${formatSek(firstPaymentVat.gross)} inkl. moms, varav moms ${formatSek(firstPaymentVat.vat)}.
@@ -511,10 +555,9 @@ Screenia`,
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
             <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
             <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(setupFeeSek)}</p>
-            <p>Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${setupIncludedScreens} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(additionalSetupFeeSek)}` : ""}.</p>
+            <p>${setupExplanationHtml}</p>
             <p><strong>Skärmenhet:</strong> ${formatSek(deviceSubtotalSek)} inkl. moms</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
-            <p><strong>Enhetsrabatt:</strong> ${deviceDiscountPercent}% (${formatSek(deviceDiscountAmountSek)})</p>
             <p><strong>Frakt:</strong> ${formatSek(shippingSubtotalSek)} inkl. moms</p>
             <p style="margin: 4px 0 0; color: #52657f;">${formatSek(shippingFeeSek)} f&ouml;r upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} &times; ${formatSek(additionalShippingFeeSek)}` : ""}.</p>
             <p><strong>Månadsabonnemang:</strong> ${formatSek(monthlySubtotalSek)} inkl. moms per månad</p>

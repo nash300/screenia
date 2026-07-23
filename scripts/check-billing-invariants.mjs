@@ -20,6 +20,12 @@ const setupFeeForScreens = (screenQuantity, baseSetupFeeSek = 1599) =>
   screenQuantity > 0
     ? baseSetupFeeSek + Math.max(0, screenQuantity - 3) * 249
     : 0;
+const incrementalSetupFeeForScreens = (existingPaidScreens, addedScreens) =>
+  Math.max(
+    0,
+    setupFeeForScreens(existingPaidScreens + addedScreens) -
+      setupFeeForScreens(existingPaidScreens),
+  );
 const shippingFeeForDevices = (deviceQuantity, baseShippingFeeSek = 99) =>
   deviceQuantity > 0
     ? baseShippingFeeSek + Math.max(0, deviceQuantity - 3) * 29
@@ -112,6 +118,26 @@ if (calculatedMixedMonthly !== mixedSelection.monthlyFeeSek) {
   );
 }
 
+const fourthScreenAddonSetup = incrementalSetupFeeForScreens(3, 1);
+const thirdScreenAddonSetup = incrementalSetupFeeForScreens(2, 1);
+const fourthScreenAddonFirstPayment =
+  fourthScreenAddonSetup + 699 + shippingFeeForDevices(1);
+if (fourthScreenAddonSetup !== 249) {
+  failures.push(
+    `existing customer add-on: fourth screen setup should be 249 SEK, calculated ${fourthScreenAddonSetup} SEK`,
+  );
+}
+if (thirdScreenAddonSetup !== 0) {
+  failures.push(
+    `existing customer add-on: third covered screen setup should be 0 SEK, calculated ${thirdScreenAddonSetup} SEK`,
+  );
+}
+if (fourthScreenAddonFirstPayment !== 1047) {
+  failures.push(
+    `existing customer add-on: fourth Standard screen first payment should be 1047 SEK, calculated ${fourthScreenAddonFirstPayment} SEK`,
+  );
+}
+
 const checkoutMarkers = [
   ["mode: \"subscription\"", "Checkout must create a subscription"],
   ["trial_period_days: plan.trial_days", "Checkout must use the configured trial"],
@@ -143,7 +169,9 @@ requireSource(accountPageSource, "monthlySubtotalSek", "Customer monthly display
 requireSource(landingRequestSource, "Array.isArray(body.quoteItems)", "Landing requests must accept mixed package lines");
 requireSource(landingRequestSource, "requested_quote_items: requestedQuoteItems", "Landing requests must store every selected package line");
 requireSource(landingRequestSource, "calculateSetupFeeSek(screenQuantity, baseSetupFeeSek)", "Landing confirmation must calculate the quantity-based setup fee");
-requireSource(prepareOnboardingSource, "const setupFeeSek = calculateSetupFeeSek(", "Admin quote preparation must calculate the quantity-based setup fee");
+requireSource(setupFeeSource, "calculateIncrementalSetupFeeSek", "Setup helpers must support existing-customer add-on setup pricing");
+requireSource(prepareOnboardingSource, "calculateIncrementalSetupFeeSek(", "Admin quote preparation must calculate marginal setup for existing customers");
+requireSource(checkoutSource, "Number(quotedOrder.setup_fee_sek)", "Stripe checkout must use the prepared quote setup amount");
 requireSource(setupFeeSource, "INCLUDED_SETUP_SCREEN_COUNT = 3", "Setup fee must include the first three screens");
 requireSource(setupFeeSource, "ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK = 249", "Each screen after the third must add 249 SEK");
 requireSource(shippingFeeSource, "INCLUDED_SHIPPING_DEVICE_COUNT = 3", "Base shipping must include the first three devices");
@@ -165,4 +193,5 @@ for (const plan of expectedPlans) {
 }
 console.log(`mixed 1 FHD + 2 4K: first ${mixedSelection.firstPaymentSek} SEK, then ${mixedSelection.monthlyFeeSek} SEK/month (one setup fee)`);
 console.log(`four Standard FHD screens: first ${fourScreenSelection.firstPaymentSek} SEK including ${fourScreenSelection.setupFeeSek} SEK setup`);
+console.log("existing customer add-on after three paid screens: first 1047 SEK including 249 SEK setup");
 console.log("Billing invariant check passed.");

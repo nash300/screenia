@@ -4,6 +4,7 @@ import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollReveal } from "@/components/LandingScrollReveal";
 import "../landing.css";
+import "../standalone-public.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://screenia.se";
 
@@ -119,7 +120,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="landing-page about-page">
+    <div className="landing-page about-page public-info-page">
       <LandingNav currentPath="/om-oss" />
       <LandingScrollReveal />
 

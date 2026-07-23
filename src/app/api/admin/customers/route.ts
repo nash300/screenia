@@ -36,10 +36,6 @@ function cleanString(value: unknown, maxLength: number) {
   return trimmed ? trimmed.slice(0, maxLength) : null;
 }
 
-function getReason(value: unknown) {
-  return String(value || "").trim().slice(0, 1000);
-}
-
 function isValidEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value);
 }
@@ -63,7 +59,6 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const name = cleanString(body.name, 200);
   const email = cleanString(body.email, 320)?.toLowerCase() || "";
-  const reason = getReason(body.reason);
 
   if (!name) {
     return NextResponse.json(
@@ -75,13 +70,6 @@ export async function POST(request: Request) {
   if (!email || !isValidEmail(email)) {
     return NextResponse.json(
       { error: "Enter a valid email address." },
-      { status: 400 },
-    );
-  }
-
-  if (reason.length < 5) {
-    return NextResponse.json(
-      { error: "A reason of at least 5 characters is required." },
       { status: 400 },
     );
   }
@@ -143,7 +131,7 @@ export async function POST(request: Request) {
           customerName: customer.name,
           email: customer.email,
           status: customer.status,
-          reason,
+          actionSource: "admin_manual_customer_draft",
           consentDefaults: {
             marketing: false,
             analytics: false,
@@ -176,7 +164,7 @@ export async function POST(request: Request) {
               customerName: customer.name,
               email: customer.email,
               status: customer.status,
-              reason,
+              actionSource: "admin_manual_customer_draft",
               auditError:
                 auditError instanceof Error ? auditError.message : String(auditError),
               rollbackError: rollbackResult.error

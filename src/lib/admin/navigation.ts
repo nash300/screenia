@@ -3,43 +3,49 @@ export const adminNavItems = [
     href: "/admin",
     label: "Dashboard",
     icon: "DB",
-    description: "Operational overview, urgent work, and setup health.",
+    description: "Daily overview, alerts, and setup health.",
   },
   {
     href: "/admin/customers",
     label: "Customer work",
     icon: "CU",
-    description: "Inquiry, quote, setup link, material, billing handoff, communication, and customer profile.",
+    description: "Requests, customer profiles, onboarding links, files, messages, and handoff.",
   },
   {
     href: "/admin/contact-inquiries",
     label: "Visitor messages",
     icon: "VM",
-    description: "Public contact questions, reply history, email delivery, and case status.",
+    description: "Contact form questions, replies, delivery status, and case progress.",
   },
   {
     href: "/admin/orders",
     label: "Orders & billing",
     icon: "OR",
-    description: "Quotes, Stripe status, refunds, cancellation, and accounting exports.",
+    description: "Orders, Stripe payments, refunds, cancellations, invoices, and accounting exports.",
   },
   {
     href: "/admin/devices",
     label: "Displays",
     icon: "DS",
-    description: "Customer display endpoints, playlists, screen URLs, and content readiness.",
+    description: "Display links, playlists, media, device assignment, and screen status.",
   },
   {
     href: "/admin/inventory",
     label: "Hardware stock",
     icon: "ST",
-    description: "Physical boxes, serial numbers, purchase data, warranty, returns, repair, and retirement.",
+    description: "Physical devices, serial numbers, warranty, returns, repairs, and retirement.",
   },
   {
     href: "/admin/pricing",
     label: "Pricing",
     icon: "PR",
-    description: "Packages, included moms, setup fees, device prices, shipping, and Stripe sync.",
+    description: "Plans, setup fees, device prices, shipping, VAT, and Stripe sync.",
+  },
+  {
+    href: "/admin/site-content",
+    label: "Site content",
+    icon: "SC",
+    description: "Hero slides, images, document pages, and public website text.",
   },
   {
     href: "/admin/training",
@@ -51,7 +57,7 @@ export const adminNavItems = [
     href: "/admin/compliance",
     label: "Compliance",
     icon: "CO",
-    description: "Moms/VAT filing, legal notices, privacy requests, incidents, vendors, and recovery evidence.",
+    description: "VAT, legal notices, privacy requests, incidents, vendors, and recovery records.",
   },
   {
     href: "/admin/troubleshooting",
@@ -63,7 +69,7 @@ export const adminNavItems = [
 
 export const adminNavGroups = [
   {
-    title: "Customer operations",
+    title: "Customer work",
     hrefs: [
       "/admin",
       "/admin/customers",
@@ -76,12 +82,27 @@ export const adminNavGroups = [
     hrefs: ["/admin/devices", "/admin/inventory"],
   },
   {
-    title: "Business control",
-    hrefs: ["/admin/pricing", "/admin/training", "/admin/compliance"],
+    title: "Content and business",
+    hrefs: ["/admin/pricing", "/admin/site-content", "/admin/training", "/admin/compliance"],
   },
   {
     title: "System support",
     hrefs: ["/admin/troubleshooting"],
+  },
+];
+
+export const siteContentNavItems = [
+  {
+    href: "/admin/landing-content",
+    label: "Hero editor",
+    icon: "HE",
+    description: "Hero slides, background images, yellow highlights, and rotating cards.",
+  },
+  {
+    href: "/admin/legal-documents",
+    label: "Document editor",
+    icon: "DO",
+    description: "Terms, privacy, cookie, billing, and support pages shown to customers.",
   },
 ];
 

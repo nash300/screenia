@@ -6,6 +6,7 @@ import {
   adminNavGroups,
   adminNavItems,
   complianceNavItems,
+  siteContentNavItems,
 } from "@/lib/admin/navigation";
 
 export default function AdminSidebarNav() {
@@ -25,9 +26,16 @@ export default function AdminSidebarNav() {
                     pathname === complianceItem.href ||
                     pathname.startsWith(`${complianceItem.href}/`),
                 );
+                const siteContentActive = siteContentNavItems.some(
+                  (contentItem) =>
+                    pathname === contentItem.href ||
+                    pathname.startsWith(`${contentItem.href}/`),
+                );
                 const isActive =
                   item.href === "/admin/compliance"
                     ? pathname === "/admin/compliance" || complianceActive
+                    : item.href === "/admin/site-content"
+                    ? pathname === "/admin/site-content" || siteContentActive
                     : item.href === "/admin"
                     ? pathname === "/admin"
                     : pathname === item.href ||

@@ -315,13 +315,9 @@ export function hasTransactionalEmailWorkflow() {
     projectFilePath("src/app/admin/customers/[customerId]/page.tsx"),
     "utf8",
   );
-  if (
-    !adminCustomerPageSource.includes(
-      "Reason for preparing this quote and onboarding link",
-    )
-  ) {
+  if (!adminCustomerPageSource.includes("only reduces the monthly subscription")) {
     sourceIssues.push(
-      "admin customer page does not prompt for quote/onboarding preparation reasons",
+      "admin customer page does not explain that introductory discounts apply only to monthly subscription fees",
     );
   }
   const sharedEmailSource = readFileSync(

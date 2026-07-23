@@ -540,3 +540,148 @@ section h1 {
     border-radius: 14px;
   }
 }
+
+/* ==============================
+   Screenia Auth Surface Polish
+   Matches the public landing visual system.
+============================== */
+.screenia-auth-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(
+      115deg,
+      rgba(3, 14, 38, 0.98) 0 44%,
+      rgba(10, 61, 135, 0.94) 44% 58%,
+      rgba(229, 240, 252, 0.96) 58% 100%
+    ),
+    url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+}
+
+.screenia-auth-shell::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 38px 38px;
+  content: "";
+  mask-image: linear-gradient(to right, #000, transparent 68%);
+}
+
+.screenia-auth-bg {
+  z-index: -1;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(68, 215, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 78% 18%, rgba(255, 210, 31, 0.1), transparent 22%),
+    linear-gradient(90deg, rgba(3, 14, 38, 0.24), rgba(3, 14, 38, 0.08)) !important;
+  opacity: 1 !important;
+}
+
+.screenia-auth-bg::before {
+  inset: clamp(18px, 3vw, 36px);
+  border: 1px solid rgba(218, 236, 255, 0.22);
+  border-radius: 18px;
+  background: none;
+  filter: none;
+  mask-image: none;
+}
+
+.screenia-auth-shell section.text-white {
+  border: 1px solid rgba(218, 236, 255, 0.18);
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, rgba(10, 38, 88, 0.52), rgba(4, 16, 42, 0.22)),
+    rgba(4, 16, 42, 0.18);
+  padding: clamp(26px, 4vw, 44px);
+  box-shadow:
+    0 28px 74px rgba(0, 10, 32, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px) saturate(126%);
+  -webkit-backdrop-filter: blur(18px) saturate(126%);
+}
+
+.screenia-auth-shell section.text-white h1 {
+  font-family: var(--font-special-elite), Georgia, serif;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 14px 36px rgba(0, 10, 32, 0.32);
+}
+
+.screenia-auth-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(218, 236, 255, 0.48) !important;
+  border-radius: 20px !important;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(232, 243, 255, 0.88)),
+    rgba(255, 255, 255, 0.92) !important;
+  box-shadow:
+    0 34px 90px rgba(0, 10, 32, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.88) !important;
+}
+
+.screenia-auth-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, #44d7ff, #2f7df6 58%, #ffd21f);
+  content: "";
+}
+
+.screenia-auth-card h1 {
+  font-family: var(--font-special-elite), Georgia, serif;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+}
+
+.screenia-auth-input {
+  min-height: 52px;
+  border-color: rgba(70, 111, 171, 0.26) !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  box-shadow:
+    0 10px 24px rgba(6, 25, 66, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+.screenia-auth-input:focus {
+  border-color: rgba(47, 125, 246, 0.72) !important;
+  background: #ffffff !important;
+  box-shadow:
+    0 0 0 4px rgba(47, 125, 246, 0.14),
+    0 12px 28px rgba(6, 25, 66, 0.08) !important;
+}
+
+.screenia-auth-button {
+  border-radius: 999px !important;
+  background:
+    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.34), transparent 32%),
+    linear-gradient(135deg, #2f7df6, #155ee8 68%, #0a3eaa) !important;
+  box-shadow:
+    0 18px 38px rgba(47, 125, 246, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+}
+
+.screenia-auth-secondary-button {
+  border-color: rgba(70, 111, 171, 0.22) !important;
+  border-radius: 999px !important;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(235, 245, 255, 0.86)) !important;
+  box-shadow:
+    0 14px 32px rgba(6, 25, 66, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86) !important;
+}
+
+@media (max-width: 768px) {
+  .screenia-auth-shell {
+    background:
+      linear-gradient(160deg, #061942 0 38%, #0d4b9f 38% 48%, #edf5ff 48% 100%),
+      url("/landing/section-art/platform-workflow.jpg") center / cover !important;
+  }
+
+  .screenia-auth-card {
+    border-radius: 16px !important;
+  }
+}

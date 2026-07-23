@@ -11,6 +11,7 @@
     "billing:check": "node scripts/check-billing-invariants.mjs",
     "pricing:sync-components:test": "node scripts/sync-additional-setup-price.mjs",
     "pricing:verify-services": "node scripts/verify-pricing-services.mjs",
+    "legal:sync": "node --env-file=.env.local scripts/sync-legal-documents.mjs",
     "admin-framework:check": "node scripts/check-admin-framework.mjs",
     "stripe:replay-dispute": "node scripts/replay-stripe-dispute-event.mjs",
     "stripe:replay-refund": "node scripts/replay-stripe-refund-event.mjs",

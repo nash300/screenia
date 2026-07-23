@@ -1,6 +1,7 @@
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const publicRoot = path.join(process.cwd(), "public");
 const heroSlideDirectory = path.join(publicRoot, "landing", "hero-slides");
@@ -11,6 +12,11 @@ const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".webp"]);
 const logoExtensions = new Set([".png"]);
 
 export const dynamic = "force-dynamic";
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder",
+);
 
 const toLabel = (fileName: string) => {
   const parsed = path.parse(fileName).name;
@@ -207,15 +213,47 @@ const listHeroSlides = async () => {
   }
 };
 
+const listManagedHeroContent = async () => {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return { heroSlides: [], heroBenefits: [] };
+  }
+
+  const [slides, benefits] = await Promise.all([
+    supabaseAdmin.from("landing_hero_slides").select("id, image_url, title, body, highlight_terms").eq("is_active", true).order("sort_order").order("created_at"),
+    supabaseAdmin.from("landing_hero_benefits").select("id, title, body").eq("is_active", true).order("sort_order").order("created_at"),
+  ]);
+
+  if (slides.error || benefits.error) return { heroSlides: [], heroBenefits: [] };
+
+  return {
+    heroSlides: (slides.data || []).map((slide) => ({
+      id: slide.id,
+      label: slide.title,
+      src: slide.image_url,
+      highlightTerms: Array.isArray(slide.highlight_terms) ? slide.highlight_terms : [],
+      mediaType: "image" as const,
+      sv: { eyebrow: "", title: slide.title, text: slide.body || "" },
+      en: { eyebrow: "", title: slide.title, text: slide.body || "" },
+    })),
+    heroBenefits: (benefits.data || []).map((benefit) => ({
+      id: benefit.id,
+      title: benefit.title,
+      body: benefit.body || "",
+    })),
+  };
+};
+
 export async function GET() {
-  const [heroSlides, serviceLogos] = await Promise.all([
+  const [managedContent, fileHeroSlides, serviceLogos] = await Promise.all([
+    listManagedHeroContent(),
     listHeroSlides(),
     listPublicFiles(serviceLogoDirectory, "/landing/service-logos", logoExtensions),
   ]);
 
   return NextResponse.json(
     {
-      heroSlides,
+      heroSlides: managedContent.heroSlides.length ? managedContent.heroSlides : fileHeroSlides,
+      heroBenefits: managedContent.heroBenefits,
       serviceLogos,
     },
     {
