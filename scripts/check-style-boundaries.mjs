@@ -499,20 +499,10 @@ if (/\.landing-page\s+:is\(\s*h1\s*,\s*h2\s*,\s*h3\s*,\s*h4\s*,\s*h5\s*,\s*h6\s*
   );
 }
 
-const explicitLandingHeadingSelector = `.landing-hero-copy h1,
-.landing-hero-copy-main h1,
-.landing-section-heading h2,
-.landing-workflow-heading h2,
-.landing-service-film-copy h2,
-.landing-contact h2,
-.landing-modal h2`;
-const explicitLandingHeadingStart = landingCss.indexOf(`${explicitLandingHeadingSelector} {`);
-const explicitLandingHeadingEnd =
-  explicitLandingHeadingStart === -1 ? -1 : landingCss.indexOf("}", explicitLandingHeadingStart);
-const explicitLandingHeadingBody =
-  explicitLandingHeadingEnd === -1
-    ? ""
-    : landingCss.slice(explicitLandingHeadingStart, explicitLandingHeadingEnd);
+const explicitLandingHeadingMatch = landingCss.match(
+  /(^|\n)\.landing-hero-copy h1,\s*\.landing-hero-copy-main h1,\s*\.landing-section-heading h2,\s*\.landing-workflow-heading h2,\s*\.landing-service-film-copy h2,\s*\.landing-contact h2\s*\{([\s\S]*?)\n\}/,
+);
+const explicitLandingHeadingBody = explicitLandingHeadingMatch?.[2] || "";
 
 if (
   !explicitLandingHeadingBody.includes("font-family: var(--landing-font-display);") ||
@@ -524,6 +514,20 @@ if (
 
 if (explicitLandingHeadingBody.includes("!important")) {
   problems.push("src/app/landing.css must not rely on important heading overrides for customer-facing display typography.");
+}
+
+const modalHeadingMatch = landingCss.match(/(^|\n)\.landing-modal h2\s*\{([\s\S]*?)\n\}/);
+const modalHeadingBody = modalHeadingMatch?.[2] || "";
+if (
+  !modalHeadingBody.includes("font-family: var(--landing-font-display);") ||
+  !modalHeadingBody.includes("font-weight: 400;") ||
+  !modalHeadingBody.includes("letter-spacing: 0;")
+) {
+  problems.push("src/app/landing.css must keep modal heading typography in the landing-modal h2 owner block.");
+}
+
+if (modalHeadingBody.includes("!important")) {
+  problems.push("src/app/landing.css must not rely on important modal heading overrides.");
 }
 
 if (/\.active\b/.test(landingCss)) {
@@ -571,6 +575,16 @@ for (const singleOwnerLandingSelector of [
   ".landing-gallery-card::after",
   ".landing-gallery-image",
   ".landing-gallery-content",
+  ".landing-modal-backdrop",
+  ".landing-modal",
+  ".landing-modal::before",
+  ".landing-modal h2",
+  ".landing-modal-close",
+  ".landing-modal-close::before",
+  ".landing-modal-close span",
+  ".landing-modal-close:hover",
+  ".landing-modal-close:active",
+  ".landing-modal-close:focus-visible",
 ]) {
   const selectorCount = countOccurrences(
     landingCss,
