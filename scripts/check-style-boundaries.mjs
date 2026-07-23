@@ -1625,6 +1625,10 @@ landingCss
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
   {
+    includes: "appearance: none;",
+    message: "must reset inherited native control appearance inside the primary nav.",
+  },
+  {
     includes: "position: relative;",
     message: "must own positioning for the underline indicator.",
   },
@@ -1637,8 +1641,16 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
     message: "must not inherit button-like minimum height.",
   },
   {
+    includes: "width: auto;",
+    message: "must stay text-sized instead of inheriting button widths.",
+  },
+  {
     includes: "background: transparent;",
     message: "must not inherit button-like backgrounds.",
+  },
+  {
+    includes: "cursor: pointer;",
+    message: "must preserve expected link interaction after the local reset.",
   },
   {
     includes: "padding: 0;",
