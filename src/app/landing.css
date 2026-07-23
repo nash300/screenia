@@ -6232,20 +6232,6 @@
   justify-content: stretch;
 }
 
-.landing-pricing .landing-price-card {
-  width: 100%;
-  grid-template-rows:
-    24px
-    auto
-    132px
-    minmax(42px, auto)
-    158px
-    104px
-    96px
-    auto;
-  padding: 18px;
-}
-
 .landing-pricing .landing-plan-card-top {
   min-height: 24px;
 }
@@ -7017,6 +7003,7 @@
 
 .landing-pricing .landing-price-card {
   display: flex;
+  width: 100%;
   min-height: 0;
   padding: clamp(16px, 1.7vw, 20px);
   flex-direction: column;
@@ -7024,8 +7011,9 @@
   border-color: rgba(209, 231, 255, 0.3);
   border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(13, 46, 101, 0.94), rgba(6, 22, 55, 0.9)),
-    rgba(5, 24, 60, 0.78) !important;
+    radial-gradient(circle at 82% 4%, rgba(109, 141, 255, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(13, 55, 126, 0.9), rgba(5, 20, 55, 0.86)),
+    rgba(5, 24, 60, 0.74) !important;
   box-shadow:
     0 24px 62px rgba(0, 10, 32, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
@@ -7034,12 +7022,12 @@
 .landing-pricing .landing-price-card::before {
   height: 4px;
   background:
-    linear-gradient(90deg, #44d7ff, #2f7df6 58%, rgba(255, 210, 31, 0.86)) !important;
+    linear-gradient(90deg, #2f7df6, #6d8dff 58%, rgba(242, 196, 109, 0.92)) !important;
 }
 
 .landing-pricing .landing-price-card.featured::before {
   background:
-    linear-gradient(90deg, #ffd21f, #44d7ff 54%, #2f7df6) !important;
+    linear-gradient(90deg, #2f7df6, #6d8dff 58%, rgba(242, 196, 109, 0.92)) !important;
 }
 
 .landing-pricing .landing-plan-card-top {
@@ -8049,18 +8037,6 @@
   background:
     linear-gradient(145deg, rgba(10, 45, 108, 0.82), rgba(5, 20, 55, 0.66)),
     rgba(5, 20, 55, 0.56) !important;
-}
-
-.landing-pricing .landing-price-card {
-  background:
-    radial-gradient(circle at 82% 4%, rgba(109, 141, 255, 0.18), transparent 30%),
-    linear-gradient(180deg, rgba(13, 55, 126, 0.9), rgba(5, 20, 55, 0.86)),
-    rgba(5, 24, 60, 0.74) !important;
-}
-
-.landing-pricing .landing-price-card::before,
-.landing-pricing .landing-price-card.featured::before {
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, rgba(242, 196, 109, 0.92)) !important;
 }
 
 .landing-modal-backdrop {

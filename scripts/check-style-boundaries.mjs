@@ -563,6 +563,9 @@ for (const singleOwnerLandingSelector of [
   ".landing-faq-item",
   ".landing-faq-item summary",
   ".landing-faq-item summary::after",
+  ".landing-pricing .landing-price-card",
+  ".landing-pricing .landing-price-card::before",
+  ".landing-pricing .landing-price-card.featured::before",
 ]) {
   const selectorCount = countOccurrences(
     landingCss,
