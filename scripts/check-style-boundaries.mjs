@@ -554,6 +554,20 @@ if (!landingCss.includes(".landing-links.landing-links-open")) {
   problems.push("src/app/landing.css must define the explicit landing-links-open menu state selector.");
 }
 
+for (const singleOwnerLandingSelector of [
+  ".landing-nav",
+  ".landing-button-primary",
+  ".landing-button-secondary",
+]) {
+  const selectorCount = countOccurrences(
+    landingCss,
+    new RegExp(`^${singleOwnerLandingSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\{`, "gm"),
+  );
+  if (selectorCount > 1) {
+    problems.push(`src/app/landing.css must keep ${singleOwnerLandingSelector} in one owner block.`);
+  }
+}
+
 for (const broadNavActionSelector of [
   ".landing-nav-actions a",
   ".landing-nav-actions button",

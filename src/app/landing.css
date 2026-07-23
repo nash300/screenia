@@ -320,7 +320,7 @@
   background: rgba(255, 255, 255, 0.9);
   padding: 0 max(22px, 4vw);
   backdrop-filter: blur(18px);
-  box-shadow: 0 18px 48px rgba(2, 26, 72, 0.18);
+  box-shadow: 0 10px 34px rgba(6, 25, 66, 0.08);
 }
 
 .landing-highlight {
@@ -589,7 +589,7 @@
 }
 
 .landing-button-primary {
-  background: var(--landing-primary);
+  background: linear-gradient(135deg, #2f7df6, #155ee8);
   color: #ffffff;
   box-shadow: 0 16px 34px rgba(59, 130, 246, 0.26);
 }
@@ -601,8 +601,8 @@
 }
 
 .landing-button-secondary {
-  border: 1px solid rgba(47, 125, 246, 0.28);
-  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(47, 125, 246, 0.18);
+  background: rgba(255, 255, 255, 0.92);
   color: var(--landing-text);
 }
 
@@ -4562,28 +4562,10 @@
   text-wrap: balance;
 }
 
-.landing-nav {
-  border-bottom: 1px solid rgba(47, 125, 246, 0.14);
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 10px 34px rgba(6, 25, 66, 0.08);
-  backdrop-filter: blur(18px);
-}
-
 .landing-button {
   min-height: 44px;
   border-radius: var(--landing-radius-sm);
   box-shadow: var(--landing-shadow-sm);
-}
-
-.landing-button-primary {
-  background: linear-gradient(135deg, #2f7df6, #155ee8);
-  color: #ffffff;
-}
-
-.landing-button-secondary {
-  border: 1px solid rgba(47, 125, 246, 0.18);
-  background: rgba(255, 255, 255, 0.92);
-  color: var(--landing-text);
 }
 
 .landing-button:hover {
