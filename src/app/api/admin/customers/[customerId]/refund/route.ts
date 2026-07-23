@@ -140,7 +140,7 @@ export async function POST(
     amount: number | null;
   };
 
-  // This legacy column name is retained for compatibility, but Stripe totals are stored in ore.
+  // The compatibility column stores SEK totals; Stripe refund amounts are resolved in ore.
   const expectedAmount = Math.round(subscription.total_amount_sek || 0);
   let firstPaymentIntentId: string;
   let firstPaymentCharge: Stripe.Charge;

@@ -158,6 +158,25 @@ const allowedPublicInfoNavLines = [
 const landingCss = read("src/app/landing.css");
 const temporaryLandingClassPattern = /\.landing-[a-z0-9-]*(?:-(?:old|new|placeholder))(?:\b|-)/;
 
+function requireCssBlock(cssText, selector, checks) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = cssText.match(new RegExp(`${escapedSelector}\\s*\\{([\\s\\S]*?)\\}`));
+  if (!match) {
+    problems.push(`src/app/landing.css is missing the required selector ${selector}.`);
+    return;
+  }
+
+  const body = match[1];
+  for (const { includes, rejects, message } of checks) {
+    if (includes && !body.includes(includes)) {
+      problems.push(`src/app/landing.css ${selector} ${message}`);
+    }
+    if (rejects && body.includes(rejects)) {
+      problems.push(`src/app/landing.css ${selector} ${message}`);
+    }
+  }
+}
+
 landingCss
   .split(/\r?\n/)
   .forEach((line, index) => {
@@ -175,6 +194,66 @@ landingCss
       );
     }
   });
+
+requireCssBlock(landingCss, ".landing-nav-primary a", [
+  {
+    includes: "position: relative;",
+    message: "must own positioning for the underline indicator.",
+  },
+  {
+    includes: "border-radius: 0;",
+    message: "must remain text-link shaped instead of pill shaped.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary a:focus-visible", [
+  {
+    includes: "outline: 0;",
+    message: "must replace the global rectangle focus ring with the nav underline.",
+  },
+  {
+    rejects: "background:",
+    message: "must not use a background that makes primary nav links look like buttons.",
+  },
+  {
+    rejects: "box-shadow:",
+    message: "must not use a box shadow that makes primary nav links look like buttons.",
+  },
+  {
+    rejects: "border:",
+    message: "must not use a border that makes primary nav links look like buttons.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary a.is-active", [
+  {
+    includes: "background: transparent",
+    message: "must keep active links transparent.",
+  },
+  {
+    includes: "box-shadow: none",
+    message: "must keep active links shadow-free.",
+  },
+  {
+    rejects: "border-radius: 999px",
+    message: "must not make active primary nav links pill shaped.",
+  },
+  {
+    rejects: "padding:",
+    message: "must not make active primary nav links button sized.",
+  },
+]);
+
+requireCssBlock(landingCss, ".landing-nav-primary a.is-active::after", [
+  {
+    includes: "height: 2px;",
+    message: "must use a thin underline active indicator.",
+  },
+  {
+    includes: "content: \"\";",
+    message: "must render the active underline pseudo-element.",
+  },
+]);
 
 if (!read("src/app/sa-fungerar-det/page.tsx").includes('import "../public-info.css";')) {
   problems.push("/sa-fungerar-det must import public-info.css for its scoped page styles.");

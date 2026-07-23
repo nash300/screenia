@@ -152,12 +152,12 @@ Screenia`,
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const legacyPlanCode = String(body.planCode || "").trim();
+    const fallbackPlanCode = String(body.planCode || "").trim();
     const companyName = String(body.companyName || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
     const contactPerson = String(body.contactPerson || "").trim();
     const phone = String(body.phone || "").trim();
-    const legacyScreenQuantity = Math.min(
+    const fallbackScreenQuantity = Math.min(
       50,
       Math.max(1, Number(body.screenQuantity) || 1),
     );
@@ -190,8 +190,8 @@ export async function POST(request: Request) {
 
     const rawQuoteItems = Array.isArray(body.quoteItems)
       ? body.quoteItems
-      : legacyPlanCode
-        ? [{ pricingPlanCode: legacyPlanCode, quantity: legacyScreenQuantity }]
+      : fallbackPlanCode
+        ? [{ pricingPlanCode: fallbackPlanCode, quantity: fallbackScreenQuantity }]
         : [];
     const mergedQuantities = new Map<string, number>();
     let invalidSelection = false;

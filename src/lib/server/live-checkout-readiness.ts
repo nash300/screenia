@@ -2932,7 +2932,7 @@ async function displayAssetReviewReady(
     !displayAssetsRouteSource.includes("customer_display_material_notification_failed") ||
     !displayAssetsRouteSource.includes("Customer display material notification failure audit error") ||
     !displayAssetsRouteSource.includes("Materialet sparades inte eftersom revisionshistoriken inte kunde lagras")
-      ? "standalone display material uploads do not fail visibly when audit or notification storage fails"
+      ? "display material uploads do not fail visibly when audit or notification storage fails"
       : null,
     !contentSetupRouteSource.includes("preview_status: \"waiting_for_admin\"") ||
     !contentSetupRouteSource.includes("fulfillment_status")
@@ -3126,7 +3126,7 @@ async function subscriptionMigrationReady(
     projectFilePath("src/app/api/admin/customers/[customerId]/subscription/route.ts"),
     "utf8",
   );
-  const legacyAdminCancelRouteSource = readFileSync(
+  const stripeCancelRouteSource = readFileSync(
     projectFilePath("src/app/api/stripe/cancel-subscription/route.ts"),
     "utf8",
   );
@@ -3221,15 +3221,15 @@ async function subscriptionMigrationReady(
     !adminSubscriptionRouteSource.includes("Customer suspension was not saved because Screenia could not store the required audit evidence")
       ? "admin customer suspension does not roll back entitlement changes when audit storage fails"
       : null,
-    !legacyAdminCancelRouteSource.includes("A reason of at least 5 characters is required") ||
-    !legacyAdminCancelRouteSource.includes("cancellation_details: reason") ||
-    !legacyAdminCancelRouteSource.includes("reason,")
-      ? "legacy admin Stripe cancellation route does not require and audit an admin reason"
+    !stripeCancelRouteSource.includes("A reason of at least 5 characters is required") ||
+    !stripeCancelRouteSource.includes("cancellation_details: reason") ||
+    !stripeCancelRouteSource.includes("reason,")
+      ? "Stripe cancellation route does not require and audit an admin reason"
       : null,
-    !legacyAdminCancelRouteSource.includes("cancel_at_period_end: true") ||
-    !legacyAdminCancelRouteSource.includes("active_until_period_end") ||
-    !legacyAdminCancelRouteSource.includes("service_access_until")
-      ? "legacy admin Stripe cancellation route does not preserve paid-through access"
+    !stripeCancelRouteSource.includes("cancel_at_period_end: true") ||
+    !stripeCancelRouteSource.includes("active_until_period_end") ||
+    !stripeCancelRouteSource.includes("service_access_until")
+      ? "Stripe cancellation route does not preserve paid-through access"
       : null,
     !stripeWebhookSource.includes("customer.subscription.updated") ||
     !stripeWebhookSource.includes("syncStripeSubscription")
