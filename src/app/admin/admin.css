@@ -3124,25 +3124,27 @@
 }
 
 .admin-operation-card {
-  display: grid !important;
+  display: grid;
   width: 100%;
-  min-height: 84px !important;
+  min-height: 84px;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.75rem;
-  border: 1px solid rgba(47, 125, 246, 0.16) !important;
-  border-left: 5px solid #2f7df6 !important;
-  border-radius: 8px !important;
-  background: #ffffff !important;
-  padding: 0.75rem !important;
-  color: #061942 !important;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-left: 5px solid #2f7df6;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 0.75rem;
+  color: #061942;
   text-align: left;
-  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.06) !important;
+  box-shadow: 0 8px 18px rgba(7, 31, 84, 0.06);
 }
 
 .admin-operation-card.admin-operation-card-selected {
-  border-color: rgba(47, 125, 246, 0.38) !important;
-  background: #eef5ff !important;
+  border-top-color: rgba(47, 125, 246, 0.38);
+  border-right-color: rgba(47, 125, 246, 0.38);
+  border-bottom-color: rgba(47, 125, 246, 0.38);
+  background: #eef5ff;
 }
 
 .admin-operation-card strong,
@@ -3176,15 +3178,15 @@
 }
 
 .admin-operation-warning {
-  border-left-color: #d89a24 !important;
+  border-left-color: #d89a24;
 }
 
 .admin-operation-danger {
-  border-left-color: #b83f3f !important;
+  border-left-color: #b83f3f;
 }
 
 .admin-operation-success {
-  border-left-color: #1f8f5a !important;
+  border-left-color: #1f8f5a;
 }
 
 .admin-operation-flow {
@@ -5989,7 +5991,7 @@
   box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item),
+.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card),
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
@@ -6012,7 +6014,7 @@
 }
 
 .admin-layout .admin-button-primary,
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-button-secondary):not(.admin-button-danger):not(.admin-button-warning):not(.admin-button-success),
+.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):not(.admin-button-secondary):not(.admin-button-danger):not(.admin-button-warning):not(.admin-button-success),
 .admin-layout a.admin-button-primary {
   border: 1px solid transparent;
   background: linear-gradient(135deg, var(--admin-blue), var(--admin-blue-dark));
@@ -6046,7 +6048,7 @@
   color: #ffffff;
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):hover,
+.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):hover,
 .admin-layout .admin-button-primary:hover,
 .admin-layout .admin-button-secondary:hover,
 .admin-layout .admin-button-danger:hover,
@@ -6058,7 +6060,7 @@
   transform: translateY(-1px);
 }
 
-.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):disabled,
+.admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):not(.admin-operation-card):disabled,
 .admin-layout .admin-button-primary:disabled,
 .admin-layout .admin-button-secondary:disabled,
 .admin-layout .admin-button-danger:disabled,
@@ -6288,7 +6290,7 @@
   letter-spacing: 0;
 }
 
-.admin-layout button:not(.admin-document-list-item),
+.admin-layout button:not(.admin-document-list-item):not(.admin-operation-card),
 .admin-layout .admin-button-primary,
 .admin-layout .admin-button-secondary,
 .admin-layout .admin-button-danger,
