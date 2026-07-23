@@ -7331,28 +7331,7 @@
   }
 }
 
-/* Match the contact-page background across all landing sections after the hero. */
-.landing-page main > .landing-platform,
-.landing-page main > .landing-workflow,
-.landing-page main > .landing-pricing,
-.landing-page main > .landing-examples,
-.landing-page main > .landing-service-film,
-.landing-page main > .landing-faq,
-.landing-page main > .landing-contact {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  background:
-    linear-gradient(
-      115deg,
-      rgba(9, 13, 18, 0.98) 0 44%,
-      rgba(21, 94, 232, 0.80) 44% 58%,
-      rgba(226, 222, 211, 0.95) 58% 100%
-    ),
-    url("/landing/section-art/platform-workflow.jpg") center / cover;
-  box-shadow: none;
-}
-
+/* Landing section texture base; final color/image ownership lives in the visual theme layer. */
 .landing-page main > .landing-platform::before,
 .landing-page main > .landing-workflow::before,
 .landing-page main > .landing-pricing::before,
@@ -7366,18 +7345,11 @@
   display: block;
   width: auto;
   height: auto;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-position: 0 0;
-  background-size: 38px 38px;
   content: "";
   filter: none;
-  opacity: 1;
   pointer-events: none;
   transform: none;
-  -webkit-mask-image: linear-gradient(to right, #000, transparent 68%);
-  mask-image: linear-gradient(to right, #000, transparent 68%);
 }
 
 .landing-page main > .landing-platform::after,
@@ -7421,18 +7393,6 @@
   text-shadow:
     0 1px 0 rgba(4, 18, 48, 0.36),
     0 0 18px rgba(255, 210, 31, 0.18);
-}
-
-/* Professional pricing configurator surface. */
-.landing-page main > .landing-pricing {
-  background:
-    linear-gradient(
-      115deg,
-      rgba(9, 13, 18, 0.96) 0 46%,
-      rgba(21, 94, 232, 0.78) 46% 59%,
-      rgba(226, 222, 211, 0.92) 59% 100%
-    ),
-    url("/landing/section-art/platform-workflow.jpg") no-repeat center / cover !important;
 }
 
 .landing-pricing .landing-section-panel {
