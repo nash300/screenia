@@ -3614,34 +3614,34 @@ export default function CustomerDetailPage({
       {/* ==============================
           Displays
       ============================== */}
-      <div className="admin-card mt-6 p-6">
-        <h2 className="admin-card-title text-xl">Displays</h2>
+      <div className="admin-card admin-customer-displays-panel">
+        <h2 className="admin-card-title admin-customer-displays-title">Displays</h2>
 
         {devices.length === 0 ? (
-          <p className="admin-muted mt-4">No displays yet.</p>
+          <p className="admin-muted admin-customer-displays-empty">No displays yet.</p>
         ) : (
-          <div className="admin-scroll-region mt-4 space-y-3">
+          <div className="admin-scroll-region admin-customer-displays-list">
             {devices.map((device) => (
               <div
                 key={device.id}
-                className="rounded-2xl border border-slate-200 bg-white/70 p-4"
+                className="admin-customer-display-card"
               >
-                <p className="font-semibold text-slate-950">
+                <p className="admin-customer-display-name">
                   {device.name || "Unnamed display"}
                 </p>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="admin-customer-display-meta">
                   Display code: {device.device_code}
                 </p>
 
-                <p className="text-sm text-slate-500">
+                <p className="admin-customer-display-meta">
                   Display: /display/{device.device_code}
                 </p>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="admin-customer-display-actions">
                   <Link
                     href={`/admin/devices/${device.device_code}`}
-                    className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white no-underline"
+                    className="admin-customer-display-action admin-customer-display-action-primary"
                   >
                     Manage
                   </Link>
@@ -3649,7 +3649,7 @@ export default function CustomerDetailPage({
                   <a
                     href={`/display/${device.device_code}`}
                     target="_blank"
-                    className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 no-underline"
+                    className="admin-customer-display-action admin-customer-display-action-secondary"
                   >
                     Preview
                   </a>
