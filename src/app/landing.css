@@ -7584,19 +7584,19 @@
 }
 
 .landing-footer {
-  margin-top: 0 !important;
+  margin-top: 0;
   background-image:
     linear-gradient(115deg, rgba(3, 14, 38, 0.96), rgba(8, 39, 88, 0.9)),
-    url("/landing/section-art/digital-menu-board.jpg") !important;
-  background-position: center !important;
-  background-size: cover !important;
+    url("/landing/section-art/digital-menu-board.jpg");
+  background-position: center;
+  background-size: cover;
 }
 
 .landing-footer-company,
 .landing-footer-card {
-  border-color: rgba(191, 219, 254, 0.24) !important;
-  background: rgba(5, 23, 57, 0.7) !important;
-  color: rgba(238, 245, 255, 0.82) !important;
+  border-color: rgba(191, 219, 254, 0.24);
+  background: rgba(5, 23, 57, 0.7);
+  color: rgba(238, 245, 255, 0.82);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 }
@@ -7604,12 +7604,12 @@
 .landing-footer :is(h2, strong, span),
 .landing-footer .landing-company-details,
 .landing-footer p {
-  color: #ffffff !important;
+  color: #ffffff;
 }
 
 .landing-footer a,
 .landing-footer .landing-company-details a {
-  color: #9fc8ff !important;
+  color: #9fc8ff;
 }
 
 .landing-modal-close {
@@ -7722,17 +7722,17 @@
 
 /* Landing footer uses the same compact footnote pattern as the contact page. */
 .landing-page .landing-footer {
-  display: grid !important;
-  grid-template-columns: auto minmax(220px, 1fr) auto !important;
-  gap: 1.5rem !important;
-  align-items: center !important;
-  margin-top: 0 !important;
-  padding: 1.8rem clamp(1rem, 4vw, 4.5rem) !important;
-  border: 0 !important;
-  background: #061942 !important;
-  background-image: none !important;
-  color: #c3d5eb !important;
-  box-shadow: none !important;
+  display: grid;
+  grid-template-columns: auto minmax(220px, 1fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  margin-top: 0;
+  padding: 1.8rem clamp(1rem, 4vw, 4.5rem);
+  border: 0;
+  background: #061942;
+  background-image: none;
+  color: #c3d5eb;
+  box-shadow: none;
 }
 
 .landing-page .landing-footer .screenia-logo-footer {
@@ -7745,21 +7745,21 @@
 }
 
 .landing-page .landing-footer p {
-  margin: 0 !important;
-  color: #c3d5eb !important;
-  font-size: 0.82rem !important;
+  margin: 0;
+  color: #c3d5eb;
+  font-size: 0.82rem;
   line-height: 1.55;
 }
 
 .landing-page .landing-footer nav {
-  display: flex !important;
+  display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 1rem !important;
+  gap: 1rem;
 }
 
 .landing-page .landing-footer a {
-  color: #e7f1ff !important;
+  color: #e7f1ff;
   font-size: 0.82rem;
   font-weight: 700;
   text-decoration: none;
@@ -7767,14 +7767,14 @@
 
 .landing-page .landing-footer a:hover,
 .landing-page .landing-footer a:focus-visible {
-  color: #ffffff !important;
+  color: #ffffff;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 
 @media (max-width: 780px) {
   .landing-page .landing-footer {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
     text-align: center;
   }
 
