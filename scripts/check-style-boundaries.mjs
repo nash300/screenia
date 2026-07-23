@@ -113,7 +113,10 @@ const allowedPublicInfoNavLines = [
   ".about-page .landing-nav-primary a.is-active::after",
 ];
 
-read("src/app/landing.css")
+const landingCss = read("src/app/landing.css");
+const temporaryLandingClassPattern = /\.landing-[a-z0-9-]*(?:-(?:old|new|placeholder))(?:\b|-)/;
+
+landingCss
   .split(/\r?\n/)
   .forEach((line, index) => {
     if (
@@ -122,6 +125,11 @@ read("src/app/landing.css")
     ) {
       problems.push(
         `src/app/landing.css:${index + 1} contains public-info page selector "${line.trim()}". Move it to public-info.css.`,
+      );
+    }
+    if (temporaryLandingClassPattern.test(line)) {
+      problems.push(
+        `src/app/landing.css:${index + 1} contains temporary landing class naming "${line.trim()}". Use a descriptive role name instead.`,
       );
     }
   });

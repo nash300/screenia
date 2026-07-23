@@ -928,7 +928,7 @@ export default function Home() {
                     {plan.featured ? (
                       <span className="landing-plan-badge">{t.recommended}</span>
                     ) : (
-                      <span className="landing-plan-badge-placeholder">Startpaket</span>
+                      <span className="landing-plan-badge-spacer">Startpaket</span>
                     )}
                   </div>
                   <div className="landing-plan-heading">
