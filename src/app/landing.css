@@ -6964,8 +6964,8 @@
   box-shadow:
     0 32px 84px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(22px) saturate(128%);
-  -webkit-backdrop-filter: blur(22px) saturate(128%);
+  backdrop-filter: blur(24px) saturate(130%);
+  -webkit-backdrop-filter: blur(24px) saturate(130%);
 }
 
 .landing-section-panel > .landing-section-heading h2,
@@ -7084,6 +7084,7 @@
 
 .landing-page .landing-feature,
 .landing-page .landing-illustration,
+.landing-page .landing-workflow-step,
 .landing-page .landing-price-card,
 .landing-page .landing-package-builder,
 .landing-page .landing-pricing-note,
@@ -7360,91 +7361,6 @@
   .landing-contact
 )::after {
   content: none !important;
-}
-
-.landing-page :is(.landing-section-panel, .landing-contact-panel) {
-  border: 1px solid rgba(217, 234, 255, 0.32) !important;
-  border-radius: 18px !important;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.07)),
-    rgba(10, 19, 22, 0.5) !important;
-  box-shadow:
-    0 32px 84px rgba(0, 10, 32, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-  backdrop-filter: blur(24px) saturate(130%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(130%) !important;
-}
-
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) > :is(.landing-section-panel, .landing-contact-panel) {
-  background-color: rgba(10, 19, 22, 0.5) !important;
-  backdrop-filter: blur(24px) saturate(130%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(130%) !important;
-}
-
-.landing-page :is(.landing-section-panel, .landing-contact-panel) :is(h2, h3),
-.landing-page .landing-section-heading h2,
-.landing-page .landing-workflow-heading h2,
-.landing-page .landing-contact-panel h2 {
-  color: #ffffff !important;
-}
-
-.landing-page :is(.landing-section-panel, .landing-contact-panel) :is(p, small, li),
-.landing-page .landing-section-heading > p,
-.landing-page .landing-workflow-heading p,
-.landing-page .landing-contact-panel p {
-  color: rgba(238, 245, 255, 0.84) !important;
-}
-
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-price-card,
-  .landing-package-builder,
-  .landing-gallery-card,
-  .landing-faq-item,
-  .landing-workflow-step
-) {
-  border-color: rgba(217, 234, 255, 0.24) !important;
-  background:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06)),
-    rgba(12, 19, 22, 0.38) !important;
-  box-shadow:
-    0 18px 46px rgba(0, 10, 32, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
-  backdrop-filter: blur(18px) saturate(126%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(126%) !important;
-}
-
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-price-card,
-  .landing-package-builder,
-  .landing-gallery-card,
-  .landing-faq-item,
-  .landing-workflow-step
-) :is(h3, strong, summary, span) {
-  color: #ffffff !important;
-}
-
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-price-card,
-  .landing-package-builder,
-  .landing-gallery-card,
-  .landing-faq-item,
-  .landing-workflow-step
-) :is(p, small, li) {
-  color: rgba(232, 242, 255, 0.82) !important;
 }
 
 .landing-page .landing-plan-price,
@@ -8163,12 +8079,12 @@
   .landing-faq,
   .landing-contact
 ) > :is(.landing-section-panel, .landing-contact-panel) {
-  border-color: var(--screenia-glass-border) !important;
+  border-color: rgba(211, 229, 255, 0.38) !important;
   background: var(--screenia-glass-panel) !important;
   box-shadow:
-    0 34px 90px rgba(0, 10, 32, 0.34),
-    0 0 0 1px rgba(255, 255, 255, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    0 34px 90px rgba(3, 18, 52, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
 }
 
 .landing-page main > :is(
@@ -8183,13 +8099,9 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(109, 141, 255, 0.16), transparent 28%),
-    radial-gradient(circle at 94% 16%, rgba(242, 196, 109, 0.1), transparent 22%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: auto, auto, 56px 56px;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 55%, #f2c46d) !important;
+  box-shadow: 0 0 28px rgba(109, 141, 255, 0.22);
   content: "";
-  opacity: 0.72;
   pointer-events: none;
 }
 
@@ -8225,11 +8137,11 @@
 ) {
   position: relative;
   overflow: hidden;
-  border-color: rgba(218, 236, 255, 0.24) !important;
+  border-color: rgba(211, 229, 255, 0.28) !important;
   background: var(--screenia-glass-card) !important;
   box-shadow:
-    0 20px 54px rgba(0, 10, 32, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+    0 20px 54px rgba(3, 18, 52, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
 .landing-page :is(
@@ -8242,7 +8154,7 @@
   position: absolute;
   inset: auto 0 0;
   height: 3px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
+  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d) !important;
   content: "";
   opacity: 0.74;
   transform: scaleX(0.28);
@@ -8605,65 +8517,6 @@
   opacity: 0.92 !important;
   -webkit-mask-image: radial-gradient(ellipse at 44% 42%, #000 0 66%, transparent 88%);
   mask-image: radial-gradient(ellipse at 44% 42%, #000 0 66%, transparent 88%);
-}
-
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) > :is(.landing-section-panel, .landing-contact-panel) {
-  border-color: rgba(211, 229, 255, 0.38) !important;
-  background: var(--screenia-glass-panel) !important;
-  box-shadow:
-    0 34px 90px rgba(3, 18, 52, 0.34),
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-}
-
-.landing-page main > :is(
-  .landing-platform,
-  .landing-workflow,
-  .landing-pricing,
-  .landing-examples,
-  .landing-service-film,
-  .landing-faq,
-  .landing-contact
-) > :is(.landing-section-panel, .landing-contact-panel)::before,
-.contact-form-wrap::before,
-.flow-shell::before {
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 55%, #f2c46d) !important;
-  box-shadow: 0 0 28px rgba(109, 141, 255, 0.22);
-}
-
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-workflow-step,
-  .landing-gallery-card,
-  .landing-faq-item,
-  .landing-price-card,
-  .landing-package-builder,
-  .landing-pricing-note
-) {
-  border-color: rgba(211, 229, 255, 0.28) !important;
-  background: var(--screenia-glass-card) !important;
-  box-shadow:
-    0 20px 54px rgba(3, 18, 52, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-}
-
-.landing-page :is(
-  .landing-feature,
-  .landing-illustration,
-  .landing-workflow-step,
-  .landing-gallery-card,
-  .landing-faq-item
-)::after {
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d) !important;
 }
 
 .landing-platform .landing-feature-icon {

@@ -1049,7 +1049,7 @@ const importantRatchets = [
   {
     file: "src/app/landing.css",
     css: landingCss,
-    max: 357,
+    max: 323,
   },
 ];
 
@@ -1074,6 +1074,18 @@ const retiredAdminTokenNames = [
 for (const { token, message } of retiredAdminTokenNames) {
   if (adminCss.includes(token)) {
     problems.push(message);
+  }
+}
+
+for (const retiredLandingGlassPattern of [
+  ".landing-page :is(.landing-section-panel, .landing-contact-panel)",
+  "background-color: rgba(10, 19, 22, 0.5)",
+  "rgba(217, 234, 255, 0.32)",
+  "rgba(217, 234, 255, 0.24)",
+  "0 18px 46px rgba(0, 10, 32, 0.18)",
+]) {
+  if (landingCss.includes(retiredLandingGlassPattern)) {
+    problems.push(`src/app/landing.css must not keep retired duplicate glass override pattern: ${retiredLandingGlassPattern}.`);
   }
 }
 
