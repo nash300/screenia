@@ -899,8 +899,7 @@
 /* =========================================
    PAGE HEADER
 ========================================= */
-.admin-page-header,
-.page-header {
+.admin-page-header {
   margin: 0.75rem 0;
   padding: 0.55rem 0.65rem;
   border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
@@ -911,8 +910,7 @@
   background: #ffffff;
 }
 
-.admin-title,
-.page-header h1 {
+.admin-title {
   margin: 0;
   color: var(--admin-surface-text);
   font-size: 1.15rem;
@@ -920,8 +918,7 @@
   letter-spacing: 0;
 }
 
-.admin-subtitle,
-.page-header p {
+.admin-subtitle {
   margin: 0.2rem 0 0;
   color: var(--admin-surface-muted);
   font-size: 0.78rem;
@@ -3547,7 +3544,6 @@
 }
 
 .admin-page-header,
-.page-header,
 .admin-status-row,
 .admin-progress-block,
 .admin-priority-item,
@@ -4714,8 +4710,7 @@
   padding: clamp(1rem, 2vw, 1.5rem);
 }
 
-.admin-page-header,
-.page-header {
+.admin-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -4730,8 +4725,7 @@
   box-shadow: var(--admin-shadow-soft);
 }
 
-.admin-title,
-.page-header h1 {
+.admin-title {
   color: var(--admin-text);
   font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif;
   font-size: clamp(1.25rem, 2vw, 1.65rem);
@@ -5035,8 +5029,7 @@
     margin-left: 0 !important;
   }
 
-  .admin-page-header,
-  .page-header {
+  .admin-page-header {
     flex-direction: column;
   }
 }
@@ -5096,26 +5089,22 @@
   padding: clamp(0.9rem, 1.7vw, 1.25rem);
 }
 
-.admin-page-header,
-.page-header {
+.admin-page-header {
   align-items: center;
   margin-bottom: 0;
   padding: clamp(0.85rem, 1.6vw, 1.1rem);
 }
 
-.admin-page-header > div:first-child,
-.page-header > div:first-child {
+.admin-page-header > div:first-child {
   min-width: 0;
 }
 
-.admin-title,
-.page-header h1 {
+.admin-title {
   margin-bottom: 0.28rem;
 }
 
 .admin-subtitle,
-.admin-page-header p,
-.page-header p {
+.admin-page-header p {
   max-width: 72ch;
 }
 

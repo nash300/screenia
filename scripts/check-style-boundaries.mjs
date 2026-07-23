@@ -273,6 +273,14 @@ if (adminCss.includes(".admin-nav-link.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-nav-link-active instead of generic admin-nav-link.is-active.");
 }
 
+if (/(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not keep the retired generic page-header alias. Use admin-page-header.");
+}
+
+if (sourceFiles.some((file) => file.startsWith("src/app/admin/") && /(^|[^a-z0-9-])page-header([^a-z0-9-]|$)/i.test(read(file)))) {
+  problems.push("Admin pages must use admin-page-header instead of the retired generic page-header class.");
+}
+
 if (adminCss.includes(".is-active")) {
   problems.push("src/app/admin/admin.css must not contain generic .is-active selectors. Use explicit component state class names.");
 }

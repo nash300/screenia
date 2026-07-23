@@ -327,10 +327,10 @@ export default function PricingPage() {
 
   return (
     <main>
-      <div className="page-header">
+      <div className="admin-page-header">
         <p className="eyebrow">Screenia Admin</p>
-        <h1>Pricing</h1>
-        <p>
+        <h1 className="admin-title">Pricing</h1>
+        <p className="admin-subtitle">
           Edit live package prices, then sync matching Stripe products and
           prices for tracking. Amounts are customer-pay totals including Swedish
           moms; Checkout keeps the same totals and reports included tax.
