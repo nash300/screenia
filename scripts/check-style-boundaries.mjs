@@ -285,6 +285,17 @@ if (adminCss.includes("admin-section-tab")) {
   problems.push("src/app/admin/admin.css must not keep retired admin-section-tab styling.");
 }
 
+for (const retiredAdminHelper of [
+  "admin-window-border",
+  "admin-sidebar-glow",
+  "admin-sidebar-progress",
+  "admin-sidebar-progress-fill",
+]) {
+  if (adminCss.includes(retiredAdminHelper)) {
+    problems.push(`src/app/admin/admin.css must not keep retired ${retiredAdminHelper} styling.`);
+  }
+}
+
 if (!adminCss.includes(".admin-operation-card.admin-operation-card-selected")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-operation-card-selected selector.");
 }

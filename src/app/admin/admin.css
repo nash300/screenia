@@ -47,19 +47,6 @@
   box-sizing: border-box;
 }
 
-.admin-window-border {
-  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow) var(--admin-surface-shadow)
-    var(--admin-surface-highlight);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-lg);
-  background: var(--admin-surface-face);
-  box-shadow:
-    inset -1px -1px 0 var(--admin-surface-face-dark),
-    inset 1px 1px 0 var(--admin-surface-face-light),
-    var(--admin-shadow-soft);
-}
-
 .admin-window-titlebar {
   display: flex;
   min-height: 28px;
@@ -101,10 +88,6 @@
     inset -1px -1px 0 var(--admin-surface-face-dark),
     inset 1px 1px 0 var(--admin-surface-face-light),
     2px 0 14px rgba(0, 0, 0, 0.18);
-}
-
-.admin-sidebar-glow {
-  display: none;
 }
 
 .admin-sidebar-logo-card {
@@ -162,28 +145,6 @@
 .admin-sidebar-signout:hover { border-color: #2f7df6; background: #eef5ff; }
 .admin-sidebar-signout:disabled { cursor: wait; opacity: 0.65; }
 
-
-.admin-sidebar-progress {
-  margin-top: 0.75rem;
-  height: 0.8rem;
-  padding: 2px;
-  border-color: var(--admin-surface-shadow) var(--admin-surface-highlight)
-    var(--admin-surface-highlight) var(--admin-surface-shadow);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-sm);
-  background: #ffffff;
-}
-
-.admin-sidebar-progress-fill {
-  height: 100%;
-  width: 66.666%;
-  background: repeating-linear-gradient(
-    90deg,
-    #000080 0 8px,
-    #1084d0 8px 16px
-  );
-}
 
 /* =========================================
    SIDEBAR NAV LINKS
