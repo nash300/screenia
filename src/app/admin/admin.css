@@ -3741,30 +3741,6 @@
   font-size: 14px;
 }
 
-.admin-sidebar,
-.admin-window-border,
-.admin-page > div,
-.admin-page > main,
-.admin-card,
-.card {
-  border: 1px solid rgba(47, 125, 246, 0.14) !important;
-  background: rgba(255, 255, 255, 0.9) !important;
-  box-shadow: var(--admin-shadow-panel) !important;
-}
-
-.admin-window-titlebar,
-.admin-page > div::before,
-.admin-page > main::before {
-  min-height: 38px;
-  border-radius: 14px;
-  background: linear-gradient(90deg, #061942, #2f7df6);
-  box-shadow: 0 12px 28px rgba(47, 125, 246, 0.18);
-}
-
-.admin-sidebar {
-  border-radius: 0 24px 24px 0;
-}
-
 .admin-sidebar-logo-card {
   justify-content: flex-start;
   border-radius: 18px;
