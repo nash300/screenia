@@ -494,6 +494,28 @@
   font-weight: 750;
 }
 
+.landing-nav-primary a {
+  position: relative;
+  border-radius: 0;
+}
+
+.landing-nav-primary a:focus-visible {
+  outline: 0;
+  color: var(--screenia-logo-deep);
+}
+
+.landing-nav-primary a:focus-visible::after {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff);
+  box-shadow: 0 8px 18px rgba(47, 125, 246, 0.18);
+  content: "";
+}
+
 .landing-nav-login {
   display: inline-flex;
   min-height: 40px;
