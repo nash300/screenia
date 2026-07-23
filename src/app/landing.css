@@ -2867,13 +2867,13 @@
 .landing-request-success {
   border: 1px solid #b8e5ca;
   background: #eefbf3;
-  color: #176337 !important;
+  color: #176337;
 }
 
 .landing-request-error {
   border: 1px solid #f1c0c0;
   background: #fff2f2;
-  color: #9a1c1c !important;
+  color: #9a1c1c;
 }
 
 .landing-request-privacy {
@@ -3195,7 +3195,7 @@
   border-radius: 14px;
   background: var(--landing-blue-100);
   padding: 12px 14px;
-  color: var(--landing-blue-900) !important;
+  color: var(--landing-blue-900);
   font-weight: 800;
 }
 
@@ -3263,7 +3263,7 @@
 }
 
 .flow-result-copy h1 {
-  color: #061942 !important;
+  color: #061942;
   font-family: var(--landing-font-display);
   font-size: clamp(2.2rem, 5vw, 4rem);
   font-weight: 400;
