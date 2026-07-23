@@ -86,14 +86,14 @@ export default function DevicesPage() {
       </div>
 
       {/* Display List */}
-      <div className="admin-card p-6">
-        <h2 className="admin-card-title text-xl">Display endpoints</h2>
-        <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-          <p className="font-semibold text-slate-950">Displays are live customer endpoints.</p>
-          <p className="admin-muted mt-1">
+      <div className="admin-card admin-devices-list-panel">
+        <h2 className="admin-card-title">Display endpoints</h2>
+        <div className="admin-devices-info-panel">
+          <p className="admin-devices-info-title">Displays are live customer endpoints.</p>
+          <p className="admin-devices-info-copy">
             Use this page for display URLs, activation, location, preview, and
             playlist content. Use{" "}
-            <Link href="/admin/inventory" className="font-semibold text-[rgb(8,184,238)] no-underline">
+            <Link href="/admin/inventory" className="admin-devices-info-link">
               Hardware stock
             </Link>{" "}
             for serial numbers, purchase records, warranty, repairs, returns,
@@ -101,12 +101,12 @@ export default function DevicesPage() {
           </p>
         </div>
 
-        <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="admin-devices-toolbar">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by display name, code, customer, or location..."
-            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 outline-none transition focus:border-[var(--admin-focus)] focus:ring-2 focus:ring-cyan-100 md:max-w-md"
+            className="admin-devices-search-input"
           />
 
           <div className="admin-list-selects">
@@ -132,7 +132,7 @@ export default function DevicesPage() {
           </div>
         </div>
 
-        <div className="admin-scroll-region mt-4 space-y-3">
+        <div className="admin-scroll-region admin-devices-results">
           {loading ? (
             <p className="admin-muted">Loading...</p>
           ) : filteredDevices.length === 0 ? (
@@ -145,41 +145,41 @@ export default function DevicesPage() {
                 <Link
                   key={device.id}
                   href={`/admin/devices/${device.device_code}`}
-                  className="block rounded-2xl border border-slate-200 bg-white/70 p-4 no-underline transition hover:bg-white hover:shadow-md"
+                  className="admin-device-list-card"
                 >
-                  <div className="flex items-center justify-between gap-4">
+                  <div className="admin-device-list-card-inner">
                     <div>
-                      <p className="font-semibold text-slate-950">
+                      <p className="admin-device-list-title">
                         {device.name || "Unnamed display"}
                       </p>
 
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="admin-device-list-meta admin-device-list-meta-spaced">
                         Code: {device.device_code}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="admin-device-list-meta">
                         Customer: {device.customers?.name || "Not assigned"}
                       </p>
 
-                      <p className="text-sm text-slate-500">
+                      <p className="admin-device-list-meta">
                         Location: {device.location || "Not set"}
                       </p>
 
                       {playlistCount === 0 && (
-                        <p className="mt-2 text-sm font-semibold text-red-600">
+                        <p className="admin-device-list-warning">
                           Needs playlist
                         </p>
                       )}
                     </div>
 
-                    <div className="text-right text-sm text-slate-500">
+                    <div className="admin-device-list-status">
                       <p>Videos: {playlistCount}</p>
 
                       <span
-                        className={`mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                        className={`admin-device-list-pill ${
                           device.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                            ? "admin-device-list-pill-active"
+                            : "admin-device-list-pill-inactive"
                         }`}
                       >
                         {device.is_active ? "Active" : "Inactive"}

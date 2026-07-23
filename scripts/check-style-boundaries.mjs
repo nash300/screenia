@@ -159,6 +159,7 @@ const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
+const devicesPageSource = read("src/app/admin/devices/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
 const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
@@ -549,6 +550,28 @@ if (!inventoryPageSource.includes("admin-inventory-item-active")) {
 
 if (adminCss.includes(".admin-inventory-item.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-inventory-item-active instead of generic inventory item is-active.");
+}
+
+if (
+  /\b(?:rounded-2xl|rounded-xl|border-slate-200|bg-white\/70|bg-slate-50|text-slate-|hover:shadow|space-y-3|p-4|p-6)\b/.test(
+    devicesPageSource,
+  )
+) {
+  problems.push("The admin devices list page must use explicit admin-devices-* classes instead of broad utility class styling.");
+}
+
+for (const className of [
+  "admin-devices-list-panel",
+  "admin-devices-info-panel",
+  "admin-devices-toolbar",
+  "admin-devices-search-input",
+  "admin-device-list-card",
+  "admin-device-list-pill-active",
+  "admin-device-list-pill-inactive",
+]) {
+  if (!devicesPageSource.includes(className)) {
+    problems.push(`The admin devices list page must expose the explicit ${className} class.`);
+  }
 }
 
 if (!adminCss.includes(".admin-inventory-item.admin-inventory-item-active")) {

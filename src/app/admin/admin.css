@@ -2965,6 +2965,151 @@
   gap: 0.45rem;
 }
 
+.admin-devices-list-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-devices-info-panel {
+  margin-top: 0.75rem;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: var(--admin-radius-lg);
+  background: linear-gradient(135deg, #ffffff, #f2f7ff);
+  padding: 0.9rem 1rem;
+  color: var(--admin-text);
+}
+
+.admin-devices-info-title {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.admin-devices-info-copy {
+  margin: 0.35rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-devices-info-link {
+  color: var(--admin-blue);
+  font-weight: 850;
+  text-decoration: none;
+}
+
+.admin-devices-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-devices-search-input {
+  width: min(100%, 28rem);
+  border: 1px solid rgba(47, 125, 246, 0.2);
+  border-radius: var(--admin-radius-md);
+  background: #ffffff;
+  padding: 0.62rem 0.78rem;
+  color: var(--admin-text);
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-devices-search-input:focus {
+  border-color: var(--admin-focus);
+  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.14);
+}
+
+.admin-devices-results {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.admin-device-list-card {
+  display: block;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: var(--admin-radius-lg);
+  background: rgba(255, 255, 255, 0.86);
+  padding: 1rem;
+  color: var(--admin-text);
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.admin-device-list-card:hover {
+  border-color: rgba(47, 125, 246, 0.3);
+  background: #ffffff;
+  box-shadow: 0 12px 26px rgba(7, 31, 84, 0.08);
+}
+
+.admin-device-list-card-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-device-list-title {
+  margin: 0;
+  color: var(--admin-text);
+  font-size: 0.95rem;
+  font-weight: 850;
+}
+
+.admin-device-list-meta {
+  margin: 0;
+  color: var(--admin-muted-text);
+  font-size: 0.86rem;
+}
+
+.admin-device-list-meta-spaced {
+  margin-top: 0.25rem;
+}
+
+.admin-device-list-warning {
+  margin: 0.45rem 0 0;
+  color: var(--admin-danger);
+  font-size: 0.86rem;
+  font-weight: 850;
+}
+
+.admin-device-list-status {
+  color: var(--admin-muted-text);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.admin-device-list-status p {
+  margin: 0;
+}
+
+.admin-device-list-pill {
+  display: inline-flex;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.admin-device-list-pill-active {
+  background: rgba(41, 184, 121, 0.14);
+  color: #16623f;
+}
+
+.admin-device-list-pill-inactive {
+  background: rgba(227, 84, 90, 0.14);
+  color: #9a1c1c;
+}
+
 .admin-device-media-flow,
 .admin-device-remove-flow {
   display: grid;
@@ -3008,6 +3153,16 @@
 }
 
 @media (max-width: 900px) {
+  .admin-devices-toolbar,
+  .admin-device-list-card-inner {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-device-list-status {
+    text-align: left;
+  }
+
   .admin-layout .grid.two-columns {
     grid-template-columns: 1fr;
   }
