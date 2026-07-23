@@ -495,10 +495,12 @@ export default function AccountPage() {
       : (activeSubscription.monthly_fee_sek || 0) * screenQuantity
     : 0;
   const initialPaymentSek = activeSubscription
-    ? (activeSubscription.setup_fee_sek || 0) +
-      hardwareSubtotalSek +
-      shippingSubtotalSek -
-      (activeSubscription.device_discount_amount_sek || 0)
+    ? activeSubscription.total_amount_sek !== null
+      ? Math.round(activeSubscription.total_amount_sek / 100)
+      : (activeSubscription.setup_fee_sek || 0) +
+        hardwareSubtotalSek +
+        shippingSubtotalSek -
+        (activeSubscription.device_discount_amount_sek || 0)
     : 0;
   const monthlyPaymentSek = monthlySubtotalSek;
   const discountedMonthlyPaymentSek = activeTemporaryDiscount

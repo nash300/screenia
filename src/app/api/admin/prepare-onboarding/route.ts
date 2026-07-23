@@ -514,6 +514,10 @@ export async function POST(request: Request) {
     existingPaidScreenQuantity > 0
       ? `Tidigare betalda sk&auml;rmar/enheter: ${existingPaidScreenQuantity}. Denna offert debiterar endast marginalkostnad f&ouml;r setup av nya extra sk&auml;rmar: ${formatSek(setupFeeSek)}.`
       : `Grundavgiften ${formatSek(baseSetupFeeSek)} t&auml;cker upp till ${setupIncludedScreens} sk&auml;rmar${additionalSetupScreens > 0 ? `; ${additionalSetupScreens} extra sk&auml;rm${additionalSetupScreens === 1 ? "" : "ar"} &times; ${formatSek(additionalSetupFeeSek)}` : ""}.`;
+  const quotePackageSummary = quoteItemDetails
+    .map((item) => `${item.quantity} x ${item.name} ${item.resolution}`)
+    .join(" + ");
+  const safeQuotePackageSummary = escapeHtml(quotePackageSummary);
 
   const emailResult = await sendTransactionalEmail({
       to: customer.email,
@@ -522,7 +526,7 @@ export async function POST(request: Request) {
 
 Här är din Screenia-offert.
 
-Paket: ${plan.name} ${plan.resolution}
+Vald skärmlösning: ${quotePackageSummary}
 Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
 ${setupExplanationText}
 Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
@@ -553,7 +557,7 @@ Screenia`,
           <p>Här är offerten för din beställning. Fortsätt via länken för att bekräfta uppgifter och gå vidare till säker betalning. Material samlas in efter betalning.</p>
           <div style="border: 1px solid #d9e5f7; border-radius: 14px; padding: 16px; background: #f7fbff;">
             <p><strong>Ordernummer:</strong> ${order.order_number}</p>
-            <p><strong>Paket:</strong> ${escapeHtml(plan.name)} ${escapeHtml(plan.resolution)}</p>
+            <p><strong>Vald sk&auml;rml&ouml;sning:</strong> ${safeQuotePackageSummary}</p>
             <p><strong>Start- och konfigurationsavgift:</strong> ${formatSek(setupFeeSek)}</p>
             <p>${setupExplanationHtml}</p>
             <p><strong>Skärmenhet:</strong> ${formatSek(deviceSubtotalSek)} inkl. moms</p>

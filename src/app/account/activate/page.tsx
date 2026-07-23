@@ -22,6 +22,8 @@ export default function ActivateAccountPage() {
   const [sessionReady, setSessionReady] = useState(false);
   const [linkInvalid, setLinkInvalid] = useState(false);
   const [message, setMessage] = useState("");
+  const passwordReady =
+    validatePasswordPolicy(password) && password === confirmPassword;
 
   useEffect(() => {
     let cancelled = false;
@@ -115,7 +117,7 @@ export default function ActivateAccountPage() {
           <button
             type="button"
             onClick={activate}
-            disabled={loading || !sessionReady || !password || !confirmPassword}
+            disabled={loading || !sessionReady || !passwordReady}
             className="screenia-auth-button screenia-auth-button-spaced"
           >
             {loading ? "Aktiverar..." : "Aktivera konto"}

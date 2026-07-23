@@ -1727,13 +1727,32 @@ export default function CustomerDetailPage({
     (sum, item) => sum + item.deviceSubtotal,
     0,
   );
-  const quoteShippingSubtotal = calculateShippingFeeSek(
+  const currentSubscription = subscriptions[0] || null;
+  const currentSubscriptionQuoteKey = JSON.stringify(
+    (currentSubscription?.quote_items || []).map((item) => ({
+      pricingPlanCode: item.pricingPlanCode,
+      quantity: Math.max(1, Number(item.quantity) || 1),
+    })),
+  );
+  const currentFormQuoteKey = JSON.stringify(
+    quoteLines.map((item) => ({
+      pricingPlanCode: item.pricingPlanCode,
+      quantity: item.quantity,
+    })),
+  );
+  const quoteMatchesCurrentSubscription =
+    Boolean(currentSubscription?.quote_items?.length) &&
+    currentSubscriptionQuoteKey === currentFormQuoteKey;
+  const calculatedQuoteShippingSubtotal = calculateShippingFeeSek(
     quoteScreenQuantity,
     primaryQuotePlan?.shipping_fee_sek ?? 99,
     primaryQuotePlan?.shipping_included_devices ?? INCLUDED_SHIPPING_DEVICE_COUNT,
     primaryQuotePlan?.additional_shipping_fee_sek ??
       ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
   );
+  const quoteShippingSubtotal = quoteMatchesCurrentSubscription
+    ? currentSubscription?.shipping_fee_sek ?? calculatedQuoteShippingSubtotal
+    : calculatedQuoteShippingSubtotal;
   const quoteMonthlySubtotal = quoteLines.reduce(
     (sum, item) => sum + item.monthlySubtotal,
     0,
@@ -1741,16 +1760,22 @@ export default function CustomerDetailPage({
   const quoteMonthlyDiscountAmount = Math.round(
     quoteMonthlySubtotal * (quoteDiscountPercent / 100),
   );
-  const quoteSetupSubtotal = primaryQuotePlan
+  const calculatedQuoteSetupSubtotal = primaryQuotePlan
     ? calculateIncrementalSetupFeeSek(
         paidDeviceQuantity,
         quoteScreenQuantity,
         primaryQuotePlan.setup_fee_sek,
       )
     : 0;
-  const quoteStartupTotal = primaryQuotePlan
-    ? quoteSetupSubtotal + quoteDeviceSubtotal + quoteShippingSubtotal
-    : 0;
+  const quoteSetupSubtotal = quoteMatchesCurrentSubscription
+    ? currentSubscription?.setup_fee_sek ?? calculatedQuoteSetupSubtotal
+    : calculatedQuoteSetupSubtotal;
+  const quoteStartupTotal =
+    quoteMatchesCurrentSubscription && currentSubscription?.total_amount_sek !== null
+      ? Math.round((currentSubscription?.total_amount_sek || 0) / 100)
+      : primaryQuotePlan
+        ? quoteSetupSubtotal + quoteDeviceSubtotal + quoteShippingSubtotal
+        : 0;
   const quoteStartupVat = includedVatFromGross(quoteStartupTotal);
   const quoteMonthlyVat = includedVatFromGross(
     quoteMonthlySubtotal -
@@ -1763,7 +1788,6 @@ export default function CustomerDetailPage({
     customer.production_status !== null ||
     customer.layout_started_at !== null ||
     customer.setup_fee_locked_at !== null;
-  const currentSubscription = subscriptions[0] || null;
   const hasPreparedQuote = Boolean(
     currentSubscription &&
       ["quote_prepared", "quote_sent", "checkout_started"].includes(
