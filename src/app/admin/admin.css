@@ -1342,12 +1342,40 @@
 /* =========================================
    ADMIN SHARED ELEMENT DEFAULTS
 ========================================= */
-.admin-layout a {
+.admin-link,
+.admin-nav-link,
+.admin-breadcrumb-item a,
+.admin-table td a,
+.admin-compliance-link,
+.admin-action-card,
+.admin-dashboard-notification-link,
+.admin-customer-overview-back-link,
+.admin-operation-link,
+.admin-devices-info-link,
+.admin-device-detail-back-link,
+.admin-device-preview-link,
+.admin-customer-message-file-link,
+.admin-inventory-info-tile,
+.admin-content-hub-card {
   color: var(--admin-surface-link);
   text-decoration: none;
 }
 
-.admin-layout a:hover {
+.admin-link:hover,
+.admin-nav-link:hover,
+.admin-breadcrumb-item a:hover,
+.admin-table td a:hover,
+.admin-compliance-link:hover,
+.admin-action-card:hover,
+.admin-dashboard-notification-link:hover,
+.admin-customer-overview-back-link:hover,
+.admin-operation-link:hover,
+.admin-devices-info-link:hover,
+.admin-device-detail-back-link:hover,
+.admin-device-preview-link:hover,
+.admin-customer-message-file-link:hover,
+.admin-inventory-info-tile:hover,
+.admin-content-hub-card:hover {
   text-decoration: none;
 }
 

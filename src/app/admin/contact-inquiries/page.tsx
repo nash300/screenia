@@ -271,7 +271,7 @@ export default function AdminContactInquiriesPage() {
               <div className="admin-contact-case-body">
                 <dl className="admin-contact-details">
                   <div><dt>Name</dt><dd>{inquiry.name}</dd></div>
-                  <div><dt>Email</dt><dd><a href={`mailto:${inquiry.email}`}>{inquiry.email}</a></dd></div>
+                  <div><dt>Email</dt><dd><a className="admin-link" href={`mailto:${inquiry.email}`}>{inquiry.email}</a></dd></div>
                   <div><dt>Company</dt><dd>{inquiry.company_name || "–"}</dd></div>
                   <div><dt>Received</dt><dd>{formatDateTime(inquiry.created_at)}</dd></div>
                   <div><dt>Privacy accepted</dt><dd>{formatDateTime(inquiry.privacy_accepted_at)}</dd></div>

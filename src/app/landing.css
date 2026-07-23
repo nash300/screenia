@@ -6821,9 +6821,24 @@
   }
 }
 
-.landing-page input,
-.landing-page textarea,
-.landing-page select {
+.landing-request-form input,
+.landing-request-form textarea,
+.landing-quantity-stepper input,
+.contact-form-grid input,
+.contact-form-grid textarea,
+.contact-privacy input,
+.flow-form-grid input,
+.flow-select-label select,
+.flow-material textarea,
+.flow-material input[type="file"],
+.flow-checks input,
+.account-input,
+.account-card input,
+.account-card textarea,
+.account-card select,
+.account-dialog input,
+.account-dialog textarea,
+.account-dialog select {
   font-family: var(--landing-font-body);
   letter-spacing: 0;
 }

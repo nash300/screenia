@@ -364,6 +364,10 @@ if (/\.admin-layout\s+button(?=[\s:{,\[])/.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not style all admin buttons through .admin-layout button. Use admin-button-* or explicit component button classes.");
 }
 
+if (/\.admin-layout\s+a(?=[\s:{,\[])/.test(adminCss)) {
+  problems.push("src/app/admin/admin.css must not style all admin links through .admin-layout a. Use admin-link, admin-button-*, or explicit component link classes.");
+}
+
 if (/\.admin-layout\s+(?:input|select|textarea|label)(?=[\s:{,\[])/.test(adminCss)) {
   problems.push("src/app/admin/admin.css must not style all admin form elements through .admin-layout. Use admin-field, admin-* control classes, or explicit component containers.");
 }
@@ -528,6 +532,10 @@ if (/\.landing-page\s+button(?=[\s:{,\[])/.test(landingCss)) {
 
 if (/\.landing-page\s+a(?=[\s:{,\[])/.test(landingCss)) {
   problems.push("src/app/landing.css must not style all public links through .landing-page a. Use explicit nav, footer, button, or content link selectors.");
+}
+
+if (/\.landing-page\s+(?:input|textarea|select)(?=[\s:{,\[])/.test(landingCss)) {
+  problems.push("src/app/landing.css must not style all public form controls through .landing-page. Use explicit form, account, contact, or onboarding control classes.");
 }
 
 if (!landingCss.includes(".landing-links.landing-links-open")) {
