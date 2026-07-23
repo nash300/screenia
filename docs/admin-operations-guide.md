@@ -47,7 +47,6 @@ Each admin must use an individual account. Admin password resets require at leas
 - `/admin/devices`: digital screen endpoints, playlists, media, activation, and display URL.
 - `/admin/troubleshooting`: technical diagnostics used only when an operational problem needs investigation.
 - `/admin/email-events`: email delivery evidence reached through Troubleshooting when needed.
-- `/admin/compliance`: VAT periods, legal changes, privacy requests/incidents, access, processors, retention, and recovery tests.
 
 ## Email procedure
 

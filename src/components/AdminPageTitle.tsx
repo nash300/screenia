@@ -7,7 +7,6 @@ const titles: Record<string, string> = {
   "/admin": "Dashboard",
   "/admin/customers": "Customer Work",
   "/admin/contact-inquiries": "Visitor Messages",
-  "/admin/compliance": "Compliance",
   "/admin/inventory": "Hardware Stock",
   "/admin/devices": "Displays",
   "/admin/devices/new": "Create Display Endpoint",
@@ -19,14 +18,6 @@ const titles: Record<string, string> = {
   "/admin/email-events": "Email Delivery",
   "/admin/training": "Training Catalog",
   "/admin/troubleshooting": "Troubleshooting",
-  "/admin/tax-payments": "Moms/VAT Filing",
-  "/admin/legal-change-notices": "Legal Notices",
-  "/admin/access-reviews": "Admin Access",
-  "/admin/backup-drills": "Backup Tests",
-  "/admin/data-retention": "Data Retention",
-  "/admin/processor-reviews": "Vendor Reviews",
-  "/admin/data-subject-requests": "Privacy Requests",
-  "/admin/privacy-incidents": "Incident Response",
 };
 
 const sectionTitles: Record<string, string> = {

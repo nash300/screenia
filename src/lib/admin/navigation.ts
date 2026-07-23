@@ -54,12 +54,6 @@ export const adminNavItems = [
     description: "Reserved workspace for future Screenia training material.",
   },
   {
-    href: "/admin/compliance",
-    label: "Compliance",
-    icon: "CO",
-    description: "VAT, legal notices, privacy requests, incidents, vendors, and recovery records.",
-  },
-  {
     href: "/admin/troubleshooting",
     label: "Troubleshooting",
     icon: "TS",
@@ -83,7 +77,7 @@ export const adminNavGroups = [
   },
   {
     title: "Content and business",
-    hrefs: ["/admin/pricing", "/admin/site-content", "/admin/training", "/admin/compliance"],
+    hrefs: ["/admin/pricing", "/admin/site-content", "/admin/training"],
   },
   {
     title: "System support",
@@ -103,56 +97,5 @@ export const siteContentNavItems = [
     label: "Document editor",
     icon: "DO",
     description: "Terms, privacy, cookie, billing, and support pages shown to customers.",
-  },
-];
-
-export const complianceNavItems = [
-  {
-    href: "/admin/tax-payments",
-    label: "Moms/VAT filing",
-    icon: "VA",
-    description: "Moms/VAT filing periods, payment status, and audit evidence",
-  },
-  {
-    href: "/admin/legal-change-notices",
-    label: "Legal notices",
-    icon: "LE",
-    description: "Policy notices and customer re-acceptance tracking",
-  },
-  {
-    href: "/admin/access-reviews",
-    label: "Admin access",
-    icon: "AC",
-    description: "Admin access, MFA, and removal review workflow",
-  },
-  {
-    href: "/admin/backup-drills",
-    label: "Recovery readiness",
-    icon: "RE",
-    description: "Backup coverage, restore tests, and recovery evidence",
-  },
-  {
-    href: "/admin/data-retention",
-    label: "Data retention",
-    icon: "DR",
-    description: "Retention, anonymization, and deletion review workflow",
-  },
-  {
-    href: "/admin/processor-reviews",
-    label: "Vendor reviews",
-    icon: "VE",
-    description: "Vendor approval, DPA, ownership, and security evidence",
-  },
-  {
-    href: "/admin/data-subject-requests",
-    label: "Privacy requests",
-    icon: "PR",
-    description: "GDPR access, deletion, export, or correction requests",
-  },
-  {
-    href: "/admin/privacy-incidents",
-    label: "Incident response",
-    icon: "IR",
-    description: "Security and privacy incident response workflow",
   },
 ];

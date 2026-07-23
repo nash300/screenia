@@ -530,105 +530,6 @@
   gap: 0.7rem;
 }
 
-.admin-compliance-page {
-  display: grid;
-  gap: 1rem;
-}
-
-.admin-compliance-summary {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.admin-compliance-panel {
-  padding: clamp(0.95rem, 1.6vw, 1.25rem);
-}
-
-.admin-compliance-title {
-  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
-}
-
-.admin-compliance-summary p {
-  max-width: 760px;
-}
-
-.admin-compliance-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-@media (min-width: 1100px) {
-  .admin-compliance-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: start;
-  }
-}
-
-.admin-compliance-group {
-  display: grid;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.admin-compliance-group-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.admin-compliance-links {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.admin-compliance-link {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 0.65rem;
-  min-height: 64px;
-  border-color: var(--admin-surface-highlight) var(--admin-surface-shadow)
-    var(--admin-surface-shadow) var(--admin-surface-highlight);
-  border-style: solid;
-  border-width: 2px;
-  border-radius: var(--admin-radius-md);
-  background: linear-gradient(var(--admin-button-top), var(--admin-button-bottom));
-  padding: 0.6rem;
-  color: var(--admin-surface-text);
-  text-decoration: none;
-}
-
-.admin-compliance-link:hover {
-  background: linear-gradient(
-    var(--admin-button-primary-top),
-    var(--admin-button-primary-bottom)
-  );
-  color: var(--admin-surface-title-text);
-  text-decoration: none;
-}
-
-.admin-compliance-link strong,
-.admin-compliance-link small {
-  display: block;
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.admin-compliance-link strong {
-  font-size: 0.88rem;
-  line-height: 1.25;
-}
-
-.admin-compliance-link small {
-  margin-top: 0.2rem;
-  color: inherit;
-  font-size: 0.74rem;
-  font-weight: 700;
-  line-height: 1.35;
-  opacity: 0.78;
-}
-
 .admin-order-toolbar input {
   width: 100%;
   border: 1px solid rgba(47, 125, 246, 0.16);
@@ -1113,45 +1014,6 @@
   margin-top: 1rem;
 }
 
-.admin-record-panel {
-  padding: clamp(0.95rem, 1.6vw, 1.25rem);
-}
-
-.admin-record-title {
-  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
-}
-
-.admin-record-form {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-@media (min-width: 1024px) {
-  .admin-record-form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.admin-record-check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: #334155;
-  font-size: 0.875rem;
-  font-weight: 700;
-}
-
-.admin-record-table-wrap {
-  margin-top: 1rem;
-}
-
-.admin-record-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
 .admin-email-toolbar {
   display: grid;
   gap: 0.75rem;
@@ -1241,7 +1103,6 @@
 .admin-nav-link,
 .admin-breadcrumb-item a,
 .admin-table td a,
-.admin-compliance-link,
 .admin-action-card,
 .admin-dashboard-notification-link,
 .admin-customer-overview-back-link,
@@ -1259,7 +1120,6 @@
 .admin-nav-link:hover,
 .admin-breadcrumb-item a:hover,
 .admin-table td a:hover,
-.admin-compliance-link:hover,
 .admin-action-card:hover,
 .admin-dashboard-notification-link:hover,
 .admin-customer-overview-back-link:hover,
@@ -6518,7 +6378,6 @@
 }
 
 .admin-dashboard-page,
-.admin-compliance-page,
 .admin-inventory-page,
 .admin-customer-detail-page,
 .admin-devices-page,

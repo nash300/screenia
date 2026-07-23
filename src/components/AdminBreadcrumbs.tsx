@@ -7,7 +7,6 @@ const labels: Record<string, string> = {
   admin: "Admin",
   customers: "Customers",
   "contact-inquiries": "Visitor messages",
-  compliance: "Compliance",
   orders: "Orders & billing",
   inventory: "Hardware stock",
   devices: "Displays",
@@ -19,14 +18,6 @@ const labels: Record<string, string> = {
   "email-events": "Email delivery",
   training: "Training Catalog",
   troubleshooting: "Troubleshooting",
-  "tax-payments": "Moms/VAT Filing",
-  "legal-change-notices": "Legal Notices",
-  "access-reviews": "Admin Access",
-  "backup-drills": "Backup tests",
-  "data-retention": "Data Retention",
-  "processor-reviews": "Vendor Reviews",
-  "data-subject-requests": "Privacy Requests",
-  "privacy-incidents": "Incident Response",
   new: "New",
 };
 

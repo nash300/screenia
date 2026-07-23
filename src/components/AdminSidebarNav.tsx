@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import {
   adminNavGroups,
   adminNavItems,
-  complianceNavItems,
   siteContentNavItems,
 } from "@/lib/admin/navigation";
 
@@ -21,20 +20,13 @@ export default function AdminSidebarNav() {
             {adminNavItems
               .filter((item) => group.hrefs.includes(item.href))
               .map((item) => {
-                const complianceActive = complianceNavItems.some(
-                  (complianceItem) =>
-                    pathname === complianceItem.href ||
-                    pathname.startsWith(`${complianceItem.href}/`),
-                );
                 const siteContentActive = siteContentNavItems.some(
                   (contentItem) =>
                     pathname === contentItem.href ||
                     pathname.startsWith(`${contentItem.href}/`),
                 );
                 const isActive =
-                  item.href === "/admin/compliance"
-                    ? pathname === "/admin/compliance" || complianceActive
-                    : item.href === "/admin/site-content"
+                  item.href === "/admin/site-content"
                     ? pathname === "/admin/site-content" || siteContentActive
                     : item.href === "/admin"
                     ? pathname === "/admin"

@@ -160,15 +160,6 @@ const adminDashboardPageSource = read("src/app/admin/page.tsx");
 const ordersPageSource = read("src/app/admin/orders/page.tsx");
 const emailEventsPageSource = read("src/app/admin/email-events/page.tsx");
 const contactInquiriesPageSource = read("src/app/admin/contact-inquiries/page.tsx");
-const compliancePageSource = read("src/app/admin/compliance/page.tsx");
-const dataSubjectRequestsPageSource = read("src/app/admin/data-subject-requests/page.tsx");
-const accessReviewsPageSource = read("src/app/admin/access-reviews/page.tsx");
-const dataRetentionPageSource = read("src/app/admin/data-retention/page.tsx");
-const privacyIncidentsPageSource = read("src/app/admin/privacy-incidents/page.tsx");
-const processorReviewsPageSource = read("src/app/admin/processor-reviews/page.tsx");
-const backupDrillsPageSource = read("src/app/admin/backup-drills/page.tsx");
-const taxPaymentsPageSource = read("src/app/admin/tax-payments/page.tsx");
-const legalChangeNoticesPageSource = read("src/app/admin/legal-change-notices/page.tsx");
 const legalDocumentsPageSource = read("src/app/admin/legal-documents/page.tsx");
 const inventoryPageSource = read("src/app/admin/inventory/page.tsx");
 const devicesPageSource = read("src/app/admin/devices/page.tsx");
@@ -1000,22 +991,6 @@ if (!contactInquiriesPageSource.includes("admin-contact-panel")) {
   problems.push("The admin contact-inquiries page must expose the explicit admin-contact-panel class.");
 }
 
-if (/\b(?:p-6|text-xl)\b/.test(compliancePageSource)) {
-  problems.push("The admin compliance page must use explicit admin-compliance-* classes instead of broad utility class styling.");
-}
-
-for (const className of ["admin-compliance-panel", "admin-compliance-title"]) {
-  if (!compliancePageSource.includes(className)) {
-    problems.push(`The admin compliance page must expose the explicit ${className} class.`);
-  }
-}
-
-for (const selector of [".admin-compliance-panel", ".admin-compliance-title"]) {
-  if (!adminCss.includes(selector)) {
-    problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
-  }
-}
-
 if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex flex-wrap gap-2|flex items-center gap-2)\b/.test(ordersPageSource)) {
   problems.push("The admin orders page must use explicit admin-orders-* classes instead of broad utility class styling.");
 }
@@ -1045,73 +1020,6 @@ for (const className of [
   }
   if (!adminCss.includes(`.${className}`)) {
     problems.push(`src/app/admin/admin.css must define the explicit .${className} selector.`);
-  }
-}
-
-for (const [pageName, pageSource] of [
-  ["data-subject-requests", dataSubjectRequestsPageSource],
-  ["access-reviews", accessReviewsPageSource],
-  ["data-retention", dataRetentionPageSource],
-  ["privacy-incidents", privacyIncidentsPageSource],
-  ["processor-reviews", processorReviewsPageSource],
-  ["backup-drills", backupDrillsPageSource],
-  ["tax-payments", taxPaymentsPageSource],
-  ["legal-change-notices", legalChangeNoticesPageSource],
-]) {
-  if (/\b(?:p-6|mt-4|text-xl|grid gap-4|lg:grid-cols-2|flex items-center gap-2|flex flex-wrap gap-2)\b/.test(pageSource)) {
-    problems.push(`The admin ${pageName} page must use explicit admin-record-* classes instead of broad utility class styling.`);
-  }
-}
-
-for (const className of ["admin-record-panel", "admin-record-title", "admin-record-table-wrap", "admin-record-actions"]) {
-  if (!dataSubjectRequestsPageSource.includes(className)) {
-    problems.push(`The admin data-subject-requests page must expose the explicit ${className} class.`);
-  }
-}
-
-for (const className of [
-  "admin-record-panel",
-  "admin-record-title",
-  "admin-record-form",
-  "admin-record-table-wrap",
-  "admin-record-actions",
-]) {
-  for (const [pageName, pageSource] of [
-    ["access-reviews", accessReviewsPageSource],
-    ["data-retention", dataRetentionPageSource],
-    ["privacy-incidents", privacyIncidentsPageSource],
-    ["processor-reviews", processorReviewsPageSource],
-    ["backup-drills", backupDrillsPageSource],
-    ["tax-payments", taxPaymentsPageSource],
-    ["legal-change-notices", legalChangeNoticesPageSource],
-  ]) {
-    if (!pageSource.includes(className)) {
-      problems.push(`The admin ${pageName} page must expose the explicit ${className} class.`);
-    }
-  }
-}
-
-for (const [pageName, pageSource] of [
-  ["access-reviews", accessReviewsPageSource],
-  ["privacy-incidents", privacyIncidentsPageSource],
-  ["processor-reviews", processorReviewsPageSource],
-  ["legal-change-notices", legalChangeNoticesPageSource],
-]) {
-  if (!pageSource.includes("admin-record-check")) {
-    problems.push(`The admin ${pageName} page must expose the explicit admin-record-check class.`);
-  }
-}
-
-for (const selector of [
-  ".admin-record-panel",
-  ".admin-record-title",
-  ".admin-record-form",
-  ".admin-record-check",
-  ".admin-record-table-wrap",
-  ".admin-record-actions",
-]) {
-  if (!adminCss.includes(selector)) {
-    problems.push(`src/app/admin/admin.css must define the explicit ${selector} selector.`);
   }
 }
 
@@ -1707,7 +1615,7 @@ if (adminPageChromeCount > 1) {
 }
 
 const adminPageShellSelector =
-  ".admin-dashboard-page,\n.admin-compliance-page,\n.admin-inventory-page,\n.admin-customer-detail-page,\n.admin-devices-page,\n.admin-customers-page";
+  ".admin-dashboard-page,\n.admin-inventory-page,\n.admin-customer-detail-page,\n.admin-devices-page,\n.admin-customers-page";
 const adminPageShellCount = countOccurrences(
   adminCss,
   new RegExp(adminPageShellSelector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"),
