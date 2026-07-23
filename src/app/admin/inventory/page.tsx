@@ -465,7 +465,7 @@ export default function AdminInventoryPage() {
         ))}
       </section>
 
-      <section className="admin-card p-6">
+      <section className="admin-card admin-inventory-panel">
         {schemaWarning && (
           <div className="admin-inventory-warning" role="status">
             <strong>Hardware stock setup needed</strong>
@@ -525,10 +525,10 @@ export default function AdminInventoryPage() {
       </section>
 
       <div className="admin-inventory-layout">
-        <section className="admin-card p-6">
+        <section className="admin-card admin-inventory-panel">
           <div className="admin-inventory-panel-title">
             <div>
-              <h2 className="admin-card-title text-xl">Stock items</h2>
+              <h2 className="admin-card-title admin-inventory-title">Stock items</h2>
               <p className="admin-muted">
                 Select a box to update physical status or inspect hardware history.
                 Assign stock from the customer profile after onboarding.
@@ -589,10 +589,10 @@ export default function AdminInventoryPage() {
           )}
 
           {selectedItem && (
-            <section className="admin-card p-6">
+            <section className="admin-card admin-inventory-panel">
               <div className="admin-inventory-panel-title">
                 <div>
-                  <h2 className="admin-card-title text-xl">{selectedItem.item_code}</h2>
+                  <h2 className="admin-card-title admin-inventory-title">{selectedItem.item_code}</h2>
                   <p className="admin-muted">
                     {itemTypeLabel(selectedItem.item_type)} - {statusLabel(selectedItem.status)}
                   </p>
@@ -811,8 +811,8 @@ export default function AdminInventoryPage() {
           )}
 
           {selectedItem && (
-            <section className="admin-card p-6">
-              <h2 className="admin-card-title text-xl">Hardware stock history</h2>
+            <section className="admin-card admin-inventory-panel">
+              <h2 className="admin-card-title admin-inventory-title">Hardware stock history</h2>
               <div className="admin-inventory-events">
                 {events.length === 0 ? (
                   <p className="admin-muted">No events yet.</p>
@@ -854,10 +854,10 @@ function InventoryFormCard({
   onChange: (field: keyof InventoryForm, value: string) => void;
 }) {
   return (
-    <section className="admin-card p-6">
+    <section className="admin-card admin-inventory-panel">
       <div className="admin-inventory-panel-title">
         <div>
-          <h2 className="admin-card-title text-xl">
+          <h2 className="admin-card-title admin-inventory-title">
             {editingId ? "Edit stock item" : "Add Android box to stock"}
           </h2>
           <p className="admin-muted">

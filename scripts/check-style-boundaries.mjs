@@ -703,6 +703,19 @@ if (adminCss.includes(".admin-inventory-item.is-active")) {
   problems.push("src/app/admin/admin.css must style admin-inventory-item-active instead of generic inventory item is-active.");
 }
 
+if (/\b(?:admin-card p-6|admin-card-title text-xl|mt-4 grid gap-4|lg:grid-cols-2|admin-table-wrap mt-4|flex flex-wrap gap-2|flex items-center gap-2)\b/.test(inventoryPageSource)) {
+  problems.push("The admin inventory page must use explicit admin-inventory-* classes instead of broad utility class styling.");
+}
+
+for (const className of ["admin-inventory-panel", "admin-inventory-title"]) {
+  if (!inventoryPageSource.includes(className)) {
+    problems.push(`The admin inventory page must expose the explicit ${className} class.`);
+  }
+  if (!adminCss.includes(`.${className}`)) {
+    problems.push(`src/app/admin/admin.css must define the explicit .${className} selector.`);
+  }
+}
+
 if (
   /\b(?:rounded-2xl|rounded-xl|border-slate-200|bg-white\/70|bg-slate-50|text-slate-|hover:shadow|space-y-3|p-4|p-6)\b/.test(
     devicesPageSource,

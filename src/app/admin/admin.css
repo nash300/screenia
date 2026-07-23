@@ -4117,6 +4117,14 @@
   color: #7c2d12;
 }
 
+.admin-inventory-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-inventory-title {
+  font-size: clamp(1.08rem, 1.5vw, 1.25rem);
+}
+
 .admin-inventory-toolbar > input,
 .admin-inventory-field input,
 .admin-inventory-field select,
