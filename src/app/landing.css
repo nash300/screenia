@@ -2128,14 +2128,8 @@
 }
 
 .landing-contact h2,
-.landing-contact p,
 .landing-contact .landing-eyebrow {
   color: #ffffff;
-}
-
-.landing-contact p {
-  max-width: 620px;
-  opacity: 0.82;
 }
 
 .landing-footer {
@@ -2476,19 +2470,6 @@
   font: inherit;
   padding: 12px 13px;
   outline: none;
-}
-
-.flow-nav {
-  display: flex;
-  width: min(980px, 100%);
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 auto 26px;
-  border: 1px solid rgba(24, 213, 255, 0.14);
-  border-radius: 22px;
-  background: rgba(7, 24, 47, 0.74);
-  padding: 14px 18px;
-  backdrop-filter: blur(18px);
 }
 
 .flow-shell {
@@ -3196,10 +3177,6 @@
     padding: 28px;
   }
 
-}
-
-.flow-nav {
-  display: none;
 }
 
 .flow-shell-wide {
@@ -5224,6 +5201,7 @@
 
 .landing-contact-panel {
   display: flex;
+  min-height: 260px;
   align-items: center;
   justify-content: space-between;
   gap: 32px;
@@ -6285,10 +6263,6 @@
 
 .landing-service-film-copy p:not(.landing-eyebrow) {
   max-width: 58ch;
-}
-
-.landing-contact-panel {
-  min-height: 260px;
 }
 
 .landing-contact-panel .landing-button,

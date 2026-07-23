@@ -1219,6 +1219,7 @@ for (const retiredFilterClass of [
 
 for (const retiredLandingClass of [
   "landing-language-switch",
+  "flow-nav",
   "landing-flag",
   "landing-flag-sv",
   "landing-flag-en",
