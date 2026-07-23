@@ -1199,9 +1199,11 @@ for (const requiredSurfaceClass of [
 if (
   adminCss.includes(".admin-layout input,\n.admin-layout select,\n.admin-layout textarea {\n  border-color: var(--admin-surface-shadow)") ||
   adminCss.includes('font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important') ||
+  adminCss.includes('"MS Sans Serif"') ||
+  adminCss.includes("#0b7f7f") ||
   adminCss.includes(".admin-layout input,\n.admin-layout select,\n.admin-layout textarea {\n  min-height: 40px;\n  border: 1px solid rgba(47, 125, 246, 0.18) !important")
 ) {
-  problems.push("src/app/admin/admin.css must not keep the retired broad admin-surface form control override.");
+  problems.push("src/app/admin/admin.css must not keep retired admin-surface theme or form control overrides.");
 }
 
 if (adminCss.includes('content: "Screenia Admin"')) {

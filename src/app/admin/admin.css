@@ -1,5 +1,5 @@
 /* =========================================
-   ADMIN SURFACE THEME
+   ADMIN DESIGN TOKENS
 ========================================= */
 .admin-layout {
   --admin-surface-face: #ffffff;
@@ -30,15 +30,6 @@
   --admin-shadow-panel: 0 18px 44px rgba(7, 31, 84, 0.1);
 
   min-height: 100vh;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 32%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    linear-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px),
-    #0b7f7f;
-  background-size: auto, 18px 18px, 18px 18px;
-  color: var(--admin-surface-text);
-  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
-  font-size: 13px;
 }
 
 .admin-layout *,
