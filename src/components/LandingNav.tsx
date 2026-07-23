@@ -66,7 +66,11 @@ export function LandingNav({
               <Link
                 key={item.href}
                 href={href}
-                className={active ? "landing-nav-link-active" : undefined}
+                className={
+                  active
+                    ? "landing-nav-link landing-nav-link-active"
+                    : "landing-nav-link"
+                }
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}

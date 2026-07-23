@@ -409,40 +409,44 @@
   font-weight: 750;
 }
 
-.landing-nav-primary a {
+.landing-nav-primary .landing-nav-link {
   position: relative;
   display: inline-flex;
   align-items: center;
   min-height: auto;
+  border: 0;
   border-radius: 0;
   background: transparent;
   padding: 0;
   box-shadow: none;
+  outline-offset: 6px;
   line-height: 1.35;
 }
 
-.landing-nav-primary a:hover {
+.landing-nav-primary .landing-nav-link:hover {
+  border: 0;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
   transform: none;
 }
 
-.landing-nav-primary a:active {
+.landing-nav-primary .landing-nav-link:active {
+  border: 0;
   background: transparent;
   border-radius: 0;
   box-shadow: none;
   transform: none;
 }
 
-.landing-nav-primary a:focus-visible {
+.landing-nav-primary .landing-nav-link:focus-visible {
   outline: 0;
   background: transparent;
   box-shadow: none;
   color: var(--screenia-logo-deep);
 }
 
-.landing-nav-primary a:focus-visible::after {
+.landing-nav-primary .landing-nav-link:focus-visible::after {
   position: absolute;
   right: 0;
   bottom: -6px;
@@ -4029,7 +4033,7 @@
     justify-items: stretch;
   }
 
-  .landing-nav-primary a,
+  .landing-nav-primary .landing-nav-link,
   .landing-nav-actions a,
   .landing-nav-actions button {
     justify-content: flex-start;
@@ -9232,17 +9236,21 @@
   background: var(--screenia-glass-soft) !important;
 }
 
-.landing-nav-primary a.landing-nav-link-active {
+.landing-nav-primary .landing-nav-link.landing-nav-link-active {
   position: relative;
+  display: inline-flex;
+  align-items: center;
   min-height: auto;
+  border: 0;
   border-radius: 0;
   background: transparent;
   padding: 0;
   color: var(--screenia-logo-deep);
   box-shadow: none;
+  transform: none;
 }
 
-.landing-nav-primary a.landing-nav-link-active::after {
+.landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
   position: absolute;
   right: 0;
   bottom: -6px;
@@ -9255,7 +9263,7 @@
 }
 
 @media (max-width: 900px) {
-  .landing-nav-primary a.landing-nav-link-active::after {
+  .landing-nav-primary .landing-nav-link.landing-nav-link-active::after {
     right: auto;
     bottom: -4px;
     width: 44px;

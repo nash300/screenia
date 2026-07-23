@@ -301,6 +301,10 @@ if (!landingNavSource.includes("landing-nav-link-active")) {
   problems.push("LandingNav must expose the explicit landing-nav-link-active state class.");
 }
 
+if (!landingNavSource.includes("landing-nav-link")) {
+  problems.push("LandingNav must expose the explicit landing-nav-link base class for primary navigation items.");
+}
+
 if (!landingNavSource.includes("landing-links-open")) {
   problems.push("LandingNav must expose the explicit landing-links-open menu state class.");
 }
@@ -536,6 +540,18 @@ if (customerDetailPageSource.includes('"is-selected"')) {
   problems.push("The admin customer detail page must use admin-operation-card-selected instead of generic is-selected.");
 }
 
+for (const retiredCustomerActionButtonClass of [
+  "rounded-xl bg-amber-700",
+  "rounded-xl bg-red-800",
+  "rounded-xl border border-slate-200 bg-white",
+]) {
+  if (customerDetailPageSource.includes(retiredCustomerActionButtonClass)) {
+    problems.push(
+      `The admin customer detail page must use explicit admin-button-* classes instead of ${retiredCustomerActionButtonClass}.`,
+    );
+  }
+}
+
 for (const className of [
   "admin-customer-workflow-step-active",
   "admin-communication-workflow-step-active",
@@ -736,7 +752,7 @@ landingCss
     }
   });
 
-requireCssBlock(landingCss, ".landing-nav-primary a", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link", [
   {
     includes: "position: relative;",
     message: "must own positioning for the underline indicator.",
@@ -785,7 +801,7 @@ if (/(^|\n)\.landing-nav-login\s*\{/.test(landingCss)) {
   problems.push("src/app/landing.css must scope landing-nav-login resets to their page or parent container.");
 }
 
-requireCssBlock(landingCss, ".landing-nav-primary a:hover", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:hover", [
   {
     includes: "background: transparent;",
     message: "must not use a hover background that makes primary nav links look like buttons.",
@@ -796,7 +812,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a:hover", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a:active", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:active", [
   {
     includes: "background: transparent;",
     message: "must not use an active background that makes primary nav links look like buttons.",
@@ -815,7 +831,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a:active", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a:focus-visible", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visible", [
   {
     includes: "outline: 0;",
     message: "must replace the global rectangle focus ring with the nav underline.",
@@ -834,7 +850,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a:focus-visible", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active", [
   {
     includes: "background: transparent",
     message: "must keep active links transparent.",
@@ -857,7 +873,7 @@ requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active", [
   },
 ]);
 
-requireCssBlock(landingCss, ".landing-nav-primary a.landing-nav-link-active::after", [
+requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active::after", [
   {
     includes: "height: 2px;",
     message: "must use a thin underline active indicator.",

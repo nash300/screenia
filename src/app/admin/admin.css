@@ -5071,14 +5071,17 @@
 
 .admin-layout .admin-button-danger {
   background: linear-gradient(135deg, #e3545a, #b72b31) !important;
+  color: #ffffff;
 }
 
 .admin-layout .admin-button-warning {
   background: linear-gradient(135deg, #f2b84b, #c47a0c) !important;
+  color: #ffffff;
 }
 
 .admin-layout .admin-button-success {
   background: linear-gradient(135deg, #29b879, #188756) !important;
+  color: #ffffff;
 }
 
 .admin-layout button:not([class*="-workflow-step"]):not(.admin-plain-button):not(.admin-document-list-item):hover,

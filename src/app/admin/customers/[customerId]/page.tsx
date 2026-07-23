@@ -2218,7 +2218,7 @@ export default function CustomerDetailPage({
               type="button"
               onClick={anonymizeCustomer}
               disabled={saving || !anonymizeReason.trim() || !anonymizeConfirmed}
-              className="rounded-xl bg-amber-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="admin-button-warning"
             >
               {saving ? "Saving..." : "Anonymize customer"}
             </button>
@@ -2226,7 +2226,7 @@ export default function CustomerDetailPage({
               type="button"
               onClick={() => setDeleteConfirmationOpen(true)}
               disabled={saving}
-              className="rounded-xl bg-red-800 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="admin-button-danger"
             >
               {saving ? "Deleting..." : "Delete customer"}
             </button>
@@ -2355,7 +2355,7 @@ export default function CustomerDetailPage({
                         )
                       }
                       disabled={quoteItems.length === 1}
-                      className="self-end rounded-xl bg-red-800 px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
+                      className="admin-button-danger self-end"
                     >
                       Remove
                     </button>
@@ -3733,7 +3733,7 @@ export default function CustomerDetailPage({
                     setDeleteConfirmed(false);
                   }}
                   disabled={saving}
-                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
+                  className="admin-button-secondary"
                 >
                   Cancel
                 </button>
@@ -3741,7 +3741,7 @@ export default function CustomerDetailPage({
                   type="button"
                   onClick={deleteCustomer}
                   disabled={saving || !deleteReason.trim() || !deleteConfirmed}
-                  className="rounded-xl bg-red-800 px-4 py-2 text-sm font-bold text-white shadow-lg shadow-red-950/20 transition hover:bg-red-900 disabled:opacity-50"
+                  className="admin-button-danger"
                 >
                   {saving ? "Deleting..." : "Delete customer"}
                 </button>
