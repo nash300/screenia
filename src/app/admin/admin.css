@@ -2856,7 +2856,7 @@
   box-shadow: 0 8px 18px rgba(7, 31, 84, 0.06) !important;
 }
 
-.admin-operation-card.is-selected {
+.admin-operation-card.admin-operation-card-selected {
   border-color: rgba(47, 125, 246, 0.38) !important;
   background: #eef5ff !important;
 }

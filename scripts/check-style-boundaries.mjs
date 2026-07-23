@@ -238,6 +238,14 @@ if (adminCss.includes(".is-active")) {
   problems.push("src/app/admin/admin.css must not contain generic .is-active selectors. Use explicit component state class names.");
 }
 
+if (adminCss.includes(".admin-operation-card.is-selected")) {
+  problems.push("src/app/admin/admin.css must style admin-operation-card-selected instead of generic admin-operation-card.is-selected.");
+}
+
+if (!adminCss.includes(".admin-operation-card.admin-operation-card-selected")) {
+  problems.push("src/app/admin/admin.css must define the explicit admin-operation-card-selected selector.");
+}
+
 if (!adminCss.includes(".admin-nav-link.admin-nav-link-active")) {
   problems.push("src/app/admin/admin.css must define the explicit admin-nav-link-active selector.");
 }
@@ -359,6 +367,10 @@ if (inventoryPageSource.includes('"is-active"')) {
   problems.push("The admin inventory page must use admin-inventory-item-active instead of generic is-active.");
 }
 
+if (inventoryPageSource.includes('"is-selected"')) {
+  problems.push("The admin inventory page must use admin-operation-card-selected instead of generic is-selected.");
+}
+
 if (!inventoryPageSource.includes("admin-inventory-item-active")) {
   problems.push("The admin inventory page must expose the explicit admin-inventory-item-active state class.");
 }
@@ -408,9 +420,14 @@ if (customerDetailPageSource.includes('"is-active"')) {
   problems.push("The admin customer detail page must use explicit workflow state class names instead of generic is-active.");
 }
 
+if (customerDetailPageSource.includes('"is-selected"')) {
+  problems.push("The admin customer detail page must use admin-operation-card-selected instead of generic is-selected.");
+}
+
 for (const className of [
   "admin-customer-workflow-step-active",
   "admin-communication-workflow-step-active",
+  "admin-operation-card-selected",
 ]) {
   if (!customerDetailPageSource.includes(className)) {
     problems.push(`The admin customer detail page must expose the explicit ${className} state class.`);
@@ -431,6 +448,10 @@ for (const retiredSelector of [
 
 if (deviceDetailPageSource.includes('"is-active"')) {
   problems.push("The admin device detail page must use admin-display-workflow-step-active instead of generic is-active.");
+}
+
+if (deviceDetailPageSource.includes('"is-selected"')) {
+  problems.push("The admin device detail page must use admin-operation-card-selected instead of generic is-selected.");
 }
 
 if (!deviceDetailPageSource.includes("admin-display-workflow-step-active")) {

@@ -508,7 +508,7 @@ export default function AdminDevicePage({
                 type="button"
                 className={`admin-operation-card ${
                   deviceOperationDraft?.operation === "status"
-                    ? "is-selected"
+                    ? "admin-operation-card-selected"
                     : ""
                 }`}
                 onClick={() =>
@@ -538,7 +538,7 @@ export default function AdminDevicePage({
                 type="button"
                 className={`admin-operation-card admin-operation-danger ${
                   deviceOperationDraft?.operation === "delete"
-                    ? "is-selected"
+                    ? "admin-operation-card-selected"
                     : ""
                 }`}
                 onClick={() =>

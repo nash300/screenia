@@ -2646,7 +2646,9 @@ export default function CustomerDetailPage({
                     onClick={() => openCustomerOperation(operation.id)}
                     disabled={saving}
                     className={`admin-operation-card admin-operation-${operation.tone} ${
-                      selectedOperationId === operation.id ? "is-selected" : ""
+                      selectedOperationId === operation.id
+                        ? "admin-operation-card-selected"
+                        : ""
                     }`}
                   >
                     <span>

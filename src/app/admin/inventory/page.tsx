@@ -672,7 +672,7 @@ export default function AdminInventoryPage() {
                               : ""
                           } ${
                             operationDraft?.operation === operation.id
-                              ? "is-selected"
+                              ? "admin-operation-card-selected"
                               : ""
                           }`}
                           disabled={saving}
