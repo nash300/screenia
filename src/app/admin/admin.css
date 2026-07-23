@@ -1192,6 +1192,28 @@
   line-height: 1.35;
 }
 
+.admin-email-panel {
+  padding: clamp(0.95rem, 1.6vw, 1.25rem);
+}
+
+.admin-email-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-email-heading-copy {
+  margin: 0.5rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.admin-email-table-wrap {
+  margin-top: 1rem;
+}
+
 .admin-email-toolbar {
   display: grid;
   gap: 0.75rem;

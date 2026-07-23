@@ -8775,8 +8775,17 @@
 }
 
 .landing-nav-primary .landing-nav-link.landing-nav-link-active {
-  color: var(--screenia-logo-deep);
-  font-weight: 820;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  color: var(--landing-text);
+  font-weight: 750;
+  text-decoration: underline;
+  text-decoration-color: rgba(47, 125, 246, 0.72);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.45em;
 }
 
 .landing-nav-primary .landing-nav-link.landing-nav-link-active::after {

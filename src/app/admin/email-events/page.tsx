@@ -181,11 +181,11 @@ export default function AdminEmailEventsPage() {
         </div>
       </section>
 
-      <section className="admin-card p-6">
-        <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
+      <section className="admin-card admin-email-panel">
+        <div className="admin-email-heading">
           <div>
-            <h2 className="admin-card-title text-xl">Delivery evidence</h2>
-            <p className="admin-muted mt-2 text-sm">
+            <h2 className="admin-card-title">Delivery evidence</h2>
+            <p className="admin-email-heading-copy">
               Start with messages that need follow-up, then use provider IDs
               only when troubleshooting delivery with Resend or webhook logs.
             </p>
@@ -216,7 +216,7 @@ export default function AdminEmailEventsPage() {
           </div>
         </div>
 
-        <div className="admin-table-wrap mt-4">
+        <div className="admin-table-wrap admin-email-table-wrap">
           <table className="admin-table">
             <thead>
               <tr>

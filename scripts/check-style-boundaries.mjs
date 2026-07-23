@@ -490,6 +490,21 @@ if (emailEventsPageSource.includes('"is-active"')) {
   problems.push("The admin email-events page must use admin-email-filter-active instead of generic is-active.");
 }
 
+if (/\b(?:p-6|mt-4|mt-2|text-xl|text-sm|flex flex-col|md:flex-row)\b/.test(emailEventsPageSource)) {
+  problems.push("The admin email-events page must use explicit admin-email-* classes instead of broad utility class styling.");
+}
+
+for (const className of [
+  "admin-email-panel",
+  "admin-email-heading",
+  "admin-email-heading-copy",
+  "admin-email-table-wrap",
+]) {
+  if (!emailEventsPageSource.includes(className)) {
+    problems.push(`The admin email-events page must expose the explicit ${className} class.`);
+  }
+}
+
 if (/\b(?:p-6|rounded-2xl|rounded-xl|border-slate-200|bg-slate-50|text-slate-)\b/.test(contactInquiriesPageSource)) {
   problems.push("The admin contact-inquiries page must use explicit admin-contact-* classes instead of broad utility class styling.");
 }
@@ -974,28 +989,28 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
 
 requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link.landing-nav-link-active", [
   {
-    rejects: "background:",
+    includes: "background: transparent;",
     message: "must keep active links text-only without a button background.",
   },
   {
-    rejects: "box-shadow:",
+    includes: "box-shadow: none;",
     message: "must keep active links shadow-free.",
   },
   {
-    rejects: "border:",
+    includes: "border: 0;",
     message: "must keep active primary nav links border-free.",
   },
   {
-    rejects: "border-radius:",
+    includes: "border-radius: 0;",
     message: "must keep active primary nav links text shaped.",
   },
   {
-    rejects: "padding:",
+    includes: "padding: 0;",
     message: "must not make active primary nav links button sized.",
   },
   {
-    rejects: "min-height:",
-    message: "must not make active primary nav links button height.",
+    includes: "text-decoration: underline;",
+    message: "must show the active state as a text underline rather than a button treatment.",
   },
 ]);
 
