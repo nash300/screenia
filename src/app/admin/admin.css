@@ -2,6 +2,15 @@
    ADMIN DESIGN TOKENS
 ========================================= */
 .admin-layout {
+  --admin-bg: #f5f8fd;
+  --admin-border: rgba(47, 125, 246, 0.16);
+  --admin-text: #061942;
+  --admin-muted-text: #5b6880;
+  --admin-blue: #2f7df6;
+  --admin-blue-dark: #155ee8;
+  --admin-success: #16a064;
+  --admin-warning: #d68a06;
+  --admin-danger: #dc3f45;
   --admin-surface-face: #ffffff;
   --admin-surface-face-light: #ffffff;
   --admin-surface-face-dark: #d7e3f7;
@@ -28,8 +37,17 @@
   --admin-radius-lg: 10px;
   --admin-shadow-soft: 0 8px 22px rgba(7, 31, 84, 0.07);
   --admin-shadow-panel: 0 18px 44px rgba(7, 31, 84, 0.1);
+  --admin-content-max: 1360px;
+  --admin-space-md: 1rem;
 
   min-height: 100vh;
+  background:
+    linear-gradient(90deg, rgba(47, 125, 246, 0.055) 0 1px, transparent 1px),
+    linear-gradient(180deg, #ffffff 0%, var(--admin-bg) 54%, #eef5ff 100%);
+  background-size: 24px 24px, auto;
+  color: var(--admin-text);
+  font-family: "Open Sans", Arial, Helvetica, sans-serif;
+  font-size: 14px;
 }
 
 .admin-layout *,
@@ -5324,18 +5342,6 @@
   }
 }
 
-/* =========================================
-   SCREENIA ADMIN SURFACE THEME
-========================================= */
-.admin-layout {
-  background:
-    radial-gradient(circle at 8% 0%, rgba(47, 125, 246, 0.12), transparent 26%),
-    linear-gradient(180deg, #ffffff 0%, #f4f8ff 54%, #eaf2ff 100%);
-  color: var(--admin-surface-text);
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 14px;
-}
-
 .admin-sidebar-kicker,
 .admin-card-title,
 .admin-eyebrow,
@@ -6394,28 +6400,6 @@
   }
 }
 
-/* =========================================
-   SCREENIA OPERATIONS UI
-========================================= */
-.admin-layout {
-  --admin-bg: #f5f8fd;
-  --admin-border: rgba(47, 125, 246, 0.16);
-  --admin-text: #061942;
-  --admin-muted-text: #5b6880;
-  --admin-blue: #2f7df6;
-  --admin-blue-dark: #155ee8;
-  --admin-success: #16a064;
-  --admin-warning: #d68a06;
-  --admin-danger: #dc3f45;
-
-  background:
-    linear-gradient(90deg, rgba(47, 125, 246, 0.055) 0 1px, transparent 1px),
-    linear-gradient(180deg, #ffffff 0%, var(--admin-bg) 54%, #eef5ff 100%);
-  background-size: 24px 24px, auto;
-  color: var(--admin-text);
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
-}
-
 .admin-main {
   min-height: 100vh;
   margin-left: 18rem;
@@ -6836,14 +6820,6 @@
   .admin-page-header {
     flex-direction: column;
   }
-}
-
-/* =========================================
-   ADMIN RESPONSIVE LAYOUT
-========================================= */
-.admin-layout {
-  --admin-content-max: 1360px;
-  --admin-space-md: 1rem;
 }
 
 .admin-page-header > div:first-child {

@@ -1307,6 +1307,13 @@ if (duplicateAdminTokens.length) {
   );
 }
 
+const adminLayoutRootCount = countOccurrences(adminCss, /^\.admin-layout\s*\{/gm);
+if (adminLayoutRootCount !== 1) {
+  problems.push(
+    `src/app/admin/admin.css must keep exactly one base .admin-layout owner block; found ${adminLayoutRootCount}.`,
+  );
+}
+
 const importantRatchets = [
   {
     file: "src/app/admin/admin.css",
