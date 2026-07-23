@@ -57,12 +57,15 @@ export function LandingNav({
         <div className="landing-nav-primary">
           {navItems.map((item) => {
             const href = isHome ? item.homeHref : item.href;
+            const isCurrentPage = !isHome && item.href === currentPath;
 
             return (
               <Link
                 key={item.href}
                 href={href}
                 className="landing-nav-link"
+                aria-current={isCurrentPage ? "page" : undefined}
+                onMouseDown={(event) => event.preventDefault()}
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}

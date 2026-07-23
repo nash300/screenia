@@ -418,6 +418,29 @@
   content: "";
 }
 
+.landing-nav-primary .landing-nav-link[aria-current="page"] {
+  color: var(--screenia-logo-deep);
+  background: transparent;
+  background-image: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  transform: none;
+}
+
+.landing-nav-primary .landing-nav-link[aria-current="page"]::after {
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #2f7df6, #6d8dff);
+  opacity: 0.7;
+  content: "";
+}
+
 .landing-links .landing-nav-login {
   display: inline-flex;
   min-height: 40px;

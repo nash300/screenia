@@ -500,6 +500,14 @@ if (landingNavSource.includes("landing-nav-link-active")) {
   problems.push("LandingNav must keep primary navigation links text-only and must not add landing-nav-link-active state classes.");
 }
 
+if (!landingNavSource.includes('aria-current={isCurrentPage ? "page" : undefined}')) {
+  problems.push("LandingNav must expose current primary pages through aria-current instead of button-like active classes.");
+}
+
+if (!landingNavSource.includes("onMouseDown={(event) => event.preventDefault()}")) {
+  problems.push("LandingNav primary links must prevent sticky mouse focus while preserving keyboard focus-visible styling.");
+}
+
 if (!landingNavSource.includes("landing-nav-link")) {
   problems.push("LandingNav must expose the explicit landing-nav-link base class for primary navigation items.");
 }
@@ -1964,6 +1972,48 @@ requireCssBlock(landingCss, ".landing-nav-primary .landing-nav-link:focus-visibl
   {
     rejects: "border-radius:",
     message: "must not use a radius that makes focused primary nav links look like pills.",
+  },
+]);
+
+requireCssBlock(landingCss, '.landing-nav-primary .landing-nav-link[aria-current="page"]', [
+  {
+    includes: "background: transparent;",
+    message: "must keep current primary nav links text-only instead of button-like.",
+  },
+  {
+    includes: "background-image: none;",
+    message: "must not use a current-page gradient that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "border: 0;",
+    message: "must not use a current-page border that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "border-radius: 0;",
+    message: "must not use a current-page radius that makes primary nav links look like pills.",
+  },
+  {
+    includes: "box-shadow: none;",
+    message: "must not use a current-page shadow that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "padding: 0;",
+    message: "must not use current-page padding that makes primary nav links look like buttons.",
+  },
+  {
+    includes: "transform: none;",
+    message: "must not animate current primary nav links like pressed buttons.",
+  },
+]);
+
+requireCssBlock(landingCss, '.landing-nav-primary .landing-nav-link[aria-current="page"]::after', [
+  {
+    includes: "height: 2px;",
+    message: "must use a slim underline for current primary nav links.",
+  },
+  {
+    includes: "content: \"\";",
+    message: "must render the current-page underline indicator.",
   },
 ]);
 
