@@ -2,7 +2,6 @@
    ADMIN SURFACE THEME
 ========================================= */
 .admin-layout {
-  --admin-classic-desktop: #008080;
   --admin-classic-face: #c0c0c0;
   --admin-classic-face-light: #dfdfdf;
   --admin-classic-face-dark: #808080;
@@ -14,8 +13,6 @@
   --admin-classic-muted: #303030;
   --admin-classic-link: #000080;
   --admin-cyan: var(--admin-classic-title);
-  --admin-orange: #ffff00;
-  --admin-panel-shadow: 2px 2px 0 rgba(0, 0, 0, 0.22);
   --admin-titlebar-start: #11356f;
   --admin-titlebar-end: #1770a6;
   --admin-section-header: #dbe5ea;
@@ -24,12 +21,8 @@
   --admin-button-bottom: #c8c8c8;
   --admin-button-primary-top: #1c6fae;
   --admin-button-primary-bottom: #11356f;
-  --admin-button-danger-top: #b84040;
-  --admin-button-danger-bottom: #7f1d1d;
   --admin-button-warning-top: #d8a53a;
-  --admin-button-warning-bottom: #9a640e;
   --admin-button-success-top: #3f8f61;
-  --admin-button-success-bottom: #1f5d3d;
   --admin-radius-sm: 4px;
   --admin-radius-md: 7px;
   --admin-radius-lg: 10px;
@@ -1437,119 +1430,6 @@
   box-shadow:
     inset 1px 1px 3px rgba(0, 0, 0, 0.2),
     0 1px 0 rgba(255, 255, 255, 0.65) !important;
-}
-
-.admin-layout button,
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  border-color: var(--admin-classic-highlight) var(--admin-classic-shadow) var(--admin-classic-shadow)
-    var(--admin-classic-highlight) !important;
-  border-style: solid !important;
-  border-width: 2px !important;
-  border-radius: var(--admin-radius-sm) !important;
-  padding: 0.3rem 0.65rem !important;
-  background: linear-gradient(
-    var(--admin-button-top),
-    var(--admin-button-bottom)
-  ) !important;
-  color: var(--admin-classic-text) !important;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.75),
-    0 2px 5px rgba(0, 0, 0, 0.16) !important;
-  font-family: "MS Sans Serif", Tahoma, Arial, sans-serif !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  line-height: 1.1;
-  text-decoration: none !important;
-}
-
-.admin-layout .admin-button-primary,
-.admin-layout a.admin-button-primary {
-  background: linear-gradient(
-    var(--admin-button-primary-top),
-    var(--admin-button-primary-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .admin-button-danger {
-  background: linear-gradient(
-    var(--admin-button-danger-top),
-    var(--admin-button-danger-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .admin-button-warning {
-  background: linear-gradient(
-    var(--admin-button-warning-top),
-    var(--admin-button-warning-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .admin-button-success {
-  background: linear-gradient(
-    var(--admin-button-success-top),
-    var(--admin-button-success-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .bg-slate-950,
-.admin-layout .bg-black {
-  background: linear-gradient(
-    var(--admin-button-primary-top),
-    var(--admin-button-primary-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .bg-red-600,
-.admin-layout .bg-red-800 {
-  background: linear-gradient(
-    var(--admin-button-danger-top),
-    var(--admin-button-danger-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .bg-yellow-600 {
-  background: linear-gradient(
-    var(--admin-button-warning-top),
-    var(--admin-button-warning-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .bg-green-600 {
-  background: linear-gradient(
-    var(--admin-button-success-top),
-    var(--admin-button-success-bottom)
-  ) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout button:active,
-.admin-layout .admin-button-primary:active,
-.admin-layout .admin-button-secondary:active {
-  border-color: var(--admin-classic-shadow) var(--admin-classic-highlight)
-    var(--admin-classic-highlight) var(--admin-classic-shadow) !important;
-  padding: calc(0.3rem + 1px) calc(0.65rem - 1px) calc(0.3rem - 1px)
-    calc(0.65rem + 1px) !important;
-  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.28) !important;
-}
-
-.admin-layout button:disabled,
-.admin-layout .disabled\:opacity-50:disabled {
-  color: var(--admin-classic-face-dark) !important;
-  text-shadow: 1px 1px 0 var(--admin-classic-highlight);
 }
 
 /* =========================================
@@ -3842,7 +3722,6 @@
    SCREENIA BRAND REFRESH
 ========================================= */
 .admin-layout {
-  --admin-classic-desktop: #f4f8ff;
   --admin-classic-face: #ffffff;
   --admin-classic-face-light: #ffffff;
   --admin-classic-face-dark: #d7e3f7;
@@ -3854,7 +3733,6 @@
   --admin-classic-muted: #51617f;
   --admin-classic-link: #2f7df6;
   --admin-cyan: #2f7df6;
-  --admin-orange: #f47a20;
   --admin-titlebar-start: #061942;
   --admin-titlebar-end: #2f7df6;
   --admin-section-header: #eef5ff;
@@ -3979,106 +3857,6 @@
   background: #ffffff !important;
   box-shadow: 0 0 0 0 transparent !important;
   font-family: "Open Sans", Arial, Helvetica, sans-serif !important;
-}
-
-.admin-layout button,
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout .admin-button-danger,
-.admin-layout .admin-button-warning,
-.admin-layout .admin-button-success,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary {
-  min-height: 40px;
-  border: 0 !important;
-  border-radius: 12px !important;
-  background: linear-gradient(135deg, #2f7df6, #5ea0ff) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 26px rgba(47, 125, 246, 0.2) !important;
-  font-family: var(--font-plus-jakarta), "Open Sans", Arial, Helvetica, sans-serif !important;
-}
-
-.admin-layout .admin-button-danger {
-  background: linear-gradient(135deg, #e05252, #a72b2b) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .admin-button-warning {
-  background: linear-gradient(135deg, #f2b84b, #b86f12) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout .admin-button-success {
-  background: linear-gradient(135deg, #47a96d, #247347) !important;
-  color: #ffffff !important;
-}
-
-.admin-layout button,
-.admin-layout .admin-button-primary,
-.admin-layout .admin-button-secondary,
-.admin-layout .admin-button-danger,
-.admin-layout .admin-button-warning,
-.admin-layout .admin-button-success,
-.admin-layout a.admin-button-primary,
-.admin-layout a.admin-button-secondary,
-.admin-action-card,
-.admin-section-tab {
-  position: relative;
-  transform: translateY(0);
-  transition:
-    transform 140ms ease,
-    box-shadow 140ms ease,
-    filter 140ms ease;
-}
-
-.admin-layout button::after,
-.admin-layout .admin-button-primary::after,
-.admin-layout .admin-button-secondary::after,
-.admin-layout .admin-button-danger::after,
-.admin-layout .admin-button-warning::after,
-.admin-layout .admin-button-success::after,
-.admin-layout a.admin-button-primary::after,
-.admin-layout a.admin-button-secondary::after,
-.admin-action-card::after,
-.admin-section-tab::after {
-  position: absolute;
-  inset: 1px;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 44%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.22), transparent 38%);
-  content: "";
-  pointer-events: none;
-}
-
-.admin-layout button:hover,
-.admin-layout .admin-button-primary:hover,
-.admin-layout .admin-button-secondary:hover,
-.admin-layout .admin-button-danger:hover,
-.admin-layout .admin-button-warning:hover,
-.admin-layout .admin-button-success:hover,
-.admin-layout a.admin-button-primary:hover,
-.admin-layout a.admin-button-secondary:hover,
-.admin-action-card:hover,
-.admin-section-tab:hover {
-  filter: brightness(1.03);
-  transform: translateY(-1px);
-}
-
-.admin-layout button:active,
-.admin-layout .admin-button-primary:active,
-.admin-layout .admin-button-secondary:active,
-.admin-layout .admin-button-danger:active,
-.admin-layout .admin-button-warning:active,
-.admin-layout .admin-button-success:active,
-.admin-layout a.admin-button-primary:active,
-.admin-layout a.admin-button-secondary:active,
-.admin-action-card:active,
-.admin-section-tab:active {
-  box-shadow:
-    inset 0 2px 5px rgba(6, 25, 66, 0.26),
-    0 4px 10px rgba(47, 125, 246, 0.16) !important;
-  transform: translateY(1px);
 }
 
 .admin-section-tab {
@@ -5194,10 +4972,7 @@
 ========================================= */
 .admin-layout {
   --admin-bg: #f5f8fd;
-  --admin-panel: #ffffff;
-  --admin-panel-soft: #f8fbff;
   --admin-border: rgba(47, 125, 246, 0.16);
-  --admin-border-strong: rgba(6, 25, 66, 0.16);
   --admin-text: #061942;
   --admin-muted-text: #5b6880;
   --admin-blue: #2f7df6;
@@ -5672,11 +5447,7 @@
 ========================================= */
 .admin-layout {
   --admin-content-max: 1360px;
-  --admin-space-xs: 0.45rem;
-  --admin-space-sm: 0.7rem;
   --admin-space-md: 1rem;
-  --admin-space-lg: 1.25rem;
-  --admin-soft-line: rgba(6, 25, 66, 0.08);
 }
 
 .admin-sidebar {

@@ -101,6 +101,28 @@ if (publicInfo.includes("!important")) {
   problems.push("src/app/public-info.css should stay scoped and must not use !important.");
 }
 
+const adminCss = read("src/app/admin/admin.css");
+const retiredAdminButtonPatterns = [
+  {
+    pattern: ".admin-layout .bg-slate-950",
+    message: "src/app/admin/admin.css contains retired Tailwind utility button overrides. Use admin-button-* classes instead.",
+  },
+  {
+    pattern: "border: 0 !important;\n  border-radius: 12px !important;\n  background: linear-gradient(135deg, #2f7df6, #5ea0ff) !important;",
+    message: "src/app/admin/admin.css contains a retired duplicate admin button layer. Keep button ownership in the compact button block.",
+  },
+  {
+    pattern: "filter: brightness(1.03);",
+    message: "src/app/admin/admin.css contains a retired duplicate admin button hover layer. Keep button ownership in the compact button block.",
+  },
+];
+
+for (const { pattern, message } of retiredAdminButtonPatterns) {
+  if (adminCss.includes(pattern)) {
+    problems.push(message);
+  }
+}
+
 const packageJson = JSON.parse(read("package.json"));
 if (packageJson.dependencies?.bootstrap || packageJson.devDependencies?.bootstrap) {
   problems.push("package.json still includes Bootstrap. Avoid broad third-party CSS that can override Screenia styles.");
