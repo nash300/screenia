@@ -213,6 +213,7 @@ const adminCss = read("src/app/admin/admin.css");
 const landingCss = read("src/app/landing.css");
 const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
 const landingNavSource = read("src/components/LandingNav.tsx");
+const landingPageSource = read("src/app/page.tsx");
 
 if (adminSidebarNavSource.includes('"is-active"')) {
   problems.push("AdminSidebarNav must use admin-nav-link-active instead of generic is-active state naming.");
@@ -236,6 +237,22 @@ if (landingNavSource.includes('"is-active"')) {
 
 if (!landingNavSource.includes("landing-nav-link-active")) {
   problems.push("LandingNav must expose the explicit landing-nav-link-active state class.");
+}
+
+if (landingPageSource.includes('"is-active"')) {
+  problems.push("The landing page must use explicit component state class names instead of generic is-active.");
+}
+
+if (!landingPageSource.includes("landing-hero-dot-active")) {
+  problems.push("The landing hero carousel must expose the explicit landing-hero-dot-active state class.");
+}
+
+if (landingCss.includes(".landing-hero-dots button.is-active")) {
+  problems.push("src/app/landing.css must style landing-hero-dot-active instead of generic hero dot is-active.");
+}
+
+if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {
+  problems.push("src/app/landing.css must define the explicit landing-hero-dot-active selector.");
 }
 
 const duplicateAdminTokens = findDuplicateCustomProperties(adminCss, "--admin-");

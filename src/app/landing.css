@@ -1637,7 +1637,7 @@
   transform: translateY(-1px);
 }
 
-.landing-hero-dots button.is-active {
+.landing-hero-dots button.landing-hero-dot-active {
   width: 28px;
   border-color: rgba(191, 219, 254, 0.82);
   background: #ffffff;

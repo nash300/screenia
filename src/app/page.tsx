@@ -835,7 +835,11 @@ export default function Home() {
                   <button
                     key={slide.id}
                     type="button"
-                    className={index === currentHeroIndex ? "is-active" : ""}
+                    className={
+                      index === currentHeroIndex
+                        ? "landing-hero-dot-active"
+                        : undefined
+                    }
                     onClick={() => goToHeroSlide(index)}
                     role="tab"
                     aria-selected={index === currentHeroIndex}
