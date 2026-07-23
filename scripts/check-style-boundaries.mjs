@@ -576,6 +576,15 @@ for (const singleOwnerLandingSelector of [
   ".landing-gallery-card::after",
   ".landing-gallery-image",
   ".landing-gallery-content",
+  ".landing-illustration-grid",
+  ".landing-illustration",
+  ".landing-illustration::after",
+  ".landing-illustration:hover::after",
+  ".landing-illustration-art",
+  ".landing-illustration-art img",
+  ".landing-illustration-art::after",
+  ".landing-illustration-icon",
+  ".landing-illustration-icon svg",
   ".landing-modal-backdrop",
   ".landing-modal",
   ".landing-modal::before",
@@ -624,6 +633,17 @@ for (const retiredUnscopedPricingOwner of [
   );
   if (ownerCount > 0) {
     problems.push(`src/app/landing.css must not keep unscoped pricing owner ${retiredUnscopedPricingOwner}; scope pricing card ownership to .landing-pricing.`);
+  }
+}
+
+for (const retiredIllustrationSelector of [
+  ".landing-illustration-art span:nth-child",
+  ".landing-illustration-2 .landing-illustration-art",
+  ".landing-illustration-3 .landing-illustration-art",
+  ".landing-page .landing-illustration",
+]) {
+  if (landingCss.includes(retiredIllustrationSelector)) {
+    problems.push(`src/app/landing.css must not keep retired illustration override ${retiredIllustrationSelector}.`);
   }
 }
 
