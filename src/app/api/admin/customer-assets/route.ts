@@ -1,14 +1,11 @@
+import {
+  getAuthenticatedUser,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 const ASSET_STATUSES = new Set(["new", "reviewed", "archived"]);
 
@@ -57,27 +54,6 @@ function changedFields(
   return Object.entries(after)
     .filter(([key, value]) => before[key] !== value)
     .map(([key]) => key);
-}
-
-async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user;
 }
 
 export async function GET(request: Request) {

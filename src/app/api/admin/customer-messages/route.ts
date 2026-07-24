@@ -1,7 +1,8 @@
+import {
+  getAuthenticatedUser,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
   escapeHtml,
@@ -10,10 +11,6 @@ import {
 } from "@/lib/server/email";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 type CustomerMessageRow = {
   id: string;
@@ -64,27 +61,6 @@ type OriginalSupportMessageState = {
   admin_note_updated_at?: string | null;
   resolved_at?: string | null;
 };
-
-async function getAuthenticatedUser() {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user;
-}
 
 export async function GET(request: Request) {
   const user = await getAuthenticatedUser();

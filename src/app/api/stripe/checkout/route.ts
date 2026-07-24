@@ -1,14 +1,26 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import Stripe from "stripe";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
+import { getAuthenticatedAdmin, supabaseAdmin } from "@/lib/server/admin-api";
+import { stripe } from "./stripe-checkout-client";
+import {
+  recordCheckoutLocalSyncFailure,
+  type CheckoutFailureContext,
+} from "./stripe-checkout-failure";
+import { hasRequiredLegalEvidence } from "./stripe-checkout-legal";
+import {
+  checkoutImageUrl,
+  isLiveStripeKey,
+  isValidEmail,
+  normalizeEmail,
+  staticPriceLineItem,
+  stripeAutomaticTaxEnabled,
+  subscriptionItemForMonthlyCharge,
+  toOre,
+  withTimeout,
+  type CheckoutLineItem,
+  type QuoteItem,
+} from "./stripe-checkout-utils";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
-import {
-  CURRENT_PRIVACY_VERSION,
-  CURRENT_TERMS_VERSION,
-} from "@/lib/legal/documents";
 import { getLiveCheckoutBlockers } from "@/lib/server/live-checkout-readiness";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import {
@@ -28,266 +40,6 @@ import {
   isValidSwedishRegistrationNumber,
   normalizeSwedishRegistrationNumber,
 } from "@/lib/business/sweden";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
-});
-const stripeAutomaticTaxEnabled =
-  process.env.STRIPE_AUTOMATIC_TAX_ENABLED === "true";
-type CheckoutLineItem =
-  NonNullable<
-    NonNullable<Parameters<typeof stripe.checkout.sessions.create>[0]>["line_items"]
-  >[number];
-type SubscriptionItemInput =
-  NonNullable<
-    NonNullable<Parameters<typeof stripe.subscriptions.update>[1]>["items"]
-  >[number];
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
-async function getAuthenticatedAdmin() {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user?.app_metadata?.role === "admin" ? user : null;
-}
-
-function toOre(amountSek: number) {
-  return Math.round(amountSek * 100);
-}
-
-function isLiveStripeKey() {
-  return process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_") === true;
-}
-
-function checkoutImageUrl(appUrl: string, path: string) {
-  const imageBaseUrl = appUrl.includes("localhost")
-    ? "https://screenia.se"
-    : appUrl;
-
-  return new URL(path, imageBaseUrl).toString();
-}
-
-function normalizeEmail(value: unknown) {
-  return String(value || "").trim().toLowerCase();
-}
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(value);
-}
-
-async function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T | null> {
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-
-  try {
-    return await Promise.race([
-      promise,
-      new Promise<null>((resolve) => {
-        timeout = setTimeout(() => resolve(null), timeoutMs);
-      }),
-    ]);
-  } finally {
-    if (timeout) clearTimeout(timeout);
-  }
-}
-
-type QuoteItem = {
-  pricingPlanCode?: string;
-  quantity?: number;
-  hardwareFeeSek?: number;
-  shippingFeeSek?: number;
-  monthlyFeeSek?: number;
-  orderType?: string;
-};
-
-function staticPriceLineItem({
-  priceId,
-  expectedAmountSek,
-  actualAmountSek,
-  quantity,
-}: {
-  priceId?: string | null;
-  expectedAmountSek: number;
-  actualAmountSek: number;
-  quantity: number;
-}): CheckoutLineItem | null {
-  if (!priceId || expectedAmountSek !== actualAmountSek) return null;
-
-  return {
-    price: priceId,
-    quantity,
-  };
-}
-
-function subscriptionItemForMonthlyCharge({
-  priceId,
-  quantity,
-}: {
-  priceId?: string | null;
-  quantity: number;
-}): SubscriptionItemInput {
-  if (!priceId) {
-    throw new Error("Missing Stripe monthly price for add-on subscription update.");
-  }
-
-  return { price: priceId, quantity };
-}
-
-type CheckoutFailureContext = {
-  customerId?: string;
-  orderId?: string;
-  orderNumber?: string;
-  pricingPlanCode?: string;
-  stripeCustomerId?: string;
-  stripeCheckoutSessionId?: string;
-};
-
-async function recordCheckoutLocalSyncFailure({
-  customerId,
-  orderId,
-  orderNumber,
-  pricingPlanCode,
-  stripeCustomerId,
-  stripeCheckoutSessionId,
-  phase,
-  error,
-  ipAddress,
-  userAgent,
-}: CheckoutFailureContext & {
-  phase: string;
-  error: unknown;
-  ipAddress: string | null;
-  userAgent: string | null;
-}) {
-  const errorMessage =
-    error instanceof Error ? error.message : "Unknown local sync error";
-  const metadata = {
-    customerId,
-    orderId,
-    orderNumber,
-    pricingPlanCode,
-    stripeCustomerId,
-    stripeCheckoutSessionId,
-    phase,
-    error: errorMessage,
-  };
-
-  await recordAuditEvent(
-    supabaseAdmin,
-    {
-      customerId,
-      actorType: "system",
-      eventType: "stripe_checkout_local_sync_failed",
-      eventDescription:
-        "Stripe checkout state was created but Screenia could not store the local billing reference.",
-      metadata,
-      ipAddress,
-      userAgent,
-    },
-    { throwOnError: true },
-  );
-
-  await createAdminNotification(
-    supabaseAdmin,
-    {
-      customerId,
-      eventType: "stripe_checkout_local_sync_failed",
-      title: "Stripe checkout local sync failed",
-      message: `Stripe checkout state exists for order ${
-        orderNumber || "unknown"
-      }, but Screenia could not store the local ${phase} reference: ${errorMessage}`,
-      priority: "urgent",
-      metadata,
-    },
-    { throwOnError: true },
-  );
-}
-
-async function hasRequiredLegalEvidence(customerId: string) {
-  const [consentResult, agreementResult] = await Promise.all([
-    supabaseAdmin
-      .from("consent_records")
-      .select("consent_type, document_version")
-      .eq("customer_id", customerId)
-      .eq("granted", true)
-      .in("consent_type", ["terms", "privacy"])
-      .in("document_version", [CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION]),
-    supabaseAdmin
-      .from("customer_legal_agreements")
-      .select("document_type, document_version")
-      .eq("customer_id", customerId)
-      .in("document_type", ["terms", "privacy"])
-      .in("document_version", [CURRENT_TERMS_VERSION, CURRENT_PRIVACY_VERSION]),
-  ]);
-
-  if (consentResult.error || agreementResult.error) {
-    console.error("Checkout legal evidence lookup failed:", {
-      consentError: consentResult.error,
-      agreementError: agreementResult.error,
-    });
-
-    return {
-      ok: false,
-      error:
-        "Det gick inte att kontrollera villkor och integritetssamtycke. Försök igen innan betalning.",
-    };
-  }
-
-  const consentRows = consentResult.data || [];
-  const agreementRows = agreementResult.data || [];
-  const hasTermsConsent = consentRows.some(
-    (row) =>
-      row.consent_type === "terms" &&
-      row.document_version === CURRENT_TERMS_VERSION,
-  );
-  const hasPrivacyConsent = consentRows.some(
-    (row) =>
-      row.consent_type === "privacy" &&
-      row.document_version === CURRENT_PRIVACY_VERSION,
-  );
-  const hasTermsAgreement = agreementRows.some(
-    (row) =>
-      row.document_type === "terms" &&
-      row.document_version === CURRENT_TERMS_VERSION,
-  );
-  const hasPrivacyAgreement = agreementRows.some(
-    (row) =>
-      row.document_type === "privacy" &&
-      row.document_version === CURRENT_PRIVACY_VERSION,
-  );
-
-  if (
-    !hasTermsConsent ||
-    !hasPrivacyConsent ||
-    !hasTermsAgreement ||
-    !hasPrivacyAgreement
-  ) {
-    return {
-      ok: false,
-      error:
-        "Kunden måste först godkänna aktuella villkor och integritetspolicy i onboarding innan betalning kan startas.",
-    };
-  }
-
-  return { ok: true, error: null };
-}
 
 export async function POST(request: Request) {
   const ipAddress = getRequestIp(request);

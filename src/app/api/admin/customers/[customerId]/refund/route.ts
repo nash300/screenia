@@ -1,7 +1,8 @@
-import { cookies } from "next/headers";
+import {
+  createAuthenticatedClient,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import Stripe from "stripe";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
@@ -10,30 +11,6 @@ import { resolveStripeFirstPayment } from "@/lib/server/stripe-first-payment";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-04-22.dahlia",
 });
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
-
-const createAuthenticatedClient = async () => {
-  const cookieStore = await cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (items) => {
-          items.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-};
 
 function isMissingRefundColumns(error: { code?: string; message?: string }) {
   return (
@@ -48,7 +25,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ customerId: string }> },
 ) {
-  const supabase = await createAuthenticatedClient();
+  const supabase = await createAuthenticatedClient({ persistSession: true });
   const {
     data: { user },
   } = await supabase.auth.getUser();

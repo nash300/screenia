@@ -1,21 +1,12 @@
+import {
+  getAuthenticatedAdmin,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { randomUUID } from "node:crypto";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 
-const supabaseAdmin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
-
-async function getAuthenticatedAdmin() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: { getAll: () => cookieStore.getAll(), setAll: () => {} },
-  });
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.app_metadata?.role === "admin" ? user : null;
-}
 
 function safeFileName(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9.-]/g, "").slice(0, 120) || "hero-image";

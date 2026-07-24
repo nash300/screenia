@@ -1,15 +1,11 @@
-import { cookies } from "next/headers";
+import {
+  getAuthenticatedAdmin,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 
 export const dynamic = "force-dynamic";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 type AccountingExportRow = {
   id: string;
@@ -176,27 +172,6 @@ const headers = [
   "tracking_url",
   "updated_at",
 ];
-
-async function getAuthenticatedAdmin() {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user?.app_metadata?.role === "admin" ? user : null;
-}
 
 function csvCell(value: unknown) {
   if (value === null || value === undefined) return "";

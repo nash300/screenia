@@ -6,9 +6,11 @@ type LegalDocumentActionsProps = {
   pdfUrl?: string | null;
 };
 
-export default function LegalDocumentActions({ pdfUrl }: LegalDocumentActionsProps) {
+export default function LegalDocumentActions({
+  pdfUrl,
+}: LegalDocumentActionsProps) {
   return (
-    <div className="account-actions">
+    <div className="legal-document-actions">
       {pdfUrl ? (
         <a href={pdfUrl} className="landing-button landing-button-secondary">
           Öppna PDF

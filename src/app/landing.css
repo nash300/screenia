@@ -4530,6 +4530,113 @@
   line-height: 1.75;
 }
 
+.legal-draft-notice {
+  display: grid;
+  gap: 5px;
+  margin: 24px 0 18px;
+  border-left: 4px solid #c88812;
+  border-radius: 4px;
+  padding: 15px 18px;
+  color: #543b0b;
+  background: #fff7df;
+}
+
+.legal-draft-notice strong {
+  font-size: 0.98rem;
+}
+
+.legal-draft-notice span {
+  max-width: 72ch;
+  line-height: 1.6;
+}
+
+.legal-document-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 0 0 24px;
+  color: #61718a;
+  font-size: 0.86rem;
+}
+
+.legal-document-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 34px;
+  border-top: 1px solid #d7e1ef;
+  border-bottom: 1px solid #d7e1ef;
+  padding: 14px 0;
+}
+
+.legal-document-nav a {
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #315072;
+  background: #edf3fa;
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.legal-document-nav a:hover,
+.legal-document-nav a[aria-current="page"] {
+  color: #ffffff;
+  background: var(--screenia-navy);
+}
+
+.legal-document-body {
+  max-width: 76ch;
+  margin: 0 auto;
+  color: #27364a;
+}
+
+.legal-document-body h2 {
+  margin: 38px 0 12px;
+  border-bottom: 1px solid #dce5f0;
+  padding-bottom: 8px;
+  color: var(--screenia-navy);
+  font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+  line-height: 1.2;
+}
+
+.legal-document-body h2:first-child {
+  margin-top: 0;
+}
+
+.legal-document-body h3 {
+  margin: 26px 0 8px;
+  color: var(--screenia-navy);
+  font-size: 1.08rem;
+}
+
+.legal-document-body p {
+  margin: 0 0 15px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.03rem;
+  line-height: 1.8;
+}
+
+.legal-document-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 76ch;
+  margin: 36px auto 0;
+  border-top: 1px solid #d7e1ef;
+  padding-top: 22px;
+}
+
+@media (max-width: 640px) {
+  .legal-document-actions {
+    flex-direction: column;
+  }
+
+  .legal-document-actions .landing-button {
+    width: 100%;
+  }
+}
+
 @media (max-width: 900px) {
   .landing-contact .landing-button {
     width: fit-content;

@@ -1,7 +1,8 @@
-import { cookies } from "next/headers";
+import {
+  createAuthenticatedClient,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
@@ -20,31 +21,8 @@ import {
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 const DEFAULT_SHIPPING_FEE_SEK = 99;
-
-const createAuthenticatedClient = async () => {
-  const cookieStore = await cookies();
-
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: (items) => {
-          items.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
-          });
-        },
-      },
-    },
-  );
-};
 
 const escapeHtml = (value: string) =>
   value
@@ -93,7 +71,7 @@ function subscriptionCountsTowardPaidScreens(subscription: ExistingSubscriptionR
 }
 
 export async function POST(request: Request) {
-  const supabase = await createAuthenticatedClient();
+  const supabase = await createAuthenticatedClient({ persistSession: true });
   const {
     data: { user },
   } = await supabase.auth.getUser();

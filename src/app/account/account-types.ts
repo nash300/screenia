@@ -1,0 +1,208 @@
+export type AccountData = {
+  customer: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string | null;
+    contact_person: string | null;
+    organisation_number: string | null;
+    address: string | null;
+    city: string | null;
+    country: string | null;
+    status: string;
+    payment_status: string | null;
+    stripe_customer_id: string | null;
+    stripe_subscription_id: string | null;
+    service_access_status: string | null;
+    service_access_until: string | null;
+    activated_at: string | null;
+    cancelled_at: string | null;
+    created_at: string;
+    website_url: string | null;
+    business_description: string | null;
+    opening_hours: string | null;
+    promotions: string | null;
+    social_media: string | null;
+    content_option: string | null;
+    content_collected_at: string | null;
+    preview_status: string | null;
+    preview_url: string | null;
+    preview_feedback: string | null;
+    production_status: string | null;
+    layout_started_at: string | null;
+    setup_fee_locked_at: string | null;
+    marketing_consent: boolean | null;
+    analytics_consent: boolean | null;
+    remote_support_consent: boolean | null;
+  };
+  subscriptions: Array<{
+    id: string;
+    order_number: string;
+    status: string;
+    setup_fee_paid: boolean;
+    setup_fee_sek: number | null;
+    hardware_fee_sek: number | null;
+    shipping_fee_sek: number | null;
+    base_shipping_fee_sek: number | null;
+    shipping_included_devices: number | null;
+    additional_shipping_fee_per_device_sek: number | null;
+    additional_shipping_device_count: number | null;
+    monthly_fee_sek: number | null;
+    trial_days: number | null;
+    trial_starts_at: string | null;
+    trial_ends_at: string | null;
+    screen_quantity: number | null;
+    device_discount_amount_sek: number | null;
+    monthly_discount_amount_sek: number | null;
+    device_discount_months: number | null;
+    quote_items: Array<{
+      pricingPlanCode?: string;
+      name?: string;
+      resolution?: string;
+      quantity?: number;
+      hardwareFeeSek?: number;
+      shippingFeeSek?: number;
+      monthlyFeeSek?: number;
+    }> | null;
+    tax_status: string | null;
+    tax_amount_sek: number | null;
+    total_amount_sek: number | null;
+    fulfillment_status: string | null;
+    inventory_status: string | null;
+    tracking_number: string | null;
+    tracking_url: string | null;
+    stripe_subscription_id: string | null;
+    stripe_invoice_id: string | null;
+    stripe_payment_status: string | null;
+    stripe_current_period_start: string | null;
+    stripe_current_period_end: string | null;
+    cancel_at_period_end: boolean | null;
+    cancellation_effective_at: string | null;
+    pause_started_at: string | null;
+    pause_resumes_at: string | null;
+    pause_reason: string | null;
+    created_at: string;
+    pricing_plans?: {
+      name: string;
+      resolution: string;
+      code: string;
+    } | null;
+  }>;
+  devices: Array<{
+    id: string;
+    device_code: string;
+    name: string | null;
+    is_active: boolean;
+    location: string | null;
+    inventory_status: string | null;
+    assigned_at: string | null;
+  }>;
+  devicePauses: Array<{
+    id: string;
+    customer_subscription_id: string;
+    device_id: string;
+    stripe_subscription_id: string;
+    pricing_plan_code: string | null;
+    monthly_fee_sek: number | null;
+    status: string;
+    pause_started_at: string;
+    pause_resumes_at: string;
+    reason: string | null;
+    resumed_at: string | null;
+    devices?: {
+      device_code: string | null;
+      name: string | null;
+      location: string | null;
+    } | null;
+  }>;
+  deviceCancellations: Array<{
+    id: string;
+    customer_subscription_id: string;
+    device_id: string;
+    stripe_subscription_id: string;
+    pricing_plan_code: string | null;
+    monthly_fee_sek: number | null;
+    status: string;
+    reason: string | null;
+    cancellation_requested_at: string;
+    cancellation_effective_at: string | null;
+    devices?: {
+      device_code: string | null;
+      name: string | null;
+      location: string | null;
+    } | null;
+  }>;
+  messages: Array<{
+    id: string;
+    ticket_number: string | null;
+    request_type: string;
+    priority: string;
+    related_ticket_number: string | null;
+    subject: string | null;
+    message: string;
+    status: string;
+    created_at: string;
+    files: Array<{
+      id: string;
+      fileName: string;
+      contentType: string;
+      fileSize: number;
+      downloadUrl: string | null;
+    }>;
+  }>;
+  displayAssets: Array<{
+    id: string;
+    file_name: string | null;
+    content_type: string | null;
+    file_size: number | null;
+    asset_category: string;
+    description: string | null;
+    source: string;
+    status: string;
+    created_at: string;
+    downloadUrl: string | null;
+  }>;
+  previewDecisions: Array<{
+    id: string;
+    decision: string;
+    feedback: string | null;
+    preview_url: string | null;
+    decided_at: string;
+  }>;
+  agreements: Array<{
+    id: string;
+    document_type: string;
+    document_title: string;
+    document_version: string;
+    document_effective_at: string | null;
+    document_url: string | null;
+    pdf_url: string | null;
+    content_snapshot: string;
+    accepted_at: string;
+    collection_point: string;
+  }>;
+  legalDocuments: Array<{
+    id: string;
+    document_type: string;
+    title: string;
+    version: string;
+    effective_at: string;
+    status: string;
+    summary: string | null;
+    pdf_url: string | null;
+  }>;
+  subscriptionAdjustments: Array<{
+    id: string;
+    customer_subscription_id: string;
+    percent_off: number;
+    duration_months: number;
+    status: string;
+    created_at: string;
+    ended_at: string | null;
+  }>;
+};
+
+export type MaterialUploadItem = {
+  file: File;
+  category: string;
+};

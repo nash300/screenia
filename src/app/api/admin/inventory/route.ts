@@ -1,14 +1,10 @@
-import { cookies } from "next/headers";
+import {
+  getAuthenticatedAdmin,
+  supabaseAdmin,
+} from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
-import { createClient } from "@supabase/supabase-js";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-);
 
 const itemTypes = new Set(["standard_fhd", "premium_4k", "spare", "other"]);
 const statuses = new Set([
@@ -30,27 +26,6 @@ const conditions = new Set([
   "defective",
   "repaired",
 ]);
-
-async function getAuthenticatedAdmin() {
-  const cookieStore = await cookies();
-
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => cookieStore.getAll(),
-        setAll: () => {},
-      },
-    },
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return user?.app_metadata?.role === "admin" ? user : null;
-}
 
 function cleanString(value: unknown, maxLength: number) {
   const trimmed = String(value || "").trim();
