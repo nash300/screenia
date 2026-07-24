@@ -124,6 +124,41 @@ type AccountData = {
     inventory_status: string | null;
     assigned_at: string | null;
   }>;
+  devicePauses: Array<{
+    id: string;
+    customer_subscription_id: string;
+    device_id: string;
+    stripe_subscription_id: string;
+    pricing_plan_code: string | null;
+    monthly_fee_sek: number | null;
+    status: string;
+    pause_started_at: string;
+    pause_resumes_at: string;
+    reason: string | null;
+    resumed_at: string | null;
+    devices?: {
+      device_code: string | null;
+      name: string | null;
+      location: string | null;
+    } | null;
+  }>;
+  deviceCancellations: Array<{
+    id: string;
+    customer_subscription_id: string;
+    device_id: string;
+    stripe_subscription_id: string;
+    pricing_plan_code: string | null;
+    monthly_fee_sek: number | null;
+    status: string;
+    reason: string | null;
+    cancellation_requested_at: string;
+    cancellation_effective_at: string | null;
+    devices?: {
+      device_code: string | null;
+      name: string | null;
+      location: string | null;
+    } | null;
+  }>;
   messages: Array<{
     id: string;
     ticket_number: string | null;
@@ -246,6 +281,13 @@ const cancellationReasons = [
   { value: "other", label: "Annan orsak" },
 ];
 
+const pauseDurationOptions = [
+  { value: 1, label: "1 månad" },
+  { value: 2, label: "2 månader" },
+  { value: 3, label: "3 månader" },
+  { value: 4, label: "4 månader" },
+];
+
 function money(amount: number | null) {
   if (typeof amount !== "number") return "-";
   return `${formatter.format(amount)} kr`;
@@ -262,6 +304,18 @@ function date(value: string | null) {
     month: "short",
     day: "numeric",
   }).format(new Date(value));
+}
+
+function addMonths(value: Date, months: number) {
+  const next = new Date(value);
+  const day = next.getDate();
+  next.setMonth(next.getMonth() + months);
+
+  if (next.getDate() !== day) {
+    next.setDate(0);
+  }
+
+  return next;
 }
 
 function trialStatus(subscription: AccountData["subscriptions"][number]) {
@@ -309,6 +363,63 @@ function subscriptionPackageLabel(subscription: AccountData["subscriptions"][num
   }`.trim();
 }
 
+function subscriptionPausePlanOptions(
+  subscription: AccountData["subscriptions"][number],
+) {
+  const quoteItems = subscription.quote_items || [];
+
+  if (quoteItems.length) {
+    return quoteItems.map((item, index) => {
+      const pricingPlanCode = String(item.pricingPlanCode || "");
+      const name = [item.name, item.resolution].filter(Boolean).join(" ").trim();
+      return {
+        value: pricingPlanCode || `item-${index}`,
+        pricingPlanCode,
+        label: name || "Screenia",
+        monthlyFeeSek: item.monthlyFeeSek || 0,
+      };
+    });
+  }
+
+  return [
+    {
+      value: subscription.id,
+      pricingPlanCode: "",
+      label: subscriptionPackageLabel(subscription),
+      monthlyFeeSek: subscription.monthly_fee_sek || 0,
+    },
+  ];
+}
+
+function subscriptionInitialPaymentSek(subscription: AccountData["subscriptions"][number]) {
+  return (
+    (subscription.setup_fee_sek || 0) +
+    (subscription.hardware_fee_sek || 0) +
+    (subscription.shipping_fee_sek || 0) -
+    (subscription.device_discount_amount_sek || 0)
+  );
+}
+
+function subscriptionMonthlyTotalSek(subscription: AccountData["subscriptions"][number]) {
+  const quoteItems = subscription.quote_items || [];
+
+  if (quoteItems.length) {
+    return quoteItems.reduce(
+      (sum, item) => sum + (item.monthlyFeeSek || 0) * Math.max(1, item.quantity || 1),
+      0,
+    );
+  }
+
+  return (subscription.monthly_fee_sek || 0) * Math.max(1, subscription.screen_quantity || 1);
+}
+
+function subscriptionIsBillable(subscription: AccountData["subscriptions"][number]) {
+  return (
+    ["paid", "active"].includes(subscription.status || "") ||
+    ["paid", "active", "trialing"].includes(subscription.stripe_payment_status || "")
+  );
+}
+
 function fileSize(value: number | null) {
   if (!value) return "-";
   if (value < 1024 * 1024) return `${Math.ceil(value / 1024)} KB`;
@@ -344,7 +455,9 @@ function statusLabel(value: string | null) {
   if (value === "cancelled") return "Avslutad";
   if (value === "active_until_period_end") return "Aktiv till periodens slut";
   if (value === "paused") return "Pausad";
-  if (value === "payment_failed") return "Betalning misslyckades";
+  if (value === "payment_failed" || value === "past_due" || value === "unpaid") {
+    return "Betalning misslyckades";
+  }
   if (value === "payment_disputed" || value === "disputed") return "Betalning bestridd";
   if (value === "refunded") return "Återbetald";
   if (value === "new") return "Nytt";
@@ -453,6 +566,25 @@ export default function AccountPage() {
   const [cancellationDetails, setCancellationDetails] = useState("");
   const [cancelConfirmationOpen, setCancelConfirmationOpen] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [pauseDetails, setPauseDetails] = useState("");
+  const [pauseDurationMonths, setPauseDurationMonths] = useState(1);
+  const [pauseConfirmationOpen, setPauseConfirmationOpen] = useState(false);
+  const [pausingSubscription, setPausingSubscription] = useState(false);
+  const [selectedPauseDeviceId, setSelectedPauseDeviceId] = useState("");
+  const [selectedPauseSubscriptionId, setSelectedPauseSubscriptionId] = useState("");
+  const [selectedPausePricingPlanCode, setSelectedPausePricingPlanCode] = useState("");
+  const [devicePauseConfirmationOpen, setDevicePauseConfirmationOpen] =
+    useState(false);
+  const [pausingDevice, setPausingDevice] = useState(false);
+  const [selectedCancelDeviceIds, setSelectedCancelDeviceIds] = useState<string[]>([]);
+  const [selectedCancelSubscriptionId, setSelectedCancelSubscriptionId] = useState("");
+  const [selectedCancelPricingPlanCode, setSelectedCancelPricingPlanCode] =
+    useState("");
+  const [deviceCancelConfirmationOpen, setDeviceCancelConfirmationOpen] =
+    useState(false);
+  const [cancellingDevices, setCancellingDevices] = useState(false);
+  const [resumeConfirmationOpen, setResumeConfirmationOpen] = useState(false);
+  const [resumingSubscription, setResumingSubscription] = useState(false);
   const [exportingData, setExportingData] = useState(false);
   const [savingConsents, setSavingConsents] = useState(false);
   const [consentDrafts, setConsentDrafts] = useState({
@@ -462,7 +594,70 @@ export default function AccountPage() {
   });
   const router = useRouter();
 
-  const activeSubscription = data?.subscriptions[0];
+  const billableSubscriptions = useMemo(
+    () => (data?.subscriptions || []).filter(subscriptionIsBillable),
+    [data?.subscriptions],
+  );
+  const activeSubscription = billableSubscriptions[0] || data?.subscriptions[0];
+  const activeDevicePauses = useMemo(
+    () => (data?.devicePauses || []).filter((pause) => pause.status === "active"),
+    [data?.devicePauses],
+  );
+  const activeDevicePauseByDeviceId = useMemo(
+    () =>
+      new Map(activeDevicePauses.map((pause) => [pause.device_id, pause])),
+    [activeDevicePauses],
+  );
+  const openDeviceCancellations = useMemo(
+    () =>
+      (data?.deviceCancellations || []).filter((cancellation) =>
+        ["scheduled", "active_until_period_end"].includes(cancellation.status),
+      ),
+    [data?.deviceCancellations],
+  );
+  const openDeviceCancellationByDeviceId = useMemo(
+    () =>
+      new Map(
+        openDeviceCancellations.map((cancellation) => [
+          cancellation.device_id,
+          cancellation,
+        ]),
+      ),
+    [openDeviceCancellations],
+  );
+  const selectedPauseSubscription =
+    billableSubscriptions.find(
+      (subscription) => subscription.id === selectedPauseSubscriptionId,
+    ) ||
+    (billableSubscriptions.length === 1 ? billableSubscriptions[0] : null);
+  const selectedPausePlanOptions = selectedPauseSubscription
+    ? subscriptionPausePlanOptions(selectedPauseSubscription)
+    : [];
+  const selectedPausePlan =
+    selectedPausePlanOptions.find(
+      (option) =>
+        option.pricingPlanCode === selectedPausePricingPlanCode ||
+        option.value === selectedPausePricingPlanCode,
+    ) || selectedPausePlanOptions[0];
+  const selectedPauseDevice = data?.devices.find(
+    (device) => device.id === selectedPauseDeviceId,
+  );
+  const selectedCancelSubscription =
+    billableSubscriptions.find(
+      (subscription) => subscription.id === selectedCancelSubscriptionId,
+    ) ||
+    (billableSubscriptions.length === 1 ? billableSubscriptions[0] : null);
+  const selectedCancelPlanOptions = selectedCancelSubscription
+    ? subscriptionPausePlanOptions(selectedCancelSubscription)
+    : [];
+  const selectedCancelPlan =
+    selectedCancelPlanOptions.find(
+      (option) =>
+        option.pricingPlanCode === selectedCancelPricingPlanCode ||
+        option.value === selectedCancelPricingPlanCode,
+    ) || selectedCancelPlanOptions[0];
+  const selectedCancelDevices =
+    data?.devices.filter((device) => selectedCancelDeviceIds.includes(device.id)) || [];
   const activeTemporaryDiscount = data?.subscriptionAdjustments.find(
     (adjustment) => adjustment.customer_subscription_id === activeSubscription?.id,
   );
@@ -495,14 +690,61 @@ export default function AccountPage() {
       : (activeSubscription.monthly_fee_sek || 0) * screenQuantity
     : 0;
   const initialPaymentSek = activeSubscription
-    ? activeSubscription.total_amount_sek !== null
-      ? Math.round(activeSubscription.total_amount_sek / 100)
-      : (activeSubscription.setup_fee_sek || 0) +
-        hardwareSubtotalSek +
-        shippingSubtotalSek -
-        (activeSubscription.device_discount_amount_sek || 0)
+    ? subscriptionInitialPaymentSek(activeSubscription)
     : 0;
   const monthlyPaymentSek = monthlySubtotalSek;
+  const combinedScreenQuantity = billableSubscriptions.reduce(
+    (sum, subscription) => sum + Math.max(0, subscription.screen_quantity || 0),
+    0,
+  );
+  const combinedMonthlyPaymentSek = billableSubscriptions.reduce(
+    (sum, subscription) => sum + subscriptionMonthlyTotalSek(subscription),
+    0,
+  );
+  const activeDevicePauseAmountSek = activeDevicePauses.reduce(
+    (sum, pause) => sum + (pause.monthly_fee_sek || 0),
+    0,
+  );
+  const openDeviceCancellationAmountSek = openDeviceCancellations.reduce(
+    (sum, cancellation) => sum + (cancellation.monthly_fee_sek || 0),
+    0,
+  );
+  const monthlyAmountRemovedByDeviceChangesSek =
+    activeDevicePauseAmountSek + openDeviceCancellationAmountSek;
+  const adjustedCombinedMonthlyPaymentSek = Math.max(
+    0,
+    (combinedMonthlyPaymentSek || monthlyPaymentSek) -
+      monthlyAmountRemovedByDeviceChangesSek,
+  );
+  const combinedPackageLabel =
+    billableSubscriptions.length > 0
+      ? billableSubscriptions.map(subscriptionPackageLabel).join(" + ")
+      : activeSubscription
+        ? subscriptionPackageLabel(activeSubscription)
+        : "-";
+  const latestPaymentStatus =
+    billableSubscriptions.find((subscription) => subscription.stripe_payment_status)
+      ?.stripe_payment_status ||
+    activeSubscription?.stripe_payment_status ||
+    null;
+  const subscriptionPaused =
+    data?.customer.service_access_status === "paused" ||
+    billableSubscriptions.some(
+      (subscription) =>
+        subscription.status === "paused" || Boolean(subscription.pause_started_at),
+    );
+  const paymentFailed =
+    data?.customer.payment_status === "failed" ||
+    data?.customer.service_access_status === "payment_failed" ||
+    billableSubscriptions.some(
+      (subscription) =>
+        subscription.status === "payment_failed" ||
+        subscription.stripe_payment_status === "payment_failed" ||
+        subscription.stripe_payment_status === "past_due" ||
+        subscription.fulfillment_status === "payment_failed",
+    );
+  const visibleCustomerStatus = paymentFailed ? "payment_failed" : data?.customer.status || null;
+  const pauseResumeDate = addMonths(new Date(), pauseDurationMonths);
   const discountedMonthlyPaymentSek = activeTemporaryDiscount
     ? monthlyPaymentSek * (1 - activeTemporaryDiscount.percent_off / 100)
     : monthlyPaymentSek;
@@ -562,6 +804,124 @@ export default function AccountPage() {
       remoteSupportConsent: Boolean(data.customer.remote_support_consent),
     });
   }, [data?.customer]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setSelectedPauseDeviceId((current) => {
+      if (
+        current &&
+        data.devices.some(
+          (device) =>
+            device.id === current &&
+            device.is_active &&
+            !activeDevicePauseByDeviceId.has(device.id) &&
+            !openDeviceCancellationByDeviceId.has(device.id),
+        )
+      ) {
+        return current;
+      }
+
+      return (
+        data.devices.find(
+          (device) =>
+            device.is_active &&
+            !activeDevicePauseByDeviceId.has(device.id) &&
+            !openDeviceCancellationByDeviceId.has(device.id),
+        )?.id || ""
+      );
+    });
+
+    setSelectedPauseSubscriptionId((current) => {
+      if (
+        current &&
+        billableSubscriptions.some((subscription) => subscription.id === current)
+      ) {
+        return current;
+      }
+
+      return billableSubscriptions.length === 1 ? billableSubscriptions[0].id : "";
+    });
+  }, [
+    activeDevicePauseByDeviceId,
+    billableSubscriptions,
+    data,
+    openDeviceCancellationByDeviceId,
+  ]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setSelectedCancelDeviceIds((current) =>
+      current.filter((deviceId) =>
+        data.devices.some(
+          (device) =>
+            device.id === deviceId &&
+            device.is_active &&
+            !activeDevicePauseByDeviceId.has(device.id) &&
+            !openDeviceCancellationByDeviceId.has(device.id),
+        ),
+      ),
+    );
+
+    setSelectedCancelSubscriptionId((current) => {
+      if (
+        current &&
+        billableSubscriptions.some((subscription) => subscription.id === current)
+      ) {
+        return current;
+      }
+
+      return billableSubscriptions.length === 1 ? billableSubscriptions[0].id : "";
+    });
+  }, [
+    activeDevicePauseByDeviceId,
+    billableSubscriptions,
+    data,
+    openDeviceCancellationByDeviceId,
+  ]);
+
+  useEffect(() => {
+    if (!selectedPauseSubscription) {
+      setSelectedPausePricingPlanCode("");
+      return;
+    }
+
+    const options = subscriptionPausePlanOptions(selectedPauseSubscription);
+    setSelectedPausePricingPlanCode((current) => {
+      if (
+        current &&
+        options.some(
+          (option) => option.pricingPlanCode === current || option.value === current,
+        )
+      ) {
+        return current;
+      }
+
+      return options.length === 1 ? options[0].pricingPlanCode || options[0].value : "";
+    });
+  }, [selectedPauseSubscription]);
+
+  useEffect(() => {
+    if (!selectedCancelSubscription) {
+      setSelectedCancelPricingPlanCode("");
+      return;
+    }
+
+    const options = subscriptionPausePlanOptions(selectedCancelSubscription);
+    setSelectedCancelPricingPlanCode((current) => {
+      if (
+        current &&
+        options.some(
+          (option) => option.pricingPlanCode === current || option.value === current,
+        )
+      ) {
+        return current;
+      }
+
+      return options.length === 1 ? options[0].pricingPlanCode || options[0].value : "";
+    });
+  }, [selectedCancelSubscription]);
 
   const fileToPayload = (file: File, category = "other") => {
     return new Promise<{
@@ -871,6 +1231,197 @@ export default function AccountPage() {
     loadAccount();
   };
 
+  const requestPause = () => {
+    setNotice("");
+    setPauseConfirmationOpen(true);
+  };
+
+  const requestDevicePause = () => {
+    if (!selectedPauseDeviceId) {
+      setNotice("Välj skärmen som ska pausas.");
+      return;
+    }
+
+    if (!selectedPauseSubscriptionId) {
+      setNotice("Välj vilken abonnemangsdel skärmen hör till.");
+      return;
+    }
+
+    if (!selectedPausePlan) {
+      setNotice("Välj teknisk nivå för skärmen som ska pausas.");
+      return;
+    }
+
+    setNotice("");
+    setDevicePauseConfirmationOpen(true);
+  };
+
+  const pauseSubscription = async () => {
+    setPauseConfirmationOpen(false);
+    setPausingSubscription(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/pause-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reason: pauseDetails,
+        durationMonths: pauseDurationMonths,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte pausa abonnemanget.");
+      setPausingSubscription(false);
+      return;
+    }
+
+    setPauseDetails("");
+    setNotice(
+      result.warning
+        ? `Abonnemanget är pausat, men bekräftelsemejlet behöver kontrolleras: ${result.warning}`
+        : result.pauseResumesAt
+          ? `Abonnemanget är pausat till ${date(result.pauseResumesAt)}. En bekräftelse har skickats till kontots e-postadress.`
+          : "Abonnemanget är pausat. En bekräftelse har skickats till kontots e-postadress.",
+    );
+    setPausingSubscription(false);
+    await loadAccount();
+  };
+
+  const pauseDevice = async () => {
+    setDevicePauseConfirmationOpen(false);
+    setPausingDevice(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/pause-device", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceId: selectedPauseDeviceId,
+        customerSubscriptionId: selectedPauseSubscriptionId,
+        pricingPlanCode: selectedPausePlan?.pricingPlanCode || "",
+        durationMonths: pauseDurationMonths,
+        reason: pauseDetails,
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte pausa vald skärm.");
+      setPausingDevice(false);
+      return;
+    }
+
+    setPauseDetails("");
+    setNotice(
+      result.warning
+        ? `Skärmen är pausad, men bekräftelsemejlet behöver kontrolleras: ${result.warning}`
+        : result.pauseResumesAt
+          ? `Skärmen ${result.deviceLabel || ""} är pausad till ${date(result.pauseResumesAt)}. Övriga skärmar fortsätter som vanligt.`
+          : "Vald skärm är pausad. Övriga skärmar fortsätter som vanligt.",
+    );
+    setPausingDevice(false);
+    await loadAccount();
+  };
+
+  const toggleCancelDevice = (deviceId: string) => {
+    setSelectedCancelDeviceIds((current) =>
+      current.includes(deviceId)
+        ? current.filter((id) => id !== deviceId)
+        : [...current, deviceId],
+    );
+  };
+
+  const requestDeviceCancellation = () => {
+    if (!selectedCancelDeviceIds.length) {
+      setNotice("Välj minst en skärm som ska avslutas.");
+      return;
+    }
+
+    if (!selectedCancelSubscriptionId) {
+      setNotice("Välj vilken abonnemangsdel skärmarna hör till.");
+      return;
+    }
+
+    if (!selectedCancelPlan) {
+      setNotice("Välj teknisk nivå för skärmarna som ska avslutas.");
+      return;
+    }
+
+    setNotice("");
+    setDeviceCancelConfirmationOpen(true);
+  };
+
+  const cancelSelectedDevices = async () => {
+    setDeviceCancelConfirmationOpen(false);
+    setCancellingDevices(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/cancel-devices", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deviceIds: selectedCancelDeviceIds,
+        customerSubscriptionId: selectedCancelSubscriptionId,
+        pricingPlanCode: selectedCancelPlan?.pricingPlanCode || "",
+        reason: cancellationDetails || "Kunden avslutade valda skärmar i kundportalen.",
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte avsluta valda skärmar.");
+      setCancellingDevices(false);
+      return;
+    }
+
+    setSelectedCancelDeviceIds([]);
+    setNotice(
+      result.warning
+        ? `Valda skärmar är markerade för avslut, men bekräftelsemejlet behöver kontrolleras: ${result.warning}`
+        : result.cancellationEffectiveAt
+          ? `Valda skärmar avslutas från ${date(result.cancellationEffectiveAt)}. Övriga skärmar fortsätter som vanligt.`
+          : "Valda skärmar är markerade för avslut. Övriga skärmar fortsätter som vanligt.",
+    );
+    setCancellingDevices(false);
+    await loadAccount();
+  };
+
+  const requestResume = () => {
+    setNotice("");
+    setResumeConfirmationOpen(true);
+  };
+
+  const resumeSubscription = async () => {
+    setResumeConfirmationOpen(false);
+    setResumingSubscription(true);
+    setNotice("");
+
+    const response = await fetch("/api/account/resume-subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        reason: "Kunden återaktiverade abonnemanget i kundportalen.",
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      setNotice(result.error || "Kunde inte återaktivera abonnemanget.");
+      setResumingSubscription(false);
+      return;
+    }
+
+    setNotice(
+      result.warning
+        ? `Abonnemanget är återaktiverat, men bekräftelsemejlet behöver kontrolleras: ${result.warning}`
+        : "Abonnemanget är återaktiverat. En bekräftelse har skickats till kontots e-postadress.",
+    );
+    setResumingSubscription(false);
+    await loadAccount();
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     router.push("/");
@@ -940,7 +1491,7 @@ export default function AccountPage() {
                 Hantera abonnemang, skärmmaterial, ärenden och kontohistorik på ett samlat ställe.
               </p>
             </div>
-            <StatusPill label={statusLabel(data.customer.status)} />
+            <StatusPill label={statusLabel(visibleCustomerStatus)} />
           </section>
 
           {notice && <p className="flow-message">{notice}</p>}
@@ -1053,7 +1604,7 @@ export default function AccountPage() {
                   kontakta dig senare.
                 </p>
                 <div className="account-facts">
-                  <Fact label="Status" value={statusLabel(data.customer.status)} />
+                  <Fact label="Status" value={statusLabel(visibleCustomerStatus)} />
                   <Fact label="Senast skickat" value={date(data.customer.content_collected_at)} />
                   <Fact label="Förhandsvisning" value={statusLabel(data.customer.preview_status)} />
                   <Fact label="Valt innehållssätt" value={contentOptionLabel(data.customer.content_option)} />
@@ -1551,10 +2102,55 @@ export default function AccountPage() {
 
           {activeSection === "billing" && (
             <div className="account-panel-stack">
+              {paymentFailed && (
+                <AccountCard title="Betalning behöver åtgärdas">
+                  <div className="account-payment-alert">
+                    <strong>Den senaste betalningen kunde inte genomföras.</strong>
+                    <p>
+                      Skärmtjänsten är tillfälligt stoppad tills betalningen är
+                      uppdaterad. Öppna betalningsportalen, kontrollera kort eller
+                      betalningsmetod och genomför betalningen. När Stripe bekräftar
+                      betalningen återaktiveras tjänsten automatiskt.
+                    </p>
+                    <button
+                      className="landing-button landing-button-primary"
+                      onClick={openBillingPortal}
+                    >
+                      Uppdatera betalning
+                    </button>
+                  </div>
+                </AccountCard>
+              )}
               <section className="account-grid">
                 <AccountCard title="Abonnemang">
                   {activeSubscription ? (
                     <div className="account-facts">
+                      <div className="account-subscription-summary">
+                        <h3>Aktuellt abonnemang</h3>
+                        <div className="account-subscription-summary-grid">
+                          <Fact
+                            label="Aktiva beställningar"
+                            value={String(billableSubscriptions.length || 1)}
+                          />
+                          <Fact label="Paket och skärmar" value={combinedPackageLabel} />
+                          <Fact
+                            label="Totalt antal skärmar"
+                            value={String(combinedScreenQuantity || screenQuantity)}
+                          />
+                          <Fact
+                            label={
+                              monthlyAmountRemovedByDeviceChangesSek
+                                ? "Kommande månadspris"
+                                : "Månadspris totalt"
+                            }
+                            value={money(adjustedCombinedMonthlyPaymentSek)}
+                          />
+                          <Fact
+                            label="Senaste betalningsstatus"
+                            value={statusLabel(latestPaymentStatus)}
+                          />
+                        </div>
+                      </div>
                       <Fact label="Beställning" value={activeSubscription.order_number} />
                       <Fact
                         label="Paket"
@@ -1578,7 +2174,18 @@ export default function AccountPage() {
                         />
                       )}
                       <Fact label="Första betalning" value={money(initialPaymentSek)} />
-                      <Fact label="Månadspris efter provperiod" value={money(monthlyPaymentSek)} />
+                      <Fact
+                        label={
+                          monthlyAmountRemovedByDeviceChangesSek
+                            ? "Kommande månadspris"
+                            : "Månadspris efter provperiod"
+                        }
+                        value={money(
+                          monthlyAmountRemovedByDeviceChangesSek
+                            ? adjustedCombinedMonthlyPaymentSek
+                            : monthlyPaymentSek,
+                        )}
+                      />
                       {activeTemporaryDiscount && (
                         <>
                           <Fact
@@ -1618,6 +2225,27 @@ export default function AccountPage() {
                           ? " Stripe tillämpar rabatten på de första månadsfakturorna."
                           : ""}
                       </p>
+                      {billableSubscriptions.length > 1 && (
+                        <div className="account-order-breakdown">
+                          <h3>Aktiva delar i abonnemanget</h3>
+                          <div className="account-list">
+                            {billableSubscriptions.map((subscription) => (
+                              <div className="account-list-item" key={subscription.id}>
+                                <div>
+                                  <strong>{subscriptionPackageLabel(subscription)}</strong>
+                                  <span>Beställning {subscription.order_number}</span>
+                                </div>
+                                <div>
+                                  <strong>{money(subscription.monthly_fee_sek || 0)} / månad</strong>
+                                  <span>
+                                    Första betalning {money(subscriptionInitialPaymentSek(subscription))}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <p>Inget abonnemang är kopplat till kontot ännu.</p>
@@ -1659,6 +2287,323 @@ export default function AccountPage() {
                   >
                     {cancelling ? "Avslutar..." : "Avsluta abonnemang"}
                   </button>
+                </AccountCard>
+
+                <AccountCard title="Avsluta valda skärmar">
+                  <p>
+                    Använd detta när bara vissa skärmar ska avslutas. Valda skärmar
+                    fortsätter till slutet av aktuell betald period och tas bort från
+                    kommande månadsfakturor.
+                  </p>
+                  {openDeviceCancellations.length > 0 && (
+                    <div className="account-list account-list-compact">
+                      {openDeviceCancellations.map((cancellation) => (
+                        <div key={cancellation.id} className="account-list-item">
+                          <div>
+                            <strong>
+                              {cancellation.devices?.name ||
+                                cancellation.devices?.device_code ||
+                                "Skärm under avslut"}
+                            </strong>
+                            <span>
+                              Avslutas {date(cancellation.cancellation_effective_at)} |{" "}
+                              {money(cancellation.monthly_fee_sek)} per månad tas bort
+                            </span>
+                          </div>
+                          <StatusPill label="Avslutas" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flow-form-grid">
+                    <label>
+                      Abonnemangsdel
+                      <select
+                        value={selectedCancelSubscriptionId}
+                        onChange={(event) =>
+                          setSelectedCancelSubscriptionId(event.target.value)
+                        }
+                        className="account-input"
+                        disabled={cancellingDevices || billableSubscriptions.length <= 1}
+                      >
+                        <option value="">Välj abonnemangsdel</option>
+                        {billableSubscriptions.map((subscription) => (
+                          <option key={subscription.id} value={subscription.id}>
+                            {subscriptionPackageLabel(subscription)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    {selectedCancelPlanOptions.length > 1 && (
+                      <label>
+                        Teknisk nivå
+                        <select
+                          value={selectedCancelPricingPlanCode}
+                          onChange={(event) =>
+                            setSelectedCancelPricingPlanCode(event.target.value)
+                          }
+                          className="account-input"
+                          disabled={cancellingDevices}
+                        >
+                          <option value="">Välj teknisk nivå</option>
+                          {selectedCancelPlanOptions.map((option) => (
+                            <option
+                              key={option.value}
+                              value={option.pricingPlanCode || option.value}
+                            >
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    )}
+                  </div>
+                  <div className="account-device-selection-list" aria-label="Skärmar att avsluta">
+                    {data.devices.map((device) => {
+                      const pause = activeDevicePauseByDeviceId.get(device.id);
+                      const cancellation = openDeviceCancellationByDeviceId.get(device.id);
+                      const disabled =
+                        cancellingDevices ||
+                        !device.is_active ||
+                        Boolean(pause) ||
+                        Boolean(cancellation);
+
+                      return (
+                        <label
+                          key={device.id}
+                          className={`account-device-selection-item ${
+                            disabled ? "account-device-selection-item-disabled" : ""
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedCancelDeviceIds.includes(device.id)}
+                            disabled={disabled}
+                            onChange={() => toggleCancelDevice(device.id)}
+                          />
+                          <span>
+                            <strong>{device.name || device.device_code}</strong>
+                            <small>
+                              {device.location || device.device_code}
+                              {pause
+                                ? ` | pausad till ${date(pause.pause_resumes_at)}`
+                                : ""}
+                              {cancellation
+                                ? ` | avslutas ${date(cancellation.cancellation_effective_at)}`
+                                : ""}
+                              {!device.is_active && !pause && !cancellation
+                                ? " | inte aktiv"
+                                : ""}
+                            </small>
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <button
+                    type="button"
+                    className="landing-button landing-button-secondary"
+                    disabled={
+                      cancellingDevices ||
+                      !selectedCancelDeviceIds.length ||
+                      !selectedCancelSubscriptionId ||
+                      !selectedCancelPlan
+                    }
+                    onClick={requestDeviceCancellation}
+                  >
+                    {cancellingDevices
+                      ? "Markerar skärmar..."
+                      : `Avsluta valda skärmar${
+                          selectedCancelDeviceIds.length
+                            ? ` (${selectedCancelDeviceIds.length})`
+                            : ""
+                        }`}
+                  </button>
+                </AccountCard>
+
+                <AccountCard title="Tillfällig paus">
+                  <div
+                    className={`account-policy-card ${
+                      subscriptionPaused
+                        ? "account-policy-card-locked"
+                        : "account-policy-card-open"
+                    }`}
+                  >
+                    <strong>
+                      {subscriptionPaused
+                        ? "Abonnemanget är pausat"
+                        : "Pausa abonnemanget tillfälligt"}
+                    </strong>
+                    <p>
+                      En paus stoppar skärmtjänsten och kommande debiteringar tills
+                      abonnemanget återaktiveras. Pausen kan väljas för högst fyra
+                      månader. En bekräftelse skickas till kontots e-postadress.
+                    </p>
+                  </div>
+                  <div className="account-device-pause-box">
+                    <h3>Pausa en enskild skärm</h3>
+                    <p>
+                      Välj en skärm när endast den skärmen ska pausas. Övriga skärmar
+                      fortsätter att visas och debiteras som vanligt.
+                    </p>
+                    {activeDevicePauses.length > 0 && (
+                      <div className="account-list account-list-compact">
+                        {activeDevicePauses.map((pause) => (
+                          <div key={pause.id} className="account-list-item">
+                            <div>
+                              <strong>
+                                {pause.devices?.name ||
+                                  pause.devices?.device_code ||
+                                  "Pausad skärm"}
+                              </strong>
+                              <span>
+                                Pausad till {date(pause.pause_resumes_at)} |{" "}
+                                {money(pause.monthly_fee_sek)} per månad
+                              </span>
+                            </div>
+                            <StatusPill label="Pausad" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div className="flow-form-grid">
+                      <label>
+                        Skärm
+                        <select
+                          value={selectedPauseDeviceId}
+                          onChange={(event) => setSelectedPauseDeviceId(event.target.value)}
+                          className="account-input"
+                          disabled={pausingDevice || !data.devices.length}
+                        >
+                          <option value="">Välj skärm</option>
+                          {data.devices.map((device) => {
+                            const pause = activeDevicePauseByDeviceId.get(device.id);
+                            const cancellation = openDeviceCancellationByDeviceId.get(device.id);
+                            return (
+                              <option
+                                key={device.id}
+                                value={device.id}
+                                disabled={
+                                  !device.is_active ||
+                                  Boolean(pause) ||
+                                  Boolean(cancellation)
+                                }
+                              >
+                                {device.name || device.device_code}
+                                {device.location ? `, ${device.location}` : ""}
+                                {pause ? ` (pausad till ${date(pause.pause_resumes_at)})` : ""}
+                                {cancellation
+                                  ? ` (avslutas ${date(cancellation.cancellation_effective_at)})`
+                                  : ""}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </label>
+                      <label>
+                        Abonnemangsdel
+                        <select
+                          value={selectedPauseSubscriptionId}
+                          onChange={(event) => setSelectedPauseSubscriptionId(event.target.value)}
+                          className="account-input"
+                          disabled={pausingDevice || billableSubscriptions.length <= 1}
+                        >
+                          <option value="">Välj abonnemangsdel</option>
+                          {billableSubscriptions.map((subscription) => (
+                            <option key={subscription.id} value={subscription.id}>
+                              {subscriptionPackageLabel(subscription)}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      {selectedPausePlanOptions.length > 1 && (
+                        <label>
+                          Teknisk nivå
+                          <select
+                            value={selectedPausePricingPlanCode}
+                            onChange={(event) =>
+                              setSelectedPausePricingPlanCode(event.target.value)
+                            }
+                            className="account-input"
+                            disabled={pausingDevice}
+                          >
+                            <option value="">Välj teknisk nivå</option>
+                            {selectedPausePlanOptions.map((option) => (
+                              <option
+                                key={option.value}
+                                value={option.pricingPlanCode || option.value}
+                              >
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      className="landing-button landing-button-primary"
+                      disabled={
+                        pausingDevice ||
+                        !selectedPauseDeviceId ||
+                        !selectedPauseSubscriptionId ||
+                        !selectedPausePlan
+                      }
+                      onClick={requestDevicePause}
+                    >
+                      {pausingDevice ? "Pausar skärm..." : "Pausa vald skärm"}
+                    </button>
+                  </div>
+                  <label>
+                    Pauslängd
+                    <select
+                      value={pauseDurationMonths}
+                      onChange={(event) =>
+                        setPauseDurationMonths(Number(event.target.value))
+                      }
+                      className="account-input"
+                      disabled={subscriptionPaused || pausingSubscription}
+                    >
+                      {pauseDurationOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <textarea
+                    value={pauseDetails}
+                    onChange={(event) => setPauseDetails(event.target.value)}
+                    placeholder="Notering till Screenia, exempelvis önskat pausdatum eller orsak (valfritt)"
+                    rows={4}
+                    maxLength={300}
+                    className="account-input"
+                    disabled={subscriptionPaused || pausingSubscription}
+                  />
+                  <button
+                    type="button"
+                    className="landing-button landing-button-secondary"
+                    disabled={!activeSubscription || subscriptionPaused || pausingSubscription}
+                    onClick={requestPause}
+                  >
+                    {pausingSubscription
+                      ? "Pausar..."
+                      : subscriptionPaused
+                        ? "Redan pausat"
+                        : "Pausa abonnemang"}
+                  </button>
+                  {subscriptionPaused && (
+                    <button
+                      type="button"
+                      className="landing-button landing-button-primary"
+                      disabled={resumingSubscription}
+                      onClick={requestResume}
+                    >
+                      {resumingSubscription
+                        ? "Återaktiverar..."
+                        : "Återaktivera abonnemang"}
+                    </button>
+                  )}
                 </AccountCard>
               </section>
             </div>
@@ -1843,6 +2788,266 @@ export default function AccountPage() {
                 disabled={cancelling}
               >
                 {cancelling ? "Avslutar..." : "Bekräfta avslut"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {devicePauseConfirmationOpen && selectedPauseDevice && selectedPauseSubscription && (
+        <div className="account-dialog-backdrop" role="presentation">
+          <section
+            className="account-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-device-pause-title"
+          >
+            <p className="landing-eyebrow">Bekräfta skärmpaus</p>
+            <h2 id="account-device-pause-title">Pausa vald skärm?</h2>
+            <p>
+              Endast den valda skärmen pausas. Övriga skärmar i kontot fortsätter
+              att visas och debiteras som vanligt.
+            </p>
+            <dl className="account-dialog-summary">
+              <div>
+                <dt>Skärm</dt>
+                <dd>
+                  {selectedPauseDevice.name || selectedPauseDevice.device_code}
+                  {selectedPauseDevice.location
+                    ? `, ${selectedPauseDevice.location}`
+                    : ""}
+                </dd>
+              </div>
+              <div>
+                <dt>Abonnemangsdel</dt>
+                <dd>{selectedPausePlan?.label || subscriptionPackageLabel(selectedPauseSubscription)}</dd>
+              </div>
+              <div>
+                <dt>Månadsbelopp som pausas</dt>
+                <dd>{money(selectedPausePlan?.monthlyFeeSek || 0)}</dd>
+              </div>
+              <div>
+                <dt>Pauslängd</dt>
+                <dd>
+                  {
+                    pauseDurationOptions.find(
+                      (option) => option.value === pauseDurationMonths,
+                    )?.label
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Planerad återaktivering</dt>
+                <dd>{date(pauseResumeDate.toISOString())}</dd>
+              </div>
+            </dl>
+            {pauseDetails.trim() && (
+              <p className="account-dialog-note">{pauseDetails.trim()}</p>
+            )}
+            <div className="account-dialog-actions">
+              <button
+                type="button"
+                className="landing-button landing-button-secondary"
+                onClick={() => setDevicePauseConfirmationOpen(false)}
+                disabled={pausingDevice}
+              >
+                Behåll skärmen aktiv
+              </button>
+              <button
+                type="button"
+                className="landing-button landing-button-primary"
+                onClick={pauseDevice}
+                disabled={pausingDevice}
+              >
+                {pausingDevice ? "Pausar skärm..." : "Bekräfta skärmpaus"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {deviceCancelConfirmationOpen && selectedCancelSubscription && (
+        <div className="account-dialog-backdrop" role="presentation">
+          <section
+            className="account-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-device-cancel-title"
+          >
+            <p className="landing-eyebrow">Bekräfta skärmavslut</p>
+            <h2 id="account-device-cancel-title">Avsluta valda skärmar?</h2>
+            <p>
+              Valda skärmar fortsätter till slutet av aktuell betald period. De
+              tas bort från kommande månadsfakturor, medan övriga skärmar
+              fortsätter som vanligt.
+            </p>
+            <dl className="account-dialog-summary">
+              <div>
+                <dt>Skärmar</dt>
+                <dd>
+                  {selectedCancelDevices
+                    .map((device) => device.name || device.device_code)
+                    .join(", ")}
+                </dd>
+              </div>
+              <div>
+                <dt>Abonnemangsdel</dt>
+                <dd>
+                  {selectedCancelPlan?.label ||
+                    subscriptionPackageLabel(selectedCancelSubscription)}
+                </dd>
+              </div>
+              <div>
+                <dt>Månadsbelopp som tas bort</dt>
+                <dd>
+                  {money(
+                    (selectedCancelPlan?.monthlyFeeSek || 0) *
+                      selectedCancelDeviceIds.length,
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Gäller från</dt>
+                <dd>{date(selectedCancelSubscription.stripe_current_period_end)}</dd>
+              </div>
+            </dl>
+            {cancellationDetails.trim() && (
+              <p className="account-dialog-note">{cancellationDetails.trim()}</p>
+            )}
+            <div className="account-dialog-actions">
+              <button
+                type="button"
+                className="landing-button landing-button-secondary"
+                onClick={() => setDeviceCancelConfirmationOpen(false)}
+                disabled={cancellingDevices}
+              >
+                Behåll skärmarna
+              </button>
+              <button
+                type="button"
+                className="landing-button landing-button-primary"
+                onClick={cancelSelectedDevices}
+                disabled={cancellingDevices}
+              >
+                {cancellingDevices ? "Markerar avslut..." : "Bekräfta avslut"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {pauseConfirmationOpen && activeSubscription && (
+        <div className="account-dialog-backdrop" role="presentation">
+          <section
+            className="account-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-pause-title"
+          >
+            <p className="landing-eyebrow">Bekräfta paus</p>
+            <h2 id="account-pause-title">Pausa abonnemanget?</h2>
+            <p>
+              Skärmtjänsten stoppas under pausen och kommande debiteringar pausas
+              i Stripe. Screenia skickar en bekräftelse till kontots e-postadress.
+            </p>
+            <dl className="account-dialog-summary">
+              <div>
+                <dt>Aktiva beställningar</dt>
+                <dd>{String(billableSubscriptions.length || 1)}</dd>
+              </div>
+              <div>
+                <dt>Skärmar</dt>
+                <dd>{String(combinedScreenQuantity || screenQuantity)}</dd>
+              </div>
+              <div>
+                <dt>Månadspris</dt>
+                <dd>{money(adjustedCombinedMonthlyPaymentSek)}</dd>
+              </div>
+              <div>
+                <dt>Pauslängd</dt>
+                <dd>
+                  {
+                    pauseDurationOptions.find(
+                      (option) => option.value === pauseDurationMonths,
+                    )?.label
+                  }
+                </dd>
+              </div>
+              <div>
+                <dt>Planerad återaktivering</dt>
+                <dd>{date(pauseResumeDate.toISOString())}</dd>
+              </div>
+            </dl>
+            {pauseDetails.trim() && (
+              <p className="account-dialog-note">{pauseDetails.trim()}</p>
+            )}
+            <div className="account-dialog-actions">
+              <button
+                type="button"
+                className="landing-button landing-button-secondary"
+                onClick={() => setPauseConfirmationOpen(false)}
+                disabled={pausingSubscription}
+              >
+                Behåll aktivt
+              </button>
+              <button
+                type="button"
+                className="landing-button landing-button-primary"
+                onClick={pauseSubscription}
+                disabled={pausingSubscription}
+              >
+                {pausingSubscription ? "Pausar..." : "Bekräfta paus"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
+      {resumeConfirmationOpen && activeSubscription && (
+        <div className="account-dialog-backdrop" role="presentation">
+          <section
+            className="account-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="account-resume-title"
+          >
+            <p className="landing-eyebrow">Bekräfta återaktivering</p>
+            <h2 id="account-resume-title">Återaktivera abonnemanget?</h2>
+            <p>
+              Skärmtjänsten öppnas igen och kommande abonnemangsdebiteringar
+              fortsätter enligt Stripe-abonnemanget. Screenia skickar en
+              bekräftelse till kontots e-postadress.
+            </p>
+            <dl className="account-dialog-summary">
+              <div>
+                <dt>Aktiva beställningar</dt>
+                <dd>{String(data.subscriptions.length || 1)}</dd>
+              </div>
+              <div>
+                <dt>Skärmar</dt>
+                <dd>{String(combinedScreenQuantity || screenQuantity)}</dd>
+              </div>
+              <div>
+                <dt>Månadspris</dt>
+                <dd>{money(adjustedCombinedMonthlyPaymentSek)}</dd>
+              </div>
+            </dl>
+            <div className="account-dialog-actions">
+              <button
+                type="button"
+                className="landing-button landing-button-secondary"
+                onClick={() => setResumeConfirmationOpen(false)}
+                disabled={resumingSubscription}
+              >
+                Fortsätt pausa
+              </button>
+              <button
+                type="button"
+                className="landing-button landing-button-primary"
+                onClick={resumeSubscription}
+                disabled={resumingSubscription}
+              >
+                {resumingSubscription ? "Återaktiverar..." : "Bekräfta återaktivering"}
               </button>
             </div>
           </section>

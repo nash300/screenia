@@ -118,14 +118,7 @@ export default function DisplayPage({
   }
 
   if (error) {
-    return (
-      <DisplayMessage
-        tone="blocked"
-        title="Display inactive"
-        subtitle="Content is hidden until this device and subscription are active."
-        deviceId={deviceId}
-      />
-    );
+    return <BlankDisplay reason="inactive" />;
   }
 
   if (!currentItem) {
@@ -189,18 +182,16 @@ export default function DisplayPage({
         />
       )}
 
-      <div
-        style={{
-          position: "absolute",
-          left: 8,
-          top: 8,
-          color: "rgba(255,255,255,0.4)",
-          fontSize: 14,
-        }}
-      >
-        Device: {deviceId}
-      </div>
     </main>
+  );
+}
+
+function BlankDisplay({ reason }: { reason: string }) {
+  return (
+    <main
+      aria-label={`Screenia display ${reason}`}
+      className="fixed inset-0 z-[9999] overflow-hidden bg-black"
+    />
   );
 }
 

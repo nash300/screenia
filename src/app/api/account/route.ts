@@ -48,6 +48,8 @@ export async function GET() {
     { data: agreements },
     { data: legalDocuments },
     { data: subscriptionAdjustments },
+    devicePauseResult,
+    deviceCancellationResult,
   ] =
     await Promise.all([
       supabaseAdmin
@@ -101,6 +103,20 @@ export async function GET() {
         )
         .eq("customer_id", customer.id)
         .eq("status", "active")
+        .order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("subscription_device_pauses")
+        .select(
+          "id, customer_subscription_id, device_id, stripe_subscription_id, pricing_plan_code, monthly_fee_sek, status, pause_started_at, pause_resumes_at, reason, resumed_at",
+        )
+        .eq("customer_id", customer.id)
+        .order("created_at", { ascending: false }),
+      supabaseAdmin
+        .from("subscription_device_cancellations")
+        .select(
+          "id, customer_subscription_id, device_id, stripe_subscription_id, pricing_plan_code, monthly_fee_sek, status, reason, cancellation_requested_at, cancellation_effective_at",
+        )
+        .eq("customer_id", customer.id)
         .order("created_at", { ascending: false }),
     ]);
 
@@ -180,6 +196,45 @@ export async function GET() {
     }),
   );
 
+  const deviceById = new Map((devices || []).map((device) => [device.id, device]));
+  const devicePauses =
+    devicePauseResult.error?.code === "42P01" ||
+    devicePauseResult.error?.code === "PGRST205"
+      ? []
+      : (devicePauseResult.data || []).map((pause) => {
+          const device = deviceById.get(pause.device_id);
+
+          return {
+            ...pause,
+            devices: device
+              ? {
+                  device_code: device.device_code,
+                  name: device.name,
+                  location: device.location,
+                }
+              : null,
+          };
+        });
+
+  const deviceCancellations =
+    deviceCancellationResult.error?.code === "42P01" ||
+    deviceCancellationResult.error?.code === "PGRST205"
+      ? []
+      : (deviceCancellationResult.data || []).map((cancellation) => {
+          const device = deviceById.get(cancellation.device_id);
+
+          return {
+            ...cancellation,
+            devices: device
+              ? {
+                  device_code: device.device_code,
+                  name: device.name,
+                  location: device.location,
+                }
+              : null,
+          };
+        });
+
   return NextResponse.json({
     customer,
     subscriptions: subscriptions || [],
@@ -190,5 +245,7 @@ export async function GET() {
     agreements: agreements || [],
     legalDocuments: legalDocuments || [],
     subscriptionAdjustments: subscriptionAdjustments || [],
+    devicePauses,
+    deviceCancellations,
   });
 }

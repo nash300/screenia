@@ -55,6 +55,7 @@ function buildDevicePayload(body: Record<string, unknown>) {
 
   return {
     payload: {
+      id: crypto.randomUUID(),
       customer_id: customerId,
       name,
       location: cleanString(body.location, 200),

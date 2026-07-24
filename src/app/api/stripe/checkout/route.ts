@@ -38,6 +38,10 @@ type CheckoutLineItem =
   NonNullable<
     NonNullable<Parameters<typeof stripe.checkout.sessions.create>[0]>["line_items"]
   >[number];
+type SubscriptionItemInput =
+  NonNullable<
+    NonNullable<Parameters<typeof stripe.subscriptions.update>[1]>["items"]
+  >[number];
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -110,6 +114,7 @@ type QuoteItem = {
   hardwareFeeSek?: number;
   shippingFeeSek?: number;
   monthlyFeeSek?: number;
+  orderType?: string;
 };
 
 function staticPriceLineItem({
@@ -129,6 +134,20 @@ function staticPriceLineItem({
     price: priceId,
     quantity,
   };
+}
+
+function subscriptionItemForMonthlyCharge({
+  priceId,
+  quantity,
+}: {
+  priceId?: string | null;
+  quantity: number;
+}): SubscriptionItemInput {
+  if (!priceId) {
+    throw new Error("Missing Stripe monthly price for add-on subscription update.");
+  }
+
+  return { price: priceId, quantity };
 }
 
 type CheckoutFailureContext = {
@@ -323,7 +342,7 @@ export async function POST(request: Request) {
     const { data: customer, error: customerError } = await supabaseAdmin
       .from("customers")
       .select(
-        "id, name, email, billing_email, organisation_number, phone, country, postal_code, address, city, stripe_customer_id, onboarding_token, onboarding_token_expires_at",
+        "id, name, email, billing_email, organisation_number, phone, country, postal_code, address, city, stripe_customer_id, stripe_subscription_id, onboarding_token, onboarding_token_expires_at",
       )
       .eq("id", customerId)
       .single();
@@ -553,7 +572,7 @@ export async function POST(request: Request) {
       36,
       Math.max(0, Number(quotedOrder?.device_discount_months) || 0),
     );
-    const quoteItems =
+    const quoteItems: QuoteItem[] =
       Array.isArray(quotedOrder?.quote_items) &&
       quotedOrder.quote_items.length > 0
         ? (quotedOrder.quote_items as QuoteItem[])
@@ -565,6 +584,13 @@ export async function POST(request: Request) {
               monthlyFeeSek: plan.monthly_fee_sek,
             },
           ];
+    const isExistingCustomerAddOn = quoteItems.some(
+      (item) => item.orderType === "existing_customer_add_on",
+    );
+    const existingStripeSubscriptionId =
+      isExistingCustomerAddOn && customer.stripe_subscription_id
+        ? String(customer.stripe_subscription_id)
+        : null;
     const quotePlanCodes = Array.from(
       new Set(
         quoteItems
@@ -678,13 +704,31 @@ export async function POST(request: Request) {
         setup_included_screens: setupIncludedScreens,
         additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
         additional_setup_screen_count: additionalSetupScreens,
-        hardware_fee_sek: hardwareFeeSek,
+        hardware_fee_sek: checkoutQuoteItems.reduce(
+          (sum, item) =>
+            sum +
+            item.discountedHardwareFeeSek * item.quantity,
+          0,
+        ),
         shipping_fee_sek: shippingFeeSek,
         base_shipping_fee_sek: baseShippingFeeSek,
         shipping_included_devices: shippingIncludedDevices,
         additional_shipping_fee_per_device_sek: additionalShippingFeeSek,
         additional_shipping_device_count: additionalShippingDevices,
-        monthly_fee_sek: plan.monthly_fee_sek,
+        monthly_fee_sek:
+          checkoutQuoteItems.reduce(
+            (sum, item) => sum + item.monthlyFeeSek * item.quantity,
+            0,
+          ) -
+          (deviceDiscountMonths > 0
+            ? Math.round(
+                checkoutQuoteItems.reduce(
+                  (sum, item) => sum + item.monthlyFeeSek * item.quantity,
+                  0,
+                ) *
+                  (deviceDiscountPercent / 100),
+              )
+            : 0),
         trial_days: plan.trial_days,
         tax_status: stripeAutomaticTaxEnabled ? "pending" : "not_enabled",
         fulfillment_status: "pending",
@@ -896,7 +940,7 @@ export async function POST(request: Request) {
           }
         : null;
 
-    const checkoutLineItems: CheckoutLineItem[] = [
+    const oneTimeCheckoutLineItems: CheckoutLineItem[] = [
       ...(setupLineItem ? [setupLineItem] : []),
       ...(additionalSetupLineItem ? [additionalSetupLineItem] : []),
       staticPriceLineItem({
@@ -982,14 +1026,51 @@ export async function POST(request: Request) {
             quantity: item.quantity,
           };
 
-        return [hardwareLineItem, monthlyLineItem].filter(
+        void monthlyLineItem;
+
+        return [hardwareLineItem].filter(
           (lineItem): lineItem is CheckoutLineItem => Boolean(lineItem),
         );
       }),
     ];
+    const monthlyCheckoutLineItems: CheckoutLineItem[] = isExistingCustomerAddOn
+      ? []
+      : checkoutQuoteItems.map(
+          (item) =>
+            staticPriceLineItem({
+              priceId: item.stripeMonthlyPriceId,
+              expectedAmountSek: item.monthlyFeeSek,
+              actualAmountSek: item.monthlyFeeSek,
+              quantity: item.quantity,
+            }) || {
+              price_data: {
+                currency,
+                unit_amount: toOre(item.monthlyFeeSek),
+                tax_behavior: priceTaxBehavior,
+                recurring: {
+                  interval: "month",
+                },
+                product_data: {
+                  name: `Screenia ${item.name} ${item.resolution} månadsabonnemang`,
+                  images: [subscriptionImage],
+                },
+              },
+              quantity: item.quantity,
+            },
+        );
+    const checkoutLineItems = [
+      ...oneTimeCheckoutLineItems,
+      ...monthlyCheckoutLineItems,
+    ];
+    const addOnSubscriptionItems = checkoutQuoteItems.map((item) =>
+      subscriptionItemForMonthlyCharge({
+        priceId: item.stripeMonthlyPriceId,
+        quantity: item.quantity,
+      }),
+    );
 
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: isExistingCustomerAddOn ? "payment" : "subscription",
       customer: stripeCustomer.id,
       client_reference_id: order.order_number,
       locale: "sv",
@@ -1011,23 +1092,43 @@ export async function POST(request: Request) {
         shipping: "auto",
       },
       line_items: checkoutLineItems,
-      subscription_data: {
-        trial_period_days: plan.trial_days,
-        metadata: {
-          account_email: storedCustomerEmail,
-          billing_email: stripeBillingEmail,
-          customer_id: customerId,
-          customer_subscription_id: order.id,
-          organisation_number: normalizedOrganisationNumber,
-          order_number: order.order_number,
-          pricing_plan_id: plan.id,
-          pricing_plan_code: plan.code,
-          screen_quantity: String(checkoutScreenQuantity),
-          device_discount_percent: String(deviceDiscountPercent),
-          device_discount_months: String(deviceDiscountMonths),
-          stripe_discount_coupon_id: coupon?.id || "",
-        },
-      },
+      ...(isExistingCustomerAddOn
+        ? {
+            invoice_creation: {
+              enabled: true,
+              invoice_data: {
+                description: `Screenia tilläggsorder ${order.order_number}`,
+                footer:
+                  "Screenia. Alla priser inkluderar svensk moms. Frågor om fakturan: service@screenia.se",
+                metadata: {
+                  customer_id: customerId,
+                  customer_subscription_id: order.id,
+                  existing_stripe_subscription_id:
+                    existingStripeSubscriptionId || "",
+                  order_number: order.order_number,
+                },
+              },
+            },
+          }
+        : {
+            subscription_data: {
+              trial_period_days: plan.trial_days,
+              metadata: {
+                account_email: storedCustomerEmail,
+                billing_email: stripeBillingEmail,
+                customer_id: customerId,
+                customer_subscription_id: order.id,
+                organisation_number: normalizedOrganisationNumber,
+                order_number: order.order_number,
+                pricing_plan_id: plan.id,
+                pricing_plan_code: plan.code,
+                screen_quantity: String(checkoutScreenQuantity),
+                device_discount_percent: String(deviceDiscountPercent),
+                device_discount_months: String(deviceDiscountMonths),
+                stripe_discount_coupon_id: coupon?.id || "",
+              },
+            },
+          }),
       success_url: `${appUrl}/onboarding/payment-success?customer_id=${customerId}`,
       cancel_url: `${appUrl}/onboarding/payment-cancelled?token=${encodeURIComponent(
         customer.onboarding_token,
@@ -1045,6 +1146,18 @@ export async function POST(request: Request) {
         device_discount_percent: String(deviceDiscountPercent),
         device_discount_months: String(deviceDiscountMonths),
         stripe_discount_coupon_id: coupon?.id || "",
+        checkout_kind: isExistingCustomerAddOn
+          ? "existing_customer_add_on"
+          : "new_subscription",
+        existing_stripe_subscription_id: existingStripeSubscriptionId || "",
+        subscription_items: JSON.stringify(
+          addOnSubscriptionItems.map((item, index) => ({
+            pricingPlanCode: checkoutQuoteItems[index]?.code || "",
+            price: "price" in item ? item.price : null,
+            price_data: "price_data" in item ? item.price_data : null,
+            quantity: item.quantity,
+          })),
+        ),
       },
     });
 

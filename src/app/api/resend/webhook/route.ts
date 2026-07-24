@@ -52,6 +52,12 @@ type BillingEmailAssociation = {
   stripeInvoiceId: string | null;
 };
 
+type PauseReminderEmailAssociation = {
+  customerId: string | null;
+  pauseReminderId: string | null;
+  stripeSubscriptionId: string | null;
+};
+
 async function synchronizeBillingEmailState(
   resendEmailId: string | null,
   eventType: string,
@@ -101,6 +107,63 @@ async function synchronizeBillingEmailState(
   return {
     customerId: dispatch.customer_id,
     stripeInvoiceId: dispatch.stripe_invoice_id,
+  };
+}
+
+async function synchronizePauseReminderEmailState(
+  resendEmailId: string | null,
+  eventType: string,
+): Promise<PauseReminderEmailAssociation> {
+  const noAssociation = {
+    customerId: null,
+    pauseReminderId: null,
+    stripeSubscriptionId: null,
+  };
+  if (!resendEmailId) return noAssociation;
+
+  const { data: dispatch, error: lookupError } = await supabaseAdmin
+    .from("subscription_pause_reminder_dispatches")
+    .select("id, customer_id, stripe_subscription_id, status")
+    .eq("resend_email_id", resendEmailId)
+    .maybeSingle();
+
+  if (lookupError) throw lookupError;
+  if (!dispatch) return noAssociation;
+
+  let nextStatus: "sent" | "delivered" | "failed" | "bounced" | null = null;
+  if (["email.delivered", "email.opened", "email.clicked"].includes(eventType)) {
+    nextStatus = "delivered";
+  } else if (["email.bounced", "email.complained"].includes(eventType)) {
+    nextStatus = "bounced";
+  } else if (eventType === "email.failed") {
+    nextStatus = "failed";
+  } else if (eventType === "email.sent" && dispatch.status === "pending") {
+    nextStatus = "sent";
+  }
+
+  if (nextStatus) {
+    const update: Record<string, string | null> = {
+      status: nextStatus,
+      last_error:
+        nextStatus === "failed" || nextStatus === "bounced"
+          ? eventType
+          : null,
+    };
+    if (nextStatus === "delivered") {
+      update.delivered_at = new Date().toISOString();
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("subscription_pause_reminder_dispatches")
+      .update(update)
+      .eq("id", dispatch.id);
+    if (updateError) throw updateError;
+  }
+
+  return {
+    customerId: dispatch.customer_id,
+    pauseReminderId: dispatch.id,
+    stripeSubscriptionId: dispatch.stripe_subscription_id,
   };
 }
 
@@ -284,6 +347,12 @@ export async function POST(request: Request) {
     stripeInvoiceId: null,
   };
   let billingSyncError: string | null = null;
+  let pauseReminderAssociation: PauseReminderEmailAssociation = {
+    customerId: null,
+    pauseReminderId: null,
+    stripeSubscriptionId: null,
+  };
+  let pauseReminderSyncError: string | null = null;
 
   try {
     contactAssociation = await synchronizeContactInquiryEmailState(
@@ -307,6 +376,19 @@ export async function POST(request: Request) {
     console.error("Billing email state sync error:", error);
   }
 
+  try {
+    pauseReminderAssociation = await synchronizePauseReminderEmailState(
+      event.data?.email_id || null,
+      eventType,
+    );
+  } catch (error) {
+    pauseReminderSyncError =
+      error instanceof Error
+        ? error.message
+        : "Unknown pause reminder email sync error.";
+    console.error("Pause reminder email state sync error:", error);
+  }
+
   await Promise.all([
     recordAuditEvent(supabaseAdmin, {
       actorType: "system",
@@ -323,6 +405,8 @@ export async function POST(request: Request) {
         contactSyncError,
         ...billingAssociation,
         billingSyncError,
+        ...pauseReminderAssociation,
+        pauseReminderSyncError,
       },
     }),
     eventStatus === "action_required"
@@ -341,6 +425,8 @@ export async function POST(request: Request) {
             contactSyncError,
             ...billingAssociation,
             billingSyncError,
+            ...pauseReminderAssociation,
+            pauseReminderSyncError,
           },
         })
       : Promise.resolve(),

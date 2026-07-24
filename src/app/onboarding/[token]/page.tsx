@@ -31,6 +31,7 @@ export default function OnboardingPage({
   const { token } = use(params);
 
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [hasPayableOrder, setHasPayableOrder] = useState(false);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<WizardStep>("details");
   const [contactPerson, setContactPerson] = useState("");
@@ -69,8 +70,18 @@ export default function OnboardingPage({
       }
 
       const loadedCustomer = data as Customer;
+      const orderStatusResponse = await fetch(
+        `/api/onboarding/order-status?token=${encodeURIComponent(token)}`,
+      );
+      const orderStatus = orderStatusResponse.ok
+        ? await orderStatusResponse.json()
+        : { hasPayableOrder: false };
+
       setCustomer(loadedCustomer);
-      if (loadedCustomer.status === "accepted_terms") setStep("payment");
+      setHasPayableOrder(Boolean(orderStatus.hasPayableOrder));
+      if (loadedCustomer.status === "accepted_terms" || orderStatus.hasPayableOrder) {
+        setStep("payment");
+      }
       setLoading(false);
     };
 
@@ -214,7 +225,7 @@ export default function OnboardingPage({
     );
   }
 
-  if (customer.payment_status === "paid") {
+  if (customer.payment_status === "paid" && !hasPayableOrder) {
     return (
       <FlowShell>
         <h1>Betalningen är klar</h1>

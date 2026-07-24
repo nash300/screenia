@@ -139,7 +139,18 @@ if (fourthScreenAddonFirstPayment !== 1047) {
 }
 
 const checkoutMarkers = [
-  ["mode: \"subscription\"", "Checkout must create a subscription"],
+  [
+    'mode: isExistingCustomerAddOn ? "payment" : "subscription"',
+    "Checkout must create a subscription for new customers and one invoice for existing-customer add-ons",
+  ],
+  [
+    "invoice_creation:",
+    "Existing-customer add-ons must create exactly one Stripe invoice",
+  ],
+  [
+    "subscription_items",
+    "Existing-customer add-ons must carry subscription update items through Checkout metadata",
+  ],
   ["trial_period_days: plan.trial_days", "Checkout must use the configured trial"],
   ["tax_behavior: priceTaxBehavior", "Checkout line items must declare tax behavior"],
   ["automatic_tax:", "Checkout must configure automatic tax"],
@@ -158,6 +169,11 @@ for (const [marker, message] of checkoutMarkers) requireSource(checkoutSource, m
 requireSource(vatSource, "SWEDISH_STANDARD_VAT_RATE = 0.25", "Included Swedish VAT rate must remain 25%");
 requireSource(vatSource, "grossOre / (1 + SWEDISH_STANDARD_VAT_RATE)", "Included VAT must be derived from gross, not added to it");
 requireSource(webhookSource, "session.amount_total", "Checkout total must be stored from Stripe evidence");
+requireSource(
+  webhookSource,
+  "stripe.subscriptions.update(",
+  "Paid existing-customer add-ons must update the existing Stripe subscription",
+);
 requireSource(webhookSource, "invoice.total", "Recurring invoice total must be stored from Stripe evidence");
 requireSource(webhookSource, "invoiceTaxAmountOre(invoice)", "Recurring invoice VAT must be stored from Stripe evidence");
 requireSource(accountRouteSource, "screen_quantity", "Customer billing data must include screen quantity");

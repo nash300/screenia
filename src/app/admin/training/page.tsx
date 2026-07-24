@@ -74,7 +74,55 @@ export default function AdminTrainingPage() {
             Useful notes: mixed-package emails and pages must not collapse the
             order into the first package. If an existing paid subscription is
             being viewed, the admin preview should use stored paid totals rather
-            than recalculating the quote as a new add-on.
+            than recalculating the quote as a new add-on. Retest confirmed the
+            admin order totals must show aggregate device and monthly totals,
+            and display endpoint creation must send a UUID for the live devices
+            row.
+          </p>
+        </article>
+        <article className="admin-training-entry">
+          <div>
+            <p className="admin-operation-kicker">Customer order</p>
+            <h3>Business orders 10 Standard FHD screens</h3>
+          </div>
+          <p>
+            Use when a customer needs many similar screens and the order passes
+            the included three-screen setup and shipping limits.
+          </p>
+          <p>
+            Click path: landing pricing form, choose 10 Standard FHD screens,
+            send request, admin Customer work, Request & quote, prepare quote,
+            onboarding link, Stripe Checkout.
+          </p>
+          <p>
+            Evidence: 10 screens, setup `3 342 kr`, devices `6 990 kr`,
+            shipping `302 kr`, first payment `10 634 kr`, monthly `2 490 kr`,
+            included VAT `2 126,80 kr`, paid Stripe subscription, and active
+            customer service access.
+          </p>
+        </article>
+        <article className="admin-training-entry">
+          <div>
+            <p className="admin-operation-kicker">Billing control</p>
+            <h3>Test monthly billing with Stripe Test Clock</h3>
+          </div>
+          <p>
+            Use before launch and after pricing changes to confirm that a paid
+            customer is not billed during the trial, is billed correctly when
+            the trial ends, continues on the monthly cycle, and stops after
+            cancellation.
+          </p>
+          <p>
+            Click path: landing pricing form, admin Customer work, Request &
+            quote, onboarding link, Stripe Checkout, Stripe Test Clock, admin
+            customer profile, Orders & billing.
+          </p>
+          <p>
+            Evidence: first invoice contains setup, device, and shipping; the
+            subscription starts as trialing for 21 days; each monthly invoice
+            uses the selected plan price with inclusive Swedish VAT; the admin
+            page syncs payment and access state; cancellation changes access to
+            cancelled and no later invoice is created.
           </p>
         </article>
       </section>

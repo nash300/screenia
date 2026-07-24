@@ -76,6 +76,29 @@ function formatInvoiceDate(timestamp: number | null | undefined) {
   }).format(new Date(timestamp * 1000));
 }
 
+function parseAddOnSubscriptionItems(value: string | undefined) {
+  if (!value) return [];
+
+  try {
+    const parsed = JSON.parse(value) as Array<{
+      price?: string | null;
+      quantity?: number;
+    }>;
+
+    return parsed
+      .map((item) => {
+        const quantity = Math.min(50, Math.max(1, Number(item.quantity) || 1));
+        if (item.price) return { price: item.price, quantity };
+        return null;
+      })
+      .filter((item): item is { price: string; quantity: number } =>
+        Boolean(item?.price),
+      );
+  } catch {
+    return [];
+  }
+}
+
 function fulfillmentStatusForPaidRecovery(customer: {
   status?: string | null;
   production_status?: string | null;
@@ -1426,10 +1449,71 @@ export async function POST(request: Request) {
     const includedVatOre =
       session.total_details?.amount_tax ||
       includedVatOreFromStripeTotal(session.amount_total);
+    const checkoutKind = session.metadata?.checkout_kind || "new_subscription";
+    const isExistingCustomerAddOn = checkoutKind === "existing_customer_add_on";
+    const existingStripeSubscriptionId =
+      session.metadata?.existing_stripe_subscription_id || null;
 
     if (customerId) {
       await ensureCustomerAuthUser(customerId, accountEmail);
       let stripeSubscription: Stripe.Subscription | null = null;
+      let effectiveStripeSubscriptionId =
+        typeof session.subscription === "string" ? session.subscription : null;
+      if (isExistingCustomerAddOn) {
+        const addOnItems = parseAddOnSubscriptionItems(
+          session.metadata?.subscription_items,
+        );
+
+        if (!existingStripeSubscriptionId || !addOnItems.length) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "stripe_add_on_subscription_update_failed",
+            title: "Add-on subscription update failed",
+            message:
+              "A paid add-on checkout did not include enough metadata to update the existing Stripe subscription.",
+            metadata: {
+              stripeCheckoutSessionId: session.id,
+              stripeCustomerId: session.customer,
+              customerSubscriptionId,
+              orderNumber,
+              existingStripeSubscriptionId,
+              addOnItemCount: addOnItems.length,
+            },
+            customerIds: [customerId],
+          });
+        }
+
+        try {
+          stripeSubscription = await stripe.subscriptions.update(
+            existingStripeSubscriptionId as string,
+            {
+              items: addOnItems,
+              proration_behavior: "none",
+              metadata: {
+                last_add_on_order_number: orderNumber || "",
+                last_add_on_customer_subscription_id:
+                  customerSubscriptionId || "",
+              },
+            },
+          );
+          effectiveStripeSubscriptionId = stripeSubscription.id;
+        } catch (error) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "stripe_add_on_subscription_update_failed",
+            title: "Add-on subscription update failed",
+            message:
+              "The add-on one-time payment succeeded, but Screenia could not add the monthly charge to the existing Stripe subscription.",
+            metadata: {
+              stripeCheckoutSessionId: session.id,
+              stripeCustomerId: session.customer,
+              customerSubscriptionId,
+              orderNumber,
+              existingStripeSubscriptionId,
+              error: error instanceof Error ? error.message : String(error),
+            },
+            customerIds: [customerId],
+          });
+        }
+      }
       if (session.subscription) {
         try {
           stripeSubscription = await stripe.subscriptions.retrieve(
@@ -1446,7 +1530,7 @@ export async function POST(request: Request) {
         status: "paid",
         payment_status: "paid",
         stripe_customer_id: session.customer as string,
-        stripe_subscription_id: session.subscription as string,
+        stripe_subscription_id: effectiveStripeSubscriptionId,
         service_access_status: entitlement?.serviceAccessStatus || "active",
         service_access_until: entitlement?.serviceAccessUntil || null,
         inactive_reason: null,
@@ -1468,7 +1552,7 @@ export async function POST(request: Request) {
             "Stripe checkout completed. Customer paid and is ready for content collection.",
           metadata: {
             stripeCustomerId: session.customer,
-            stripeSubscriptionId: session.subscription,
+            stripeSubscriptionId: effectiveStripeSubscriptionId,
             stripeCheckoutSessionId: session.id,
             customerSubscriptionId,
             orderNumber,
@@ -1485,7 +1569,7 @@ export async function POST(request: Request) {
           priority: "urgent",
           metadata: {
             stripeCustomerId: session.customer,
-            stripeSubscriptionId: session.subscription,
+            stripeSubscriptionId: effectiveStripeSubscriptionId,
             stripeCheckoutSessionId: session.id,
             customerSubscriptionId,
             orderNumber,
@@ -1494,10 +1578,10 @@ export async function POST(request: Request) {
         });
       }
 
-      if (session.subscription) {
+      if (effectiveStripeSubscriptionId) {
         if (discountCouponId) {
           try {
-            await stripe.subscriptions.update(session.subscription as string, {
+            await stripe.subscriptions.update(effectiveStripeSubscriptionId, {
               discounts: [{ coupon: discountCouponId }],
             });
           } catch (error) {
@@ -1508,7 +1592,7 @@ export async function POST(request: Request) {
         const subscriptionUpdate = {
           status: "paid",
           stripe_customer_id: session.customer as string,
-          stripe_subscription_id: session.subscription as string,
+          stripe_subscription_id: effectiveStripeSubscriptionId,
           stripe_invoice_id:
             typeof session.invoice === "string" ? session.invoice : session.invoice?.id,
           stripe_payment_intent_id:
@@ -1721,6 +1805,14 @@ export async function POST(request: Request) {
     const billingReason = invoice.billing_reason;
 
     if (billingReason && billingReason !== "subscription_create") {
+      if (
+        billingReason === "subscription_update" &&
+        invoice.total === 0 &&
+        invoice.amount_paid === 0
+      ) {
+        return NextResponse.json({ received: true, ignored: "zero_amount_subscription_update" });
+      }
+
       const stripeCustomerId = invoiceCustomerId(invoice);
       const stripeSubscriptionId = invoiceSubscriptionId(invoice);
       const paidInvoiceMetadata = {
@@ -1832,12 +1924,11 @@ export async function POST(request: Request) {
         });
       }
 
-      const { data: localSubscription, error: subscriptionLookupError } =
+      const { data: localSubscriptions, error: subscriptionLookupError } =
         await supabaseAdmin
           .from("customer_subscriptions")
           .select("id, status")
-          .eq("stripe_subscription_id", paidStripeSubscriptionId)
-          .maybeSingle();
+          .eq("stripe_subscription_id", paidStripeSubscriptionId);
 
       if (subscriptionLookupError) {
         console.error(
@@ -1856,7 +1947,9 @@ export async function POST(request: Request) {
         });
       }
 
-      if (!localSubscription) {
+      const matchedSubscriptions = localSubscriptions ?? [];
+
+      if (!matchedSubscriptions.length) {
         await recordStripeWebhookFailureVisibility({
           eventType: "stripe_invoice_paid_sync_failed",
           title: "Paid invoice sync failed",
@@ -1869,12 +1962,14 @@ export async function POST(request: Request) {
         });
       }
 
-      const matchedSubscription = localSubscription as {
-        id: string;
-        status: string;
-      };
+      const updatableSubscriptionIds = matchedSubscriptions
+        .filter(
+          (subscription) =>
+            !["refunded", "cancelled"].includes(subscription.status),
+        )
+        .map((subscription) => subscription.id);
 
-      if (!["refunded", "cancelled"].includes(matchedSubscription.status)) {
+      if (updatableSubscriptionIds.length) {
         const recoveryFulfillmentStatus = fulfillmentStatusForPaidRecovery(
           matchedCustomers[0] || {},
         );
@@ -1889,7 +1984,7 @@ export async function POST(request: Request) {
             total_amount_sek: invoice.total,
             fulfillment_status: recoveryFulfillmentStatus,
           })
-          .eq("id", matchedSubscription.id);
+          .in("id", updatableSubscriptionIds);
 
         if (subscriptionError) {
           console.error(
@@ -2604,6 +2699,7 @@ Screenia`,
       .from("customer_subscriptions")
       .update({
         status: "cancelled",
+        stripe_payment_status: subscription.status,
         fulfillment_status: "cancelled",
         inventory_status: "cancelled",
       })

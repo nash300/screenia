@@ -39,7 +39,28 @@ export function isUnsafeMethod(method: string) {
 export function isSameOriginUnsafeRequest(request: NextRequest) {
   const sourceOrigin = getRequestSourceOrigin(request);
 
-  return Boolean(sourceOrigin && sourceOrigin === request.nextUrl.origin);
+  return Boolean(
+    sourceOrigin &&
+      (sourceOrigin === request.nextUrl.origin ||
+        isEquivalentLocalDevOrigin(sourceOrigin, request.nextUrl.origin)),
+  );
+}
+
+function isEquivalentLocalDevOrigin(sourceOrigin: string, targetOrigin: string) {
+  try {
+    const source = new URL(sourceOrigin);
+    const target = new URL(targetOrigin);
+    const localHosts = new Set(["localhost", "127.0.0.1", "[::1]"]);
+
+    return (
+      source.protocol === target.protocol &&
+      source.port === target.port &&
+      localHosts.has(source.hostname) &&
+      localHosts.has(target.hostname)
+    );
+  } catch {
+    return false;
+  }
 }
 
 export async function proxy(request: NextRequest) {

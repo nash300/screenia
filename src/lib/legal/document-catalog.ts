@@ -50,11 +50,11 @@ export const defaultLegalDocuments = [
   {
     document_type: "subscription_billing",
     title: "Subscription and billing",
-    version: "2026-07-12-prelaunch",
-    effective_at: "2026-07-12T00:00:00+02:00",
+    version: "2026-07-24-pause-limit",
+    effective_at: "2026-07-24T00:00:00+02:00",
     status: "active",
-    summary: "Priser, första betalning, provperiod, abonnemang, uppsägning, återbetalning och moms.",
-    content: "Alla kundpriser som visas av Screenia inkluderar svensk moms. Första betalningen består av startavgift, vald enhet per skärm och frakt. Aktuella belopp beräknas i prisverktyget och visas i erbjudande, checkout, kvitto och fakturaunderlag innan betalning genomförs.\n\nMånadsabonnemanget debiteras inte vid första betalningen. Det börjar debiteras efter den kostnadsfria provperioden. Stripe hanterar checkout, betalningsstatus, fakturor, kvitton, misslyckade betalningar, abonnemang och återbetalningsreferenser.\n\nVid uppsägning avslutas abonnemanget normalt vid slutet av den betalda perioden. Återbetalning kan hanteras om beställningen avbryts innan Screenia har registrerat att layout- eller produktionsarbete har startat.",
+    summary: "Priser, första betalning, provperiod, abonnemang, paus, uppsägning, återbetalning och moms.",
+    content: "Alla kundpriser som visas av Screenia inkluderar svensk moms. Första betalningen består av startavgift, vald enhet per skärm och frakt. Aktuella belopp beräknas i prisverktyget och visas i erbjudande, checkout, kvitto och fakturaunderlag innan betalning genomförs.\n\nMånadsabonnemanget debiteras inte vid första betalningen. Det börjar debiteras efter den kostnadsfria provperioden. Stripe hanterar checkout, betalningsstatus, fakturor, kvitton, misslyckade betalningar, abonnemang och återbetalningsreferenser.\n\nKunden kan begära en tillfällig paus i kundportalen. En kundinitierad paus kan vara högst fyra månader, stoppar skärmtjänsten under pausperioden och återaktiveras automatiskt vid pausens slut om inget annat avtalas med Screenia.\n\nVid uppsägning avslutas abonnemanget normalt vid slutet av den betalda perioden. Återbetalning kan hanteras om beställningen avbryts innan Screenia har registrerat att layout- eller produktionsarbete har startat.",
     pdf_url: null,
   },
   {

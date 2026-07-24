@@ -3313,7 +3313,8 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.setup_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Device: {formatSek(subscription.hardware_fee_sek)} x {subscription.screen_quantity || 1}
+                      Devices total:{" "}
+                      {formatSek(subscription.hardware_fee_sek) || "Not recorded"}
                     </p>
                     <p>
                       First payment discount:{" "}
@@ -3324,9 +3325,8 @@ export default function CustomerDetailPage({
                       {formatSek(subscription.shipping_fee_sek) || "Not recorded"}
                     </p>
                     <p>
-                      Monthly:{" "}
+                      Monthly total:{" "}
                       {formatSek(subscription.monthly_fee_sek) || "Not recorded"}
-                      {" "}x {subscription.screen_quantity || 1}
                     </p>
                     <p>
                       Monthly discount:{" "}

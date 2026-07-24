@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/pause-reminders",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/device-pause-resumes",
+      "schedule": "15 7 * * *"
+    },
+    {
+      "path": "/api/cron/device-cancellations-finalize",
+      "schedule": "30 7 * * *"
+    }
+  ]
+}

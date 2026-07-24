@@ -181,8 +181,6 @@ export async function POST(request: Request) {
   }
 
   const configuredPlan = PRICING_PLANS.find((item) => item.code === plan.code);
-  const hardwareFeeSek =
-    plan.hardware_fee_sek ?? configuredPlan?.hardwareFeeSek ?? 0;
   const shippingFeeSek =
     plan.shipping_fee_sek ??
     configuredPlan?.shippingFeeSek ?? DEFAULT_SHIPPING_FEE_SEK;
@@ -308,13 +306,13 @@ export async function POST(request: Request) {
     setup_included_screens: setupIncludedScreens,
     additional_setup_fee_per_screen_sek: additionalSetupFeeSek,
     additional_setup_screen_count: additionalSetupScreens,
-    hardware_fee_sek: hardwareFeeSek,
+    hardware_fee_sek: deviceSubtotalSek,
     shipping_fee_sek: shippingSubtotalSek,
     base_shipping_fee_sek: shippingFeeSek,
     shipping_included_devices: shippingIncludedDevices,
     additional_shipping_fee_per_device_sek: additionalShippingFeeSek,
     additional_shipping_device_count: additionalShippingDevices,
-    monthly_fee_sek: plan.monthly_fee_sek,
+    monthly_fee_sek: monthlyGrossSek,
     trial_days: plan.trial_days,
     tax_status: "not_calculated",
     fulfillment_status: "pending",

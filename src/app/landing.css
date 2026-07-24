@@ -3365,6 +3365,104 @@
   margin: 8px 0 0;
 }
 
+.account-payment-alert {
+  display: grid;
+  gap: 12px;
+  border: 1px solid rgba(239, 68, 68, 0.24);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(254, 242, 242, 0.94), rgba(255, 255, 255, 0.9)),
+    #fff7f7;
+  padding: 16px;
+  box-shadow: 0 18px 40px rgba(127, 29, 29, 0.08);
+}
+
+.account-payment-alert strong {
+  color: #7f1d1d;
+  font-family: var(--landing-font-ui);
+  font-weight: 950;
+}
+
+.account-payment-alert p {
+  margin: 0;
+  color: rgba(69, 10, 10, 0.76);
+  line-height: 1.55;
+}
+
+.account-device-pause-box {
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(21, 94, 232, 0.18);
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(234, 244, 255, 0.86)),
+    #f8fbff;
+  padding: 16px;
+  box-shadow: 0 16px 36px rgba(6, 25, 66, 0.08);
+}
+
+.account-device-pause-box h3 {
+  margin: 0;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-size: 1.05rem;
+  font-weight: 950;
+}
+
+.account-device-pause-box p {
+  margin: 0;
+  color: rgba(12, 32, 64, 0.72);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.account-list-compact {
+  gap: 8px;
+}
+
+.account-device-selection-list {
+  display: grid;
+  gap: 8px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.account-device-selection-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(122, 145, 178, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 10px 12px;
+  color: var(--landing-text);
+  cursor: pointer;
+}
+
+.account-device-selection-item input {
+  width: 18px;
+  height: 18px;
+  accent-color: #155ee8;
+}
+
+.account-device-selection-item strong,
+.account-device-selection-item small {
+  display: block;
+}
+
+.account-device-selection-item small {
+  margin-top: 3px;
+  color: rgba(12, 32, 64, 0.62);
+  font-size: 0.8rem;
+}
+
+.account-device-selection-item-disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
 .account-facts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3397,6 +3495,41 @@
   font-size: 0.86rem;
   font-style: italic;
   line-height: 1.55;
+}
+
+.account-subscription-summary,
+.account-order-breakdown {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(21, 94, 232, 0.18);
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(21, 94, 232, 0.08), rgba(255, 255, 255, 0.9));
+  padding: 14px;
+}
+
+.account-subscription-summary h3,
+.account-order-breakdown h3 {
+  margin: 0 0 12px;
+  color: var(--landing-text);
+  font-family: var(--landing-font-ui);
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+
+.account-subscription-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.account-subscription-summary-grid > div {
+  border: 1px solid rgba(122, 145, 178, 0.16);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.78);
+  padding: 13px;
+}
+
+.account-order-breakdown .account-list {
+  gap: 8px;
 }
 
 .account-input {
