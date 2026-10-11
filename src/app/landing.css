@@ -7463,3 +7463,1894 @@
     display: block;
   }
 }
+
+/* Single-slide product story hero */
+.screenia-theme .landing-page > .landing-nav {
+  border-bottom-color: rgba(138, 181, 255, 0.14);
+  background: rgba(3, 15, 42, 0.8);
+  box-shadow: 0 14px 42px rgba(0, 7, 24, 0.22);
+  backdrop-filter: blur(20px) saturate(140%);
+}
+
+.screenia-theme .landing-page > .landing-nav .screenia-logo-wordmark {
+  filter: brightness(0) invert(1);
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-nav-link,
+.screenia-theme .landing-page > .landing-nav .landing-nav-link:visited,
+.screenia-theme .landing-page > .landing-nav .landing-nav-link:focus,
+.screenia-theme .landing-page > .landing-nav .landing-nav-link:active {
+  color: rgba(244, 248, 255, 0.88);
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-nav-link:hover,
+.screenia-theme .landing-page > .landing-nav .landing-nav-link:focus-visible {
+  color: #ffffff;
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-nav-primary {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-nav-login {
+  border-color: rgba(132, 180, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  outline-color: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-menu-button {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-menu-button span {
+  background: #ffffff;
+}
+
+.landing-page .landing-hero-modern {
+  position: relative;
+  isolation: isolate;
+  display: block;
+  min-height: 100svh;
+  overflow: hidden;
+  border-bottom: 0;
+  padding: clamp(112px, 13vh, 146px) max(22px, 4vw) clamp(36px, 6vh, 66px);
+  background:
+    radial-gradient(circle at 12% 88%, rgba(31, 107, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 68% 22%, rgba(0, 122, 255, 0.12), transparent 32%),
+    linear-gradient(130deg, #020b20 0%, #061b48 43%, #061d53 68%, #031331 100%);
+}
+
+.landing-page .landing-hero-modern::before {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(117, 165, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(117, 165, 255, 0.035) 1px, transparent 1px);
+  background-size: 68px 68px;
+  content: "";
+  mask-image: linear-gradient(90deg, #000 0%, transparent 72%);
+}
+
+.landing-page .landing-hero-modern::after {
+  position: absolute;
+  z-index: -1;
+  top: -18%;
+  right: -10%;
+  width: 72%;
+  height: 138%;
+  background:
+    radial-gradient(circle at 75% 28%, rgba(43, 139, 255, 0.92), transparent 32%),
+    linear-gradient(148deg, #1176ef 0%, #0b53c7 48%, #062969 100%);
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+  content: "";
+  opacity: 0.86;
+  animation: screenia-hero-field-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 1540px);
+  min-height: calc(100svh - clamp(148px, 19vh, 212px));
+  align-items: center;
+  grid-template-columns: minmax(400px, 0.84fr) minmax(610px, 1.16fr);
+  gap: clamp(12px, 2.2vw, 38px);
+  margin: 0 auto;
+}
+
+.landing-hero-modern-copy {
+  position: relative;
+  z-index: 5;
+  max-width: 650px;
+  padding: clamp(12px, 2vh, 26px) 0;
+  animation: screenia-hero-copy-in 820ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 clamp(18px, 3vh, 30px);
+  color: #73b6ff;
+  font-family: var(--landing-font-ui);
+  font-size: clamp(0.78rem, 0.85vw, 0.92rem);
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.landing-hero-modern-eyebrow::before {
+  width: 32px;
+  height: 2px;
+  border-radius: 999px;
+  background: #4da2ff;
+  box-shadow: 0 0 18px rgba(77, 162, 255, 0.82);
+  content: "";
+}
+
+.landing-page .landing-hero-modern h1 {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--landing-font-display);
+  font-size: clamp(3.15rem, 5.15vw, 6.15rem);
+  font-weight: 760;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.landing-page .landing-hero-modern h1 span:last-child {
+  color: #4ea2ff;
+}
+
+.landing-hero-modern-lede {
+  max-width: 48ch;
+  margin: clamp(24px, 4vh, 38px) 0 0;
+  color: rgba(234, 242, 255, 0.78);
+  font-family: var(--landing-font-ui);
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
+  line-height: 1.72;
+}
+
+.landing-hero-modern-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: clamp(24px, 4vh, 38px);
+}
+
+.landing-hero-modern-actions .landing-button {
+  min-height: 52px;
+  padding-inline: 25px;
+}
+
+.landing-hero-modern-actions .landing-button-primary {
+  border: 1px solid rgba(146, 199, 255, 0.2);
+  background: linear-gradient(135deg, #228dff, #1765ef);
+  box-shadow: 0 18px 38px rgba(12, 102, 238, 0.32);
+}
+
+.landing-hero-modern-actions .landing-button-secondary {
+  border-color: rgba(169, 202, 255, 0.3);
+  background: rgba(255, 255, 255, 0.07);
+  color: #f7faff;
+  backdrop-filter: blur(12px);
+}
+
+.landing-hero-modern-actions .landing-button-secondary:hover {
+  border-color: rgba(192, 219, 255, 0.58);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.landing-hero-modern-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  margin-top: clamp(30px, 5vh, 50px);
+  color: rgba(228, 238, 255, 0.72);
+  font-family: var(--landing-font-ui);
+  font-size: clamp(0.74rem, 0.75vw, 0.84rem);
+}
+
+.landing-hero-modern-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.landing-hero-modern-trust i {
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid rgba(82, 168, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(44, 139, 255, 0.14);
+  color: #75bdff;
+  font-size: 0.72rem;
+  font-style: normal;
+  box-shadow: inset 0 0 12px rgba(67, 153, 255, 0.12);
+}
+
+.landing-hero-modern-trust strong {
+  font-weight: 720;
+}
+
+.landing-hero-modern-visual {
+  position: relative;
+  align-self: stretch;
+  min-height: clamp(590px, 72vh, 790px);
+}
+
+.landing-hero-modern-visual::before {
+  position: absolute;
+  z-index: 0;
+  top: 2%;
+  right: -12%;
+  bottom: 2%;
+  left: 5%;
+  border: 1px solid rgba(145, 205, 255, 0.18);
+  background:
+    radial-gradient(circle at 68% 23%, rgba(83, 187, 255, 0.34), transparent 24%),
+    linear-gradient(145deg, rgba(33, 149, 255, 0.3), rgba(5, 46, 125, 0.42));
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.landing-hero-process {
+  position: absolute;
+  z-index: 2;
+  inset: 0 -5% 0 20%;
+}
+
+.landing-hero-process-card {
+  position: absolute;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid rgba(189, 221, 255, 0.36);
+  border-radius: clamp(18px, 1.7vw, 28px);
+  background: #0a2454;
+  box-shadow:
+    0 26px 64px rgba(0, 10, 39, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transform-origin: right center;
+}
+
+.landing-hero-process-card::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.1), transparent 32%, rgba(1, 20, 63, 0.1));
+  content: "";
+  pointer-events: none;
+}
+
+.landing-hero-process-card img {
+  object-fit: cover;
+  filter: saturate(0.96) contrast(1.04);
+}
+
+.landing-hero-process-delivery {
+  top: 0;
+  right: 0;
+  width: 82%;
+  height: 32%;
+  animation: screenia-process-in 780ms 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-process-delivery img {
+  object-position: 50% 56%;
+}
+
+.landing-hero-process-connection {
+  top: 34%;
+  right: 6%;
+  width: 72%;
+  height: 31%;
+  animation: screenia-process-in 780ms 390ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-process-connection img {
+  object-position: 52% 53%;
+}
+
+.landing-hero-process-display {
+  right: 0;
+  bottom: 0;
+  width: 88%;
+  height: 32%;
+  animation: screenia-process-in 780ms 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-process-display img {
+  object-position: 52% 44%;
+}
+
+.landing-hero-product-cluster {
+  position: absolute;
+  z-index: 5;
+  bottom: 9%;
+  left: -4%;
+  width: 60%;
+  height: 72%;
+  pointer-events: none;
+}
+
+.landing-hero-product-layer {
+  position: absolute;
+  display: block;
+  animation: screenia-product-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.landing-hero-product-layer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter:
+    drop-shadow(0 30px 26px rgba(0, 4, 18, 0.48))
+    drop-shadow(0 0 1px rgba(255, 255, 255, 0.42));
+}
+
+.landing-hero-product-box {
+  top: 22%;
+  left: 0;
+  z-index: 3;
+  width: 69%;
+  animation-delay: 430ms;
+}
+
+.landing-hero-product-box img {
+  animation: screenia-product-float 6s 1.4s ease-in-out infinite;
+}
+
+.landing-hero-product-box-remote {
+  top: 3%;
+  left: 48%;
+  z-index: 4;
+  width: 23%;
+  animation-delay: 560ms;
+}
+
+.landing-hero-product-box-remote img {
+  animation: screenia-remote-float 6.8s 1.6s ease-in-out infinite;
+}
+
+.landing-hero-product-stick-remote {
+  top: 55%;
+  left: 46%;
+  z-index: 1;
+  width: 19%;
+  animation-delay: 690ms;
+}
+
+.landing-hero-product-stick-remote img {
+  animation: screenia-product-float 7.2s 1.7s ease-in-out infinite reverse;
+}
+
+.landing-hero-product-stick {
+  top: 50%;
+  left: 58%;
+  z-index: 4;
+  width: 28%;
+  animation-delay: 760ms;
+}
+
+.landing-hero-product-stick img {
+  animation: screenia-stick-float 6.4s 1.9s ease-in-out infinite;
+}
+
+@keyframes screenia-hero-copy-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-36px, 20px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes screenia-hero-field-in {
+  from {
+    opacity: 0;
+    clip-path: polygon(100% 0, 100% 0, 100% 100%, 78% 100%);
+  }
+
+  to {
+    opacity: 0.86;
+    clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+@keyframes screenia-process-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -105vh, 0) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes screenia-product-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-22px, 58px, 0) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes screenia-product-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0, -9px, 0);
+  }
+}
+
+@keyframes screenia-remote-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(4px, -11px, 0) rotate(1.2deg);
+  }
+}
+
+@keyframes screenia-stick-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(5px, -10px, 0) rotate(-1deg);
+  }
+}
+
+@media (max-width: 1230px) {
+  .landing-hero-modern-grid {
+    grid-template-columns: minmax(360px, 0.78fr) minmax(540px, 1.22fr);
+    gap: 4px;
+  }
+
+  .landing-page .landing-hero-modern h1 {
+    font-size: clamp(3rem, 5vw, 5rem);
+  }
+
+  .landing-hero-modern-trust {
+    max-width: 480px;
+  }
+
+  .landing-hero-modern-visual {
+    min-height: clamp(560px, 68vh, 720px);
+  }
+
+  .landing-hero-product-cluster {
+    left: 0;
+    width: 57%;
+  }
+}
+
+@media (max-width: 980px) {
+  .landing-page .landing-hero-modern {
+    padding-top: 112px;
+    padding-bottom: 54px;
+  }
+
+  .landing-page .landing-hero-modern::after {
+    top: 44%;
+    right: -28%;
+    width: 125%;
+    height: 64%;
+    clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+  }
+
+  .landing-hero-modern-grid {
+    min-height: 0;
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .landing-hero-modern-copy {
+    width: min(100%, 690px);
+    max-width: none;
+    padding-top: 30px;
+  }
+
+  .landing-page .landing-hero-modern h1 {
+    font-size: clamp(3.5rem, 9vw, 5.75rem);
+  }
+
+  .landing-hero-modern-visual {
+    width: min(100%, 780px);
+    min-height: 650px;
+    justify-self: center;
+  }
+
+  .landing-hero-process {
+    inset-inline: 18% -3%;
+  }
+
+  .landing-hero-product-cluster {
+    left: -1%;
+    width: 58%;
+  }
+}
+
+@media (max-width: 720px) {
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    border-color: rgba(127, 177, 255, 0.2);
+    background: rgba(3, 16, 45, 0.97);
+    box-shadow: 0 22px 50px rgba(0, 6, 23, 0.38);
+  }
+
+  .landing-page .landing-hero-modern {
+    padding: 96px 18px 34px;
+  }
+
+  .landing-page .landing-hero-modern::after {
+    top: 48%;
+    right: -44%;
+    width: 155%;
+    height: 58%;
+  }
+
+  .landing-hero-modern-copy {
+    padding-top: 24px;
+  }
+
+  .landing-hero-modern-eyebrow {
+    margin-bottom: 18px;
+    font-size: 0.7rem;
+    letter-spacing: 0.13em;
+  }
+
+  .landing-page .landing-hero-modern h1 {
+    font-size: clamp(2.75rem, 13vw, 4.15rem);
+    letter-spacing: -0.055em;
+    line-height: 0.94;
+  }
+
+  .landing-hero-modern-lede {
+    max-width: 38ch;
+    margin-top: 22px;
+    font-size: 0.98rem;
+    line-height: 1.62;
+  }
+
+  .landing-hero-modern-actions {
+    margin-top: 24px;
+  }
+
+  .landing-hero-modern-actions .landing-button {
+    min-height: 48px;
+    padding-inline: 20px;
+  }
+
+  .landing-hero-modern-trust {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    gap: 10px 16px;
+    margin-top: 28px;
+  }
+
+  .landing-hero-modern-trust span:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .landing-hero-modern-visual {
+    min-height: 540px;
+  }
+
+  .landing-hero-modern-visual::before {
+    right: -25%;
+    left: 0;
+  }
+
+  .landing-hero-process {
+    inset: 0 -10% 0 15%;
+  }
+
+  .landing-hero-process-delivery {
+    width: 84%;
+    height: 31%;
+  }
+
+  .landing-hero-process-connection {
+    top: 34%;
+    right: 2%;
+    width: 75%;
+    height: 30%;
+  }
+
+  .landing-hero-process-display {
+    width: 91%;
+    height: 32%;
+  }
+
+  .landing-hero-product-cluster {
+    bottom: 7%;
+    left: -7%;
+    width: 68%;
+    height: 70%;
+  }
+}
+
+@media (max-width: 430px) {
+  .landing-hero-modern-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .landing-hero-modern-actions .landing-button {
+    width: 100%;
+    padding-inline: 14px;
+    font-size: 0.9rem;
+  }
+
+  .landing-hero-modern-trust {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-hero-modern-trust span:last-child {
+    grid-column: auto;
+  }
+
+  .landing-hero-modern-visual {
+    min-height: 500px;
+  }
+
+  .landing-hero-process {
+    inset-inline: 12% -18%;
+  }
+
+  .landing-hero-product-cluster {
+    left: -10%;
+    width: 74%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .landing-hero-modern::after,
+  .landing-hero-modern-copy,
+  .landing-hero-process-card,
+  .landing-hero-product-layer,
+  .landing-hero-product-layer img {
+    animation: none;
+  }
+
+  .landing-hero-process-card img {
+    transition: none;
+  }
+}
+
+/* Hero motion system */
+.landing-page .landing-hero-modern::before {
+  animation: screenia-grid-drift 22s linear infinite;
+  will-change: background-position;
+}
+
+.landing-hero-modern .landing-hero-modern-eyebrow {
+  animation: screenia-detail-rise 620ms 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern .landing-hero-modern-eyebrow::before {
+  animation:
+    screenia-eyebrow-line 700ms 400ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    screenia-eyebrow-glow 2.8s 1.2s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+.landing-page .landing-hero-modern h1 span {
+  opacity: 0;
+  animation: screenia-heading-line 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, clip-path, opacity;
+}
+
+.landing-page .landing-hero-modern h1 span:nth-child(1) {
+  animation-delay: 280ms;
+}
+
+.landing-page .landing-hero-modern h1 span:nth-child(2) {
+  animation-delay: 380ms;
+}
+
+.landing-page .landing-hero-modern h1 span:nth-child(3) {
+  background: linear-gradient(90deg, #3b96ff 0%, #9cd8ff 45%, #3b96ff 100%);
+  background-clip: text;
+  background-size: 210% 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation:
+    screenia-heading-line 760ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both,
+    screenia-heading-shine 5.5s 1.5s ease-in-out infinite;
+}
+
+.landing-hero-modern .landing-hero-modern-lede {
+  animation: screenia-detail-rise 680ms 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern .landing-hero-modern-actions {
+  animation: screenia-detail-rise 680ms 660ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern .landing-hero-modern-trust {
+  animation: screenia-detail-rise 680ms 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-modern .landing-hero-modern-actions .landing-button-primary {
+  background-size: 180% 180%;
+  animation: screenia-button-gradient 5s ease-in-out infinite;
+}
+
+.landing-hero-modern-actions .landing-button-primary::after {
+  width: 42%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+  opacity: 0;
+  animation: screenia-button-sweep 4.8s 1.6s ease-in-out infinite;
+}
+
+.landing-hero-modern .landing-hero-modern-trust span {
+  transition:
+    color 220ms ease,
+    transform 220ms ease;
+}
+
+.landing-hero-modern-trust span:hover {
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.landing-hero-modern .landing-hero-modern-trust i {
+  animation: screenia-check-pulse 3.4s ease-in-out infinite;
+}
+
+.landing-hero-modern-trust span:nth-child(2) i {
+  animation-delay: 380ms;
+}
+
+.landing-hero-modern-trust span:nth-child(3) i {
+  animation-delay: 760ms;
+}
+
+.landing-hero-modern .landing-hero-modern-visual {
+  perspective: 1200px;
+}
+
+.landing-hero-modern .landing-hero-modern-visual::before {
+  animation: screenia-visual-glow 6.5s ease-in-out infinite;
+}
+
+.landing-hero-modern-visual::after {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  right: 0;
+  width: 54%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 30deg,
+    transparent 0 22%,
+    rgba(119, 208, 255, 0.2) 32%,
+    transparent 42% 72%,
+    rgba(71, 145, 255, 0.16) 82%,
+    transparent 92%
+  );
+  content: "";
+  filter: blur(2px);
+  opacity: 0.72;
+  animation: screenia-orbit 16s linear infinite;
+  pointer-events: none;
+}
+
+.landing-hero-process::before {
+  position: absolute;
+  z-index: 0;
+  top: 9%;
+  bottom: 9%;
+  left: 9%;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(142, 216, 255, 0.28) 18%,
+    #71c8ff 50%,
+    rgba(89, 158, 255, 0.3) 82%,
+    transparent
+  );
+  background-size: 100% 220%;
+  box-shadow: 0 0 18px rgba(86, 173, 255, 0.42);
+  content: "";
+  animation: screenia-process-flow 3.8s linear infinite;
+}
+
+.landing-hero-process::after {
+  position: absolute;
+  z-index: 1;
+  top: 14%;
+  bottom: 14%;
+  left: calc(9% - 5px);
+  width: 12px;
+  background:
+    radial-gradient(circle, #bde9ff 0 2px, #3c9fff 3px, transparent 6px) center top / 12px 33.333% repeat-y;
+  content: "";
+  filter: drop-shadow(0 0 7px rgba(94, 181, 255, 0.9));
+  animation: screenia-process-dots 2.8s ease-in-out infinite;
+}
+
+.landing-hero-process-card::before {
+  position: absolute;
+  z-index: 3;
+  top: -60%;
+  bottom: -60%;
+  left: -45%;
+  width: 28%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
+  content: "";
+  opacity: 0;
+  transform: rotate(16deg);
+  animation: none;
+  pointer-events: none;
+}
+
+.landing-hero-modern .landing-hero-process-delivery {
+  animation: screenia-process-in 1050ms 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.landing-hero-process-delivery::before {
+  animation-delay: 1.8s;
+}
+
+.landing-hero-modern .landing-hero-process-connection {
+  animation: screenia-process-in 1100ms 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.landing-hero-process-connection::before {
+  animation-delay: 3.4s;
+}
+
+.landing-hero-modern .landing-hero-process-display {
+  animation: screenia-process-in 1150ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.landing-hero-process-display::before {
+  animation-delay: 5s;
+}
+
+.landing-hero-product-cluster::before {
+  position: absolute;
+  z-index: 0;
+  top: 16%;
+  left: -5%;
+  width: 78%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(103, 194, 255, 0),
+    rgba(103, 194, 255, 0.22),
+    rgba(103, 194, 255, 0) 34%,
+    rgba(50, 125, 255, 0.18) 58%,
+    rgba(103, 194, 255, 0) 76%
+  );
+  content: "";
+  filter: blur(1px);
+  opacity: 0.7;
+  animation: screenia-orbit 13s linear infinite reverse;
+}
+
+.landing-hero-product-cluster::after {
+  position: absolute;
+  z-index: 0;
+  top: 28%;
+  left: 5%;
+  width: 58%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(125, 203, 255, 0.22);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(55, 144, 255, 0.18), transparent 66%);
+  box-shadow:
+    0 0 50px rgba(32, 127, 255, 0.2),
+    inset 0 0 34px rgba(86, 184, 255, 0.13);
+  content: "";
+  animation: screenia-product-aura 4.5s ease-in-out infinite;
+}
+
+@keyframes screenia-grid-drift {
+  from {
+    background-position: 0 0, 0 0;
+  }
+
+  to {
+    background-position: 68px 68px, 68px 68px;
+  }
+}
+
+@keyframes screenia-heading-line {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+    transform: translate3d(0, 32px, 0) skewY(2deg);
+  }
+
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0) skewY(0);
+  }
+}
+
+@keyframes screenia-heading-shine {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes screenia-detail-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes screenia-eyebrow-line {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes screenia-eyebrow-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 12px rgba(77, 162, 255, 0.48);
+  }
+
+  50% {
+    box-shadow: 0 0 24px rgba(99, 184, 255, 0.92);
+  }
+}
+
+@keyframes screenia-button-gradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes screenia-button-sweep {
+  0%,
+  64% {
+    opacity: 0;
+    transform: translateX(-220%);
+  }
+
+  72% {
+    opacity: 0.7;
+  }
+
+  90%,
+  100% {
+    opacity: 0;
+    transform: translateX(420%);
+  }
+}
+
+@keyframes screenia-check-pulse {
+  0%,
+  100% {
+    border-color: rgba(82, 168, 255, 0.5);
+    box-shadow: inset 0 0 12px rgba(67, 153, 255, 0.12);
+    transform: scale(1);
+  }
+
+  50% {
+    border-color: rgba(130, 206, 255, 0.82);
+    box-shadow:
+      0 0 16px rgba(70, 162, 255, 0.3),
+      inset 0 0 12px rgba(67, 153, 255, 0.2);
+    transform: scale(1.06);
+  }
+}
+
+@keyframes screenia-visual-glow {
+  0%,
+  100% {
+    filter: saturate(1) brightness(1);
+  }
+
+  50% {
+    filter: saturate(1.12) brightness(1.08);
+  }
+}
+
+@keyframes screenia-orbit {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes screenia-process-flow {
+  from {
+    background-position: 0 100%;
+  }
+
+  to {
+    background-position: 0 -120%;
+  }
+}
+
+@keyframes screenia-process-dots {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes screenia-card-sheen {
+  0%,
+  72% {
+    left: -45%;
+    opacity: 0;
+  }
+
+  78% {
+    opacity: 0.5;
+  }
+
+  94%,
+  100% {
+    left: 125%;
+    opacity: 0;
+  }
+}
+
+@keyframes screenia-panel-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 26px 64px rgba(0, 10, 39, 0.34),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  50% {
+    box-shadow:
+      0 30px 72px rgba(0, 10, 39, 0.46),
+      0 0 24px rgba(72, 158, 255, 0.16),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes screenia-product-aura {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scale(0.94);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .landing-hero-modern::after,
+  .landing-page .landing-hero-modern::before,
+  .landing-hero-modern-copy,
+  .landing-hero-modern-eyebrow,
+  .landing-hero-modern-eyebrow::before,
+  .landing-page .landing-hero-modern h1 span,
+  .landing-page .landing-hero-modern h1 span:nth-child(3),
+  .landing-hero-modern-lede,
+  .landing-hero-modern-actions,
+  .landing-hero-modern-trust,
+  .landing-hero-modern-actions .landing-button-primary,
+  .landing-hero-modern-actions .landing-button-primary::after,
+  .landing-hero-modern-trust i,
+  .landing-hero-modern-visual::before,
+  .landing-hero-modern-visual::after,
+  .landing-hero-process::before,
+  .landing-hero-process::after,
+  .landing-hero-process-card,
+  .landing-hero-process-card::before,
+  .landing-hero-product-layer,
+  .landing-hero-product-layer img,
+  .landing-hero-product-cluster::before,
+  .landing-hero-product-cluster::after {
+    animation: none;
+  }
+
+  .landing-page .landing-hero-modern h1 span {
+    opacity: 1;
+  }
+}
+
+/* Reference composition: framed hero with diagonal product story */
+.screenia-theme .landing-page {
+  position: relative;
+}
+
+.screenia-theme .landing-page > .landing-nav-home {
+  position: absolute;
+  top: 58px;
+  right: calc(8px + clamp(46px, 4vw, 68px));
+  left: calc(8px + clamp(46px, 4vw, 68px));
+  width: auto;
+  height: 82px;
+  min-height: 0;
+  margin: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  transform: none;
+  backdrop-filter: none;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-brand .screenia-logo {
+  height: clamp(60px, 5.2vw, 82px);
+  max-width: clamp(250px, 21vw, 340px);
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-brand .screenia-logo-wordmark {
+  max-width: clamp(250px, 21vw, 340px);
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-links {
+  gap: clamp(26px, 3.2vw, 54px);
+  margin-left: clamp(30px, 4vw, 68px);
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-primary {
+  gap: clamp(26px, 3.2vw, 54px);
+  padding: 0;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-link {
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(0.94rem, 1.18vw, 1.22rem);
+  font-weight: 600;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-link::after {
+  right: 50%;
+  bottom: -9px;
+  left: 50%;
+  background: #1688ff;
+  opacity: 0;
+  transition:
+    right 220ms ease,
+    left 220ms ease,
+    opacity 220ms ease;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-link:hover::after,
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-link:focus-visible::after {
+  right: 0;
+  left: 0;
+  opacity: 1;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-actions {
+  margin-left: auto;
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-login {
+  min-width: clamp(166px, 12vw, 188px);
+  min-height: 50px;
+  margin: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.84);
+  border-radius: 999px;
+  background: rgba(7, 25, 56, 0.16);
+  padding: 0 24px;
+  color: #ffffff;
+  font-size: clamp(0.92rem, 1.08vw, 1.12rem);
+  font-weight: 500;
+  outline: 0;
+  box-shadow:
+    0 0 18px rgba(73, 168, 255, 0.18),
+    inset 0 0 16px rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+}
+
+.screenia-theme .landing-page > .landing-nav-home .landing-nav-login:hover {
+  border-color: #ffffff;
+  background: rgba(35, 124, 238, 0.2);
+  box-shadow:
+    0 0 28px rgba(67, 166, 255, 0.36),
+    inset 0 0 18px rgba(255, 255, 255, 0.08);
+}
+
+.screenia-theme .landing-page .landing-hero-modern {
+  display: flex;
+  height: 100svh;
+  min-height: 100svh;
+  align-items: stretch;
+  flex-direction: row;
+  justify-content: flex-start;
+  padding: 18px 8px;
+  background:
+    radial-gradient(circle at 82% 10%, rgba(16, 142, 255, 0.92), transparent 31%),
+    radial-gradient(circle at 70% 94%, rgba(3, 72, 255, 0.72), transparent 34%),
+    radial-gradient(circle at 4% 92%, rgba(0, 30, 111, 0.92), transparent 40%),
+    linear-gradient(115deg, #020b20 0%, #0534b8 46%, #086dff 100%);
+}
+
+.screenia-theme .landing-page .landing-hero-modern::before,
+.screenia-theme .landing-page .landing-hero-modern::after {
+  display: none;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-grid {
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: calc(100svh - 36px);
+  flex: 0 0 auto;
+  min-height: 700px;
+  aspect-ratio: auto;
+  align-items: stretch;
+  grid-template-columns: 53% 47%;
+  gap: 0;
+  overflow: hidden;
+  margin: 0;
+  border: 1px solid rgba(78, 177, 255, 0.78);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 55% 54%, rgba(0, 126, 255, 0.88), transparent 25%),
+    radial-gradient(ellipse at 43% 48%, rgba(0, 67, 181, 0.66), transparent 35%),
+    linear-gradient(112deg, #010817 0%, #020c1d 42%, #08286b 63%, #0870ff 100%);
+  box-shadow:
+    0 30px 90px rgba(0, 9, 50, 0.48),
+    0 0 70px rgba(0, 106, 255, 0.42),
+    inset 0 0 90px rgba(0, 70, 210, 0.16);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-grid::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 13% 52%, rgba(0, 0, 0, 0.34), transparent 45%),
+    linear-gradient(90deg, rgba(0, 8, 24, 0.2), transparent 62%);
+  content: "";
+  pointer-events: none;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-grid::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0 32% 0 31%;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(0, 159, 255, 0.92), transparent 40%),
+    linear-gradient(160deg, rgba(0, 110, 255, 0.08), #0075ff 46%, #0049db 100%);
+  clip-path: polygon(38% 0, 100% 0, 64% 100%, 0 100%);
+  content: "";
+  filter: drop-shadow(0 0 26px rgba(0, 148, 255, 0.7));
+  animation: screenia-reference-band 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-copy {
+  position: relative;
+  z-index: 7;
+  display: flex;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  flex-direction: column;
+  padding: clamp(132px, 10.4vw, 174px) 0 clamp(52px, 4.6vw, 74px) clamp(46px, 4vw, 68px);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-eyebrow {
+  margin: 0 0 clamp(22px, 1.7vw, 28px);
+  color: #087dff;
+  font-size: clamp(0.92rem, 1.22vw, 1.22rem);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-eyebrow::before {
+  display: none;
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 {
+  align-self: flex-start;
+  align-items: flex-start;
+  width: min(100%, 700px);
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-plus-jakarta), "Open Sans", sans-serif;
+  font-size: clamp(3.35rem, 4.6vw, 4.8rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 span {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  text-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.12),
+    0 12px 34px rgba(0, 0, 0, 0.48);
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 span:nth-child(3) {
+  position: relative;
+  z-index: 20;
+  background: none;
+  color: #ffffff;
+  opacity: 1;
+  visibility: visible;
+  -webkit-text-fill-color: #ffffff;
+  animation: screenia-heading-line 760ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 i {
+  color: #087dff;
+  font-style: normal;
+  -webkit-text-fill-color: #087dff;
+  text-shadow: 0 0 24px rgba(0, 137, 255, 0.78);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-lede {
+  max-width: 520px;
+  margin: clamp(24px, 2.1vw, 34px) 0 0;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: clamp(1.05rem, 1.35vw, 1.42rem);
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(24px, 2.2vw, 38px);
+  margin-top: clamp(28px, 2.6vw, 42px);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button {
+  min-height: 0;
+  border-radius: 0;
+  font-size: clamp(0.92rem, 1.15vw, 1.14rem);
+  font-weight: 800;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary {
+  width: clamp(172px, 12.7vw, 202px);
+  height: clamp(62px, 4.8vw, 76px);
+  border: 1px solid rgba(39, 184, 255, 0.52);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #08b9f8 0%, #0874ff 62%, #0759ef 100%);
+  box-shadow:
+    0 18px 40px rgba(0, 94, 255, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.24);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-secondary {
+  min-height: 42px;
+  overflow: visible;
+  border: 0;
+  border-bottom: 2px solid #1a8cff;
+  border-radius: 0;
+  background: transparent;
+  padding: 0 0 3px;
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-secondary:hover {
+  border-color: #72c3ff;
+  background: transparent;
+  color: #ffffff;
+  box-shadow: 0 9px 20px -14px rgba(69, 177, 255, 0.9);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-trust {
+  display: flex;
+  width: min(100%, 650px);
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+  margin-top: auto;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: clamp(0.66rem, 0.72vw, 0.78rem);
+  text-transform: uppercase;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-trust span {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-trust span + span {
+  margin-left: clamp(20px, 2vw, 34px);
+  padding-left: clamp(20px, 2vw, 34px);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-trust span + span::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.34);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-trust i {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border: 2px solid #0788ff;
+  background: rgba(0, 119, 255, 0.08);
+  color: #0788ff;
+  font-size: 0.72rem;
+  box-shadow: 0 0 16px rgba(0, 127, 255, 0.32);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-visual {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0 0 47.8%;
+  min-height: 0;
+  overflow: visible;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-visual::before,
+.screenia-theme .landing-page .landing-hero-modern-visual::after {
+  display: none;
+}
+
+.screenia-theme .landing-page .landing-hero-process {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.screenia-theme .landing-page .landing-hero-process::before,
+.screenia-theme .landing-page .landing-hero-process::after {
+  display: none;
+}
+
+.screenia-theme .landing-page .landing-hero-process-card {
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: #071b42;
+  filter:
+    drop-shadow(0 0 1px rgba(231, 249, 255, 0.98))
+    drop-shadow(0 0 4px rgba(79, 207, 255, 0.92))
+    drop-shadow(0 0 15px rgba(0, 119, 255, 0.58));
+  box-shadow: inset 0 0 0 2px rgba(132, 222, 255, 0.94);
+}
+
+.screenia-theme .landing-page .landing-hero-process-card img {
+  filter: saturate(1.08) contrast(1.05);
+}
+
+.screenia-theme .landing-page .landing-hero-process-card::after {
+  z-index: 2;
+  border-radius: 0;
+  background:
+    linear-gradient(115deg, rgba(98, 205, 255, 0.1), transparent 28%, rgba(0, 46, 132, 0.12)),
+    linear-gradient(180deg, transparent 82%, rgba(0, 111, 255, 0.18));
+  box-shadow:
+    inset 0 0 0 2px rgba(157, 229, 255, 0.82),
+    inset 0 0 24px rgba(0, 101, 255, 0.16);
+}
+
+.screenia-theme .landing-page .landing-hero-process-delivery {
+  top: 0;
+  right: 0;
+  width: 78%;
+  height: 45%;
+  border-radius: 0 21px 21px 0;
+  clip-path: polygon(10% 0, 100% 0, 100% 84%, 0 100%);
+}
+
+.screenia-theme .landing-page .landing-hero-process-delivery img {
+  object-position: 52% 52%;
+}
+
+.screenia-theme .landing-page .landing-hero-process-connection {
+  top: 38.4%;
+  right: 0;
+  width: 80%;
+  height: 39%;
+  clip-path: polygon(0 12%, 100% 0, 100% 100%, 9% 82%);
+}
+
+.screenia-theme .landing-page .landing-hero-process-connection img {
+  object-position: 57% 50%;
+}
+
+.screenia-theme .landing-page .landing-hero-process-display {
+  right: 0;
+  bottom: 0;
+  width: 92%;
+  height: 31.5%;
+  border-radius: 0 0 21px;
+  clip-path: polygon(20% 0, 100% 28%, 100% 100%, 0 100%);
+}
+
+.screenia-theme .landing-page .landing-hero-process-display img {
+  object-position: 52% 45%;
+}
+
+.screenia-theme .landing-page .landing-hero-product-cluster {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  bottom: auto;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.screenia-theme .landing-page .landing-hero-product-cluster::before {
+  top: 16%;
+  left: -34%;
+  width: 78%;
+  opacity: 0.9;
+}
+
+.screenia-theme .landing-page .landing-hero-product-cluster::after {
+  top: 28%;
+  left: -24%;
+  width: 58%;
+}
+
+.screenia-theme .landing-page .landing-hero-product-layer img {
+  filter:
+    drop-shadow(0 34px 30px rgba(0, 3, 20, 0.62))
+    drop-shadow(0 0 2px rgba(185, 229, 255, 0.72))
+    drop-shadow(0 0 16px rgba(0, 130, 255, 0.34));
+}
+
+.screenia-theme .landing-page .landing-hero-product-box {
+  top: 50%;
+  left: 4.2%;
+  width: 68%;
+  animation: screenia-device-in 900ms 430ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform: translate3d(-50%, -50%, 0);
+}
+
+.screenia-theme .landing-page .landing-hero-product-box img {
+  animation: screenia-box-float 6s 1.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes screenia-reference-band {
+  0%,
+  100% {
+    filter: brightness(0.96) drop-shadow(0 0 22px rgba(0, 148, 255, 0.58));
+  }
+
+  50% {
+    filter: brightness(1.12) drop-shadow(0 0 38px rgba(0, 174, 255, 0.88));
+  }
+}
+
+@keyframes screenia-box-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scaleY(1.22);
+  }
+
+  50% {
+    transform: translate3d(0, -9px, 0) scaleY(1.22);
+  }
+}
+
+@keyframes screenia-device-in {
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, calc(-50% + 58px), 0) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, -50%, 0) scale(1);
+  }
+}
+
+@media (max-width: 1280px) and (min-width: 901px) {
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    min-height: 700px;
+    aspect-ratio: auto;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    padding-top: 144px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern h1 {
+    font-size: clamp(3.15rem, 5vw, 4rem);
+  }
+}
+
+@media (max-width: 1120px) {
+  .screenia-theme .landing-page > .landing-nav-home {
+    top: 54px;
+    right: calc(8px + clamp(46px, 4vw, 68px));
+    left: calc(8px + clamp(46px, 4vw, 68px));
+    width: auto;
+    padding: 0;
+    transform: none;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home .landing-links {
+    top: 78px;
+    right: 0;
+    left: 0;
+    border-color: rgba(50, 157, 255, 0.42);
+    background: rgba(1, 12, 34, 0.96);
+    padding: 18px;
+    box-shadow: 0 22px 54px rgba(0, 5, 26, 0.58);
+    backdrop-filter: blur(18px);
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home .landing-nav-primary {
+    gap: 8px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home .landing-nav-link {
+    padding: 10px 8px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home .landing-nav-login {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .screenia-theme .landing-page .landing-hero-modern {
+    height: auto;
+    min-height: 100svh;
+    padding: 12px 6px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home {
+    top: 34px;
+    right: 32px;
+    left: 32px;
+    width: auto;
+    height: 64px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home .landing-brand .screenia-logo,
+  .screenia-theme .landing-page > .landing-nav-home .landing-brand .screenia-logo-wordmark {
+    height: 46px;
+    max-width: 178px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: max(calc(100svh - 24px), 1210px);
+    aspect-ratio: auto;
+    border-radius: 10px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-grid::after {
+    inset: 46% -24% 0 18%;
+    clip-path: polygon(34% 0, 100% 0, 78% 100%, 0 100%);
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    height: 650px;
+    padding: 112px 26px 42px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-eyebrow {
+    margin-bottom: 18px;
+    font-size: 0.78rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern h1 {
+    font-size: clamp(2.7rem, 11vw, 4.2rem);
+    line-height: 1.02;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-lede {
+    max-width: 40ch;
+    font-size: 1rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions {
+    gap: 22px;
+    margin-top: 28px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary {
+    width: 158px;
+    height: 56px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions .landing-button-secondary {
+    font-size: 0.82rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-trust {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: auto;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-trust span + span {
+    margin: 0;
+    padding: 0;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-trust span + span::before {
+    display: none;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    height: 560px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-process-delivery {
+    width: 74%;
+    height: 32%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-process-connection {
+    top: 31%;
+    width: 75%;
+    height: 34%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-process-display {
+    width: 92%;
+    height: 36%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-cluster {
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-box {
+    top: 50%;
+    left: 50%;
+    width: 74%;
+  }
+}
+
+@media (max-width: 520px) {
+  .screenia-theme .landing-page .landing-hero-modern {
+    padding: 10px 5px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav-home {
+    top: 22px;
+    right: 25px;
+    left: 25px;
+    width: auto;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    min-height: max(calc(100svh - 20px), 1120px);
+    border-radius: 8px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    height: 620px;
+    padding: 96px 20px 34px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern h1 {
+    font-size: clamp(2.2rem, 11.2vw, 3.1rem);
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-lede {
+    margin-top: 22px;
+    line-height: 1.55;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions {
+    gap: 16px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary {
+    width: 142px;
+    height: 52px;
+    font-size: 0.82rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions .landing-button-secondary {
+    font-size: 0.74rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    height: 500px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-cluster {
+    left: 0;
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screenia-theme .landing-page .landing-hero-modern-grid::after {
+    animation: none;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-box img {
+    animation: none;
+    transform: scaleY(1.22);
+  }
+}

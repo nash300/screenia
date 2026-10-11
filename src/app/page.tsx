@@ -17,14 +17,10 @@ import ScreeniaLogo from "@/components/ScreeniaLogo";
 import { serializeJsonLd } from "@/lib/seo";
 import {
   copy,
-  fallbackHeroBenefits,
-  heroHighlightWords,
   planCopy,
   plans,
   publicSiteUrl,
   workflowImages,
-  type HeroBenefit,
-  type HeroSlideAsset,
   type LandingAsset,
 } from "./landing-content";
 import {
@@ -43,30 +39,6 @@ import {
 import {
   type LandingExampleVideo,
 } from "@/lib/landing/example-videos";
-
-function renderHighlightedText(text: string, words: string[]) {
-  const terms = words.map((word) => word.trim()).filter(Boolean);
-  if (!terms.length) return text;
-
-  const escapedWords = terms.map((word) =>
-    word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-  );
-  const pattern = new RegExp(`(${escapedWords.join("|")})`, "gi");
-
-  return text.split(pattern).map((part, index) => {
-    const isHighlighted = terms.some(
-      (word) => word.toLowerCase() === part.toLowerCase(),
-    );
-
-    if (!isHighlighted) return part;
-
-    return (
-      <span key={`${part}-${index}`} className="landing-highlight">
-        {part}
-      </span>
-    );
-  });
-}
 function isValidOptionalPhone(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return true;
@@ -227,12 +199,6 @@ export default function Home() {
     "idle" | "saving" | "success" | "error"
   >("idle");
   const [requestMessage, setRequestMessage] = useState("");
-  const [heroSlides, setHeroSlides] = useState<HeroSlideAsset[]>([]);
-  const [managedHeroBenefits, setManagedHeroBenefits] =
-    useState<HeroBenefit[]>(fallbackHeroBenefits);
-  const [activeHeroSlide, setActiveHeroSlide] = useState(0);
-  const [heroSlideDirection, setHeroSlideDirection] = useState<"next" | "previous">("next");
-  const [heroInteractionKey, setHeroInteractionKey] = useState(0);
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
   const [exampleVideos, setExampleVideos] = useState<LandingExampleVideo[]>([]);
   const exampleSwipeStart = useRef<{ x: number; y: number } | null>(null);
@@ -345,22 +311,11 @@ export default function Home() {
         if (!response.ok) return;
 
         const data = (await response.json()) as {
-          heroSlides: HeroSlideAsset[];
-          heroBenefits?: HeroBenefit[];
           exampleVideos?: LandingExampleVideo[];
           serviceLogos: LandingAsset[];
         };
 
         if (!isMounted) return;
-
-        if (data.heroSlides?.length) {
-          setHeroSlides(data.heroSlides);
-          setActiveHeroSlide(0);
-        }
-
-        if (data.heroBenefits?.length) {
-          setManagedHeroBenefits(data.heroBenefits);
-        }
 
         if (data.exampleVideos?.length) {
           setExampleVideos(data.exampleVideos);
@@ -436,59 +391,6 @@ export default function Home() {
     setRequestOpen(false);
   };
 
-  const heroSlideCount = heroSlides.length;
-  const currentHeroSlide =
-    heroSlideCount > 0
-      ? heroSlides[activeHeroSlide % heroSlideCount].sv
-      : {
-          eyebrow: t.eyebrow,
-          title: t.hero,
-          text: t.lede,
-        };
-  const currentHeroMedia =
-    heroSlideCount > 0 ? heroSlides[activeHeroSlide % heroSlideCount] : null;
-  const currentHeroIndex = heroSlideCount > 0 ? activeHeroSlide % heroSlideCount : 0;
-  const currentHighlightWords = currentHeroMedia
-    ? currentHeroMedia.highlightTerms?.length
-      ? currentHeroMedia.highlightTerms
-      : heroHighlightWords[currentHeroMedia.id] || []
-    : ["Professionellt", "tydlig plattform"];
-  const heroSlideMotionClass = `landing-hero-slide-motion landing-hero-slide-motion-${heroSlideDirection} landing-hero-slide-motion-${heroSlideDirection}-${currentHeroIndex}`;
-  const heroSlideMotionKey = `${heroSlideDirection}-${currentHeroIndex}-${heroInteractionKey}`;
-  const heroTitleLength = currentHeroSlide.title.trim().length;
-  const heroTitleSizeClass =
-    heroTitleLength > 58
-      ? "landing-hero-title-extra-long"
-      : heroTitleLength > 45
-        ? "landing-hero-title-long"
-        : heroTitleLength > 37
-          ? "landing-hero-title-medium"
-          : "landing-hero-title-standard";
-  const heroCopyDensityClass =
-    heroTitleLength + currentHeroSlide.text.trim().length > 155
-      ? "landing-hero-copy-main-dense"
-      : "";
-
-  const goToHeroSlide = (index: number) => {
-    if (heroSlideCount <= 1) return;
-
-    const targetIndex = (index + heroSlideCount) % heroSlideCount;
-    const stepForward =
-      targetIndex === (currentHeroIndex + 1) % heroSlideCount ||
-      (currentHeroIndex === heroSlideCount - 1 && targetIndex === 0);
-    setHeroSlideDirection(stepForward ? "next" : "previous");
-    setActiveHeroSlide(targetIndex);
-    setHeroInteractionKey((current) => current + 1);
-  };
-
-  const goToPreviousHeroSlide = () => {
-    goToHeroSlide(currentHeroIndex - 1);
-  };
-
-  const goToNextHeroSlide = () => {
-    goToHeroSlide(currentHeroIndex + 1);
-  };
-
   const showAdjacentExample = useCallback((offset: number) => {
     setExpandedExample((current) => {
       if (!current) return null;
@@ -527,19 +429,6 @@ export default function Home() {
 
     showAdjacentExample(distanceX < 0 ? 1 : -1);
   };
-
-  useEffect(() => {
-    if (heroSlideCount <= 1) return;
-
-    const timer = window.setInterval(() => {
-      setHeroSlideDirection("next");
-      setActiveHeroSlide((current) => (current + 1) % heroSlideCount);
-    }, 6500);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [heroSlideCount, heroInteractionKey]);
 
   useEffect(() => {
     if (!expandedExample) return;
@@ -619,105 +508,76 @@ export default function Home() {
       <LandingNav currentPath="/" />
 
       <main id="top">
-        <section className="landing-hero landing-hero-background-slide">
-          <div className="landing-hero-layout">
-            <div
-              className="landing-hero-video-layer"
-              aria-hidden="true"
-            >
-              {currentHeroMedia && (
-                <Image
-                  key={currentHeroMedia.id}
-                  src={currentHeroMedia.src}
-                  alt=""
-                  fill
-                  priority
-                  sizes="(max-width: 980px) 100vw, 48vw"
-                  className={`landing-hero-background-image landing-hero-background-image-${heroSlideDirection}`}
-                />
-              )}
-            </div>
-            <div className="landing-hero-copy">
-              <div
-                key={`hero-copy-${heroSlideMotionKey}`}
-                className={`landing-hero-copy-main ${heroCopyDensityClass} ${heroSlideMotionClass}`}
-              >
-                <h1 className={heroTitleSizeClass}>
-                  {renderHighlightedText(currentHeroSlide.title, currentHighlightWords)}
-                </h1>
-                <p className="landing-lede">
-                  {currentHeroSlide.text}
-                </p>
-                <div className="landing-actions">
-                  <a href="#pricing" className="landing-button landing-button-primary">
-                    {t.pricingCta}
-                  </a>
-                  <a href="/sa-fungerar-det" className="landing-button landing-button-secondary">
-                    {t.workflowCta}
-                  </a>
-                </div>
-                <div className="landing-stats">
-                  {t.stats.map(([value, label]) => (
-                    <div key={label}>
-                      <strong>{value}</strong>
-                      <span>{label}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="landing-seo-copy">{t.seoIntro}</p>
+        <section className="landing-hero landing-hero-modern" aria-labelledby="landing-hero-title">
+          <div className="landing-hero-modern-grid">
+            <div className="landing-hero-modern-copy">
+              <p className="landing-hero-modern-eyebrow">{t.eyebrow}</p>
+              <h1 id="landing-hero-title">
+                <span>Gör er TV</span>
+                <span>till en säljande</span>
+                <span>skärm<i aria-hidden="true">.</i></span>
+              </h1>
+              <p className="landing-hero-modern-lede">{t.lede}</p>
+              <div className="landing-actions landing-hero-modern-actions">
+                <a href="#pricing" className="landing-button landing-button-primary">
+                  {t.pricingCta}
+                </a>
+                <a href="/sa-fungerar-det" className="landing-button landing-button-secondary">
+                  {t.workflowCta}
+                </a>
+              </div>
+              <div className="landing-hero-modern-trust" aria-label="Fördelar med Screenia">
+                <span><i aria-hidden="true">✓</i><strong>3 veckor kostnadsfritt</strong></span>
+                <span><i aria-hidden="true">✓</i><strong>Ingen bindningstid</strong></span>
+                <span><i aria-hidden="true">✓</i><strong>Personlig hjälp</strong></span>
               </div>
             </div>
-          </div>
-          <div
-            className="landing-hero-benefits"
-            aria-label="Screenia benefits"
-          >
-            {managedHeroBenefits.map((benefit) => (
-              <div key={benefit.id} className="landing-hero-benefit">
-                <span>
-                  <strong>{benefit.title}</strong>
-                  <small>{benefit.body}</small>
+
+            <div className="landing-hero-modern-visual" aria-label="Screenias skärmenhet">
+              <div className="landing-hero-process landing-hero-process-background" aria-hidden="true">
+                <figure className="landing-hero-process-card landing-hero-process-delivery">
+                  <Image
+                    src="/landing/hero-process/delivery-kit.webp"
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 900px) 74vw, 41vw"
+                  />
+                </figure>
+                <figure className="landing-hero-process-card landing-hero-process-connection">
+                  <Image
+                    src="/landing/hero-process/tv-connection.webp"
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 900px) 75vw, 42vw"
+                  />
+                </figure>
+                <figure className="landing-hero-process-card landing-hero-process-display">
+                  <Image
+                    src="/landing/hero-process/restaurant-display.webp"
+                    alt=""
+                    fill
+                    priority
+                    sizes="(max-width: 900px) 92vw, 48vw"
+                  />
+                </figure>
+              </div>
+
+              <div className="landing-hero-product-cluster" aria-hidden="true">
+                <span className="landing-hero-product-layer landing-hero-product-box">
+                  <Image
+                    src="/landing/hero-devices/xiaomi-tv-box.png"
+                    alt=""
+                    width={1448}
+                    height={1086}
+                    priority
+                    sizes="(max-width: 900px) 74vw, 36vw"
+                  />
                 </span>
               </div>
-            ))}
-          </div>
-          {heroSlideCount > 1 && (
-            <div className="landing-hero-controls" aria-label="Bildspel">
-              <button
-                type="button"
-                className="landing-hero-arrow"
-                onClick={goToPreviousHeroSlide}
-                aria-label="Visa föregående bild"
-              >
-                <span aria-hidden="true">‹</span>
-              </button>
-              <div className="landing-hero-dots" role="tablist" aria-label="Välj bild">
-                {heroSlides.map((slide, index) => (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    className={
-                      index === currentHeroIndex
-                        ? "landing-hero-dot-active"
-                        : undefined
-                    }
-                    onClick={() => goToHeroSlide(index)}
-                    role="tab"
-                    aria-selected={index === currentHeroIndex}
-                    aria-label={`Visa bild ${index + 1}`}
-                  />
-                ))}
-              </div>
-              <button
-                type="button"
-                className="landing-hero-arrow"
-                onClick={goToNextHeroSlide}
-                aria-label="Visa nästa bild"
-              >
-                <span aria-hidden="true">›</span>
-              </button>
             </div>
-          )}
+          </div>
         </section>
 
         <section id="workflow" className="landing-section landing-section-surface landing-workflow">

@@ -13,6 +13,13 @@ const navItems = [
   { href: "/om-oss", homeHref: "/om-oss", label: "Om oss" },
 ] as const;
 
+const homeNavItems = [
+  { href: "/#top", homeHref: "#top", label: "Tjänsten" },
+  { href: "/sa-fungerar-det", homeHref: "/sa-fungerar-det", label: "Så fungerar det" },
+  { href: "/#pricing", homeHref: "#pricing", label: "Priser" },
+  { href: "/#examples", homeHref: "#examples", label: "Exempel" },
+] as const;
+
 type LandingNavProps = {
   currentPath?: "/" | "/sa-fungerar-det" | "/om-oss" | "/kontakt" | "/account";
   accountMode?: boolean;
@@ -28,9 +35,10 @@ export function LandingNav({
   const pathname = usePathname();
   const resolvedPath = (pathname || currentPath) as LandingNavProps["currentPath"];
   const isHome = resolvedPath === "/";
+  const visibleNavItems = isHome ? homeNavItems : navItems;
 
   return (
-    <header className="landing-nav">
+    <header className={isHome ? "landing-nav landing-nav-home" : "landing-nav"}>
       <Link
         className="landing-brand"
         href={isHome ? "#top" : "/"}
@@ -57,7 +65,7 @@ export function LandingNav({
         aria-label="Huvudnavigering"
       >
         <div className="landing-nav-primary">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             const href = isHome ? item.homeHref : item.href;
             const isCurrentPage = !isHome && item.href === resolvedPath;
 
@@ -77,18 +85,20 @@ export function LandingNav({
         </div>
 
         <div className="landing-nav-actions">
-          <Link
-            className="landing-nav-cta"
-            href="/kontakt"
-            onClick={() => setMenuOpen(false)}
-          >
-            <span className="landing-nav-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.8L3 22v-4.2A2 2 0 0 1 2 16V7a2 2 0 0 1 2-2Zm0 2v9h1v2.2L7.2 17H20V7H4Zm3 3h10v2H7v-2Zm0 4h7v2H7v-2Z" />
-              </svg>
-            </span>
-            Kontakta oss
-          </Link>
+          {!isHome ? (
+            <Link
+              className="landing-nav-cta"
+              href="/kontakt"
+              onClick={() => setMenuOpen(false)}
+            >
+              <span className="landing-nav-action-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4 5h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H7.8L3 22v-4.2A2 2 0 0 1 2 16V7a2 2 0 0 1 2-2Zm0 2v9h1v2.2L7.2 17H20V7H4Zm3 3h10v2H7v-2Zm0 4h7v2H7v-2Z" />
+                </svg>
+              </span>
+              Kontakta oss
+            </Link>
+          ) : null}
           {accountMode ? (
             <button
               className="landing-nav-login"
@@ -112,13 +122,15 @@ export function LandingNav({
               href="/login"
               onClick={() => setMenuOpen(false)}
             >
-            <span className="landing-nav-action-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" focusable="false">
-                <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
-                <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
-              </svg>
-            </span>
-            Logga in
+              {!isHome ? (
+                <span className="landing-nav-action-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M10 7 8.6 8.4l2.6 2.6H3v2h8.2l-2.6 2.6L10 17l5-5-5-5Z" />
+                    <path d="M13 4h5v16h-5v-2h3V6h-3V4Z" />
+                  </svg>
+                </span>
+              ) : null}
+              {isHome ? "Kundinloggning" : "Logga in"}
             </Link>
           )}
         </div>

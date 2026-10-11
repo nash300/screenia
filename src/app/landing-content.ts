@@ -7,12 +7,11 @@ export const copy = {
     nav: ["Tjänsten", "Så fungerar det", "Priser", "Exempel", "FAQ", "Kontakt"],
     demo: "Kontakta oss",
     eyebrow: "Digital skyltning för företag",
-    hero:
-      "Digital skyltning för företag – med skärmen ni redan har.",
+    hero: "Gör er TV till en säljande skärm.",
     lede:
-      "Screenia hjälper företag och organisationer att visa information och erbjudanden på skärm, oavsett bransch. Full HD- och 4K-enheter kan kombineras efter verksamhetens behov, med stöd genom hela uppstarten.",
+      "Vi designar innehållet, förbereder enheten och hjälper er hela vägen. Koppla in – klart.",
     pricingCta: "Se paket",
-    workflowCta: "Se fördelarna",
+    workflowCta: "Så fungerar det",
     stats: [
       ["Lokal annonsering för småföretag", "Nå ut med erbjudanden och information direkt där dina kunder finns."],
       ["Fungerar med en vanlig TV", "Använd en vanlig TV som reklamskärm – du väljer själv var den ska placeras."],

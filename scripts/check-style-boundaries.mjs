@@ -524,8 +524,12 @@ if (landingPageSource.includes('"is-active"')) {
   problems.push("The landing page must use explicit component state class names instead of generic is-active.");
 }
 
-if (!landingPageSource.includes("landing-hero-dot-active")) {
-  problems.push("The landing hero carousel must expose the explicit landing-hero-dot-active state class.");
+if (!landingPageSource.includes("landing-hero-modern")) {
+  problems.push("The landing page must expose the single-slide landing-hero-modern component class.");
+}
+
+if (landingPageSource.includes("landing-hero-dot-active")) {
+  problems.push("The single-slide landing hero must not render carousel dot state.");
 }
 
 if (landingCss.includes(".landing-hero-dots button.is-active")) {
@@ -841,8 +845,8 @@ for (const broadNavActionSelector of [
   }
 }
 
-if (!landingCss.includes(".landing-hero-dots button.landing-hero-dot-active")) {
-  problems.push("src/app/landing.css must define the explicit landing-hero-dot-active selector.");
+if (!landingCss.includes(".landing-page .landing-hero-modern")) {
+  problems.push("src/app/landing.css must define the single-slide landing-hero-modern selector.");
 }
 
 if (accountPageSource.includes('"is-active"')) {
