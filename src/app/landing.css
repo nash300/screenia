@@ -8618,13 +8618,17 @@
 /* Reference composition: framed hero with diagonal product story */
 .screenia-theme .landing-page {
   position: relative;
+  --screenia-hero-frame-max-width: 1600px;
+  --screenia-hero-frame-max-height: 860px;
+  --screenia-hero-frame-inline-gap: max(8px, calc((100% - var(--screenia-hero-frame-max-width)) / 2));
+  --screenia-hero-frame-block-gap: max(18px, calc((100svh - var(--screenia-hero-frame-max-height)) / 2));
 }
 
 .screenia-theme .landing-page > .landing-nav-home {
   position: absolute;
-  top: 58px;
-  right: calc(8px + clamp(46px, 4vw, 68px));
-  left: calc(8px + clamp(46px, 4vw, 68px));
+  top: calc(var(--screenia-hero-frame-block-gap) + 40px);
+  right: calc(var(--screenia-hero-frame-inline-gap) + clamp(46px, 4vw, 68px));
+  left: calc(var(--screenia-hero-frame-inline-gap) + clamp(46px, 4vw, 68px));
   width: auto;
   height: 82px;
   min-height: 0;
@@ -8715,9 +8719,9 @@
   display: flex;
   height: 100svh;
   min-height: 100svh;
-  align-items: stretch;
+  align-items: center;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 18px 8px;
   background:
     radial-gradient(circle at 82% 10%, rgba(16, 142, 255, 0.92), transparent 31%),
@@ -8734,8 +8738,8 @@
 .screenia-theme .landing-page .landing-hero-modern-grid {
   position: relative;
   display: grid;
-  width: 100%;
-  height: calc(100svh - 36px);
+  width: min(100%, var(--screenia-hero-frame-max-width));
+  height: min(calc(100svh - 36px), var(--screenia-hero-frame-max-height));
   flex: 0 0 auto;
   min-height: 0;
   aspect-ratio: auto;
@@ -8953,8 +8957,10 @@
   position: absolute;
   z-index: 2;
   inset: 0 0 0 47.8%;
+  width: auto;
   min-height: 0;
   overflow: visible;
+  justify-self: stretch;
 }
 
 .screenia-theme .landing-page .landing-hero-modern-visual::before,
@@ -9134,9 +9140,9 @@
 
 @media (max-width: 1120px) {
   .screenia-theme .landing-page > .landing-nav-home {
-    top: 54px;
-    right: calc(8px + clamp(46px, 4vw, 68px));
-    left: calc(8px + clamp(46px, 4vw, 68px));
+    top: calc(var(--screenia-hero-frame-block-gap) + 36px);
+    right: calc(var(--screenia-hero-frame-inline-gap) + clamp(46px, 4vw, 68px));
+    left: calc(var(--screenia-hero-frame-inline-gap) + clamp(46px, 4vw, 68px));
     width: auto;
     padding: 0;
     transform: none;
@@ -9164,6 +9170,17 @@
   .screenia-theme .landing-page > .landing-nav-home .landing-nav-login {
     width: 100%;
     justify-content: center;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 719px) {
+  .screenia-theme .landing-page .landing-hero-modern {
+    height: 720px;
+    min-height: 720px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    height: 684px;
   }
 }
 
