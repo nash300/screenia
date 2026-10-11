@@ -26,7 +26,7 @@
     "release:check": "npm run test && npm run security:check && npm run lint && npm run text:check && npm run style:check && npm run billing:check && npm run admin-framework:check && npm run build"
   },
   "dependencies": {
-    "@supabase/ssr": "0.10.2",
+    "@supabase/ssr": "0.12.5",
     "@supabase/supabase-js": "2.105.1",
     "@vercel/analytics": "^2.0.1",
     "next": "16.3.8",
