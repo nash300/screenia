@@ -47,3 +47,7 @@ jobs:
 
       - name: Run the release gate
         run: npm run release:check
+
+      - name: Report development dependency advisories
+        continue-on-error: true
+        run: npm run security:audit:all
