@@ -8737,7 +8737,7 @@
   width: 100%;
   height: calc(100svh - 36px);
   flex: 0 0 auto;
-  min-height: 700px;
+  min-height: 0;
   aspect-ratio: auto;
   align-items: stretch;
   grid-template-columns: 53% 47%;
@@ -9119,7 +9119,7 @@
 
 @media (max-width: 1280px) and (min-width: 901px) {
   .screenia-theme .landing-page .landing-hero-modern-grid {
-    min-height: 700px;
+    min-height: 0;
     aspect-ratio: auto;
   }
 
