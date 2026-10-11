@@ -232,7 +232,8 @@ export const plans = [
     badge: "Startpaket",
     badgeTone: "default",
     deviceLabel: "FHD HDMI Stick",
-    deviceImage: "/brand/screenia-standard-device.png",
+    deviceImage: "/landing/hero-devices/mi-tv-stick.png",
+    deviceAccessoryImage: "/landing/hero-devices/mi-tv-stick-remote.png",
     featured: false,
   },
   {
@@ -252,7 +253,8 @@ export const plans = [
     badge: "Rekommenderas",
     badgeTone: "recommended",
     deviceLabel: "4K TV Box",
-    deviceImage: "/brand/screenia-premium-device.png",
+    deviceImage: "/landing/hero-devices/xiaomi-tv-box.png",
+    deviceAccessoryImage: "/landing/hero-devices/xiaomi-tv-box-remote.png",
     featured: true,
   },
   {
@@ -272,7 +274,8 @@ export const plans = [
     badge: "Nyhet",
     badgeTone: "plus",
     deviceLabel: "4K TV Box",
-    deviceImage: "/brand/screenia-premium-device.png",
+    deviceImage: "/landing/hero-devices/xiaomi-tv-box.png",
+    deviceAccessoryImage: "/landing/hero-devices/xiaomi-tv-box-remote.png",
     featured: false,
   },
 ] as const;

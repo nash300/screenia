@@ -39,6 +39,7 @@ import {
 import {
   type LandingExampleVideo,
 } from "@/lib/landing/example-videos";
+import "../styles/landing-redesign.css";
 function isValidOptionalPhone(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return true;
@@ -122,6 +123,9 @@ function LandingVideoPreviewCard({
         <span className="landing-video-gallery-play" aria-hidden="true">
           <span>▶</span>
         </span>
+        <span className="landing-video-gallery-live" aria-hidden="true">
+          <i /> Live
+        </span>
       </div>
     </article>
   );
@@ -182,6 +186,7 @@ function LandingVideoRail({
 export default function Home() {
   const [requestOpen, setRequestOpen] = useState(false);
   const [priceBreakdownOpen, setPriceBreakdownOpen] = useState(false);
+  const [selectionSummaryOpen, setSelectionSummaryOpen] = useState(false);
   const [expandedExample, setExpandedExample] = useState<LandingExampleVideo | null>(null);
   const [expandedPlanDetails, setExpandedPlanDetails] = useState<Record<string, boolean>>({});
   const [planQuantities, setPlanQuantities] = useState<Record<(typeof plans)[number]["code"], number>>({
@@ -365,6 +370,18 @@ export default function Home() {
     code: (typeof plans)[number]["code"],
     quantity: number,
   ) => {
+    const nextQuantity = Math.min(
+      50 - (selectedScreenCount - planQuantities[code]),
+      Math.max(0, quantity),
+    );
+    const nextScreenCount = selectedScreenCount - planQuantities[code] + nextQuantity;
+
+    if (selectedScreenCount === 0 && nextScreenCount > 0) {
+      setSelectionSummaryOpen(true);
+    } else if (nextScreenCount === 0) {
+      setSelectionSummaryOpen(false);
+    }
+
     setPlanQuantities((current) => {
       const otherQuantity = Object.entries(current).reduce(
         (sum, [itemCode, itemQuantity]) =>
@@ -381,6 +398,7 @@ export default function Home() {
   const openPlanRequest = () => {
     if (selectedScreenCount === 0) return;
     setPriceBreakdownOpen(false);
+    setSelectionSummaryOpen(false);
     setRequestOpen(true);
     setRequestStatus("idle");
     setRequestMessage("");
@@ -583,6 +601,7 @@ export default function Home() {
         <section id="workflow" className="landing-section landing-section-surface landing-workflow">
           <div className="landing-section-panel landing-workflow-panel">
             <div className="landing-workflow-heading">
+              <p className="landing-section-kicker">Från idé till färdig skärm</p>
               <h2>{t.workflowTitle}</h2>
               <p>{t.workflowText}</p>
             </div>
@@ -594,7 +613,11 @@ export default function Home() {
                       src={workflowImages[index]}
                       alt=""
                       fill
-                      sizes="(max-width: 780px) 42vw, (max-width: 1180px) 30vw, 18vw"
+                      sizes={
+                        index < 3
+                          ? "(max-width: 700px) calc(100vw - 32px), (max-width: 1100px) 44vw, (max-width: 1500px) 31vw, 430px"
+                          : "(max-width: 700px) calc(100vw - 32px), (max-width: 1100px) 44vw, (max-width: 1500px) 46vw, 650px"
+                      }
                     />
                   </div>
                   <div className="landing-workflow-step-copy">
@@ -612,25 +635,10 @@ export default function Home() {
 
         <LandingSection
           id="pricing"
+          eyebrow="Paket och priser"
           title="Bygg en skärmlösning"
           text="Välj det paket och antal skärmar som passar er verksamhet. Se månads- och startkostnaden direkt innan ni går vidare."
         >
-          {selectedScreenCount > 0 ? (
-            <a
-              className="landing-mobile-selection-bar"
-              href="#selected-package-summary"
-              aria-label={`Visa vald kombination: ${selectedScreenCount} skärm${selectedScreenCount === 1 ? "" : "ar"}, ${formatLandingSek(selectedMonthlyTotal)} per månad`}
-            >
-              <span>
-                <strong>
-                  {selectedScreenCount} skärm{selectedScreenCount === 1 ? "" : "ar"} vald
-                  {selectedScreenCount === 1 ? "" : "a"}
-                </strong>
-                <small>{formatLandingSek(selectedMonthlyTotal)}/mån totalt</small>
-              </span>
-              <b>Visa val</b>
-            </a>
-          ) : null}
           <p id="pricing-swipe-hint" className="landing-price-swipe-hint">
             Svep åt sidan för att se Standard, Premium och Premium Plus.
           </p>
@@ -667,7 +675,16 @@ export default function Home() {
                       alt=""
                       width={560}
                       height={528}
-                      className="landing-plan-device-image"
+                      sizes="150px"
+                      className="landing-plan-device-image landing-plan-device-primary"
+                    />
+                    <Image
+                      src={plan.deviceAccessoryImage}
+                      alt=""
+                      width={560}
+                      height={900}
+                      sizes="100px"
+                      className="landing-plan-device-image landing-plan-device-accessory"
                     />
                     <span>{plan.deviceLabel}</span>
                   </div>
@@ -747,137 +764,6 @@ export default function Home() {
               );
             })}
           </div>
-          {selectedScreenCount > 0 ? (
-          <section
-            id="selected-package-summary"
-            className="landing-package-builder"
-            aria-live="polite"
-          >
-            <div className="landing-package-builder-heading">
-              <div>
-                <p className="landing-eyebrow">Vald kombination</p>
-                <h3>
-                  {selectedScreenCount > 0
-                    ? `${selectedScreenCount} skärm${selectedScreenCount === 1 ? "" : "ar"} vald${selectedScreenCount === 1 ? "" : "a"}`
-                    : "Välj antal i korten ovan"}
-                </h3>
-              </div>
-              <span>Alla priser inkl. moms</span>
-            </div>
-
-            {selectedScreenCount > 0 ? (
-              <>
-                <div className="landing-package-lines" aria-label="Specifikation av vald kombination">
-                  <section className="landing-package-cost-group">
-                    <h4>Efter provperioden</h4>
-                    {selectedQuoteItems.map(({ plan, quantity }) => (
-                      <div key={`subscription-${plan.code}`}>
-                        <span>
-                          {plan.name} {plan.resolution}
-                          <small>Abonnemang per månad</small>
-                        </span>
-                        <strong>
-                          <span>{quantity} × {formatLandingSek(plan.monthlyFeeSek)}</span>
-                          <b>{formatLandingSek(plan.monthlyFeeSek * quantity)}/mån</b>
-                        </strong>
-                      </div>
-                    ))}
-                  </section>
-
-                  <section className="landing-package-cost-group">
-                    <h4>Vid start</h4>
-                    <div>
-                      <span>
-                        Startavgift
-                        <small>Upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar</small>
-                      </span>
-                      <strong>
-                        <span>1 × {formatLandingSek(plans[0].setupFeeSek)}</span>
-                        <b>{formatLandingSek(plans[0].setupFeeSek)}</b>
-                      </strong>
-                    </div>
-                    {selectedAdditionalSetupScreens > 0 && (
-                      <div>
-                        <span>
-                          Extra startavgift
-                          <small>Skärmar utöver de {INCLUDED_SETUP_SCREEN_COUNT} inkluderade</small>
-                        </span>
-                        <strong>
-                          <span>{selectedAdditionalSetupScreens} × {formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}</span>
-                          <b>{formatLandingSek(selectedAdditionalSetupScreens * ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}</b>
-                        </strong>
-                      </div>
-                    )}
-                    {selectedQuoteItems.map(({ plan, quantity }) => (
-                      <div key={`hardware-${plan.code}`}>
-                        <span>
-                          {plan.name} {plan.resolution}
-                          <small>Skärmenhet</small>
-                        </span>
-                        <strong>
-                          <span>{quantity} × {formatLandingSek(plan.hardwareFeeSek)}</span>
-                          <b>{formatLandingSek(plan.hardwareFeeSek * quantity)}</b>
-                        </strong>
-                      </div>
-                    ))}
-                    <div>
-                      <span>
-                        Frakt
-                        <small>Upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter</small>
-                      </span>
-                      <strong>
-                        <span>1 × {formatLandingSek(BASE_SHIPPING_FEE_SEK)}</span>
-                        <b>{formatLandingSek(BASE_SHIPPING_FEE_SEK)}</b>
-                      </strong>
-                    </div>
-                    {selectedAdditionalShippingDevices > 0 && (
-                      <div>
-                        <span>
-                          Extra frakt
-                          <small>Enheter utöver de {INCLUDED_SHIPPING_DEVICE_COUNT} inkluderade</small>
-                        </span>
-                        <strong>
-                          <span>{selectedAdditionalShippingDevices} × {formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}</span>
-                          <b>{formatLandingSek(selectedAdditionalShippingDevices * ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}</b>
-                        </strong>
-                      </div>
-                    )}
-                  </section>
-                </div>
-                <div className="landing-package-totals">
-                  <div className="landing-package-total-primary">
-                    <span>Löpande kostnad efter 21 kostnadsfria dagar</span>
-                    <strong>{formatLandingSek(selectedMonthlyTotal)}/mån totalt</strong>
-                    <small>Ingen bindningstid.</small>
-                  </div>
-                  <div className="landing-package-total-secondary">
-                    <span>Engångsbetalning vid start</span>
-                    <strong>{formatLandingSek(selectedFirstPayment)}</strong>
-                    <small>Startavgift, alla valda enheter och frakt.</small>
-                    <button
-                      type="button"
-                      className="landing-package-breakdown-trigger"
-                      onClick={() => setPriceBreakdownOpen(true)}
-                    >
-                      Se exakt prisspecifikation
-                    </button>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={openPlanRequest}
-                  className="landing-button landing-button-primary landing-package-continue"
-                >
-                  Fortsätt med valda skärmar
-                </button>
-              </>
-            ) : (
-              <p className="landing-package-empty">
-                Lägg till Standard, Premium eller Premium Plus för att beräkna kostnaden.
-              </p>
-            )}
-          </section>
-          ) : null}
           {serviceLogos.length > 0 && (
             <div className="landing-logo-rail landing-pricing-logo-rail" aria-label="Betalning och leverans">
               <div className="landing-logo-track">
@@ -904,7 +790,12 @@ export default function Home() {
           )}
         </LandingSection>
 
-        <LandingSection id="examples" title={t.galleryTitle} text={t.galleryText}>
+        <LandingSection
+          id="examples"
+          eyebrow="Designad för er verksamhet"
+          title={t.galleryTitle}
+          text={t.galleryText}
+        >
           <p className="landing-video-swipe-hint">
             Svep åt sidan och tryck på en presentation för att spela.
           </p>
@@ -918,13 +809,13 @@ export default function Home() {
             <LandingVideoRail
               items={exampleVideos.filter((example) => example.orientation !== "portrait")}
               orientation="landscape"
-              direction="right"
+              direction="left"
               onOpen={setExpandedExample}
             />
           </div>
         </LandingSection>
 
-        <LandingSection id="faq" title={t.faqTitle}>
+        <LandingSection id="faq" eyebrow="Bra att veta" title={t.faqTitle}>
           <div className="landing-faq-layout">
             <div className="landing-faq-grid">
               {t.faqs.map(([question, answer]) => (
@@ -939,17 +830,100 @@ export default function Home() {
 
         <section id="contact" className="landing-section-surface landing-contact">
           <div className="landing-contact-panel">
-            <div>
+            <div className="landing-contact-copy">
               <p className="landing-eyebrow">{t.contactEyebrow}</p>
               <h2>{t.contactTitle}</h2>
               <p>{t.contactText}</p>
+              <div className="landing-contact-trust" aria-label="Fördelar">
+                <span>Personlig hjälp</span>
+                <span>Ingen bindningstid</span>
+              </div>
+              <Link href="/kontakt" className="landing-button landing-button-primary">
+                {t.contactButton}
+              </Link>
             </div>
-            <Link href="/kontakt" className="landing-button landing-button-primary">
-              {t.contactButton}
-            </Link>
           </div>
         </section>
       </main>
+
+      {selectedScreenCount > 0 && !requestOpen && !priceBreakdownOpen && !expandedExample ? (
+        <aside className="landing-selection-overlay landing-pricing" aria-label="Vald kombination">
+          <p
+            className="landing-visually-hidden"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            {selectedScreenCount} skärm{selectedScreenCount === 1 ? "" : "ar"} vald
+            {selectedScreenCount === 1 ? "" : "a"}, {formatLandingSek(selectedMonthlyTotal)} per månad totalt.
+          </p>
+          <button
+            type="button"
+            className="landing-selection-toggle"
+            onClick={() => setSelectionSummaryOpen((current) => !current)}
+            aria-expanded={selectionSummaryOpen}
+            aria-controls="selected-package-summary"
+          >
+            <span className="landing-selection-toggle-copy">
+              <small>Vald kombination <span aria-hidden="true">·</span> Priser inkl. moms</small>
+              <strong>
+                {selectedScreenCount} skärm{selectedScreenCount === 1 ? "" : "ar"} · {formatLandingSek(selectedMonthlyTotal)}/mån
+              </strong>
+            </span>
+            <span className="landing-selection-toggle-action">
+              {selectionSummaryOpen ? "Minimera" : "Visa val"}
+              <i aria-hidden="true" />
+            </span>
+          </button>
+
+          <div
+            id="selected-package-summary"
+            className="landing-package-builder landing-package-builder-floating"
+            hidden={!selectionSummaryOpen}
+          >
+            <div className="landing-selection-plan-list" aria-label="Valda paket">
+              {selectedQuoteItems.map(({ plan, quantity }) => (
+                <span key={`selection-${plan.code}`}>
+                  <b>{quantity}×</b> {plan.name} {plan.resolution}
+                </span>
+              ))}
+            </div>
+
+            <div className="landing-package-totals landing-selection-totals">
+              <div className="landing-package-total-primary">
+                <span>Efter 21 kostnadsfria dagar</span>
+                <strong>{formatLandingSek(selectedMonthlyTotal)}/mån totalt</strong>
+                <small>Ingen bindningstid.</small>
+              </div>
+              <div className="landing-package-total-secondary">
+                <span>Engångsbetalning vid start</span>
+                <strong>{formatLandingSek(selectedFirstPayment)}</strong>
+                <small>Startavgift, valda enheter och frakt.</small>
+              </div>
+            </div>
+
+            <div className="landing-selection-actions">
+              <button
+                type="button"
+                className="landing-package-breakdown-trigger"
+                onClick={() => {
+                  setSelectionSummaryOpen(false);
+                  setPriceBreakdownOpen(true);
+                }}
+              >
+                Se exakt prisspecifikation
+              </button>
+              <button
+                type="button"
+                onClick={openPlanRequest}
+                className="landing-button landing-button-primary landing-package-continue"
+              >
+                Fortsätt med valda skärmar
+              </button>
+            </div>
+          </div>
+        </aside>
+      ) : null}
 
       <footer className="landing-footer">
         <div className="landing-footer-brand">
@@ -1211,11 +1185,13 @@ export default function Home() {
 
 function LandingSection({
   id,
+  eyebrow,
   title,
   text,
   children,
 }: {
   id: string;
+  eyebrow?: string;
   title: string;
   text?: string;
   children: ReactNode;
@@ -1223,7 +1199,7 @@ function LandingSection({
   return (
     <section id={id} className={`landing-section landing-section-surface landing-${id}`}>
       <div className="landing-section-panel">
-        <SectionHeading title={title} text={text} />
+        <SectionHeading eyebrow={eyebrow} title={title} text={text} />
         {children}
       </div>
     </section>
@@ -1231,14 +1207,17 @@ function LandingSection({
 }
 
 function SectionHeading({
+  eyebrow,
   title,
   text,
 }: {
+  eyebrow?: string;
   title: string;
   text?: string;
 }) {
   return (
     <div className="landing-section-heading">
+      {eyebrow && <p className="landing-section-kicker">{eyebrow}</p>}
       <h2>{title}</h2>
       {text && <p>{text}</p>}
     </div>
