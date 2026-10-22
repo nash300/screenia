@@ -23,6 +23,15 @@ state that must be re-verified before use.
 - Latest verified Vercel production deployment before this checkpoint:
   `screenia-ejeptjlzq-nadeesha7314-1449s-projects.vercel.app` (`READY`).
 
+## Current session handoff
+
+Verified 2026-10-22: the canonical checkout and
+`origin/codex/local-service-setup` are clean and at commit `520e43f`. The
+remote `origin/main` remains at the previous release commit `11a9d7c`; the
+session-continuity changes are development workflow configuration and have not
+been represented as a production deployment. Do not merge or deploy them as a
+side effect of starting a session.
+
 Start every new session with the automated bootstrap and read
 `docs/codex-session-contract.md`, then run the release gate when a release
 check is needed:
