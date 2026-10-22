@@ -6,6 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { getCustomerWorkflowAction } from "@/lib/admin/customer-workflow";
+import {
+  customerStatusLabel,
+  customerStatusOptions,
+  isCustomerStatus,
+  manuallyManageableCustomerStatuses,
+} from "@/lib/admin/customer-status";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import { includedVatFromGross } from "@/lib/pricing/vat";
 import { calculateIncrementalSetupFeeSek } from "@/lib/pricing/setup-fee";
@@ -117,6 +123,9 @@ export default function CustomerDetailPage({
   const [deleteReason, setDeleteReason] = useState("");
   const [deleteConfirmed, setDeleteConfirmed] = useState(false);
   const [isEditingCustomer, setIsEditingCustomer] = useState(false);
+  const [statusDraft, setStatusDraft] = useState("draft");
+  const [statusReason, setStatusReason] = useState("");
+  const [statusSaving, setStatusSaving] = useState(false);
   const [activeSection, setActiveSection] =
     useState<CustomerDetailSection>("overview");
   const [communicationView, setCommunicationView] =
@@ -399,6 +408,8 @@ export default function CustomerDetailPage({
     const loadedCustomer = normalizeCustomer(customerData);
 
     setCustomer(loadedCustomer);
+    setStatusDraft(loadedCustomer.status || "draft");
+    setStatusReason("");
     setEditName(loadedCustomer.name || "");
     setEditContactPerson(loadedCustomer.contact_person || "");
     setEditPhone(loadedCustomer.phone || "");
@@ -918,6 +929,47 @@ export default function CustomerDetailPage({
     setIsEditingCustomer(false);
     setEditReason("");
     setSaving(false);
+  };
+
+  const saveCustomerStatus = async () => {
+    if (!customer) return;
+    if (!isCustomerStatus(statusDraft) || !manuallyManageableCustomerStatuses.has(statusDraft)) {
+      showAdminNotification(
+        "warning",
+        "Use the dedicated service or billing operation for this customer status.",
+      );
+      return;
+    }
+    if (statusReason.trim().length < 5) {
+      showAdminNotification(
+        "warning",
+        "Add a reason of at least 5 characters before changing customer status.",
+      );
+      return;
+    }
+
+    setStatusSaving(true);
+    const response = await fetch(`/api/admin/customers/${customer.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "update_status",
+        status: statusDraft,
+        reason: statusReason.trim(),
+      }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification("error", result.error || "Could not update customer status.");
+      setStatusSaving(false);
+      return;
+    }
+
+    await loadData();
+    setStatusReason("");
+    showAdminNotification("success", "Customer workflow status updated.");
+    setStatusSaving(false);
   };
 
   const runSubscriptionAction = async ({
@@ -2105,7 +2157,7 @@ export default function CustomerDetailPage({
               customer.status,
             )}`}
           >
-            {customer.status || "draft"}
+            {customerStatusLabel(customer.status || "draft")}
           </span>
         </div>
       </div>
@@ -2132,7 +2184,7 @@ export default function CustomerDetailPage({
         ))}
       </section>
 
-      <details className="admin-customer-section-help" open>
+      <details className="admin-customer-section-help">
         <summary>
           <span>
             <small>Admin help</small>
@@ -2257,6 +2309,52 @@ export default function CustomerDetailPage({
           <InfoRow label="Customer ID" value={customer.id} />
         </div>
 
+        <div className="admin-customer-status-panel">
+          <div>
+            <p className="admin-operation-kicker">Customer status</p>
+            <h3>{customerStatusLabel(customer.status || "draft")}</h3>
+            <p className="admin-muted">
+              Use this for intake and delivery progress. Active, suspended, cancelled,
+              and refunded states stay connected to their dedicated audited operations.
+            </p>
+          </div>
+          <div className="admin-customer-status-form">
+            <label className="admin-customer-overview-field">
+              Set workflow status
+              <select
+                value={statusDraft}
+                onChange={(event) => setStatusDraft(event.target.value)}
+                className="admin-customer-overview-control"
+              >
+                {customerStatusOptions
+                  .filter((option) => manuallyManageableCustomerStatuses.has(option.value))
+                  .map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label className="admin-customer-overview-field">
+              Reason for status change *
+              <input
+                value={statusReason}
+                onChange={(event) => setStatusReason(event.target.value)}
+                placeholder="Example: customer confirmed content is ready."
+                className="admin-customer-overview-control"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={saveCustomerStatus}
+              disabled={statusSaving || statusDraft === (customer.status || "draft")}
+              className="admin-button-secondary"
+            >
+              {statusSaving ? "Saving..." : "Save status"}
+            </button>
+          </div>
+        </div>
+
         {isEditingCustomer && (
           <div className="admin-edit-panel admin-customer-overview-edit-panel">
             <div className="admin-customer-overview-edit-grid">
@@ -2367,14 +2465,15 @@ export default function CustomerDetailPage({
           <div className="admin-customer-quote-header">
             <div>
               <p className="admin-customer-quote-kicker">
-                Guided onboarding
+                Request and upgrade quote
               </p>
               <h3>
-                Review the request and send one secure setup link
+                Prepare the offer and send one secure setup link
               </h3>
               <p className="admin-muted">
-                Screenia creates the offer, customer profile, material upload,
-                and payment steps together. The customer completes the rest.
+                Screenia keeps the offer, customer profile, material upload, and
+                payment steps together. For an existing customer, add the new
+                screen package here without changing their current service.
               </p>
             </div>
 

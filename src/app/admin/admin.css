@@ -2617,6 +2617,33 @@
   margin-top: 1rem;
 }
 
+.admin-customer-status-panel {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: var(--admin-radius-lg);
+  background: rgba(245, 249, 255, 0.8);
+  padding: 1rem;
+}
+
+.admin-customer-status-panel h3 {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+}
+
+.admin-customer-status-form {
+  display: grid;
+  gap: 0.8rem;
+}
+
+@media (min-width: 760px) {
+  .admin-customer-status-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 1fr);
+    align-items: end;
+  }
+}
+
 .admin-customer-overview-edit-grid {
   display: grid;
   gap: 1rem;

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { matchesCustomerFilter } from "@/lib/admin/customer-filters";
+import { customerStatusLabel, customerStatusOptions } from "@/lib/admin/customer-status";
 import { isValidEmailAddress } from "@/lib/validation/email";
 
 type Customer = {
@@ -91,6 +92,9 @@ function CustomersContent() {
   const router = useRouter();
   const [statusFilter, setStatusFilter] = useState(
     searchParams.get("filter") || "all",
+  );
+  const [customerStatusFilter, setCustomerStatusFilter] = useState(
+    searchParams.get("status") || "all",
   );
   const [sortBy, setSortBy] = useState("updated_desc");
   const [loading, setLoading] = useState(true);
@@ -245,6 +249,7 @@ function CustomersContent() {
   useEffect(() => {
     const filter = searchParams.get("filter");
     setStatusFilter(filter || "all");
+    setCustomerStatusFilter(searchParams.get("status") || "all");
   }, [searchParams]);
 
   useEffect(() => {
@@ -318,6 +323,9 @@ function CustomersContent() {
   const getFilterCount = (filter: string) =>
     customers.filter((customer) => matchesFilter(customer, filter)).length;
 
+  const getCustomerStatusCount = (status: string) =>
+    customers.filter((customer) => (customer.status || "draft") === status).length;
+
   const getStatusClass = (status: string | null) => {
     if (status === "active") return "admin-customer-status-active";
     if (status === "new_request") return "admin-customer-status-new-request";
@@ -363,6 +371,7 @@ function CustomersContent() {
       const subscription = latestSubscription(customer);
       return (
         matchesFilter(customer, statusFilter) &&
+        (customerStatusFilter === "all" || (customer.status || "draft") === customerStatusFilter) &&
         (!value ||
           customer.name.toLowerCase().includes(value) ||
           customer.customer_number?.toLowerCase().includes(value) ||
@@ -391,7 +400,7 @@ function CustomersContent() {
 
   useEffect(() => {
     setPage(1);
-  }, [search, sortBy, statusFilter]);
+  }, [search, sortBy, statusFilter, customerStatusFilter]);
 
   return (
     <div className="admin-customers-page">
@@ -448,6 +457,33 @@ function CustomersContent() {
                   </option>
                 ))}
             </optgroup>
+          </select>
+          <select
+            value={customerStatusFilter}
+            onChange={(event) => {
+              const nextStatus = event.target.value;
+              setCustomerStatusFilter(nextStatus);
+              const nextParams = new URLSearchParams(searchParams.toString());
+              if (nextStatus === "all") nextParams.delete("status");
+              else nextParams.set("status", nextStatus);
+              router.push(
+                `/admin/customers${nextParams.toString() ? `?${nextParams.toString()}` : ""}`,
+              );
+            }}
+            aria-label="Customer status"
+          >
+            <option value="all">All customer statuses</option>
+            {["Intake", "Onboarding", "Delivery", "Service", "Closed"].map((group) => (
+              <optgroup key={group} label={group}>
+                {customerStatusOptions
+                  .filter((option) => option.group === group)
+                  .map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label} ({getCustomerStatusCount(option.value)})
+                    </option>
+                  ))}
+              </optgroup>
+            ))}
           </select>
           <select
             value={sortBy}
@@ -531,7 +567,7 @@ function CustomersContent() {
 
                         <div className="admin-customer-queue-stage">
                           <span className={`admin-table-pill ${getStatusClass(customer.status)}`}>
-                            {formatStatusLabel(customer.status || "draft")}
+                            {customerStatusLabel(customer.status || "draft")}
                           </span>
                           <small>{needsSetup || "No setup exception"}</small>
                         </div>

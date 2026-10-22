@@ -49,9 +49,9 @@ export const adminNavItems = [
   },
   {
     href: "/admin/services",
-    label: "Services",
+    label: "Service connections",
     icon: "SV",
-    description: "Open Screenia's payment, hosting, database, email, domain, and code services.",
+    description: "Review Screenia's connected payment, hosting, database, email, domain, and code services.",
   },
   {
     href: "/admin/troubleshooting",
@@ -83,13 +83,12 @@ export const adminNavGroups = [
     hrefs: [
       "/admin/pricing",
       "/admin/site-content",
-      "/admin/services",
     ],
   },
   {
-    title: "More tools",
+    title: "System",
     defaultOpen: false,
-    hrefs: ["/admin/troubleshooting"],
+    hrefs: ["/admin/services", "/admin/troubleshooting"],
   },
 ];
 

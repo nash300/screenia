@@ -15,6 +15,11 @@ import {
   normalizeSwedishRegistrationNumber,
 } from "@/lib/business/sweden";
 import { isValidEmailAddress } from "@/lib/validation/email";
+import {
+  customerStatusLabel,
+  isCustomerStatus,
+  manuallyManageableCustomerStatuses,
+} from "@/lib/admin/customer-status";
 
 
 function isMissingRelationError(error: { code?: string; message?: string }) {
@@ -231,6 +236,140 @@ export async function PATCH(
   const body = await request.json().catch(() => ({}));
   const action = String(body.action || "").trim();
   const reason = cleanAdminReason(body.reason);
+
+  if (action === "update_status") {
+    const nextStatus = String(body.status || "").trim();
+
+    if (!isCustomerStatus(nextStatus) || !manuallyManageableCustomerStatuses.has(nextStatus)) {
+      return NextResponse.json(
+        {
+          error:
+            "Choose a workflow status. Billing, service, cancellation, and refund statuses are changed by their dedicated operations or Stripe webhooks.",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (!adminReasonIsValid(reason)) {
+      return NextResponse.json(
+        { error: "A reason of at least 5 characters is required before changing customer status." },
+        { status: 400 },
+      );
+    }
+
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from("customers")
+      .select("id, name, status, payment_status, service_access_status")
+      .eq("id", customerId)
+      .single();
+
+    if (existingError || !existing) {
+      return NextResponse.json({ error: "Customer was not found." }, { status: 404 });
+    }
+
+    if (["active", "suspended"].includes(existing.status || "")) {
+      return NextResponse.json(
+        {
+          error:
+            "Active and suspended customers must use the dedicated customer operation flow so service access and audit evidence stay synchronized.",
+        },
+        { status: 409 },
+      );
+    }
+
+    if (
+      ["paid", "content_pending", "content_received"].includes(nextStatus) &&
+      existing.payment_status !== "paid"
+    ) {
+      return NextResponse.json(
+        { error: "Material workflow statuses require confirmed payment." },
+        { status: 409 },
+      );
+    }
+
+    if (
+      ["paid", "content_pending", "content_received"].includes(existing.status || "") &&
+      !["paid", "content_pending", "content_received"].includes(nextStatus)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A paid customer cannot be moved back into intake. Use the dedicated billing or service operation when a correction is needed.",
+        },
+        { status: 409 },
+      );
+    }
+
+    if (existing.status === nextStatus) {
+      return NextResponse.json({ success: true, unchanged: true });
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("customers")
+      .update({ status: nextStatus })
+      .eq("id", existing.id);
+
+    if (updateError) {
+      console.error("Update customer status error:", updateError);
+      return NextResponse.json({ error: "Could not update customer status." }, { status: 500 });
+    }
+
+    try {
+      await recordAuditEvent(
+        supabaseAdmin,
+        {
+          customerId: existing.id,
+          actorType: "admin",
+          actorId: user.id,
+          eventType: "customer_status_changed",
+          eventDescription: `Admin changed customer workflow status from ${customerStatusLabel(existing.status)} to ${customerStatusLabel(nextStatus)}.`,
+          metadata: {
+            previousStatus: existing.status,
+            nextStatus,
+            paymentStatus: existing.payment_status,
+            serviceAccessStatus: existing.service_access_status,
+            reason,
+          },
+          ipAddress: getRequestIp(request),
+          userAgent: request.headers.get("user-agent"),
+        },
+        { throwOnError: true },
+      );
+    } catch (auditError) {
+      const { error: rollbackError } = await supabaseAdmin
+        .from("customers")
+        .update({ status: existing.status })
+        .eq("id", existing.id);
+
+      if (rollbackError) {
+        await createAdminNotification(supabaseAdmin, {
+          customerId: existing.id,
+          eventType: "customer_status_rollback_failed",
+          title: "Customer status rollback failed",
+          message: "A customer status audit failed and the previous status could not be restored.",
+          priority: "urgent",
+          metadata: {
+            previousStatus: existing.status,
+            nextStatus,
+            reason,
+            auditError: auditError instanceof Error ? auditError.message : String(auditError),
+            rollbackError: rollbackError.message,
+          },
+        });
+        return NextResponse.json(
+          { error: "Status audit and rollback failed. Stop and investigate before retrying." },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Customer status was not changed because audit evidence could not be stored." },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json({ success: true, status: nextStatus });
+  }
 
   if (action === "publish_preview") {
     if (!adminReasonIsValid(reason)) {
