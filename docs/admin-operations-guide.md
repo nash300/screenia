@@ -29,7 +29,7 @@ Each admin must use an individual account. Admin password resets require at leas
 
 1. Review the inquiry in `/admin/customers` and verify package, quantity, email, phone, company, and privacy acceptance.
 2. Prepare the quote and verify the first-payment formula and future monthly amount.
-3. Send the onboarding link. If delivery fails, open Troubleshooting and then Email delivery evidence.
+3. Send the onboarding link. If delivery fails, open Email delivery evidence from Messages.
 4. Review the customer's setup details and uploaded material.
 5. Let Stripe Checkout collect payment. Never request card details by message or phone.
 6. Confirm Stripe payment, webhook processing, customer account creation, and account email evidence.
@@ -45,8 +45,7 @@ Each admin must use an individual account. Admin password resets require at leas
 - `/admin/pricing`: package, start fee, hardware, shipping, trial, moms behavior, and Stripe price synchronization.
 - `/admin/inventory`: physical hardware lifecycle, serial numbers, warranty, assignment, return, repair, loss, and retirement.
 - `/admin/devices`: digital screen endpoints, playlists, media, activation, and display URL.
-- `/admin/troubleshooting`: technical diagnostics used only when an operational problem needs investigation.
-- `/admin/email-events`: email delivery evidence reached through Troubleshooting when needed.
+- `/admin/email-events`: email delivery evidence linked from Messages when delivery needs investigation.
 
 ## Email procedure
 

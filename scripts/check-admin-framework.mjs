@@ -7,8 +7,8 @@ const exists = (file) => fs.existsSync(path.join(root, file));
 
 const navigation = read("src/lib/admin/navigation.ts");
 const layout = read("src/app/admin/layout.tsx");
-const troubleshooting = read("src/app/admin/troubleshooting/page.tsx");
 const emailEvidence = read("src/app/admin/email-events/page.tsx");
+const contactInquiries = read("src/app/admin/contact-inquiries/page.tsx");
 const adminApiRoot = path.join(root, "src/app/api/admin");
 const adminApiRoutes = fs
   .readdirSync(adminApiRoot, { recursive: true })
@@ -23,8 +23,8 @@ if (navigation.includes('href: "/admin/launch-readiness"')) {
 if (navigation.includes('href: "/admin/email-events"')) {
   problems.push("Email evidence must not appear in daily admin navigation.");
 }
-if (!navigation.includes('href: "/admin/troubleshooting"')) {
-  problems.push("Troubleshooting is missing from admin navigation.");
+if (navigation.includes('href: "/admin/troubleshooting"')) {
+  problems.push("The retired Troubleshooting wrapper must not appear in admin navigation.");
 }
 if (navigation.includes('href: "/admin/training"')) {
   problems.push("The removed Training feature must not appear in admin navigation.");
@@ -32,8 +32,8 @@ if (navigation.includes('href: "/admin/training"')) {
 if (layout.includes("AdminContextGuide") || layout.includes("admin-page-with-guide")) {
   problems.push("The global page guide must remain removed.");
 }
-if (!troubleshooting.includes('href="/admin/email-events"')) {
-  problems.push("Troubleshooting must link to email evidence.");
+if (!contactInquiries.includes('href="/admin/email-events"')) {
+  problems.push("Messages must link to email delivery evidence.");
 }
 if (!emailEvidence.includes("Email evidence")) {
   problems.push("The email evidence diagnostic page is missing.");
@@ -63,6 +63,7 @@ for (const removedFile of [
   "src/components/AdminContextGuide.tsx",
   "src/lib/admin/help-catalog.ts",
   "src/lib/admin/operation-scenarios.ts",
+  "src/app/admin/troubleshooting/page.tsx",
 ]) {
   if (exists(removedFile)) problems.push(`Obsolete admin file still exists: ${removedFile}`);
 }

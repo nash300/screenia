@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const textExtensions = new Set([
   ".css",
@@ -35,6 +35,7 @@ function repositoryFiles() {
   );
 
   return Array.from(new Set(output.split("\0").filter(Boolean))).filter((file) => {
+    if (!existsSync(file)) return false;
     const dot = file.lastIndexOf(".");
     return dot >= 0 && textExtensions.has(file.slice(dot).toLowerCase());
   });

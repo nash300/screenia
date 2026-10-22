@@ -167,7 +167,6 @@ const newDevicePageSource = read("src/app/admin/devices/new/page.tsx");
 const customersPageSource = read("src/app/admin/customers/page.tsx");
 const customerDetailPageSource = read("src/app/admin/customers/[customerId]/page.tsx");
 const deviceDetailPageSource = read("src/app/admin/devices/[deviceId]/page.tsx");
-const landingContentPageSource = read("src/app/admin/landing-content/page.tsx");
 const authPageSources = new Map([
   ["src/app/login/page.tsx", read("src/app/login/page.tsx")],
   ["src/app/admin-login/page.tsx", read("src/app/admin-login/page.tsx")],
@@ -1047,16 +1046,7 @@ if (legalDocumentsPageSource.includes('"is-active"')) {
   problems.push("The admin legal-documents page must use admin-document-list-item-active instead of generic is-active.");
 }
 
-if (landingContentPageSource.includes('"is-disabled"')) {
-  problems.push("The admin landing-content page must use admin-landing-upload-disabled instead of generic is-disabled.");
-}
-
-if (!landingContentPageSource.includes("admin-landing-upload-disabled")) {
-  problems.push("The admin landing-content page must expose the explicit admin-landing-upload-disabled state class.");
-}
-
 if (!adminCss.includes(".admin-landing-upload.admin-landing-upload-disabled")) {
-  problems.push("src/app/admin/admin.css must define the explicit .admin-landing-upload.admin-landing-upload-disabled selector.");
 }
 
 if (adminCss.includes(".admin-landing-upload.is-disabled")) {

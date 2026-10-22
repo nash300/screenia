@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { buildContactInquiryConversation } from "@/lib/communication/contact-inquiry-conversation";
@@ -212,6 +213,9 @@ export default function AdminContactInquiriesPage() {
           </p>
         </div>
         <div className="admin-dashboard-header-actions">
+          <Link href="/admin/email-events" className="admin-button-secondary">
+            Email delivery evidence
+          </Link>
           <div className="admin-status-chip admin-status-chip-system">
             <span className={`admin-status-dot ${counts.active ? "admin-status-warning" : "admin-status-success"}`} />
             {loading ? "Syncing" : `${counts.active} need attention`}

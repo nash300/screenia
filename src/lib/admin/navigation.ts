@@ -53,12 +53,6 @@ export const adminNavItems = [
     icon: "SV",
     description: "Review Screenia's connected payment, hosting, database, email, domain, and code services.",
   },
-  {
-    href: "/admin/troubleshooting",
-    label: "Troubleshooting",
-    icon: "TS",
-    description: "Diagnostic tools used only when investigating technical problems.",
-  },
 ];
 
 export const adminNavGroups = [
@@ -88,17 +82,11 @@ export const adminNavGroups = [
   {
     title: "System",
     defaultOpen: false,
-    hrefs: ["/admin/services", "/admin/troubleshooting"],
+    hrefs: ["/admin/services"],
   },
 ];
 
 export const siteContentNavItems = [
-  {
-    href: "/admin/landing-content",
-    label: "Hero editor",
-    icon: "HE",
-    description: "Hero slides, background images, yellow highlights, and rotating cards.",
-  },
   {
     href: "/admin/example-gallery",
     label: "Example gallery",

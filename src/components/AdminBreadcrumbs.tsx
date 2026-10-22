@@ -12,13 +12,11 @@ const labels: Record<string, string> = {
   devices: "Displays",
   pricing: "Pricing & VAT",
   "site-content": "Website",
-  "landing-content": "Hero editor",
   "example-gallery": "Example gallery",
   "legal-documents": "Document editor",
   subscriptions: "Subscriptions",
   "email-events": "Email delivery",
   services: "Services",
-  troubleshooting: "Troubleshooting",
   new: "New",
 };
 

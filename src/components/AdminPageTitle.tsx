@@ -13,12 +13,10 @@ const titles: Record<string, string> = {
   "/admin/orders": "Orders & Billing",
   "/admin/pricing": "Pricing",
   "/admin/site-content": "Site Content",
-  "/admin/landing-content": "Hero Editor",
   "/admin/example-gallery": "Example Gallery",
   "/admin/legal-documents": "Document Editor",
   "/admin/email-events": "Email Delivery",
   "/admin/services": "External Services",
-  "/admin/troubleshooting": "Troubleshooting",
 };
 
 const sectionTitles: Record<string, string> = {

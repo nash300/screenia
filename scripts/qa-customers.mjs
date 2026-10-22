@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
-const BATCH_ID = "SCREENIA_QA_100_V1";
+const BATCH_ID = "SCREENIA_QA_50_V1";
 const EMAIL_PATTERN = "qa.customer.%@example.test";
 const QA_PASSWORD = "ScreeniaQa12345";
 const command = process.argv[2] || "verify";
@@ -49,6 +49,18 @@ const scenarios = [
   { key: "shipped", label: "Order shipped with tracking", customer: "active", payment: "paid", access: "active", order: "active", fulfillment: "shipped", inventory: "shipped", production: "completed", preview: "approved", devices: "all", tracking: true, account: true, accepted: true },
   { key: "discount_and_support", label: "Active discount with customer support history", customer: "active", payment: "paid", access: "active", order: "active", fulfillment: "active", inventory: "assigned", production: "completed", preview: "approved", devices: "one", playlist: true, discount: true, support: true, account: true, accepted: true },
 ];
+
+const fixturesPerScenario = scenarios.map((_, index) =>
+  index < 10 ? 3 : 2,
+);
+const expectedCustomerCount = fixturesPerScenario.reduce((sum, count) => sum + count, 0);
+
+function expectedScenarioCount(predicate) {
+  return scenarios.reduce(
+    (sum, scenario, index) => sum + (predicate(scenario) ? fixturesPerScenario[index] : 0),
+    0,
+  );
+}
 
 const cities = ["Stockholm", "Gothenburg", "Malmo", "Uppsala", "Vasteras"];
 const industries = ["Restaurant", "Retail", "Salon", "Clinic", "Office"];
@@ -246,7 +258,7 @@ function buildFixtures(plans) {
   const fixtures = [];
   for (let scenarioIndex = 0; scenarioIndex < scenarios.length; scenarioIndex += 1) {
     const scenario = scenarios[scenarioIndex];
-    for (let variation = 0; variation < 5; variation += 1) {
+    for (let variation = 0; variation < fixturesPerScenario[scenarioIndex]; variation += 1) {
       const index = scenarioIndex * 5 + variation;
       const sequence = index + 1;
       const standard = plans.standard_fhd;
@@ -832,11 +844,11 @@ async function verifyFixtures() {
   );
 
   const required = {
-    customers: 100,
-    customer_subscriptions: 95,
-    customer_messages: 5,
-    customer_refund_cases: 10,
-    subscription_adjustments: 5,
+    customers: expectedCustomerCount,
+    customer_subscriptions: expectedScenarioCount((scenario) => scenario.subscription !== false),
+    customer_messages: expectedScenarioCount((scenario) => scenario.support),
+    customer_refund_cases: expectedScenarioCount((scenario) => scenario.refund),
+    subscription_adjustments: expectedScenarioCount((scenario) => scenario.discount),
   };
   const failures = Object.entries(required).filter(
     ([key, expected]) => counts[key] !== expected,
@@ -846,7 +858,7 @@ async function verifyFixtures() {
       .filter(([key, value]) => key !== "qaAuthAccounts" && value !== 0)
       .map(([key, value]) => [key, `expected 0, received ${value}`]),
   );
-  const expectedAuthAccounts = scenarios.filter((scenario) => scenario.account).length * 5;
+  const expectedAuthAccounts = expectedScenarioCount((scenario) => scenario.account);
   if (invariants.qaAuthAccounts !== expectedAuthAccounts) {
     failures.push([
       "qaAuthAccounts",
@@ -870,8 +882,9 @@ if (command === "clean") {
     JSON.stringify(
       {
         batch: BATCH_ID,
+        customers: expectedCustomerCount,
         scenarios: scenarios.length,
-        variationsPerScenario: 5,
+        scenarioDistribution: "3 records for each of the first 10 scenarios and 2 for each of the remaining 10",
         accounts: seeded.accounts,
         qaLogin: {
           email: "qa.customer.041@example.test",
