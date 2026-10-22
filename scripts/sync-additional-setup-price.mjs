@@ -34,7 +34,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY,
 );
-const stripe = new Stripe(stripeKey, { apiVersion: "2026-04-22.dahlia" });
+const stripe = new Stripe(stripeKey, { apiVersion: "2026-08-26.dahlia" });
 
 const { data: plans, error: plansError } = await supabase
   .from("pricing_plans")

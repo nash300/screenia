@@ -24,7 +24,7 @@ if (!stripeSecretKey?.startsWith("sk_test_") || !webhookSecret) {
   throw new Error("Stripe test credentials and the local webhook signing secret are required.");
 }
 
-const stripe = new Stripe(stripeSecretKey, { apiVersion: "2026-04-22.dahlia" });
+const stripe = new Stripe(stripeSecretKey, { apiVersion: "2026-08-26.dahlia" });
 let sourceEvent = null;
 
 for await (const event of stripe.events.list({ type: eventType, limit: 100 })) {

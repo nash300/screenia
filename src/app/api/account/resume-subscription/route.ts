@@ -11,7 +11,7 @@ import { renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
+  apiVersion: "2026-08-26.dahlia",
 });
 
 type LocalSubscription = {

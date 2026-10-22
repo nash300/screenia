@@ -170,7 +170,7 @@ async function deleteStripeTestCustomers() {
     throw new Error("Stripe reset requires a test-mode STRIPE_SECRET_KEY. Use --skip-stripe to skip Stripe.");
   }
 
-  const stripe = new Stripe(stripeSecretKey, { apiVersion: "2026-04-22.dahlia" });
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: "2026-08-26.dahlia" });
   let deletedCustomers = 0;
 
   for await (const customer of stripe.customers.list({ limit: 100 })) {

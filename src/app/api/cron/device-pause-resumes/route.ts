@@ -13,7 +13,7 @@ import { authorizeCronRequest } from "@/lib/server/cron-auth";
 export const dynamic = "force-dynamic";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
+  apiVersion: "2026-08-26.dahlia",
 });
 
 type DevicePauseRow = {

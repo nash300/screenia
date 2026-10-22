@@ -9,7 +9,7 @@ import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-enti
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2026-04-22.dahlia",
+  apiVersion: "2026-08-26.dahlia",
 });
 
 function cleanReason(value: unknown) {

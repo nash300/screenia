@@ -1,6 +1,6 @@
 # Screenia current project checkpoint
 
-Last provider/product checkpoint: 2026-09-04 (Europe/Stockholm)
+Last provider/product checkpoint: 2026-10-22 (Europe/Stockholm)
 Session automation verified: 2026-10-22 (Europe/Stockholm)
 
 This file is the first handoff to read in a new Screenia chat. It intentionally
@@ -25,12 +25,12 @@ state that must be re-verified before use.
 
 ## Current session handoff
 
-Verified 2026-10-22: the canonical checkout and
-`origin/codex/local-service-setup` are clean and at commit `520e43f`. The
-remote `origin/main` remains at the previous release commit `11a9d7c`; the
-session-continuity changes are development workflow configuration and have not
-been represented as a production deployment. Do not merge or deploy them as a
-side effect of starting a session.
+Verified 2026-10-22: the canonical checkout is on
+`codex/local-service-setup`. The security/dependency fixes in this checkpoint
+are validated locally and the Supabase hardening migrations are applied to
+project `wcmhvldpelfhurlsuwwy`. The remote `origin/main` and production
+deployment remain unchanged; do not merge or deploy this work as a side effect
+of starting a session.
 
 Start every new session with the automated bootstrap and read
 `docs/codex-session-contract.md`, then run the release gate when a release
@@ -74,6 +74,24 @@ offers, documents, and billing tests together.
   invitation/onboarding flow.
 - Sensitive customer, device, and playlist tables are protected by RLS and
   locked down from anonymous Data API reads.
+- The live Supabase security advisor no longer reports disabled RLS, public
+  `SECURITY DEFINER` functions, or mutable function search paths. The remaining
+  warning is the dashboard-only leaked-password protection setting.
+- The live Supabase performance advisor no longer reports unindexed foreign
+  keys, duplicate indexes, or per-row auth-initplan evaluation. Remaining
+  unused-index notices are informational on this low-volume project, and the
+  seven multiple-policy notices are intentional admin/customer or admin/public
+  read-policy overlaps.
+- Applied live hardening migrations are tracked in
+  `supabase/migrations/20261022204005_security_hardening_followup.sql`,
+  `supabase/migrations/20261022204246_policy_role_hardening.sql`,
+  `supabase/migrations/20261022204316_performance_hardening.sql`, and
+  `supabase/migrations/20261022204443_private_table_policies.sql`.
+- The remote migration ledger historically stops at `202606140300` before
+  these later schema files, even though the later schema is present. Do not
+  run a blind `supabase db push`; use an authenticated, linked CLI session to
+  inspect and repair that history with `supabase migration list` and
+  `supabase migration repair`.
 - Production-wide rate limiting is backed by a Supabase RPC.
 - Stripe and Resend webhook signatures are verified before processing.
 - Production email sends from `service@screenia.se` through Resend. Zoho keeps
@@ -93,9 +111,14 @@ Security details and applied migrations are recorded in
 
 - 42 test files and 320 tests passed.
 - Security invariant check passed.
-- `npm audit`: 0 vulnerabilities at every severity.
+- Production dependency audit (`npm audit --omit=dev --audit-level=high`) is
+  clean. Full audit still reports five high dev-only findings in the upstream
+  Next ESLint tool chain; the only suggested fix downgrades Next.js to an old
+  major and is not acceptable.
 - Lint, text quality, style boundaries, admin-framework checks, TypeScript, and
   the production build passed.
+- Local dev smoke tests passed after a clean Next cache/process restart: `/`,
+  `/sa-fungerar-det`, and `/kontakt` returned 200; `/admin` returned 307.
 - Billing invariant scenarios passed, including the 499 kr charge and free
   selected-new-client case.
 - The last GitHub Release checks and CodeQL runs on the preceding source commit
