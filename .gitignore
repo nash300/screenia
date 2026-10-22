@@ -20,6 +20,7 @@
 
 # production
 /build
+/output/imagegen/
 
 # misc
 .DS_Store

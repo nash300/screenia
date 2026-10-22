@@ -19,6 +19,13 @@ It synchronizes the clean checkout with `origin/codex/local-service-setup`,
 restores the ignored local environment when available, and installs missing
 dependencies. It stops instead of overwriting uncommitted work.
 
+After preparation, read:
+
+```text
+docs/current-project-checkpoint.md
+docs/codex-session-contract.md
+```
+
 Check the current branch:
 
 ```powershell

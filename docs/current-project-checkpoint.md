@@ -1,10 +1,13 @@
 # Screenia current project checkpoint
 
-Last verified: 2026-09-04 (Europe/Stockholm)
+Last provider/product checkpoint: 2026-09-04 (Europe/Stockholm)
+Session automation verified: 2026-10-22 (Europe/Stockholm)
 
 This file is the first handoff to read in a new Screenia chat. It intentionally
-contains no passwords, API keys, webhook secrets, or customer data. The current
-Git commit on `main` is the authoritative source revision.
+contains no passwords, API keys, webhook secrets, or customer data. The active
+Screenia development source is the remote `codex/local-service-setup` branch.
+Treat `main` and all provider/deployment observations as separate release
+state that must be re-verified before use.
 
 ## Repository and deployment
 
@@ -14,11 +17,15 @@ Git commit on `main` is the authoritative source revision.
 - Production URL: `https://screenia.se`
 - Vercel project: `nadeesha7314-1449s-projects/screenia`
 - The working branch and `main` were synchronized before this checkpoint.
+- The session-continuity automation is committed on
+  `codex/local-service-setup`; new work should start from that branch or run
+  the bootstrap after switching to it.
 - Latest verified Vercel production deployment before this checkpoint:
   `screenia-ejeptjlzq-nadeesha7314-1449s-projects.vercel.app` (`READY`).
 
-Start every new session with the automated bootstrap, then run the release
-gate when a release check is needed:
+Start every new session with the automated bootstrap and read
+`docs/codex-session-contract.md`, then run the release gate when a release
+check is needed:
 
 ```powershell
 npm.cmd run session:prepare

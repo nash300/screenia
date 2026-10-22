@@ -24,4 +24,12 @@ environment from the canonical checkout, and installs dependencies when they
 are missing. It refuses to change a checkout that contains uncommitted work.
 
 Then read `docs/current-project-checkpoint.md` and `LOCAL_DEV_REMINDER.md`.
-Never request or store provider secrets in chat or source control.
+Also read `docs/codex-session-contract.md`; it contains the durable Screenia
+working rules, product invariants, provider boundaries, release checks, and
+handoff procedure. Do not ask the user to repeat project context that is
+already recorded in those files.
+
+Use existing local configuration, authenticated CLI sessions, and browser
+sessions where available. Ask the user to sign in only when a specific
+provider or protected page is actually blocked, and name that provider/page
+explicitly. Never request or store provider secrets in chat or source control.
