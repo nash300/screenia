@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "session:prepare": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-screenia-session.ps1",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",

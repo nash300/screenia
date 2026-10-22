@@ -11,7 +11,13 @@ Open PowerShell:
 
 ```powershell
 cd "$env:USERPROFILE\Desktop\screenia"
+npm.cmd run session:prepare
 ```
+
+New Codex sessions can run `npm.cmd run session:prepare` from their checkout.
+It synchronizes the clean checkout with `origin/codex/local-service-setup`,
+restores the ignored local environment when available, and installs missing
+dependencies. It stops instead of overwriting uncommitted work.
 
 Check the current branch:
 

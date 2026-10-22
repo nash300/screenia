@@ -17,14 +17,18 @@ Git commit on `main` is the authoritative source revision.
 - Latest verified Vercel production deployment before this checkpoint:
   `screenia-ejeptjlzq-nadeesha7314-1449s-projects.vercel.app` (`READY`).
 
-Start every new session with:
+Start every new session with the automated bootstrap, then run the release
+gate when a release check is needed:
 
 ```powershell
-git fetch --prune origin
-git status --short
-git log -5 --oneline --decorate
+npm.cmd run session:prepare
 npm.cmd run release:check
 ```
+
+The bootstrap command is safe for normal session handoff: it refuses to
+overwrite uncommitted work, updates clean temporary worktrees to the latest
+`origin/codex/local-service-setup` revision, and restores the ignored local
+`.env.local` file from the canonical checkout when needed.
 
 If the nested `npm audit` process stalls, run `npm.cmd audit
 --audit-level=high --json` separately, then run the other release checks. Do not
