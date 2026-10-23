@@ -25,6 +25,7 @@ export default function DevicesPage() {
         device_code,
         location,
         is_active,
+        is_complimentary,
         customers(name, status),
         playlists(count)
         `,
@@ -164,6 +165,12 @@ export default function DevicesPage() {
                       <p className="admin-device-list-meta">
                         Location: {device.location || "Not set"}
                       </p>
+
+                      {device.is_complimentary ? (
+                        <p className="admin-device-list-badge">
+                          Complimentary screen
+                        </p>
+                      ) : null}
 
                       {playlistCount === 0 && (
                         <p className="admin-device-list-warning">

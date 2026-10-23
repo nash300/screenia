@@ -145,6 +145,7 @@ export function subscriptionCountsTowardDeviceEntitlement(
 
 export function deviceCountsTowardEntitlement(device: Device) {
   if (!device.is_active) return false;
+  if (device.is_complimentary) return false;
 
   const inventoryStatus = String(device.inventory_status || "assigned").toLowerCase();
   return !inactiveDeviceInventoryStatuses.has(inventoryStatus);

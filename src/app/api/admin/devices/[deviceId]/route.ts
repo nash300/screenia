@@ -76,7 +76,7 @@ async function getDevice(deviceId: string) {
   return supabaseAdmin
     .from("devices")
     .select(
-      "id, device_code, customer_id, name, is_active, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, internal_notes",
+      "id, device_code, customer_id, name, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, internal_notes",
     )
     .eq("id", deviceId)
     .single();
@@ -100,6 +100,10 @@ async function rollbackDeletedDevice(
     customer_id: device.customer_id,
     name: device.name,
     is_active: device.is_active,
+    is_complimentary: device.is_complimentary,
+    complimentary_reason: device.complimentary_reason,
+    complimentary_granted_at: device.complimentary_granted_at,
+    complimentary_granted_by: device.complimentary_granted_by,
     make: device.make,
     model: device.model,
     serial_number: device.serial_number,

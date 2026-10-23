@@ -33,6 +33,10 @@ function buildDevicePayload(body: Record<string, unknown>) {
       id: crypto.randomUUID(),
       customer_id: customerId,
       name,
+      is_complimentary: false,
+      complimentary_reason: null,
+      complimentary_granted_at: null,
+      complimentary_granted_by: null,
       location: cleanString(body.location, 200),
       internal_notes: cleanString(body.internal_notes, 1000),
       is_active: true,
@@ -58,10 +62,19 @@ export async function POST(request: Request) {
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const reason = getReason(body.reason);
+  const complimentary = body.complimentary === true;
+  const complimentaryReason = getReason(body.complimentary_reason);
 
   if (reason.length < 5) {
     return NextResponse.json(
       { error: "A reason of at least 5 characters is required." },
+      { status: 400 },
+    );
+  }
+
+  if (complimentary && complimentaryReason.length < 5) {
+    return NextResponse.json(
+      { error: "A reason of at least 5 characters is required for a complimentary screen." },
       { status: 400 },
     );
   }
@@ -75,6 +88,7 @@ export async function POST(request: Request) {
   const entitlement = await assertCustomerCanReceiveDevice(
     supabaseAdmin,
     result.payload.customer_id,
+    { complimentary, complimentaryReason },
   ).catch((error) => ({
     ok: false as const,
     entitlement: null,
@@ -93,8 +107,14 @@ export async function POST(request: Request) {
 
   const { data, error } = await supabaseAdmin
     .from("devices")
-    .insert(result.payload)
-    .select("id, device_code, customer_id, name")
+    .insert({
+      ...result.payload,
+      is_complimentary: complimentary,
+      complimentary_reason: complimentary ? complimentaryReason : null,
+      complimentary_granted_at: complimentary ? new Date().toISOString() : null,
+      complimentary_granted_by: complimentary ? user.id : null,
+    })
+    .select("id, device_code, customer_id, name, is_complimentary")
     .single();
 
   if (error || !data) {
@@ -118,6 +138,8 @@ export async function POST(request: Request) {
           deviceId: data.id,
           deviceCode: data.device_code,
           deviceName: data.name,
+          complimentary,
+          complimentaryReason: complimentary ? complimentaryReason : null,
           reason,
         },
         ipAddress: getRequestIp(request),

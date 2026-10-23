@@ -33,7 +33,7 @@ Each admin must use an individual account. Admin password resets require at leas
 4. Review the customer's setup details and uploaded material.
 5. Let Stripe Checkout collect payment. Never request card details by message or phone.
 6. Confirm Stripe payment, webhook processing, customer account creation, and account email evidence.
-7. Assign physical hardware from the customer's profile or `/admin/inventory`.
+7. Assign physical hardware from the customer's profile or `/admin/inventory`. Paid allocations are limited to the customer's active paid screen quantity. If the owner intentionally provides an extra screen for a friend, client, or service test, use the complimentary-screen exception and record the business reason; it is audited and does not consume paid capacity.
 8. Configure the screen endpoint and media in `/admin/devices`.
 9. Check the customer history and global audit evidence before closing the work item.
 

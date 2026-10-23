@@ -30,12 +30,14 @@ type DeviceRow = {
   id: string;
   inventory_status: string | null;
   is_active: boolean | null;
+  is_complimentary: boolean | null;
 };
 
 export type DeviceEntitlementSummary = {
   allowed: number;
   active: number;
   remaining: number;
+  complimentary: number;
 };
 
 function subscriptionIsBillable(subscription: SubscriptionRow) {
@@ -50,6 +52,7 @@ function subscriptionIsBillable(subscription: SubscriptionRow) {
 
 function deviceCountsAgainstEntitlement(device: DeviceRow) {
   if (!device.is_active) return false;
+  if (device.is_complimentary) return false;
 
   const inventoryStatus = String(device.inventory_status || "assigned").toLowerCase();
   return !inactiveDeviceInventoryStatuses.has(inventoryStatus);
@@ -67,7 +70,7 @@ export async function getCustomerDeviceEntitlement(
         .eq("customer_id", customerId),
       supabaseAdmin
         .from("devices")
-        .select("id, inventory_status, is_active")
+        .select("id, inventory_status, is_active, is_complimentary")
         .eq("customer_id", customerId),
     ]);
 
@@ -89,19 +92,36 @@ export async function getCustomerDeviceEntitlement(
   const active = ((devices || []) as DeviceRow[]).filter(
     deviceCountsAgainstEntitlement,
   ).length;
+  const complimentary = ((devices || []) as DeviceRow[]).filter(
+    (device) => device.is_active && device.is_complimentary,
+  ).length;
 
   return {
     allowed,
     active,
     remaining: Math.max(0, allowed - active),
+    complimentary,
   };
 }
 
 export async function assertCustomerCanReceiveDevice(
   supabaseAdmin: SupabaseClient,
   customerId: string,
+  options: { complimentary?: boolean; complimentaryReason?: string } = {},
 ) {
   const entitlement = await getCustomerDeviceEntitlement(supabaseAdmin, customerId);
+
+  if (options.complimentary) {
+    if ((options.complimentaryReason || "").trim().length < 5) {
+      return {
+        ok: false as const,
+        entitlement,
+        error: "A reason of at least 5 characters is required for a complimentary screen.",
+      };
+    }
+
+    return { ok: true as const, entitlement, complimentary: true as const };
+  }
 
   if (entitlement.allowed < 1) {
     return {
@@ -120,5 +140,5 @@ export async function assertCustomerCanReceiveDevice(
     };
   }
 
-  return { ok: true as const, entitlement };
+  return { ok: true as const, entitlement, complimentary: false as const };
 }

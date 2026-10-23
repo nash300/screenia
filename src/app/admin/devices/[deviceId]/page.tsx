@@ -58,6 +58,7 @@ export default function AdminDevicePage({
         customer_id,
         name,
         is_active,
+        is_complimentary,
         location,
         internal_notes
       `,
@@ -439,6 +440,11 @@ export default function AdminDevicePage({
           >
             {isActive ? "Active" : "Inactive"}
           </span>
+          {device?.is_complimentary ? (
+            <span className="admin-device-detail-complimentary">
+              Complimentary screen
+            </span>
+          ) : null}
         </div>
       </div>
 

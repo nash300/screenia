@@ -239,7 +239,7 @@ export async function PATCH(
       const { data: linkedDevice, error: linkedDeviceError } = await supabaseAdmin
         .from("devices")
         .select(
-          "id, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, inventory_status, inventory_notes, is_active",
+          "id, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by",
         )
         .eq("id", existing.device_id)
         .single();
@@ -388,6 +388,8 @@ export async function PATCH(
 
   if (action === "allocate_new_device") {
     const customerId = cleanString(body.customer_id, 80);
+    const complimentary = body.complimentary === true;
+    const complimentaryReason = getReason(body.complimentary_reason);
 
     if (existing.status !== "in_stock") {
       return NextResponse.json(
@@ -403,6 +405,13 @@ export async function PATCH(
       );
     }
 
+    if (complimentary && complimentaryReason.length < 5) {
+      return NextResponse.json(
+        { error: "A reason of at least 5 characters is required for a complimentary screen." },
+        { status: 400 },
+      );
+    }
+
     if (existing.device_id) {
       return NextResponse.json(
         { error: "This inventory item is already linked to a device." },
@@ -413,6 +422,7 @@ export async function PATCH(
     const entitlement = await assertCustomerCanReceiveDevice(
       supabaseAdmin,
       customerId,
+      { complimentary, complimentaryReason },
     ).catch((error) => ({
       ok: false as const,
       entitlement: null,
@@ -441,7 +451,7 @@ export async function PATCH(
       await supabaseAdmin
         .from("devices")
         .select(
-          "id, device_code, customer_id, name, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, inventory_status, inventory_notes, is_active",
+          "id, device_code, customer_id, name, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by",
         )
         .eq("serial_number", existing.serial_number)
         .maybeSingle();
@@ -481,6 +491,10 @@ export async function PATCH(
             inventory_status: "assigned",
             inventory_notes: existing.notes,
             is_active: true,
+            is_complimentary: complimentary,
+            complimentary_reason: complimentary ? complimentaryReason : null,
+            complimentary_granted_at: complimentary ? new Date().toISOString() : null,
+            complimentary_granted_by: complimentary ? user.id : null,
           })
           .eq("id", existingSerialDevice.id)
           .select("id, device_code")
@@ -502,6 +516,10 @@ export async function PATCH(
             inventory_status: "assigned",
             inventory_notes: existing.notes,
             is_active: true,
+            is_complimentary: complimentary,
+            complimentary_reason: complimentary ? complimentaryReason : null,
+            complimentary_granted_at: complimentary ? new Date().toISOString() : null,
+            complimentary_granted_by: complimentary ? user.id : null,
           })
           .select("id, device_code")
           .single();
@@ -545,9 +563,11 @@ export async function PATCH(
     let subscriptionInventory: {
       id: string;
       previousStatus: string | null;
-    };
+    } | null;
     try {
-      subscriptionInventory = await assignCurrentSubscriptionInventory(customerId);
+      subscriptionInventory = complimentary
+        ? null
+        : await assignCurrentSubscriptionInventory(customerId);
     } catch (subscriptionError) {
       console.error("Allocate inventory subscription sync error:", subscriptionError);
       await rollbackInventoryDeviceAllocation({
@@ -582,10 +602,12 @@ export async function PATCH(
             itemCode: existing.item_code,
             deviceId: device.id,
             deviceCode: device.device_code,
-            subscriptionId: subscriptionInventory.id,
+            subscriptionId: subscriptionInventory?.id || null,
             previousSubscriptionInventoryStatus:
-              subscriptionInventory.previousStatus,
-            subscriptionInventoryStatus: "assigned",
+              subscriptionInventory?.previousStatus || null,
+            subscriptionInventoryStatus: subscriptionInventory ? "assigned" : null,
+            complimentary,
+            complimentaryReason: complimentary ? complimentaryReason : null,
             reason,
           },
           ipAddress: getRequestIp(request),

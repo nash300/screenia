@@ -4,6 +4,7 @@ export type DisplayListItem = {
   device_code: string;
   location: string | null;
   is_active: boolean | null;
+  is_complimentary: boolean | null;
   customers: {
     name: string | null;
     status: string | null;
@@ -23,6 +24,7 @@ export type DisplayDetails = {
   customer_id: string;
   name: string | null;
   is_active: boolean | null;
+  is_complimentary: boolean | null;
   location: string | null;
   internal_notes: string | null;
 };

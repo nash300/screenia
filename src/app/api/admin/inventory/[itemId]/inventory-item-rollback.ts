@@ -49,6 +49,10 @@ export async function rollbackInventoryStatusUpdate({
             inventory_status: existingDevice.inventory_status,
             inventory_notes: existingDevice.inventory_notes,
             is_active: existingDevice.is_active,
+            is_complimentary: existingDevice.is_complimentary,
+            complimentary_reason: existingDevice.complimentary_reason,
+            complimentary_granted_at: existingDevice.complimentary_granted_at,
+            complimentary_granted_by: existingDevice.complimentary_granted_by,
           })
           .eq("id", existingDevice.id)
       : Promise.resolve({ error: null }),
@@ -111,6 +115,10 @@ export async function rollbackInventoryDeviceAllocation({
             inventory_status: existingDevice.inventory_status,
             inventory_notes: existingDevice.inventory_notes,
             is_active: existingDevice.is_active,
+            is_complimentary: existingDevice.is_complimentary,
+            complimentary_reason: existingDevice.complimentary_reason,
+            complimentary_granted_at: existingDevice.complimentary_granted_at,
+            complimentary_granted_by: existingDevice.complimentary_granted_by,
           })
           .eq("id", existingDevice.id)
       : Promise.resolve({ error: null }),

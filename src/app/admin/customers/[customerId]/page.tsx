@@ -134,6 +134,10 @@ export default function CustomerDetailPage({
   const [stockModelFilter, setStockModelFilter] = useState("all");
   const [stockAllocationLocation, setStockAllocationLocation] = useState("");
   const [stockAllocationReason, setStockAllocationReason] = useState("");
+  const [stockAllocationComplimentary, setStockAllocationComplimentary] =
+    useState(false);
+  const [stockAllocationComplimentaryReason, setStockAllocationComplimentaryReason] =
+    useState("");
   const [allocatingStockItemId, setAllocatingStockItemId] = useState<string | null>(
     null,
   );
@@ -444,7 +448,7 @@ export default function CustomerDetailPage({
 
     const { data: devicesData, error: devicesError } = await supabase
       .from("devices")
-      .select("id, name, device_code, is_active, inventory_status, make, model, serial_number, playlists(count)")
+      .select("id, name, device_code, is_active, is_complimentary, inventory_status, make, model, serial_number, playlists(count)")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -1707,6 +1711,8 @@ export default function CustomerDetailPage({
         customer_id: customerId,
         location: stockAllocationLocation,
         reason,
+        complimentary: stockAllocationComplimentary,
+        complimentary_reason: stockAllocationComplimentaryReason,
       }),
     });
     const result = await response.json().catch(() => ({}));
@@ -1727,6 +1733,8 @@ export default function CustomerDetailPage({
     );
     setStockAllocationReason("");
     setStockAllocationLocation("");
+    setStockAllocationComplimentary(false);
+    setStockAllocationComplimentaryReason("");
     await loadData();
     setSaving(false);
     setAllocatingStockItemId(null);
@@ -1945,7 +1953,14 @@ export default function CustomerDetailPage({
       0,
     );
   const activeDeviceCount = devices.filter(deviceCountsTowardEntitlement).length;
+  const complimentaryDeviceCount = devices.filter(
+    (device) => device.is_active && device.is_complimentary,
+  ).length;
   const remainingDeviceSlots = Math.max(0, paidDeviceQuantity - activeDeviceCount);
+  const canAllocateDevice =
+    remainingDeviceSlots > 0 ||
+    (stockAllocationComplimentary &&
+      stockAllocationComplimentaryReason.trim().length >= 5);
   const stockModelOptions = Array.from(
     new Set(
       stockItems
@@ -3945,14 +3960,15 @@ export default function CustomerDetailPage({
 
         <p className="admin-muted admin-customer-device-intro">
           Assign available stock to this customer&apos;s paid device entitlement and
-          create display endpoints after onboarding. Stock purchase records,
-          warranty, returns, and repairs stay in Hardware stock.
+          create display endpoints after onboarding. The owner can explicitly
+          grant a complimentary screen for a special customer. Stock purchase
+          records, warranty, returns, and repairs stay in Hardware stock.
         </p>
 
         <ol className="admin-customer-device-guide" aria-label="Device allocation steps">
           <li>
             <span>1</span>
-            <strong>Confirm an available paid screen slot</strong>
+            <strong>Confirm an available paid or approved free screen slot</strong>
           </li>
           <li>
             <span>2</span>
@@ -3971,23 +3987,59 @@ export default function CustomerDetailPage({
           />
           <InfoTile label="Active displays" value={String(activeDeviceCount)} />
           <InfoTile
+            label="Complimentary displays"
+            value={String(complimentaryDeviceCount)}
+          />
+          <InfoTile
             label="Available slots"
             value={String(remainingDeviceSlots)}
           />
         </div>
 
-        {remainingDeviceSlots < 1 ? (
+        {remainingDeviceSlots < 1 && !stockAllocationComplimentary ? (
           <div className="admin-customer-device-warning">
             {paidDeviceQuantity < 1
-              ? "This customer has no eligible paid display entitlement. Resolve payment and service access before assigning hardware or creating a display endpoint."
-              : "This customer already has the paid number of active displays. Return or deactivate a faulty display before assigning a replacement, or update the subscription quantity first."}
+              ? "This customer has no eligible paid display entitlement. Resolve payment and service access, or use the owner exception below for a complimentary screen."
+              : "This customer already has the paid number of active displays. Return or deactivate a faulty display before assigning a replacement, update the subscription quantity, or use the owner exception below."}
           </div>
         ) : null}
 
+        <label className="admin-operation-confirm admin-customer-device-override">
+          <input
+            type="checkbox"
+            checked={stockAllocationComplimentary}
+            onChange={(event) =>
+              setStockAllocationComplimentary(event.target.checked)
+            }
+          />
+          <span>
+            Grant an owner-approved complimentary screen
+            <small>
+              This bypasses the paid screen limit and is recorded in the
+              customer journal. Use only for approved friends, clients, or
+              service tests.
+            </small>
+          </span>
+        </label>
+
+        {stockAllocationComplimentary ? (
+          <label className="admin-operation-reason admin-customer-device-override-reason">
+            Complimentary screen reason
+            <textarea
+              value={stockAllocationComplimentaryReason}
+              onChange={(event) =>
+                setStockAllocationComplimentaryReason(event.target.value)
+              }
+              placeholder="Example: Complimentary test screen for launch validation."
+              rows={3}
+            />
+          </label>
+        ) : null}
+
         <div className="admin-customer-device-actions">
-          {remainingDeviceSlots > 0 ? (
+          {remainingDeviceSlots > 0 || stockAllocationComplimentary ? (
             <Link
-              href={`/admin/devices/new?customerId=${customer.id}`}
+              href={`/admin/devices/new?customerId=${customer.id}${stockAllocationComplimentary ? "&complimentary=1" : ""}`}
               className="admin-button-primary"
             >
               Create customer display
@@ -3996,7 +4048,7 @@ export default function CustomerDetailPage({
             <span
               aria-disabled="true"
               className="admin-button-primary admin-button-disabled"
-              title="A paid available display slot is required."
+              title="A paid available display slot or owner-approved complimentary exception is required."
             >
               Create customer display
             </span>
@@ -4078,6 +4130,12 @@ export default function CustomerDetailPage({
             </label>
           </div>
 
+          <p className="admin-customer-device-override-note">
+            {stockAllocationComplimentary
+              ? "This allocation will be marked complimentary and will not consume a paid screen slot."
+              : "Need to provide a free screen? Enable the owner-approved complimentary exception above and record the reason."}
+          </p>
+
           {filteredStockItems.length === 0 ? (
             <p className="admin-muted admin-customer-stock-empty">
               No available stock matches this filter.
@@ -4127,7 +4185,7 @@ export default function CustomerDetailPage({
                     disabled={
                       saving ||
                       allocatingStockItemId === item.id ||
-                      remainingDeviceSlots < 1 ||
+                      !canAllocateDevice ||
                       !stockAllocationReason.trim()
                     }
                     className="admin-button-primary admin-customer-stock-allocate"
@@ -4169,6 +4227,12 @@ export default function CustomerDetailPage({
                 <p className="admin-customer-display-meta">
                   Display: /display/{device.device_code}
                 </p>
+
+                {device.is_complimentary ? (
+                  <span className="admin-customer-display-badge">
+                    Complimentary screen
+                  </span>
+                ) : null}
 
                 <div className="admin-customer-display-actions">
                   <Link

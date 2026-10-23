@@ -51,6 +51,7 @@ export type Device = {
   name: string | null;
   device_code: string;
   is_active: boolean | null;
+  is_complimentary: boolean | null;
   inventory_status: string | null;
   make: string | null;
   model: string | null;

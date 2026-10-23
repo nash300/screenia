@@ -3821,7 +3821,7 @@
 
 .admin-customer-device-slots {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.75rem;
   margin-top: 1rem;
 }
@@ -3842,6 +3842,34 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 1.25rem;
+}
+
+.admin-customer-device-override {
+  margin-top: 1rem;
+}
+
+.admin-customer-device-override span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-customer-device-override small,
+.admin-device-create-override small {
+  color: #7c5a1b;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.admin-customer-device-override-reason {
+  max-width: 720px;
+}
+
+.admin-customer-device-override-note {
+  margin: 0.85rem 0 0;
+  color: #52627a;
+  font-size: 0.76rem;
+  line-height: 1.45;
 }
 
 .admin-button-disabled {
@@ -4019,6 +4047,24 @@
   color: #52627a;
   font-size: 0.82rem;
   line-height: 1.45;
+}
+
+.admin-customer-display-badge,
+.admin-device-list-badge,
+.admin-device-detail-complimentary {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(180, 83, 9, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 247, 237, 0.92);
+  padding: 0.25rem 0.6rem;
+  color: #9a4d0b;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.admin-customer-display-badge {
+  margin-top: 0.55rem;
 }
 
 .admin-customer-display-actions {
@@ -4526,6 +4572,10 @@
   font-weight: 850;
 }
 
+.admin-device-list-badge {
+  margin: 0.45rem 0 0;
+}
+
 .admin-device-list-status {
   color: var(--admin-muted-text);
   font-size: 0.86rem;
@@ -4624,6 +4674,10 @@
   margin-top: 1.25rem;
 }
 
+.admin-device-create-override {
+  margin-top: 1rem;
+}
+
 .admin-device-detail-loading-panel {
   display: grid;
   min-height: 92px;
@@ -4662,6 +4716,10 @@
 .admin-device-detail-status-inactive {
   background: rgba(227, 84, 90, 0.14);
   color: #9a1c1c;
+}
+
+.admin-device-detail-complimentary {
+  margin-top: 0.5rem;
 }
 
 .admin-device-detail-panel {
