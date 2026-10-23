@@ -138,6 +138,11 @@ export default function CustomerDetailPage({
     useState(false);
   const [stockAllocationComplimentaryReason, setStockAllocationComplimentaryReason] =
     useState("");
+  const [stockAllocationComplimentaryExpiresAt, setStockAllocationComplimentaryExpiresAt] =
+    useState("");
+  const [replacementForDeviceId, setReplacementForDeviceId] = useState("");
+  const [stockAllocationLoaner, setStockAllocationLoaner] = useState(false);
+  const [stockAllocationLoanerDueAt, setStockAllocationLoanerDueAt] = useState("");
   const [allocatingStockItemId, setAllocatingStockItemId] = useState<string | null>(
     null,
   );
@@ -448,7 +453,7 @@ export default function CustomerDetailPage({
 
     const { data: devicesData, error: devicesError } = await supabase
       .from("devices")
-      .select("id, name, device_code, is_active, is_complimentary, inventory_status, make, model, serial_number, playlists(count)")
+      .select("id, name, device_code, is_active, is_complimentary, complimentary_expires_at, replacement_for_device_id, is_loaner, loaner_due_at, inventory_status, make, model, serial_number, playlists(count)")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -1713,6 +1718,10 @@ export default function CustomerDetailPage({
         reason,
         complimentary: stockAllocationComplimentary,
         complimentary_reason: stockAllocationComplimentaryReason,
+        complimentary_expires_at: stockAllocationComplimentaryExpiresAt,
+        replacement_for_device_id: replacementForDeviceId || null,
+        is_loaner: stockAllocationLoaner,
+        loaner_due_at: stockAllocationLoanerDueAt,
       }),
     });
     const result = await response.json().catch(() => ({}));
@@ -1735,6 +1744,10 @@ export default function CustomerDetailPage({
     setStockAllocationLocation("");
     setStockAllocationComplimentary(false);
     setStockAllocationComplimentaryReason("");
+    setStockAllocationComplimentaryExpiresAt("");
+    setReplacementForDeviceId("");
+    setStockAllocationLoaner(false);
+    setStockAllocationLoanerDueAt("");
     await loadData();
     setSaving(false);
     setAllocatingStockItemId(null);
@@ -1958,9 +1971,15 @@ export default function CustomerDetailPage({
   ).length;
   const remainingDeviceSlots = Math.max(0, paidDeviceQuantity - activeDeviceCount);
   const canAllocateDevice =
-    remainingDeviceSlots > 0 ||
-    (stockAllocationComplimentary &&
-      stockAllocationComplimentaryReason.trim().length >= 5);
+    (remainingDeviceSlots > 0 || stockAllocationComplimentary || replacementForDeviceId) &&
+    (!stockAllocationComplimentary ||
+      (stockAllocationComplimentaryReason.trim().length >= 5 &&
+        Boolean(stockAllocationComplimentaryExpiresAt))) &&
+    (!replacementForDeviceId ||
+      (!stockAllocationLoaner || Boolean(stockAllocationLoanerDueAt)));
+  const replaceableDevices = devices.filter(
+    (device) => device.is_active && device.id !== replacementForDeviceId,
+  );
   const stockModelOptions = Array.from(
     new Set(
       stockItems
@@ -3724,6 +3743,20 @@ export default function CustomerDetailPage({
                     </p>
                   </div>
                 </div>
+                {subscription.stripe_subscription_id ? (
+                  <SubscriptionQuantityControl
+                    currentQuantity={subscription.screen_quantity}
+                    activePaidDisplays={activeDeviceCount}
+                    disabled={saving}
+                    onSubmit={(screenQuantity, reason) =>
+                      runSubscriptionAction({
+                        action: "change_screen_quantity",
+                        payload: { screenQuantity, reason },
+                        successMessage: "Paid screen quantity updated in Stripe and Screenia.",
+                      })
+                    }
+                  />
+                ) : null}
                 <details className="admin-customer-order-technical">
                   <summary>Payment details and history</summary>
                   <dl>
@@ -4023,23 +4056,83 @@ export default function CustomerDetailPage({
         </label>
 
         {stockAllocationComplimentary ? (
-          <label className="admin-operation-reason admin-customer-device-override-reason">
-            Complimentary screen reason
-            <textarea
-              value={stockAllocationComplimentaryReason}
-              onChange={(event) =>
-                setStockAllocationComplimentaryReason(event.target.value)
-              }
-              placeholder="Example: Complimentary test screen for launch validation."
-              rows={3}
-            />
-          </label>
+          <div className="admin-customer-device-exception-grid">
+            <label className="admin-operation-reason admin-customer-device-override-reason">
+              Complimentary screen reason
+              <textarea
+                value={stockAllocationComplimentaryReason}
+                onChange={(event) =>
+                  setStockAllocationComplimentaryReason(event.target.value)
+                }
+                placeholder="Example: Complimentary test screen for launch validation."
+                rows={3}
+              />
+            </label>
+            <label className="admin-customer-stock-field">
+              Complimentary access until
+              <input
+                type="date"
+                value={stockAllocationComplimentaryExpiresAt}
+                onChange={(event) =>
+                  setStockAllocationComplimentaryExpiresAt(event.target.value)
+                }
+                className="admin-customer-stock-control"
+              />
+              <small>Required so test access cannot remain open indefinitely.</small>
+            </label>
+          </div>
         ) : null}
+
+        <div className="admin-customer-device-replacement-panel">
+          <label className="admin-customer-stock-field">
+            Replacement for an existing display
+            <select
+              value={replacementForDeviceId}
+              onChange={(event) => setReplacementForDeviceId(event.target.value)}
+              className="admin-customer-stock-control"
+            >
+              <option value="">No replacement — new allocation</option>
+              {replaceableDevices.map((device) => (
+                <option key={device.id} value={device.id}>
+                  {device.name || "Unnamed display"} ({device.device_code})
+                </option>
+              ))}
+            </select>
+            <small>The old display is deactivated and retained in history.</small>
+          </label>
+
+          {replacementForDeviceId ? (
+            <div className="admin-customer-device-exception-grid">
+              <label className="admin-operation-confirm admin-customer-device-override">
+                <input
+                  type="checkbox"
+                  checked={stockAllocationLoaner}
+                  onChange={(event) => setStockAllocationLoaner(event.target.checked)}
+                />
+                <span>
+                  Temporary loaner
+                  <small>Use this when the customer should return or review the unit later.</small>
+                </span>
+              </label>
+              {stockAllocationLoaner ? (
+                <label className="admin-customer-stock-field">
+                  Loaner review or return date
+                  <input
+                    type="date"
+                    value={stockAllocationLoanerDueAt}
+                    onChange={(event) => setStockAllocationLoanerDueAt(event.target.value)}
+                    className="admin-customer-stock-control"
+                  />
+                </label>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
 
         <div className="admin-customer-device-actions">
           {remainingDeviceSlots > 0 || stockAllocationComplimentary ? (
             <Link
-              href={`/admin/devices/new?customerId=${customer.id}${stockAllocationComplimentary ? "&complimentary=1" : ""}`}
+              href={`/admin/devices/new?customerId=${customer.id}${stockAllocationComplimentary ? `&complimentary=1&complimentary_expires_at=${encodeURIComponent(stockAllocationComplimentaryExpiresAt)}` : ""}`}
               className="admin-button-primary"
             >
               Create customer display
@@ -4132,8 +4225,10 @@ export default function CustomerDetailPage({
 
           <p className="admin-customer-device-override-note">
             {stockAllocationComplimentary
-              ? "This allocation will be marked complimentary and will not consume a paid screen slot."
-              : "Need to provide a free screen? Enable the owner-approved complimentary exception above and record the reason."}
+              ? "This allocation will be marked complimentary, will not consume a paid screen slot, and will stop automatically on the selected date."
+              : replacementForDeviceId
+                ? "This allocation will retire the selected display. A loaner remains clearly marked until its review date."
+                : "Need to provide a free screen or replace a faulty unit? Select the appropriate controlled exception above."}
           </p>
 
           {filteredStockItems.length === 0 ? (
@@ -4231,6 +4326,17 @@ export default function CustomerDetailPage({
                 {device.is_complimentary ? (
                   <span className="admin-customer-display-badge">
                     Complimentary screen
+                    {device.complimentary_expires_at
+                      ? ` until ${new Date(device.complimentary_expires_at).toLocaleDateString("sv-SE")}`
+                      : ""}
+                  </span>
+                ) : null}
+                {device.is_loaner ? (
+                  <span className="admin-customer-display-badge admin-customer-display-badge-loaner">
+                    Loaner
+                    {device.loaner_due_at
+                      ? ` until ${new Date(device.loaner_due_at).toLocaleDateString("sv-SE")}`
+                      : ""}
                   </span>
                 ) : null}
 
@@ -4345,6 +4451,102 @@ export default function CustomerDetailPage({
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SubscriptionQuantityControl({
+  currentQuantity,
+  activePaidDisplays,
+  disabled,
+  onSubmit,
+}: {
+  currentQuantity: number | null;
+  activePaidDisplays: number;
+  disabled: boolean;
+  onSubmit: (screenQuantity: number, reason: string) => void;
+}) {
+  const [screenQuantity, setScreenQuantity] = useState(
+    Math.max(1, Number(currentQuantity) || 1),
+  );
+  const [reason, setReason] = useState("");
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setScreenQuantity(Math.max(1, Number(currentQuantity) || 1));
+  }, [currentQuantity]);
+
+  const quantityChanged = screenQuantity !== (Number(currentQuantity) || 1);
+  const blockedByActiveDisplays = screenQuantity < activePaidDisplays;
+
+  return (
+    <div className="admin-subscription-quantity-control">
+      <div>
+        <strong>Paid screen quantity</strong>
+        <small>
+          Upgrades and downgrades are applied in Stripe with proration. A downgrade
+          cannot go below {activePaidDisplays} active paid display{activePaidDisplays === 1 ? "" : "s"}.
+        </small>
+      </div>
+      {!open ? (
+        <button
+          type="button"
+          className="admin-button-secondary"
+          onClick={() => setOpen(true)}
+          disabled={disabled}
+        >
+          Change quantity
+        </button>
+      ) : (
+        <div className="admin-subscription-quantity-form">
+          <input
+            type="number"
+            min={Math.max(1, activePaidDisplays)}
+            max={50}
+            value={screenQuantity}
+            onChange={(event) => setScreenQuantity(Number(event.target.value) || 1)}
+            aria-label="Paid screen quantity"
+          />
+          <input
+            type="text"
+            value={reason}
+            onChange={(event) => setReason(event.target.value)}
+            placeholder="Reason for quantity change"
+            aria-label="Reason for quantity change"
+          />
+          {blockedByActiveDisplays ? (
+            <small className="admin-form-error">
+              Return or deactivate hardware before reducing below the active paid display count.
+            </small>
+          ) : null}
+          <div className="admin-subscription-quantity-actions">
+            <button
+              type="button"
+              className="admin-button-secondary"
+              onClick={() => {
+                setOpen(false);
+                setReason("");
+              }}
+              disabled={disabled}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="admin-button-primary"
+              onClick={() => onSubmit(screenQuantity, reason.trim())}
+              disabled={
+                disabled ||
+                !quantityChanged ||
+                blockedByActiveDisplays ||
+                reason.trim().length < 5
+              }
+            >
+              Apply quantity
+            </button>
           </div>
         </div>
       )}

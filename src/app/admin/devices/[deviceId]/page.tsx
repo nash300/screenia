@@ -59,6 +59,10 @@ export default function AdminDevicePage({
         name,
         is_active,
         is_complimentary,
+        complimentary_expires_at,
+        replacement_for_device_id,
+        is_loaner,
+        loaner_due_at,
         location,
         internal_notes
       `,
@@ -443,6 +447,17 @@ export default function AdminDevicePage({
           {device?.is_complimentary ? (
             <span className="admin-device-detail-complimentary">
               Complimentary screen
+              {device.complimentary_expires_at
+                ? ` until ${new Date(device.complimentary_expires_at).toLocaleDateString("sv-SE")}`
+                : ""}
+            </span>
+          ) : null}
+          {device?.is_loaner ? (
+            <span className="admin-device-detail-complimentary admin-device-detail-loaner">
+              Loaner
+              {device.loaner_due_at
+                ? ` until ${new Date(device.loaner_due_at).toLocaleDateString("sv-SE")}`
+                : ""}
             </span>
           ) : null}
         </div>

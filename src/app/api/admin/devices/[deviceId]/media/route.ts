@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -127,6 +128,12 @@ export async function POST(
 
   if (!user) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "device.allocate")) {
+    return NextResponse.json(
+      { error: "This admin role cannot manage display media." },
+      { status: 403 },
+    );
   }
 
   const { deviceId } = await params;
@@ -323,6 +330,12 @@ export async function DELETE(
 
   if (!user) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "device.allocate")) {
+    return NextResponse.json(
+      { error: "This admin role cannot manage display media." },
+      { status: 403 },
+    );
   }
 
   const { deviceId } = await params;

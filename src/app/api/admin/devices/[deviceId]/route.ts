@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -76,7 +77,7 @@ async function getDevice(deviceId: string) {
   return supabaseAdmin
     .from("devices")
     .select(
-      "id, device_code, customer_id, name, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, internal_notes",
+      "id, device_code, customer_id, name, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by, complimentary_expires_at, replacement_for_device_id, is_loaner, loaner_due_at, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, internal_notes",
     )
     .eq("id", deviceId)
     .single();
@@ -104,6 +105,10 @@ async function rollbackDeletedDevice(
     complimentary_reason: device.complimentary_reason,
     complimentary_granted_at: device.complimentary_granted_at,
     complimentary_granted_by: device.complimentary_granted_by,
+    complimentary_expires_at: device.complimentary_expires_at,
+    replacement_for_device_id: device.replacement_for_device_id,
+    is_loaner: device.is_loaner,
+    loaner_due_at: device.loaner_due_at,
     make: device.make,
     model: device.model,
     serial_number: device.serial_number,
@@ -133,6 +138,13 @@ export async function PATCH(
 
   if (!user) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  if (!hasAdminPermission(user, "device.allocate")) {
+    return NextResponse.json(
+      { error: "This admin role cannot manage display endpoints." },
+      { status: 403 },
+    );
   }
 
   const { deviceId } = await params;

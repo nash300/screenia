@@ -17,6 +17,7 @@ const labels: Record<string, string> = {
   subscriptions: "Subscriptions",
   "email-events": "Email delivery",
   services: "Services",
+  reconciliation: "Reconciliation",
   new: "New",
 };
 

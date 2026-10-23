@@ -1,6 +1,7 @@
 import {
   getAuthenticatedAdmin,
   supabaseAdmin,
+  hasAdminPermission,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
@@ -40,6 +41,13 @@ export async function PATCH(
 
   if (!user) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  if (!hasAdminPermission(user, "device.allocate")) {
+    return NextResponse.json(
+      { error: "This admin role cannot manage hardware allocation." },
+      { status: 403 },
+    );
   }
 
   const { itemId } = await params;
@@ -239,7 +247,7 @@ export async function PATCH(
       const { data: linkedDevice, error: linkedDeviceError } = await supabaseAdmin
         .from("devices")
         .select(
-          "id, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by",
+          "id, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by, complimentary_expires_at, replacement_for_device_id, is_loaner, loaner_due_at",
         )
         .eq("id", existing.device_id)
         .single();
@@ -390,6 +398,10 @@ export async function PATCH(
     const customerId = cleanString(body.customer_id, 80);
     const complimentary = body.complimentary === true;
     const complimentaryReason = getReason(body.complimentary_reason);
+    const complimentaryExpiresAt = getReason(body.complimentary_expires_at);
+    const replacementForDeviceId = cleanString(body.replacement_for_device_id, 80);
+    const isLoaner = body.is_loaner === true;
+    const loanerDueAt = getReason(body.loaner_due_at);
 
     if (existing.status !== "in_stock") {
       return NextResponse.json(
@@ -412,29 +424,40 @@ export async function PATCH(
       );
     }
 
-    if (existing.device_id) {
+    if (complimentary && !hasAdminPermission(user, "device.grant_complimentary")) {
       return NextResponse.json(
-        { error: "This inventory item is already linked to a device." },
+        { error: "Only an owner can grant a complimentary screen." },
+        { status: 403 },
+      );
+    }
+
+    if (replacementForDeviceId && !hasAdminPermission(user, "device.replace")) {
+      return NextResponse.json(
+        { error: "This admin role cannot create replacement or loaner allocations." },
+        { status: 403 },
+      );
+    }
+
+    if (isLoaner && !replacementForDeviceId) {
+      return NextResponse.json(
+        { error: "A loaner must be linked to the display it temporarily replaces." },
         { status: 400 },
       );
     }
 
-    const entitlement = await assertCustomerCanReceiveDevice(
-      supabaseAdmin,
-      customerId,
-      { complimentary, complimentaryReason },
-    ).catch((error) => ({
-      ok: false as const,
-      entitlement: null,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Could not verify paid device entitlement.",
-    }));
+    if (isLoaner) {
+      const dueAt = new Date(loanerDueAt);
+      if (!loanerDueAt || Number.isNaN(dueAt.getTime()) || dueAt.getTime() <= Date.now()) {
+        return NextResponse.json(
+          { error: "A future review or return date is required for a loaner." },
+          { status: 400 },
+        );
+      }
+    }
 
-    if (!entitlement.ok) {
+    if (existing.device_id) {
       return NextResponse.json(
-        { error: entitlement.error, entitlement: entitlement.entitlement },
+        { error: "This inventory item is already linked to a device." },
         { status: 400 },
       );
     }
@@ -451,7 +474,7 @@ export async function PATCH(
       await supabaseAdmin
         .from("devices")
         .select(
-          "id, device_code, customer_id, name, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by",
+          "id, device_code, customer_id, name, make, model, serial_number, purchase_cost, purchase_date, warranty_period_months, supplier, location, inventory_status, inventory_notes, is_active, is_complimentary, complimentary_reason, complimentary_granted_at, complimentary_granted_by, complimentary_expires_at, replacement_for_device_id, is_loaner, loaner_due_at",
         )
         .eq("serial_number", existing.serial_number)
         .maybeSingle();
@@ -464,13 +487,76 @@ export async function PATCH(
       );
     }
 
-    if (existingSerialDevice?.customer_id !== undefined && existingSerialDevice.customer_id !== customerId) {
+    if (existingSerialDevice?.customer_id && existingSerialDevice.customer_id !== customerId) {
       return NextResponse.json(
         {
           error:
             "This serial is linked to another customer's display. Resolve that assignment before continuing.",
         },
         { status: 409 },
+      );
+    }
+
+    let replacementDevice: Record<string, unknown> | null = null;
+    if (replacementForDeviceId) {
+      if (existingSerialDevice?.id === replacementForDeviceId) {
+        return NextResponse.json(
+          { error: "Choose a different stock unit when replacing this display." },
+          { status: 400 },
+        );
+      }
+
+      const { data: oldDevice, error: oldDeviceError } = await supabaseAdmin
+        .from("devices")
+        .select(
+          "id, customer_id, name, is_active, inventory_status, inventory_notes, replacement_for_device_id, is_loaner, loaner_due_at",
+        )
+        .eq("id", replacementForDeviceId)
+        .single();
+
+      if (oldDeviceError || !oldDevice) {
+        return NextResponse.json(
+          { error: "The display being replaced was not found." },
+          { status: 404 },
+        );
+      }
+
+      if (oldDevice.customer_id !== customerId || !oldDevice.is_active) {
+        return NextResponse.json(
+          { error: "Only an active display belonging to this customer can be replaced." },
+          { status: 400 },
+        );
+      }
+
+      replacementDevice = oldDevice as Record<string, unknown>;
+    }
+
+    const entitlement = await assertCustomerCanReceiveDevice(
+      supabaseAdmin,
+      customerId,
+      {
+        complimentary,
+        complimentaryReason,
+        complimentaryExpiresAt,
+        replacingDeviceId:
+          (replacementDevice?.id as string | undefined) ||
+          (existingSerialDevice?.customer_id === customerId && existingSerialDevice.is_active
+            ? existingSerialDevice.id
+            : undefined),
+      },
+    ).catch((error) => ({
+      ok: false as const,
+      entitlement: null,
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not verify paid device entitlement.",
+    }));
+
+    if (!entitlement.ok) {
+      return NextResponse.json(
+        { error: entitlement.error, entitlement: entitlement.entitlement },
+        { status: 400 },
       );
     }
 
@@ -495,6 +581,10 @@ export async function PATCH(
             complimentary_reason: complimentary ? complimentaryReason : null,
             complimentary_granted_at: complimentary ? new Date().toISOString() : null,
             complimentary_granted_by: complimentary ? user.id : null,
+            complimentary_expires_at: complimentary ? complimentaryExpiresAt : null,
+            replacement_for_device_id: replacementForDeviceId,
+            is_loaner: isLoaner,
+            loaner_due_at: isLoaner ? loanerDueAt : null,
           })
           .eq("id", existingSerialDevice.id)
           .select("id, device_code")
@@ -520,6 +610,10 @@ export async function PATCH(
             complimentary_reason: complimentary ? complimentaryReason : null,
             complimentary_granted_at: complimentary ? new Date().toISOString() : null,
             complimentary_granted_by: complimentary ? user.id : null,
+            complimentary_expires_at: complimentary ? complimentaryExpiresAt : null,
+            replacement_for_device_id: replacementForDeviceId,
+            is_loaner: isLoaner,
+            loaner_due_at: isLoaner ? loanerDueAt : null,
           })
           .select("id, device_code")
           .single();
@@ -550,6 +644,7 @@ export async function PATCH(
         existing: existing as Record<string, unknown>,
         createdDeviceId: existingSerialDevice ? null : device.id,
         existingDevice: existingSerialDevice as Record<string, unknown> | null,
+        replacementDevice,
       });
       return NextResponse.json(
         {
@@ -558,6 +653,31 @@ export async function PATCH(
         },
         { status: 500 },
       );
+    }
+
+    if (replacementDevice) {
+      const { error: replacementError } = await supabaseAdmin
+        .from("devices")
+        .update({
+          is_active: false,
+          inventory_status: "replaced",
+          inventory_notes: `Replaced by ${device.device_code}: ${reason}`,
+        })
+        .eq("id", replacementDevice.id);
+
+      if (replacementError) {
+        console.error("Replacement device retirement error:", replacementError);
+        await rollbackInventoryDeviceAllocation({
+          existing: existing as Record<string, unknown>,
+          createdDeviceId: existingSerialDevice ? null : device.id,
+          existingDevice: existingSerialDevice as Record<string, unknown> | null,
+          replacementDevice,
+        });
+        return NextResponse.json(
+          { error: "The new device was created, but the old display could not be retired." },
+          { status: 500 },
+        );
+      }
     }
 
     let subscriptionInventory: {
@@ -574,6 +694,7 @@ export async function PATCH(
         existing: existing as Record<string, unknown>,
         createdDeviceId: existingSerialDevice ? null : device.id,
         existingDevice: existingSerialDevice as Record<string, unknown> | null,
+        replacementDevice,
       });
       return NextResponse.json(
         {
@@ -608,6 +729,10 @@ export async function PATCH(
             subscriptionInventoryStatus: subscriptionInventory ? "assigned" : null,
             complimentary,
             complimentaryReason: complimentary ? complimentaryReason : null,
+            complimentaryExpiresAt: complimentary ? complimentaryExpiresAt : null,
+            replacementForDeviceId,
+            isLoaner,
+            loanerDueAt: isLoaner ? loanerDueAt : null,
             reason,
           },
           ipAddress: getRequestIp(request),
@@ -621,6 +746,7 @@ export async function PATCH(
         existing: existing as Record<string, unknown>,
         createdDeviceId: existingSerialDevice ? null : device.id,
         existingDevice: existingSerialDevice as Record<string, unknown> | null,
+        replacementDevice,
         subscriptionInventory,
       });
 

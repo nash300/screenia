@@ -26,6 +26,10 @@ export default function DevicesPage() {
         location,
         is_active,
         is_complimentary,
+        complimentary_expires_at,
+        replacement_for_device_id,
+        is_loaner,
+        loaner_due_at,
         customers(name, status),
         playlists(count)
         `,
@@ -169,6 +173,18 @@ export default function DevicesPage() {
                       {device.is_complimentary ? (
                         <p className="admin-device-list-badge">
                           Complimentary screen
+                          {device.complimentary_expires_at
+                            ? ` until ${new Date(device.complimentary_expires_at).toLocaleDateString("sv-SE")}`
+                            : ""}
+                        </p>
+                      ) : null}
+
+                      {device.is_loaner ? (
+                        <p className="admin-device-list-badge admin-device-list-badge-loaner">
+                          Loaner
+                          {device.loaner_due_at
+                            ? ` until ${new Date(device.loaner_due_at).toLocaleDateString("sv-SE")}`
+                            : ""}
                         </p>
                       ) : null}
 

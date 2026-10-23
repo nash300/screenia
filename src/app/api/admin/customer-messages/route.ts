@@ -1,5 +1,6 @@
 import {
-  getAuthenticatedUser,
+  getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -68,10 +69,13 @@ type OriginalSupportMessageState = {
 };
 
 export async function GET(request: Request) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedAdmin();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.read")) {
+    return NextResponse.json({ error: "This admin role cannot view customer messages." }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -237,10 +241,13 @@ async function rollbackSupportReply(
 }
 
 export async function PATCH(request: Request) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedAdmin();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot update customer messages." }, { status: 403 });
   }
 
   const body = (await request.json().catch(() => ({}))) as MessageUpdatePayload;
@@ -404,10 +411,13 @@ export async function PATCH(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedAdmin();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot reply to customers." }, { status: 403 });
   }
 
   const body = (await request.json().catch(() => ({}))) as CustomerMessageReplyPayload;

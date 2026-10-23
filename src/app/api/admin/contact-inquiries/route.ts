@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -30,6 +31,9 @@ export async function GET() {
   const user = await getAuthenticatedAdmin();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.read")) {
+    return NextResponse.json({ error: "This admin role cannot view visitor messages." }, { status: 403 });
   }
 
   const { data, error } = await supabaseAdmin
@@ -77,6 +81,9 @@ export async function POST(request: Request) {
   const user = await getAuthenticatedAdmin();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot reply to visitor messages." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);
@@ -210,6 +217,9 @@ export async function PATCH(request: Request) {
   const user = await getAuthenticatedAdmin();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot update visitor messages." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => null);

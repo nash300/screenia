@@ -31,6 +31,7 @@ type DeviceRow = {
   inventory_status: string | null;
   is_active: boolean | null;
   is_complimentary: boolean | null;
+  complimentary_expires_at: string | null;
 };
 
 export type DeviceEntitlementSummary = {
@@ -58,9 +59,30 @@ function deviceCountsAgainstEntitlement(device: DeviceRow) {
   return !inactiveDeviceInventoryStatuses.has(inventoryStatus);
 }
 
+export function isComplimentaryDeviceExpired(
+  device: Pick<DeviceRow, "is_complimentary" | "complimentary_expires_at">,
+  now = Date.now(),
+) {
+  if (!device.is_complimentary || !device.complimentary_expires_at) return false;
+  const expiresAt = Date.parse(device.complimentary_expires_at);
+  return Number.isFinite(expiresAt) && expiresAt <= now;
+}
+
+function normalizeFutureDate(value: string | undefined) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return null;
+
+  const date = /^\d{4}-\d{2}-\d{2}$/u.test(trimmed)
+    ? new Date(`${trimmed}T23:59:59.999Z`)
+    : new Date(trimmed);
+
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 export async function getCustomerDeviceEntitlement(
   supabaseAdmin: SupabaseClient,
   customerId: string,
+  options: { excludeDeviceId?: string } = {},
 ): Promise<DeviceEntitlementSummary> {
   const [{ data: subscriptions, error: subscriptionError }, { data: devices, error: deviceError }] =
     await Promise.all([
@@ -70,7 +92,9 @@ export async function getCustomerDeviceEntitlement(
         .eq("customer_id", customerId),
       supabaseAdmin
         .from("devices")
-        .select("id, inventory_status, is_active, is_complimentary")
+        .select(
+          "id, inventory_status, is_active, is_complimentary, complimentary_expires_at",
+        )
         .eq("customer_id", customerId),
     ]);
 
@@ -90,10 +114,15 @@ export async function getCustomerDeviceEntitlement(
     }, 0);
 
   const active = ((devices || []) as DeviceRow[]).filter(
-    deviceCountsAgainstEntitlement,
+    (device) =>
+      device.id !== options.excludeDeviceId && deviceCountsAgainstEntitlement(device),
   ).length;
   const complimentary = ((devices || []) as DeviceRow[]).filter(
-    (device) => device.is_active && device.is_complimentary,
+    (device) =>
+      device.id !== options.excludeDeviceId &&
+      device.is_active &&
+      device.is_complimentary &&
+      !isComplimentaryDeviceExpired(device),
   ).length;
 
   return {
@@ -107,9 +136,16 @@ export async function getCustomerDeviceEntitlement(
 export async function assertCustomerCanReceiveDevice(
   supabaseAdmin: SupabaseClient,
   customerId: string,
-  options: { complimentary?: boolean; complimentaryReason?: string } = {},
+  options: {
+    complimentary?: boolean;
+    complimentaryReason?: string;
+    complimentaryExpiresAt?: string;
+    replacingDeviceId?: string;
+  } = {},
 ) {
-  const entitlement = await getCustomerDeviceEntitlement(supabaseAdmin, customerId);
+  const entitlement = await getCustomerDeviceEntitlement(supabaseAdmin, customerId, {
+    excludeDeviceId: options.replacingDeviceId,
+  });
 
   if (options.complimentary) {
     if ((options.complimentaryReason || "").trim().length < 5) {
@@ -117,6 +153,15 @@ export async function assertCustomerCanReceiveDevice(
         ok: false as const,
         entitlement,
         error: "A reason of at least 5 characters is required for a complimentary screen.",
+      };
+    }
+
+    const expiresAt = normalizeFutureDate(options.complimentaryExpiresAt);
+    if (!expiresAt || expiresAt.getTime() <= Date.now()) {
+      return {
+        ok: false as const,
+        entitlement,
+        error: "A future expiry date is required for a complimentary screen.",
       };
     }
 

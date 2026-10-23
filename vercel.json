@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/device-cancellations-finalize",
       "schedule": "30 7 * * *"
+    },
+    {
+      "path": "/api/cron/complimentary-screen-expiry",
+      "schedule": "45 7 * * *"
     }
   ]
 }

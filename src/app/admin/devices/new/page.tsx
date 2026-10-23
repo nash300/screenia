@@ -23,6 +23,7 @@ export default function NewDevicePage() {
   const [reason, setReason] = useState("");
   const [complimentary, setComplimentary] = useState(false);
   const [complimentaryReason, setComplimentaryReason] = useState("");
+  const [complimentaryExpiresAt, setComplimentaryExpiresAt] = useState("");
 
   const [saving, setSaving] = useState(false);
 
@@ -67,6 +68,11 @@ export default function NewDevicePage() {
       return;
     }
 
+    if (complimentary && !complimentaryExpiresAt) {
+      showAdminNotification("warning", "Choose an expiry date for the complimentary screen.");
+      return;
+    }
+
     setSaving(true);
 
     const response = await fetch("/api/admin/devices", {
@@ -80,6 +86,7 @@ export default function NewDevicePage() {
         reason: trimmedReason,
         complimentary,
         complimentary_reason: trimmedComplimentaryReason,
+        complimentary_expires_at: complimentaryExpiresAt,
       }),
     });
     const result = await response.json().catch(() => ({}));
@@ -101,6 +108,7 @@ export default function NewDevicePage() {
     const searchParams = new URLSearchParams(window.location.search);
     setCustomerId(searchParams.get("customerId") || "");
     setComplimentary(searchParams.get("complimentary") === "1");
+    setComplimentaryExpiresAt(searchParams.get("complimentary_expires_at") || "");
     loadCustomers();
   }, []);
 
@@ -208,20 +216,35 @@ export default function NewDevicePage() {
           </span>
         </label>
 
-        {complimentary ? (
-          <div className="admin-device-create-field admin-device-create-field-wide">
-            <label htmlFor="device-complimentary-reason" className="admin-device-create-label">
-              Complimentary screen reason *
-            </label>
-            <textarea
-              id="device-complimentary-reason"
-              name="complimentaryReason"
-              value={complimentaryReason}
-              onChange={(event) => setComplimentaryReason(event.target.value)}
-              placeholder="Example: Complimentary test screen for launch validation."
-              className="admin-device-create-control"
-              rows={3}
-            />
+          {complimentary ? (
+          <div className="admin-device-create-exception-grid">
+            <div className="admin-device-create-field admin-device-create-field-wide">
+              <label htmlFor="device-complimentary-reason" className="admin-device-create-label">
+                Complimentary screen reason *
+              </label>
+              <textarea
+                id="device-complimentary-reason"
+                name="complimentaryReason"
+                value={complimentaryReason}
+                onChange={(event) => setComplimentaryReason(event.target.value)}
+                placeholder="Example: Complimentary test screen for launch validation."
+                className="admin-device-create-control"
+                rows={3}
+              />
+            </div>
+            <div className="admin-device-create-field">
+              <label htmlFor="device-complimentary-expires-at" className="admin-device-create-label">
+                Access until *
+              </label>
+              <input
+                id="device-complimentary-expires-at"
+                name="complimentaryExpiresAt"
+                type="date"
+                value={complimentaryExpiresAt}
+                onChange={(event) => setComplimentaryExpiresAt(event.target.value)}
+                className="admin-device-create-control"
+              />
+            </div>
           </div>
         ) : null}
 
@@ -230,7 +253,8 @@ export default function NewDevicePage() {
           disabled={
             saving ||
             !reason.trim() ||
-            (complimentary && complimentaryReason.trim().length < 5)
+            (complimentary &&
+              (complimentaryReason.trim().length < 5 || !complimentaryExpiresAt))
           }
           className="admin-button-primary admin-device-create-submit disabled:opacity-50"
         >

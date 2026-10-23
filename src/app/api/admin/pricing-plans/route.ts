@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -214,6 +215,13 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
+  if (!hasAdminPermission(user, "billing.manage")) {
+    return NextResponse.json(
+      { error: "This admin role cannot change pricing or Stripe prices." },
+      { status: 403 },
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
   const planId = String(body.planId || "");
   const reason = getAdminReason(body.reason);
@@ -306,6 +314,13 @@ export async function POST(request: Request) {
   const user = await getAuthenticatedAdmin();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (!hasAdminPermission(user, "billing.manage")) {
+    return NextResponse.json(
+      { error: "This admin role cannot sync pricing to Stripe." },
+      { status: 403 },
+    );
   }
 
   const body = await request.json().catch(() => ({}));

@@ -17,6 +17,7 @@ const titles: Record<string, string> = {
   "/admin/legal-documents": "Document Editor",
   "/admin/email-events": "Email Delivery",
   "/admin/services": "External Services",
+  "/admin/reconciliation": "Stripe Reconciliation",
 };
 
 const sectionTitles: Record<string, string> = {

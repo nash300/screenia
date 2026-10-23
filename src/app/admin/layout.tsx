@@ -8,17 +8,25 @@ import ScreeniaLogo from "@/components/ScreeniaLogo";
 import AdminSidebarNav from "@/components/AdminSidebarNav";
 import AdminSignOutButton from "@/components/AdminSignOutButton";
 import { privatePageMetadata } from "@/lib/seo";
+import {
+  getAdminRole,
+  getAdminRoleLabel,
+  getAuthenticatedAdmin,
+} from "@/lib/server/admin-api";
 
 export const metadata = {
   ...privatePageMetadata,
   title: "Administration",
 };
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getAuthenticatedAdmin();
+  const adminRole = user ? getAdminRole(user) : null;
+
   return (
     <div className="admin-layout">
       <aside className="admin-sidebar">
@@ -38,6 +46,12 @@ export default function AdminLayout({
             <p className="admin-sidebar-description">
               Start on Overview. It shows the next customer task.
             </p>
+            {adminRole ? (
+              <div className="admin-sidebar-role" aria-label="Current admin role">
+                <span>Access role</span>
+                <strong>{getAdminRoleLabel(adminRole)}</strong>
+              </div>
+            ) : null}
           </div>
         </div>
 

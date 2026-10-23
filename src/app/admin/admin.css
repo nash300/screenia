@@ -3865,6 +3865,20 @@
   max-width: 720px;
 }
 
+.admin-customer-device-exception-grid,
+.admin-customer-device-replacement-panel,
+.admin-device-create-exception-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 0.85rem;
+}
+
+.admin-customer-device-replacement-panel {
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(116, 142, 180, 0.16);
+}
+
 .admin-customer-device-override-note {
   margin: 0.85rem 0 0;
   color: #52627a;
@@ -4065,6 +4079,14 @@
 
 .admin-customer-display-badge {
   margin-top: 0.55rem;
+}
+
+.admin-customer-display-badge-loaner,
+.admin-device-list-badge-loaner,
+.admin-device-detail-loaner {
+  border-color: rgba(21, 94, 232, 0.22);
+  background: rgba(239, 246, 255, 0.92);
+  color: #155ee8;
 }
 
 .admin-customer-display-actions {
@@ -4678,6 +4700,10 @@
   margin-top: 1rem;
 }
 
+.admin-device-create-exception-grid {
+  align-items: start;
+}
+
 .admin-device-detail-loading-panel {
   display: grid;
   min-height: 92px;
@@ -4720,6 +4746,175 @@
 
 .admin-device-detail-complimentary {
   margin-top: 0.5rem;
+}
+
+.admin-subscription-quantity-control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: start;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid rgba(116, 142, 180, 0.2);
+  border-radius: 0.8rem;
+  background: rgba(247, 250, 255, 0.82);
+}
+
+.admin-subscription-quantity-control > div:first-child {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.admin-subscription-quantity-control small {
+  color: #52627a;
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.admin-subscription-quantity-form {
+  display: grid;
+  grid-template-columns: 7rem minmax(12rem, 1fr);
+  gap: 0.55rem;
+  grid-column: 1 / -1;
+}
+
+.admin-subscription-quantity-form input {
+  min-height: 2.35rem;
+  border: 1px solid rgba(116, 142, 180, 0.35);
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  background: #fff;
+}
+
+.admin-subscription-quantity-actions {
+  display: flex;
+  gap: 0.55rem;
+  grid-column: 1 / -1;
+}
+
+.admin-form-error {
+  color: #9a1c1c;
+  grid-column: 1 / -1;
+}
+
+.admin-reconciliation-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.admin-reconciliation-tile {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: 0.8rem;
+  background: rgba(255, 255, 255, 0.88);
+  padding: 0.85rem;
+}
+
+.admin-reconciliation-tile span {
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.admin-reconciliation-tile strong {
+  color: var(--admin-text);
+  font-size: 1.45rem;
+}
+
+.admin-reconciliation-tile-healthy {
+  border-color: rgba(31, 93, 61, 0.2);
+  background: rgba(240, 253, 244, 0.9);
+}
+
+.admin-reconciliation-tile-warning {
+  border-color: rgba(217, 119, 6, 0.24);
+  background: rgba(255, 251, 235, 0.9);
+}
+
+.admin-reconciliation-tile-urgent {
+  border-color: rgba(185, 28, 28, 0.22);
+  background: rgba(254, 242, 242, 0.9);
+}
+
+.admin-reconciliation-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-reconciliation-list {
+  display: grid;
+  gap: 0.7rem;
+  max-height: 62vh;
+}
+
+.admin-reconciliation-row {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1fr) minmax(13rem, 0.8fr) minmax(14rem, 1.4fr);
+  gap: 0.8rem;
+  align-items: start;
+  border: 1px solid rgba(47, 125, 246, 0.14);
+  border-radius: 0.75rem;
+  background: rgba(248, 251, 255, 0.72);
+  padding: 0.8rem;
+}
+
+.admin-reconciliation-row p,
+.admin-reconciliation-row small {
+  display: block;
+  margin: 0.2rem 0 0;
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-reconciliation-values,
+.admin-reconciliation-issues {
+  display: grid;
+  gap: 0.35rem;
+  color: var(--admin-muted-text);
+  font-size: 0.75rem;
+}
+
+.admin-reconciliation-status {
+  display: block;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.admin-reconciliation-status-healthy {
+  background: rgba(31, 93, 61, 0.1);
+  color: #1f5d3d;
+}
+
+.admin-reconciliation-status-warning {
+  background: rgba(217, 119, 6, 0.1);
+  color: #92400e;
+}
+
+.admin-reconciliation-status-urgent {
+  background: rgba(185, 28, 28, 0.1);
+  color: #991b1b;
+}
+
+@media (max-width: 780px) {
+  .admin-customer-device-exception-grid,
+  .admin-customer-device-replacement-panel,
+  .admin-device-create-exception-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-reconciliation-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-reconciliation-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .admin-device-detail-panel {
@@ -7532,6 +7727,27 @@ div.admin-landing-video-preview {
 .admin-priority-description,
 .admin-stat-meta {
   color: var(--admin-muted-text);
+}
+
+.admin-sidebar-role {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 0.5rem 0.65rem;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.68rem;
+  font-weight: 750;
+}
+
+.admin-sidebar-role strong {
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 900;
 }
 
 .admin-nav-link {

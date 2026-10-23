@@ -13,6 +13,8 @@ const supabaseAdmin = createClient(
 type DisplayDevice = {
   id: string;
   is_active: boolean | null;
+  is_complimentary: boolean | null;
+  complimentary_expires_at: string | null;
   customers: {
     status: string | null;
     payment_status: string | null;
@@ -88,6 +90,8 @@ export async function GET(
       `
       id,
       is_active,
+      is_complimentary,
+      complimentary_expires_at,
       customers(status, payment_status, service_access_status, service_access_until)
     `,
     )
@@ -102,16 +106,22 @@ export async function GET(
     );
   }
 
-  if (
-    !device ||
-    !device.is_active ||
-    !hasDisplayEntitlement({
-      customerStatus: device.customers?.status,
-      paymentStatus: device.customers?.payment_status,
-      serviceAccessStatus: device.customers?.service_access_status,
-      serviceAccessUntil: device.customers?.service_access_until,
-    })
-  ) {
+  const complimentaryExpired =
+    device?.is_complimentary === true &&
+    Boolean(
+      device.complimentary_expires_at &&
+        Date.parse(device.complimentary_expires_at) <= Date.now(),
+    );
+  const hasAccess = device?.is_complimentary
+    ? !complimentaryExpired
+    : hasDisplayEntitlement({
+      customerStatus: device?.customers?.status,
+      paymentStatus: device?.customers?.payment_status,
+      serviceAccessStatus: device?.customers?.service_access_status,
+      serviceAccessUntil: device?.customers?.service_access_until,
+    });
+
+  if (!device || !device.is_active || !hasAccess) {
     return noStoreJson(
       { error: "Display is not active." },
       { status: 403 },

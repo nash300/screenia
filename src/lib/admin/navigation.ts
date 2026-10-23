@@ -53,6 +53,12 @@ export const adminNavItems = [
     icon: "SV",
     description: "Review Screenia's connected payment, hosting, database, email, domain, and code services.",
   },
+  {
+    href: "/admin/reconciliation",
+    label: "Reconciliation",
+    icon: "RC",
+    description: "Compare Stripe billing state with Screenia's local customer records.",
+  },
 ];
 
 export const adminNavGroups = [
@@ -82,7 +88,7 @@ export const adminNavGroups = [
   {
     title: "System",
     defaultOpen: false,
-    hrefs: ["/admin/services"],
+    hrefs: ["/admin/services", "/admin/reconciliation"],
   },
 ];
 

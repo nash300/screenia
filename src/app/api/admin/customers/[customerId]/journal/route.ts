@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
@@ -28,6 +29,13 @@ export async function POST(
   const user = await getAuthenticatedAdmin({ persistSession: true });
   if (!user) {
     return noStoreJson({ error: "Unauthorized." }, { status: 401 });
+  }
+
+  if (!hasAdminPermission(user, "customer.support")) {
+    return noStoreJson(
+      { error: "This admin role cannot add customer journal entries." },
+      { status: 403 },
+    );
   }
 
   const { customerId } = await params;

@@ -1,5 +1,6 @@
 import {
-  getAuthenticatedUser,
+  getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -58,10 +59,13 @@ function changedFields(
 }
 
 export async function GET(request: Request) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedAdmin();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.read")) {
+    return NextResponse.json({ error: "This admin role cannot view customer material." }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);
@@ -215,10 +219,13 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  const user = await getAuthenticatedUser();
+  const user = await getAuthenticatedAdmin();
 
-  if (user?.app_metadata?.role !== "admin") {
+  if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot review customer material." }, { status: 403 });
   }
 
   const body = (await request.json().catch(() => ({}))) as CustomerAssetUpdatePayload;

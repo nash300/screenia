@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -37,6 +38,10 @@ function buildDevicePayload(body: Record<string, unknown>) {
       complimentary_reason: null,
       complimentary_granted_at: null,
       complimentary_granted_by: null,
+      complimentary_expires_at: null,
+      replacement_for_device_id: null,
+      is_loaner: false,
+      loaner_due_at: null,
       location: cleanString(body.location, 200),
       internal_notes: cleanString(body.internal_notes, 1000),
       is_active: true,
@@ -60,10 +65,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  if (!hasAdminPermission(user, "device.allocate")) {
+    return NextResponse.json(
+      { error: "This admin role cannot create display endpoints." },
+      { status: 403 },
+    );
+  }
+
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
   const reason = getReason(body.reason);
   const complimentary = body.complimentary === true;
   const complimentaryReason = getReason(body.complimentary_reason);
+  const complimentaryExpiresAt = getReason(body.complimentary_expires_at);
+
+  if (complimentary && !hasAdminPermission(user, "device.grant_complimentary")) {
+    return NextResponse.json(
+      { error: "Only an owner can grant a complimentary screen." },
+      { status: 403 },
+    );
+  }
 
   if (reason.length < 5) {
     return NextResponse.json(
@@ -88,7 +108,7 @@ export async function POST(request: Request) {
   const entitlement = await assertCustomerCanReceiveDevice(
     supabaseAdmin,
     result.payload.customer_id,
-    { complimentary, complimentaryReason },
+    { complimentary, complimentaryReason, complimentaryExpiresAt },
   ).catch((error) => ({
     ok: false as const,
     entitlement: null,
@@ -113,6 +133,7 @@ export async function POST(request: Request) {
       complimentary_reason: complimentary ? complimentaryReason : null,
       complimentary_granted_at: complimentary ? new Date().toISOString() : null,
       complimentary_granted_by: complimentary ? user.id : null,
+      complimentary_expires_at: complimentary ? complimentaryExpiresAt : null,
     })
     .select("id, device_code, customer_id, name, is_complimentary")
     .single();
@@ -140,6 +161,7 @@ export async function POST(request: Request) {
           deviceName: data.name,
           complimentary,
           complimentaryReason: complimentary ? complimentaryReason : null,
+          complimentaryExpiresAt: complimentary ? complimentaryExpiresAt : null,
           reason,
         },
         ipAddress: getRequestIp(request),

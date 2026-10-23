@@ -1,12 +1,14 @@
 import {
   getAuthenticatedAdmin,
   supabaseAdmin,
+  hasAdminPermission,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { getCustomerDeviceEntitlement } from "@/lib/server/device-entitlements";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2026-08-26.dahlia",
@@ -352,6 +354,13 @@ export async function POST(
     return NextResponse.json({ error: "Customer was not found." }, { status: 404 });
   }
 
+  if (!hasAdminPermission(user, "billing.manage")) {
+    return NextResponse.json(
+      { error: "This admin role cannot change subscriptions or customer billing." },
+      { status: 403 },
+    );
+  }
+
   const auditBase = {
     customerId,
     actorType: "admin" as const,
@@ -552,6 +561,184 @@ export async function POST(
       { error: "No Stripe subscription is connected." },
       { status: 400 },
     );
+  }
+
+  if (action === "change_screen_quantity") {
+    if (!hasAdminPermission(user, "billing.manage")) {
+      return NextResponse.json(
+        { error: "This admin role cannot change subscription quantities." },
+        { status: 403 },
+      );
+    }
+
+    if (!requireAdminReason(reason)) {
+      return NextResponse.json(
+        { error: "A reason of at least 5 characters is required." },
+        { status: 400 },
+      );
+    }
+
+    const requestedScreenQuantity = Math.round(Number(body.screenQuantity));
+    if (
+      !Number.isFinite(requestedScreenQuantity) ||
+      requestedScreenQuantity < 1 ||
+      requestedScreenQuantity > 50
+    ) {
+      return NextResponse.json(
+        { error: "Choose a screen quantity between 1 and 50." },
+        { status: 400 },
+      );
+    }
+    const screenQuantity = requestedScreenQuantity;
+
+    const entitlement = await getCustomerDeviceEntitlement(supabaseAdmin, customerId);
+    if (screenQuantity < entitlement.active) {
+      return NextResponse.json(
+        {
+          error: `The new quantity cannot be lower than the ${entitlement.active} active paid display(s). Return or deactivate hardware first.`,
+          entitlement,
+        },
+        { status: 400 },
+      );
+    }
+
+    const { data: localSubscription, error: localLookupError } = await supabaseAdmin
+      .from("customer_subscriptions")
+      .select("id, screen_quantity, monthly_fee_sek, quote_items")
+      .eq("stripe_subscription_id", customer.stripe_subscription_id)
+      .maybeSingle();
+
+    if (localLookupError || !localSubscription) {
+      return NextResponse.json(
+        { error: "The local subscription record could not be verified before changing quantity." },
+        { status: 500 },
+      );
+    }
+
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      customer.stripe_subscription_id,
+      { expand: ["items.data.price"] },
+    );
+    const recurringItems = stripeSubscription.items.data.filter((item) => {
+      const price = typeof item.price === "string" ? null : item.price;
+      return Boolean(price?.recurring);
+    });
+
+    if (recurringItems.length !== 1) {
+      return NextResponse.json(
+        {
+          error:
+            "This subscription contains multiple monthly plan items. Prepare a new quote instead of changing the total quantity directly.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const recurringItem = recurringItems[0];
+    const previousQuantity = Math.max(1, Number(recurringItem.quantity) || 1);
+    if (previousQuantity === screenQuantity) {
+      return NextResponse.json({ success: true, unchanged: true });
+    }
+
+    let updatedSubscriptionItem: Stripe.SubscriptionItem;
+    try {
+      updatedSubscriptionItem = await stripe.subscriptionItems.update(
+        recurringItem.id,
+        {
+          quantity: screenQuantity,
+          proration_behavior: "always_invoice",
+        },
+      );
+    } catch (stripeError) {
+      return NextResponse.json(
+        {
+          error:
+            stripeError instanceof Error
+              ? stripeError.message
+              : "Stripe rejected the subscription quantity change.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const price =
+      typeof updatedSubscriptionItem.price === "string"
+        ? null
+        : updatedSubscriptionItem.price;
+    const localUpdate: Record<string, unknown> = {
+      screen_quantity: screenQuantity,
+    };
+    if (typeof price?.unit_amount === "number") {
+      localUpdate.monthly_fee_sek = Math.round((price.unit_amount / 100) * screenQuantity);
+    }
+    if (Array.isArray(localSubscription.quote_items) && localSubscription.quote_items.length === 1) {
+      localUpdate.quote_items = [
+        {
+          ...(localSubscription.quote_items[0] as Record<string, unknown>),
+          quantity: screenQuantity,
+        },
+      ];
+    }
+
+    const { error: localUpdateError } = await supabaseAdmin
+      .from("customer_subscriptions")
+      .update(localUpdate)
+      .eq("id", localSubscription.id);
+
+    if (localUpdateError) {
+      let rollbackError: string | null = null;
+      try {
+        await stripe.subscriptionItems.update(recurringItem.id, {
+          quantity: previousQuantity,
+          proration_behavior: "none",
+        });
+      } catch (rollbackStripeError) {
+        rollbackError =
+          rollbackStripeError instanceof Error
+            ? rollbackStripeError.message
+            : String(rollbackStripeError);
+      }
+
+      const syncFailure = await recordCustomerAccessSyncFailure(
+        customerId,
+        customer.stripe_subscription_id,
+        syncContext(action),
+        localUpdateError.message,
+        { localUpdate, rollbackError },
+      );
+      if (syncFailure) return syncFailure;
+
+      return NextResponse.json(
+        {
+          error: rollbackError
+            ? "Stripe quantity changed and could not be rolled back after local synchronization failed. Review this customer immediately."
+            : "The quantity change was rolled back because Screenia could not update the local subscription.",
+        },
+        { status: 500 },
+      );
+    }
+
+    const auditResponse = await recordRequiredSubscriptionAudit({
+      ...auditBase,
+      eventType: "subscription_screen_quantity_changed",
+      eventDescription: "Admin changed the paid screen quantity on a Stripe subscription.",
+      metadata: {
+        reason,
+        stripeSubscriptionId: customer.stripe_subscription_id,
+        stripeSubscriptionItemId: recurringItem.id,
+        previousQuantity,
+        screenQuantity,
+        activePaidDisplays: entitlement.active,
+      },
+    });
+    if (auditResponse) return auditResponse;
+
+    return NextResponse.json({
+      success: true,
+      previousQuantity,
+      screenQuantity,
+      stripeSubscriptionItemId: recurringItem.id,
+    });
   }
 
   if (action === "cancel_period_end") {

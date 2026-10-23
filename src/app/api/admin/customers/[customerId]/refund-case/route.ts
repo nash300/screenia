@@ -1,5 +1,6 @@
 import {
   getAuthenticatedAdmin,
+  hasAdminPermission,
   supabaseAdmin,
 } from "@/lib/server/admin-api";
 import { NextResponse } from "next/server";
@@ -19,6 +20,13 @@ export async function POST(
   const user = await getAuthenticatedAdmin({ persistSession: true });
   if (!user) {
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
+  }
+
+  if (!hasAdminPermission(user, "billing.manage")) {
+    return NextResponse.json(
+      { error: "This admin role cannot manage refunds." },
+      { status: 403 },
+    );
   }
 
   const { customerId } = await params;

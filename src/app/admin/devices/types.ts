@@ -5,6 +5,10 @@ export type DisplayListItem = {
   location: string | null;
   is_active: boolean | null;
   is_complimentary: boolean | null;
+  complimentary_expires_at: string | null;
+  replacement_for_device_id: string | null;
+  is_loaner: boolean | null;
+  loaner_due_at: string | null;
   customers: {
     name: string | null;
     status: string | null;
@@ -25,6 +29,10 @@ export type DisplayDetails = {
   name: string | null;
   is_active: boolean | null;
   is_complimentary: boolean | null;
+  complimentary_expires_at: string | null;
+  replacement_for_device_id: string | null;
+  is_loaner: boolean | null;
+  loaner_due_at: string | null;
   location: string | null;
   internal_notes: string | null;
 };

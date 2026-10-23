@@ -53,6 +53,10 @@ export async function rollbackInventoryStatusUpdate({
             complimentary_reason: existingDevice.complimentary_reason,
             complimentary_granted_at: existingDevice.complimentary_granted_at,
             complimentary_granted_by: existingDevice.complimentary_granted_by,
+            complimentary_expires_at: existingDevice.complimentary_expires_at,
+            replacement_for_device_id: existingDevice.replacement_for_device_id,
+            is_loaner: existingDevice.is_loaner,
+            loaner_due_at: existingDevice.loaner_due_at,
           })
           .eq("id", existingDevice.id)
       : Promise.resolve({ error: null }),
@@ -77,11 +81,13 @@ export async function rollbackInventoryDeviceAllocation({
   existing,
   createdDeviceId,
   existingDevice,
+  replacementDevice,
   subscriptionInventory,
 }: {
   existing: Record<string, unknown>;
   createdDeviceId?: string | null;
   existingDevice?: Record<string, unknown> | null;
+  replacementDevice?: Record<string, unknown> | null;
   subscriptionInventory?: { id: string; previousStatus: string | null } | null;
 }) {
   const rollbackResults = await Promise.allSettled([
@@ -119,8 +125,22 @@ export async function rollbackInventoryDeviceAllocation({
             complimentary_reason: existingDevice.complimentary_reason,
             complimentary_granted_at: existingDevice.complimentary_granted_at,
             complimentary_granted_by: existingDevice.complimentary_granted_by,
+            complimentary_expires_at: existingDevice.complimentary_expires_at,
+            replacement_for_device_id: existingDevice.replacement_for_device_id,
+            is_loaner: existingDevice.is_loaner,
+            loaner_due_at: existingDevice.loaner_due_at,
           })
           .eq("id", existingDevice.id)
+      : Promise.resolve({ error: null }),
+    replacementDevice
+      ? supabaseAdmin
+          .from("devices")
+          .update({
+            is_active: replacementDevice.is_active,
+            inventory_status: replacementDevice.inventory_status,
+            inventory_notes: replacementDevice.inventory_notes,
+          })
+          .eq("id", replacementDevice.id)
       : Promise.resolve({ error: null }),
     subscriptionInventory
       ? supabaseAdmin
