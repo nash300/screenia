@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { LandingNav } from "@/components/LandingNav";
@@ -13,6 +14,7 @@ type SubmitResult = {
 };
 
 export function ContactForm() {
+  const publicContactEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -73,31 +75,39 @@ export function ContactForm() {
         <section className="contact-intro" aria-labelledby="contact-title">
           <div className="contact-intro-copy">
             <p className="landing-eyebrow">Kontakt</p>
-            <h1 id="contact-title">Kontakta Screenia</h1>
+            <div className="contact-intro-image">
+              <Image
+                src="/images/screenia-support.jpg"
+                alt="Kundservice med headset vid en laptop"
+                fill
+                sizes="(max-width: 900px) 90vw, 34vw"
+                priority
+              />
+              <span>Personlig hjälp när ni behöver den</span>
+            </div>
+            <h1 id="contact-title">Kontakta oss om er skärmlösning</h1>
             <p>
-              Beskriv frågan i formuläret. Screenia svarar till angiven
-              e-postadress. En bekräftelse med frågan och ett ärendenummer
-              skickas när formuläret har registrerats.
+              Har ni frågor om paket, innehåll eller hur Screenia fungerar?
+              Skicka ett meddelande så återkommer vi via e-post.
             </p>
 
-            <div className="contact-process" aria-label="Så hanteras frågan">
+            <div className="contact-channel">
+              <span className="contact-channel-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
+                  <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
               <div>
-                <span>01</span>
-                <p><strong>Frågan skickas</strong><small>Frågan sparas säkert med tidpunkt.</small></p>
-              </div>
-              <div>
-                <span>02</span>
-                <p><strong>Screenia granskar</strong><small>En administratör får en avisering och hela underlaget.</small></p>
-              </div>
-              <div>
-                <span>03</span>
-                <p><strong>Svar skickas</strong><small>Screenias svar och den ursprungliga frågan visas i samma mejl.</small></p>
+                <span>Föredrar ni vanlig e-post?</span>
+                <a href={`mailto:${publicContactEmail}`}>{publicContactEmail}</a>
+                <small>Vi hjälper gärna till med frågor om tjänsten och nästa steg.</small>
               </div>
             </div>
 
-            <div className="contact-direct">
-              <span>Kontakt via vanlig e-post</span>
-              <a href="mailto:service@screenia.se">service@screenia.se</a>
+            <div className="contact-response-note">
+              <span aria-hidden="true">✓</span>
+              <span>Din fråga hanteras av Screenia kundservice.</span>
             </div>
           </div>
 
@@ -132,15 +142,17 @@ export function ContactForm() {
             ) : (
               <form className="contact-form" onSubmit={submit} noValidate>
                 <div className="contact-form-heading">
-                  <p className="landing-eyebrow">Skriv till oss</p>
-                  <h2>Vad gäller ärendet?</h2>
-                  <p>Fält markerade med * måste fyllas i.</p>
+                  <p className="landing-eyebrow">Skicka meddelande</p>
+                  <h2>Hur kan vi hjälpa er?</h2>
+                  <p>Fyll i formuläret så återkommer vi till din e-postadress. <span>* Obligatoriska fält</span></p>
                 </div>
 
                 <div className="contact-form-grid">
-                  <label>
+                  <label htmlFor="contact-name">
                     <span>Namn *</span>
                     <input
+                      id="contact-name"
+                      name="name"
                       type="text"
                       value={name}
                       onChange={(event) => setName(event.target.value)}
@@ -150,9 +162,11 @@ export function ContactForm() {
                       required
                     />
                   </label>
-                  <label>
+                  <label htmlFor="contact-email">
                     <span>E-post *</span>
                     <input
+                      id="contact-email"
+                      name="email"
                       type="email"
                       value={email}
                       onChange={(event) => setEmail(event.target.value)}
@@ -161,9 +175,11 @@ export function ContactForm() {
                       required
                     />
                   </label>
-                  <label className="contact-form-wide">
+                  <label className="contact-form-wide" htmlFor="contact-company">
                     <span>Företag <small>(valfritt)</small></span>
                     <input
+                      id="contact-company"
+                      name="companyName"
                       type="text"
                       value={companyName}
                       onChange={(event) => setCompanyName(event.target.value)}
@@ -171,9 +187,11 @@ export function ContactForm() {
                       maxLength={160}
                     />
                   </label>
-                  <label className="contact-form-wide">
+                  <label className="contact-form-wide" htmlFor="contact-subject">
                     <span>Ämne *</span>
                     <input
+                      id="contact-subject"
+                      name="subject"
                       type="text"
                       value={subject}
                       onChange={(event) => setSubject(event.target.value)}
@@ -183,23 +201,27 @@ export function ContactForm() {
                       required
                     />
                   </label>
-                  <label className="contact-form-wide">
+                  <label className="contact-form-wide" htmlFor="contact-message">
                     <span>Fråga *</span>
                     <textarea
+                      id="contact-message"
+                      name="message"
                       value={message}
                       onChange={(event) => setMessage(event.target.value)}
-                      placeholder="Beskriv vilket stöd som efterfrågas. Känsliga personuppgifter ska inte anges."
+                      placeholder="Beskriv vad ni behöver hjälp med. Ange inte känsliga personuppgifter."
                       minLength={10}
                       maxLength={4000}
-                      rows={7}
+                      rows={6}
                       required
                     />
                     <small>{message.length}/4 000 tecken</small>
                   </label>
                 </div>
 
-                <label className="contact-privacy">
+                <label className="contact-privacy" htmlFor="contact-privacy">
                   <input
+                    id="contact-privacy"
+                    name="privacyAccepted"
                     type="checkbox"
                     checked={privacyAccepted}
                     onChange={(event) => setPrivacyAccepted(event.target.checked)}
@@ -218,10 +240,10 @@ export function ContactForm() {
                   className="landing-button landing-button-primary contact-submit"
                   disabled={submitting}
                 >
-                  {submitting ? "Skickar…" : "Skicka fråga"}
+                  {submitting ? "Skickar…" : "Skicka meddelande"}
                 </button>
                 <p className="contact-form-footnote">
-                  Den angivna e-postadressen används endast för att hantera detta ärende.
+                  Din e-postadress används endast för att hantera din fråga.
                 </p>
               </form>
             )}
@@ -238,6 +260,21 @@ export function ContactForm() {
           <Link href="/privacy">Integritet</Link>
           <Link href="/terms">Villkor</Link>
           <Link href="/login">Kundinloggning</Link>
+          <a
+            className="contact-footer-social"
+            href="https://www.facebook.com/profile.php?id=61595866048813"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Följ Screenia på Facebook"
+          >
+            <span className="contact-footer-social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <circle cx="12" cy="12" r="12" />
+                <path d="M13.65 7.1h1.7V4.95c-.3-.04-1.25-.12-2.4-.12-2.38 0-4 1.45-4 4.08v1.7H6.4v2.55h2.55v5.95h3.05v-5.95h2.35l.4-2.55H12v-1.48c0-.74.2-2.03 1.65-2.03Z" />
+              </svg>
+            </span>
+            <span>Facebook</span>
+          </a>
         </nav>
       </footer>
     </div>
