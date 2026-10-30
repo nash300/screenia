@@ -59,6 +59,25 @@
   display: none;
 }
 
+/* Keep navigation states visually clear without changing the link geometry. */
+.screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link {
+  box-sizing: border-box;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--reference-ink);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:hover,
+.screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:focus-visible,
+.screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link[aria-current="page"] {
+  background: var(--reference-blue);
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(9, 41, 95, 0.14);
+}
+
 .screenia-theme .landing-nav-cta,
 .screenia-theme .landing-button-primary {
   border-color: var(--reference-yellow);
@@ -1027,6 +1046,21 @@
 
   .screenia-theme .landing-nav-primary .landing-nav-link:hover,
   .screenia-theme .landing-nav-primary .landing-nav-link:focus-visible {
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link {
+    height: 34px;
+    min-height: 34px;
+    padding: 0 10px;
+    line-height: 1.2;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:hover,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:focus-visible,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link[aria-current="page"] {
     background: rgba(255, 255, 255, 0.16);
     color: #ffffff;
     box-shadow: none;
