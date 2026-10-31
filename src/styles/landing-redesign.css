@@ -2434,3 +2434,46 @@
     grid-column: 4 / span 2;
   }
 }
+
+/* Replayable sequence entrance: every card drops in again when the section
+   re-enters the viewport, with the next step following the previous one. */
+.screenia-theme .landing-page .landing-workflow-step.landing-reveal-target {
+  opacity: 0;
+  transform: translate3d(0, -72px, 0) rotateX(8deg) scale(0.96);
+  transition: none;
+  will-change: opacity, transform;
+}
+
+.screenia-theme .landing-page .landing-workflow-step.landing-reveal-target.landing-reveal-visible {
+  animation: screenia-workflow-drop-in 820ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.screenia-theme .landing-page .landing-workflow-step:nth-child(1).landing-reveal-visible { animation-delay: 40ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(2).landing-reveal-visible { animation-delay: 150ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(3).landing-reveal-visible { animation-delay: 260ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(4).landing-reveal-visible { animation-delay: 370ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(5).landing-reveal-visible { animation-delay: 480ms; }
+
+@keyframes screenia-workflow-drop-in {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -72px, 0) rotateX(8deg) scale(0.96);
+  }
+  65% {
+    opacity: 1;
+    transform: translate3d(0, 8px, 0) rotateX(0) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screenia-theme .landing-page .landing-workflow-step.landing-reveal-target,
+  .screenia-theme .landing-page .landing-workflow-step.landing-reveal-target.landing-reveal-visible {
+    opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
