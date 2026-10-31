@@ -68,6 +68,29 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     );
 
     elements.forEach((element) => observer.observe(element));
+
+    const workflowSections = elements.filter((element) =>
+      element.matches(".landing-workflow"),
+    );
+    const workflowObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const grid = entry.target.querySelector<HTMLElement>(
+            ".landing-workflow-grid",
+          );
+          if (!grid) return;
+
+          grid.classList.remove("landing-workflow-motion-active");
+          if (entry.isIntersecting) {
+            void grid.offsetWidth;
+            grid.classList.add("landing-workflow-motion-active");
+          }
+        });
+      },
+      { threshold: 0.18 },
+    );
+    workflowSections.forEach((section) => workflowObserver.observe(section));
+
     const revealInitialViewport = () => {
       elements.forEach((element) => {
         const rect = element.getBoundingClientRect();
@@ -84,6 +107,12 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     return () => {
       window.clearTimeout(initialRevealTimer);
       observer.disconnect();
+      workflowObserver.disconnect();
+      workflowSections.forEach((section) => {
+        section
+          .querySelector(".landing-workflow-grid")
+          ?.classList.remove("landing-workflow-motion-active");
+      });
       elements.forEach((element) => {
         element.classList.remove(
           revealClassNames.target,
