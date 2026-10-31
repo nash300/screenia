@@ -2348,3 +2348,89 @@
     transition: none !important;
   }
 }
+
+/* Make the workflow a real 1-to-5 timeline on wide screens. The individual
+   cards use the shared scroll-reveal component so the sequence animates in
+   order when the customer reaches this section. */
+.screenia-theme .landing-page .landing-workflow-step.landing-reveal-target {
+  animation: none;
+  transition-delay: 0ms;
+}
+
+.screenia-theme .landing-page .landing-workflow-step:nth-child(1).landing-reveal-target { transition-delay: 70ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(2).landing-reveal-target { transition-delay: 150ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(3).landing-reveal-target { transition-delay: 230ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(4).landing-reveal-target { transition-delay: 310ms; }
+.screenia-theme .landing-page .landing-workflow-step:nth-child(5).landing-reveal-target { transition-delay: 390ms; }
+
+@media (min-width: 1200px) {
+  .screenia-theme .landing-page .landing-workflow-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-grid::before {
+    top: 50%;
+    left: 7%;
+    right: 7%;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step {
+    min-width: 0;
+    padding: 8px;
+    border-radius: 20px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-image-wrap {
+    aspect-ratio: 4 / 3;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step-copy {
+    grid-template-rows: 32px auto auto;
+    gap: 5px;
+    padding-inline: 4px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step-copy > span {
+    width: 32px;
+    height: 32px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step h3 {
+    min-height: 3em;
+    font-size: 0.94rem;
+    line-height: 1.16;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-description {
+    font-size: 0.7rem;
+    line-height: 1.42;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step:nth-child(3)::after {
+    display: grid;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step::after {
+    top: calc(50% - 17px);
+    right: -19px;
+  }
+}
+
+@media (min-width: 900px) and (max-width: 1199px) {
+  .screenia-theme .landing-page .landing-workflow-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step {
+    grid-column: span 2;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step:nth-child(5) {
+    grid-column: 4 / span 2;
+  }
+}

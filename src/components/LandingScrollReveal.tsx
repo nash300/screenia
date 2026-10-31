@@ -9,6 +9,7 @@ const defaultSelectors = [
   ".landing-price-card",
   ".landing-gallery-card",
   ".landing-faq-item",
+  ".landing-workflow-step",
   ".landing-contact",
   ".landing-footer",
   ".how-hero",
