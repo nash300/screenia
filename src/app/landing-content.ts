@@ -361,7 +361,7 @@ export const planCopy = {
 
 export const workflowImages = [
   "/landing/workflow/01-package-request.png",
-  "/landing/workflow/02-device-shipping.jpg",
+  "/landing/workflow/02-customer-planning.jpg",
   "/landing/workflow/03-device-shipping.png",
   "/landing/workflow/04-device-shipping.jpg",
   "/landing/workflow/05-display-installation.jpg",
