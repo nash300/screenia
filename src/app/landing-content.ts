@@ -363,7 +363,7 @@ export const workflowImages = [
   "/landing/workflow/01-package-request.png",
   "/landing/workflow/02-design-planning.png",
   "/landing/workflow/03-device-shipping.png",
-  "/landing/workflow/04-connect-device.png",
+  "/landing/workflow/04-device-shipping.jpg",
   "/landing/workflow/05-live-display.png",
 ] as const;
 

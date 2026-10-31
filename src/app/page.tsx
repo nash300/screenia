@@ -209,7 +209,32 @@ export default function Home() {
   const exampleSwipeStart = useRef<{ x: number; y: number } | null>(null);
 
   const t = copy.sv;
-  const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se";
+  const faqGroups = [
+    { title: "Kom igång", items: t.faqs.slice(0, 3) },
+    { title: "Skärm och innehåll", items: t.faqs.slice(3, 11) },
+    { title: "Teknik och leverans", items: t.faqs.slice(11, 14) },
+    { title: "Pris och villkor", items: t.faqs.slice(14) },
+  ];
+  const expandedFaqGroups: Array<{
+    title: string;
+    items: ReadonlyArray<readonly [string, string]>;
+  }> = [
+    { title: "Kom igang", items: t.faqs.slice(0, 3) },
+    { title: "Skarm och innehall", items: t.faqs.slice(3, 8) },
+    { title: "Innehall och uppdateringar", items: t.faqs.slice(8, 11) },
+    { title: "Teknik och leverans", items: t.faqs.slice(11, 14) },
+    { title: "Pris och villkor", items: t.faqs.slice(14) },
+    {
+      title: "For verksamheten",
+      items: [
+        ["Passar Screenia min verksamhet?", "Ja. Screenia passar till exempel restauranger, salonger, butiker, gym, kliniker och andra verksamheter som vill visa tydlig information eller erbjudanden."],
+        ["Maste jag kunna design?", "Nej. Du kan skicka in ditt material och fa hjalp att skapa en tydlig presentation som passar verksamheten."],
+        ["Vad kan jag visa pa skarmen?", "Du kan visa erbjudanden, priser, menyer, bilder, oppettider, information och annat innehall som hjalper dina besokare."],
+      ],
+    },
+  ];
+  void faqGroups;
+  const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se";
   const footerLinks = [
     { label: "Så fungerar digital skyltning", href: "/sa-fungerar-det" },
     { label: "Integritet", href: "/privacy" },
@@ -226,7 +251,7 @@ export default function Home() {
       url: publicSiteUrl,
       image: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
       logo: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
-      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se",
       areaServed: {
         "@type": "Country",
         name: "Sweden",
@@ -296,7 +321,7 @@ export default function Home() {
       "@type": "FAQPage",
       "@id": `${publicSiteUrl}/#faq`,
       inLanguage: "sv-SE",
-      mainEntity: t.faqs.map(([question, answer]) => ({
+      mainEntity: expandedFaqGroups.flatMap((group) => group.items).map(([question, answer]) => ({
         "@type": "Question",
         name: question,
         acceptedAnswer: {
@@ -818,10 +843,17 @@ export default function Home() {
         <LandingSection id="faq" eyebrow="Bra att veta" title={t.faqTitle}>
           <div className="landing-faq-layout">
             <div className="landing-faq-grid">
-              {t.faqs.map(([question, answer]) => (
-                <details key={question} className="landing-faq-item">
-                  <summary>{question}</summary>
-                  <p>{answer}</p>
+              {expandedFaqGroups.map((group, index) => (
+                <details key={group.title} className="landing-faq-group">
+                  <summary aria-controls={`faq-group-${index}`}>{group.title}</summary>
+                  <div id={`faq-group-${index}`} className="landing-faq-group-items">
+                    {group.items.map(([question, answer]) => (
+                      <details key={question} className="landing-faq-item">
+                        <summary>{question}</summary>
+                        <p>{answer}</p>
+                      </details>
+                    ))}
+                  </div>
                 </details>
               ))}
             </div>
@@ -841,6 +873,15 @@ export default function Home() {
               <Link href="/kontakt" className="landing-button landing-button-primary">
                 {t.contactButton}
               </Link>
+            </div>
+            <div className="landing-contact-image">
+              <Image
+                src="/images/screenia-display-team.jpg"
+                alt="Två personer som planerar innehåll för digital skyltning"
+                fill
+                sizes="(max-width: 840px) 100vw, 34vw"
+              />
+              <span>Skärminnehåll som engagerar</span>
             </div>
           </div>
         </section>
@@ -936,13 +977,43 @@ export default function Home() {
           <span>Kundservice</span>
           <a href={`mailto:${companyEmail}`}>{companyEmail}</a>
         </div>
-        <nav aria-label="Sidfot">
-          {footerLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              {link.label}
-            </Link>
-          ))}
-        </nav>
+        <div className="landing-footer-socials">
+          <span>Följ Screenia</span>
+          <a
+            className="landing-footer-social"
+            href="https://www.facebook.com/profile.php?id=61595866048813"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Följ Screenia på Facebook"
+          >
+            <span className="landing-footer-social-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false">
+                <circle cx="12" cy="12" r="12" />
+                <path d="M13.65 7.1h1.7V4.95c-.3-.04-1.25-.12-2.4-.12-2.38 0-4 1.45-4 4.08v1.7H6.4v2.55h2.55v5.95h3.05v-5.95h2.35l.4-2.55H12v-1.48c0-.74.2-2.03 1.65-2.03Z" />
+              </svg>
+            </span>
+            <span>Facebook</span>
+          </a>
+        </div>
+        <div className="landing-footer-links">
+          <span>Utforska</span>
+          <nav className="landing-footer-nav" aria-label="Sidfot">
+            <div className="landing-footer-nav-column">
+              {footerLinks.slice(0, 3).map((link) => (
+                <Link key={link.href} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+            <div className="landing-footer-nav-column">
+              {footerLinks.slice(3).map((link) => (
+                <Link key={link.href} href={link.href}>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        </div>
         <div className="landing-footer-legal">
           <p>© 2026 Screenia. Screenia drivs som enskild näringsverksamhet i Sverige.</p>
           <p className="landing-footer-registration">

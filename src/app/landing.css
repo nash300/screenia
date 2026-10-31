@@ -7464,53 +7464,6 @@
   }
 }
 
-/* Single-slide product story hero */
-.screenia-theme .landing-page > .landing-nav {
-  border-bottom-color: rgba(138, 181, 255, 0.14);
-  background: rgba(3, 15, 42, 0.8);
-  box-shadow: 0 14px 42px rgba(0, 7, 24, 0.22);
-  backdrop-filter: blur(20px) saturate(140%);
-}
-
-.screenia-theme .landing-page > .landing-nav .screenia-logo-wordmark {
-  filter: brightness(0) invert(1);
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-nav-link,
-.screenia-theme .landing-page > .landing-nav .landing-nav-link:visited,
-.screenia-theme .landing-page > .landing-nav .landing-nav-link:focus,
-.screenia-theme .landing-page > .landing-nav .landing-nav-link:active {
-  color: rgba(244, 248, 255, 0.88);
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-nav-link:hover,
-.screenia-theme .landing-page > .landing-nav .landing-nav-link:focus-visible {
-  color: #ffffff;
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-nav-primary {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-nav-login {
-  border-color: rgba(132, 180, 255, 0.35);
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-  outline-color: rgba(255, 255, 255, 0.08);
-  box-shadow: none;
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-menu-button {
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.screenia-theme .landing-page > .landing-nav .landing-menu-button span {
-  background: #ffffff;
-}
-
 .landing-page .landing-hero-modern {
   position: relative;
   isolation: isolate;
