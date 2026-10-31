@@ -96,9 +96,48 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
       element.matches(".landing-hero-modern"),
     );
     const replayHeroMotion = (hero: HTMLElement) => {
+      hero
+        .querySelectorAll<HTMLElement>(
+          ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+        )
+        .forEach((target) => target.style.removeProperty("animation"));
       hero.classList.remove("landing-hero-motion-active");
       void hero.offsetWidth;
       hero.classList.add("landing-hero-motion-active");
+
+      // Use replayable CSS animations directly. This works in the embedded
+      // browser as well as regular browsers, and the inline priority keeps
+      // this intentional hero entrance from being removed by global motion
+      // reduction rules.
+      const cssFallback = (selector: string, animation: string, delay = "0ms") => {
+        const target = hero.querySelector<HTMLElement>(selector);
+        if (!target) return;
+        target.style.setProperty("animation", `${animation} ${delay} both`, "important");
+      };
+      cssFallback(
+        ".landing-hero-modern-copy",
+        "screenia-hero-copy-in 760ms cubic-bezier(0.16, 1, 0.3, 1)",
+      );
+      cssFallback(
+        ".landing-hero-modern-visual",
+        "screenia-hero-visual-in 900ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "90ms",
+      );
+      cssFallback(
+        ".landing-hero-process-delivery",
+        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "180ms",
+      );
+      cssFallback(
+        ".landing-hero-process-connection",
+        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "300ms",
+      );
+      cssFallback(
+        ".landing-hero-process-display",
+        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "420ms",
+      );
     };
     const heroObserver = new IntersectionObserver(
       (entries) => {
@@ -107,6 +146,11 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
           if (entry.isIntersecting) {
             replayHeroMotion(hero);
           } else {
+            hero
+              .querySelectorAll<HTMLElement>(
+                ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+              )
+              .forEach((target) => target.style.removeProperty("animation"));
             hero.classList.remove("landing-hero-motion-active");
           }
         });
@@ -148,6 +192,11 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
           ?.classList.remove("landing-workflow-motion-active");
       });
       heroSections.forEach((section) => {
+        section
+          .querySelectorAll<HTMLElement>(
+            ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+          )
+          .forEach((target) => target.style.removeProperty("animation"));
         section.classList.remove("landing-hero-motion-active");
       });
       elements.forEach((element) => {

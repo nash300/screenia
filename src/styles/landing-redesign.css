@@ -2466,6 +2466,35 @@
   to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
+/* The hero entrance is an explicit product cue: keep it replayable even in
+   environments that request reduced motion, while leaving all other page
+   motion reduced by the global accessibility rules. */
+@media (prefers-reduced-motion: reduce) {
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-modern-copy {
+    animation: screenia-hero-copy-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-modern-visual {
+    animation: screenia-hero-visual-in 520ms cubic-bezier(0.16, 1, 0.3, 1) 40ms both !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-process-card {
+    animation: screenia-hero-card-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-process-delivery {
+    animation-delay: 80ms !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-process-connection {
+    animation-delay: 140ms !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-motion-active .landing-hero-process-display {
+    animation-delay: 200ms !important;
+  }
+}
+
 /* Replayable sequence entrance: the section-level observer resets this class
    on every visit, then the five cards drop in one after another. */
 .screenia-theme .landing-page .landing-workflow-step.landing-reveal-target {
