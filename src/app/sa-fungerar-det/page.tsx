@@ -29,8 +29,8 @@ const reasons = [
     "01",
     "Tydlig start",
     "Paket, uppstart, betalning och nästa steg samlas i ett enkelt flöde innan arbetet startar.",
-    "/landing/how-it-works/screenia-tydlig-start.webp",
-    "Företagare får personlig hjälp med att komma igång med Screenia",
+    "/landing/how-it-works/screenia-tydlig-start-v2.png",
+    "Två personer planerar Screenias skärmlösning med box, surfplatta och mobil.",
   ],
   [
     "02",

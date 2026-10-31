@@ -95,20 +95,33 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     const heroSections = elements.filter((element) =>
       element.matches(".landing-hero-modern"),
     );
+    const replayHeroMotion = (hero: HTMLElement) => {
+      hero.classList.remove("landing-hero-motion-active");
+      void hero.offsetWidth;
+      hero.classList.add("landing-hero-motion-active");
+    };
     const heroObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           const hero = entry.target as HTMLElement;
-          hero.classList.remove("landing-hero-motion-active");
           if (entry.isIntersecting) {
-            void hero.offsetWidth;
-            hero.classList.add("landing-hero-motion-active");
+            replayHeroMotion(hero);
+          } else {
+            hero.classList.remove("landing-hero-motion-active");
           }
         });
       },
       { threshold: 0.16 },
     );
     heroSections.forEach((section) => heroObserver.observe(section));
+    const initialHeroMotionFrame = window.requestAnimationFrame(() => {
+      heroSections.forEach((section) => {
+        const bounds = section.getBoundingClientRect();
+        if (bounds.top < window.innerHeight && bounds.bottom > 0) {
+          replayHeroMotion(section);
+        }
+      });
+    });
 
     const revealInitialViewport = () => {
       elements.forEach((element) => {
@@ -124,6 +137,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     const initialRevealTimer = window.setTimeout(revealInitialViewport, 120);
 
     return () => {
+      window.cancelAnimationFrame(initialHeroMotionFrame);
       window.clearTimeout(initialRevealTimer);
       observer.disconnect();
       workflowObserver.disconnect();
