@@ -36,7 +36,7 @@ const reasons = [
     "02",
     "Professionellt uttryck",
     "Skärminnehållet planeras för att ge lokalen ett modernt, tydligt och säljande intryck.",
-    "/landing/how-it-works/screenia-professionellt-uttryck.webp",
+    "/landing/how-it-works/screenia-professionellt-uttryck-v2.jpg",
     "Digitalt innehåll formges professionellt på en ritplatta",
   ],
   [
@@ -119,15 +119,6 @@ export default function HowItWorksPage() {
               tydligt flöde. Resultatet är en professionell skärmlösning utan
               behov av ett eget tekniskt system.
             </p>
-          </div>
-          <div className="how-hero-visual">
-            <Image
-              src="/landing/screenia-tv-foretagare.webp"
-              alt="Företagare använder Screenia för digital skyltning på en vanlig TV"
-              fill
-              priority
-              sizes="(max-width: 820px) calc(100vw - 84px), 38vw"
-            />
           </div>
         </section>
 
