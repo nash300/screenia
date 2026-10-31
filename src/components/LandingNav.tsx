@@ -34,7 +34,7 @@ export function LandingNav({
     <header className="landing-nav">
       <Link
         className="landing-brand"
-        href={isHome ? "#top" : "/"}
+        href="/"
         onClick={() => setMenuOpen(false)}
       >
         <ScreeniaLogo className="screenia-logo-nav" />
