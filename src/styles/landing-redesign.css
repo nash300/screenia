@@ -2805,3 +2805,101 @@
     height: 150px;
   }
 }
+
+/* Final responsive guardrails for the complete landing page. These rules are
+   intentionally last so the layered redesign styles stay predictable across
+   narrow phones, tablets, laptops, and ultrawide screens. */
+.screenia-theme .landing-page {
+  overflow-x: clip;
+}
+
+@media (max-width: 1120px) {
+  .screenia-theme .landing-page > .landing-nav {
+    padding-inline: 18px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-brand {
+    max-width: 150px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    max-height: calc(100svh - 96px);
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .screenia-theme .landing-page main > .landing-section-surface {
+    padding-inline: 18px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-grid {
+    grid-template-columns: 1fr;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    transform: none;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step {
+    height: min(54vw, 220px);
+    min-height: 150px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step-copy {
+    padding: 14px 16px 16px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step-copy span {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-panel {
+    padding-block: 42px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-heading h2,
+  .screenia-theme .landing-page .landing-contact h2 {
+    font-size: clamp(2rem, 10vw, 3.25rem);
+    line-height: .98;
+  }
+
+  .screenia-theme .landing-page .landing-contact-copy {
+    padding: 34px 24px 38px;
+  }
+
+  .screenia-theme .landing-page .landing-contact-image {
+    min-height: min(62vw, 300px);
+  }
+}
+
+@media (max-width: 480px) {
+  .screenia-theme .landing-page > .landing-nav {
+    min-height: 64px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-brand {
+    max-width: 126px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step {
+    height: 178px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step-copy h3 {
+    font-size: 1rem;
+  }
+
+  .screenia-theme .landing-page main > .landing-section-surface {
+    padding-inline: 14px;
+  }
+
+  .screenia-theme .landing-page .landing-contact-copy {
+    padding-inline: 20px;
+  }
+
+  .screenia-theme .landing-page .landing-button {
+    width: 100%;
+  }
+}
