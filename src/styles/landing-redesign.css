@@ -2721,7 +2721,11 @@
 }
 
 .screenia-theme .landing-page .landing-quick-start-grid {
-  gap: clamp(8px, 1.1vw, 14px);
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  padding: 0 4px;
+  gap: 4px;
 }
 
 .screenia-theme .landing-page .landing-quick-start-step {
