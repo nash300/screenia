@@ -2466,6 +2466,171 @@
   to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
+/* Compact onboarding banner between the hero and the detailed workflow. */
+.screenia-theme .landing-page .landing-quick-start {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: clamp(38px, 5vw, 66px) max(18px, calc((100vw - 1240px) / 2));
+  background:
+    radial-gradient(circle at 8% 20%, rgba(53, 137, 255, 0.28), transparent 30%),
+    radial-gradient(circle at 92% 80%, rgba(255, 211, 42, 0.14), transparent 26%),
+    linear-gradient(112deg, #061942 0%, #0b2f70 54%, #123f91 100%);
+  color: #ffffff;
+}
+
+.screenia-theme .landing-page .landing-quick-start::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+  content: "";
+  mask-image: linear-gradient(90deg, #000, transparent 82%);
+  opacity: 0.4;
+}
+
+.screenia-theme .landing-page .landing-quick-start-inner {
+  width: min(100%, 1240px);
+  margin: 0 auto;
+}
+
+.screenia-theme .landing-page .landing-quick-start-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr);
+  gap: 10px clamp(22px, 5vw, 76px);
+  align-items: end;
+  margin-bottom: clamp(24px, 3vw, 34px);
+}
+
+.screenia-theme .landing-page .landing-quick-start-heading .landing-section-kicker {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #9edcff;
+}
+
+.screenia-theme .landing-page .landing-quick-start-heading h2 {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--landing-font-display);
+  font-size: clamp(2.2rem, 4vw, 4.2rem);
+  letter-spacing: -0.055em;
+  line-height: 0.96;
+}
+
+.screenia-theme .landing-page .landing-quick-start-heading > p:last-child {
+  margin: 0 0 3px;
+  color: rgba(239, 246, 255, 0.78);
+  font-size: clamp(0.92rem, 1.2vw, 1.06rem);
+  line-height: 1.55;
+}
+
+.screenia-theme .landing-page .landing-quick-start-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.6vw, 20px);
+}
+
+.screenia-theme .landing-page .landing-quick-start-step {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  background: rgba(2, 13, 37, 0.48);
+  box-shadow: 0 22px 48px rgba(0, 8, 28, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateY(28px) scale(0.97);
+  opacity: 0;
+}
+
+.screenia-theme .landing-page .landing-quick-start.landing-reveal-visible .landing-quick-start-step {
+  animation: landing-quick-start-step-in 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.screenia-theme .landing-page .landing-quick-start.landing-reveal-visible .landing-quick-start-step:nth-child(1) { animation-delay: 80ms; }
+.screenia-theme .landing-page .landing-quick-start.landing-reveal-visible .landing-quick-start-step:nth-child(2) { animation-delay: 190ms; }
+.screenia-theme .landing-page .landing-quick-start.landing-reveal-visible .landing-quick-start-step:nth-child(3) { animation-delay: 300ms; }
+
+.screenia-theme .landing-page .landing-quick-start-image-wrap {
+  position: relative;
+  height: clamp(150px, 16vw, 220px);
+  overflow: hidden;
+  border-bottom: 3px solid #2f7df6;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(2) .landing-quick-start-image-wrap {
+  border-bottom-color: #6d8dff;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(3) .landing-quick-start-image-wrap {
+  border-bottom-color: #ffd32a;
+}
+
+.screenia-theme .landing-page .landing-quick-start-image-wrap::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 45%, rgba(2, 13, 37, 0.38));
+  content: "";
+  pointer-events: none;
+}
+
+.screenia-theme .landing-page .landing-quick-start-image-wrap img {
+  object-fit: cover;
+  transition: transform 700ms ease;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(1) img { object-position: center 54%; }
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(2) img { object-position: center 45%; }
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(3) img { object-position: center 48%; }
+
+.screenia-theme .landing-page .landing-quick-start-step:hover img {
+  transform: scale(1.045);
+}
+
+.screenia-theme .landing-page .landing-quick-start-step-copy {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 16px 18px 18px;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step-copy span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: #2f7df6;
+  color: #ffffff;
+  font-family: var(--landing-font-ui);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(2) .landing-quick-start-step-copy span { background: #6d8dff; }
+.screenia-theme .landing-page .landing-quick-start-step:nth-child(3) .landing-quick-start-step-copy span { background: #ffd32a; color: #102344; }
+
+.screenia-theme .landing-page .landing-quick-start-step-copy h3 {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--landing-font-display);
+  font-size: clamp(1.02rem, 1.5vw, 1.3rem);
+  letter-spacing: -0.025em;
+}
+
+@keyframes landing-quick-start-step-in {
+  from { opacity: 0; transform: translateY(28px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 760px) {
+  .screenia-theme .landing-page .landing-quick-start-heading { grid-template-columns: 1fr; }
+  .screenia-theme .landing-page .landing-quick-start-grid { grid-template-columns: 1fr; }
+  .screenia-theme .landing-page .landing-quick-start-image-wrap { height: min(54vw, 220px); }
+}
+
 /* The hero entrance is an explicit product cue: keep it replayable even in
    environments that request reduced motion, while leaving all other page
    motion reduced by the global accessibility rules. */

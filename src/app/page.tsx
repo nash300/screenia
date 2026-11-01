@@ -40,6 +40,13 @@ import {
   type LandingExampleVideo,
 } from "@/lib/landing/example-videos";
 import "../styles/landing-redesign.css";
+
+const quickStartSteps = [
+  ["01", "Koppla in enheten", "/landing/quick-start/quick-start-1.png"],
+  ["02", "Anslut till Wi-Fi", "/landing/quick-start/quick-start-2.png"],
+  ["03", "Börja visa innehåll", "/landing/quick-start/quick-start-3.png"],
+] as const;
+
 function isValidOptionalPhone(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return true;
@@ -619,6 +626,29 @@ export default function Home() {
                   />
                 </span>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="landing-quick-start" aria-labelledby="quick-start-title">
+          <div className="landing-quick-start-inner">
+            <div className="landing-quick-start-heading">
+              <p className="landing-section-kicker">Tre enkla steg</p>
+              <h2 id="quick-start-title">Så enkelt kommer du igång</h2>
+              <p>Från inkoppling till färdig skärm – vi hjälper er hela vägen.</p>
+            </div>
+            <div className="landing-quick-start-grid">
+              {quickStartSteps.map(([number, title, image]) => (
+                <article key={number} className="landing-quick-start-step">
+                  <div className="landing-quick-start-image-wrap">
+                    <Image src={image} alt="" fill sizes="(max-width: 760px) 92vw, 30vw" />
+                  </div>
+                  <div className="landing-quick-start-step-copy">
+                    <span>{number}</span>
+                    <h3>{title}</h3>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>

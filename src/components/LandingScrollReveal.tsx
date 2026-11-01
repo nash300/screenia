@@ -13,6 +13,7 @@ const defaultSelectors = [
   ".landing-hero-modern",
   ".landing-contact",
   ".landing-footer",
+  ".landing-quick-start",
   ".how-hero",
   ".how-section-heading",
   ".how-reason-card",
