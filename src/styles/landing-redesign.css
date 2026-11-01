@@ -2729,10 +2729,14 @@
 }
 
 .screenia-theme .landing-page .landing-quick-start-step {
-  height: clamp(108px, 8.5vw, 132px);
+  height: clamp(122px, 9.6vw, 148px);
   border-radius: 16px;
   overflow: hidden;
   background: transparent;
+}
+
+.screenia-theme .landing-page .landing-quick-start-step:first-child img {
+  object-position: 58% center;
 }
 
 .screenia-theme .landing-page .landing-quick-start-image-wrap {
