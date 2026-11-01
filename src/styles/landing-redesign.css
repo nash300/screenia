@@ -2949,6 +2949,24 @@
 /* Phone-first polish: keep the first screen focused, controls touchable, and
    dense content readable without making the page feel oversized. */
 @media (max-width: 600px) {
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    min-height: auto !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 12px 20px 22px !important;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: clamp(300px, 72vw, 360px) !important;
+    min-height: 0 !important;
+  }
+
   .screenia-theme .landing-page > .landing-nav {
     padding-inline: 14px;
   }
@@ -3086,7 +3104,7 @@
   }
 
   .screenia-theme .landing-page .landing-hero-modern-visual {
-    min-height: 360px;
+    height: 280px !important;
   }
 
   .screenia-theme .landing-page .landing-quick-start-step {

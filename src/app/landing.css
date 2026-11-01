@@ -9324,3 +9324,31 @@
     transform: scaleY(1.22);
   }
 }
+
+/* Final phone hero sizing: prevent the legacy mobile canvas from making the
+   first section several screens tall on narrow devices. */
+@media (max-width: 600px) {
+  .screenia-theme .landing-page .landing-hero-modern-grid {
+    min-height: auto;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    height: auto;
+    min-height: 0;
+    padding: 12px 20px 22px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: clamp(300px, 72vw, 360px);
+    min-height: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    height: 280px;
+  }
+}
