@@ -2758,20 +2758,23 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 9px 12px 11px;
-  background: linear-gradient(180deg, transparent, rgba(2, 13, 37, .88));
+  gap: 13px;
+  padding: 16px 18px 18px;
+  background: linear-gradient(180deg, transparent, rgba(2, 13, 37, .94));
 }
 
 .screenia-theme .landing-page .landing-quick-start-step-copy span {
-  width: 27px;
-  height: 27px;
-  flex: 0 0 27px;
-  font-size: .65rem;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  font-size: .88rem;
+  font-weight: 800;
+  border-width: 2px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .26);
 }
 
 .screenia-theme .landing-page .landing-quick-start-step-copy h3 {
-  font-size: clamp(.88rem, 1.15vw, 1.08rem);
+  font-size: clamp(1rem, 1.35vw, 1.22rem);
 }
 
 @media (max-width: 760px) {
