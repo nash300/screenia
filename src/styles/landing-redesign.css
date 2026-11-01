@@ -3115,3 +3115,73 @@
     height: 122px;
   }
 }
+
+/* Mobile pricing rail: keep the cards scannable, then let the customer open
+   the feature list only when they need the extra detail. */
+@media (max-width: 960px), (hover: none) and (pointer: coarse) {
+  .screenia-theme .landing-page .landing-price-rail {
+    position: relative;
+  }
+
+  .screenia-theme .landing-page .landing-price-grid {
+    position: relative;
+    z-index: 1;
+  }
+
+  .screenia-theme .landing-page .landing-pricing .landing-plan-details {
+    max-height: 0;
+    margin-top: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 260ms ease, margin-top 260ms ease, opacity 180ms ease;
+  }
+
+  .screenia-theme .landing-page .landing-pricing .landing-plan-details.landing-plan-details-expanded {
+    max-height: 900px;
+    margin-top: 12px;
+    opacity: 1;
+  }
+
+  .screenia-theme .landing-page .landing-pricing .landing-plan-details-toggle {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    min-height: 42px;
+    margin-top: 12px;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  .screenia-theme .landing-page .landing-price-rail-arrow {
+    position: absolute;
+    z-index: 3;
+    top: 44%;
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    border-radius: 50%;
+    background: rgba(7, 24, 55, 0.76);
+    color: #fff;
+    font-size: 1.8rem;
+    line-height: 1;
+    pointer-events: none;
+    box-shadow: 0 8px 18px rgba(17, 24, 32, 0.18);
+  }
+
+  .screenia-theme .landing-page .landing-price-rail-arrow-prev {
+    left: 4px;
+  }
+
+  .screenia-theme .landing-page .landing-price-rail-arrow-next {
+    right: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screenia-theme .landing-page .landing-pricing .landing-plan-details {
+    transition: none;
+  }
+}

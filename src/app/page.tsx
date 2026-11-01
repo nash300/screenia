@@ -697,13 +697,15 @@ export default function Home() {
           <p id="pricing-swipe-hint" className="landing-price-swipe-hint">
             Svep åt sidan för att se Standard, Premium och Premium Plus.
           </p>
-          <div
-            className="landing-price-grid"
-            role="region"
-            aria-label="Abonnemangspaket"
-            aria-describedby="pricing-swipe-hint"
-            tabIndex={0}
-          >
+          <div className="landing-price-rail">
+            <span className="landing-price-rail-arrow landing-price-rail-arrow-prev" aria-hidden="true">‹</span>
+            <div
+              className="landing-price-grid"
+              role="region"
+              aria-label="Abonnemangspaket"
+              aria-describedby="pricing-swipe-hint"
+              tabIndex={0}
+            >
             {plans.map((plan) => {
               const planText = planCopy.sv[plan.code];
               return (
@@ -799,25 +801,27 @@ export default function Home() {
                       <li>Upp till {plan.maxSectionsPerSlide} sektioner per slide</li>
                       {planText.features.map((feature) => <li key={feature}>{feature}</li>)}
                     </ul>
-                    <button
-                      type="button"
-                      className="landing-plan-details-toggle"
-                      onClick={() =>
-                        setExpandedPlanDetails((current) => ({
-                          ...current,
-                          [plan.code]: !current[plan.code],
-                        }))
-                      }
-                      aria-expanded={Boolean(expandedPlanDetails[plan.code])}
-                    >
-                      {expandedPlanDetails[plan.code]
-                        ? "Visa mindre"
-                        : "Visa alla funktioner"}
-                    </button>
                   </div>
+                  <button
+                    type="button"
+                    className="landing-plan-details-toggle"
+                    onClick={() =>
+                      setExpandedPlanDetails((current) => ({
+                        ...current,
+                        [plan.code]: !current[plan.code],
+                      }))
+                    }
+                    aria-expanded={Boolean(expandedPlanDetails[plan.code])}
+                  >
+                    {expandedPlanDetails[plan.code]
+                      ? "Visa mindre"
+                      : "Visa alla funktioner"}
+                  </button>
                 </article>
               );
             })}
+            </div>
+            <span className="landing-price-rail-arrow landing-price-rail-arrow-next" aria-hidden="true">›</span>
           </div>
           {serviceLogos.length > 0 && (
             <div className="landing-logo-rail landing-pricing-logo-rail" aria-label="Betalning och leverans">
