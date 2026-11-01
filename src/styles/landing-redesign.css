@@ -2699,7 +2699,11 @@
 /* Compact illustrative quick-start banner: the photography carries the
    section, while the step labels sit directly on top of each image. */
 .screenia-theme .landing-page .landing-quick-start {
-  padding: clamp(18px, 2.2vw, 26px) max(18px, calc((100vw - 1240px) / 2)) clamp(20px, 2.4vw, 28px);
+  padding: 8px 0;
+}
+
+.screenia-theme .landing-page .landing-quick-start-heading {
+  display: none;
 }
 
 .screenia-theme .landing-page .landing-quick-start-heading {
@@ -2729,7 +2733,7 @@
 }
 
 .screenia-theme .landing-page .landing-quick-start-step {
-  height: clamp(122px, 9.6vw, 148px);
+  height: clamp(168px, 13vw, 220px);
   border-radius: 16px;
   overflow: hidden;
   background: transparent;
@@ -2772,12 +2776,11 @@
 
 @media (max-width: 760px) {
   .screenia-theme .landing-page .landing-quick-start {
-    padding: 26px 18px 30px;
+    padding: 6px 0;
   }
 
   .screenia-theme .landing-page .landing-quick-start-heading {
-    display: block;
-    margin-bottom: 16px;
+    display: none;
   }
 
   .screenia-theme .landing-page .landing-quick-start-heading h2 {
