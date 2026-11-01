@@ -2945,3 +2945,146 @@
     font-size: 1.12rem;
   }
 }
+
+/* Phone-first polish: keep the first screen focused, controls touchable, and
+   dense content readable without making the page feel oversized. */
+@media (max-width: 600px) {
+  .screenia-theme .landing-page > .landing-nav {
+    padding-inline: 14px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-header-controls,
+  .screenia-theme .landing-page > .landing-nav .landing-menu-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    top: 68px;
+    right: 10px;
+    left: 10px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    gap: 6px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-link,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cta,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-login {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: .92rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern {
+    min-height: auto;
+    padding: 86px 14px 26px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-copy {
+    padding-top: 10px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern h1 {
+    max-width: 10ch;
+    font-size: clamp(2.45rem, 12.5vw, 3.65rem);
+    line-height: .92;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-lede {
+    max-width: 32ch;
+    margin-top: 18px;
+    font-size: .94rem;
+    line-height: 1.5;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-actions .landing-button {
+    min-height: 50px;
+    width: 100%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-trust {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 22px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    min-height: 405px;
+    margin-top: 2px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-process {
+    inset: 0 -16% 0 8%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-process-card {
+    border-radius: 14px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step {
+    height: 178px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-panel {
+    padding-block: 34px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step {
+    border-radius: 16px;
+    padding: 7px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-step-copy {
+    padding: 26px 16px 18px;
+  }
+
+  .screenia-theme .landing-page .landing-workflow-description {
+    font-size: .88rem;
+  }
+
+  .screenia-theme .landing-page .landing-price-grid {
+    gap: 12px;
+    padding-inline: 2px;
+  }
+
+  .screenia-theme .landing-page .landing-price-card {
+    border-radius: 16px;
+  }
+
+  .screenia-theme .landing-page .landing-contact-copy {
+    padding: 30px 18px 34px;
+  }
+
+  .screenia-theme .landing-page .landing-contact-image {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 360px) {
+  .screenia-theme .landing-page > .landing-nav .landing-brand {
+    max-width: 112px;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern h1 {
+    font-size: 2.3rem;
+  }
+
+  .screenia-theme .landing-page .landing-hero-modern-visual {
+    min-height: 360px;
+  }
+
+  .screenia-theme .landing-page .landing-quick-start-step {
+    height: 164px;
+  }
+}
