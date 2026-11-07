@@ -1,4 +1,4 @@
-import { Bubblegum_Sans, Geist_Mono, Plus_Jakarta_Sans, Special_Elite } from "next/font/google";
+import { Geist_Mono, Plus_Jakarta_Sans, Special_Elite } from "next/font/google";
 import type { Metadata } from "next";
 import { siteUrl } from "@/lib/seo";
 import { VercelAnalytics } from "./vercel-analytics";
@@ -16,12 +16,6 @@ const plusJakarta = Plus_Jakarta_Sans({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
-});
-
-const bubblegumSans = Bubblegum_Sans({
-  variable: "--font-bubblegum-sans",
-  subsets: ["latin"],
-  weight: "400",
 });
 
 const specialElite = Special_Elite({
@@ -129,7 +123,7 @@ export default function RootLayout({
       lang="sv"
       translate="no"
       data-scroll-behavior="smooth"
-      className={`${plusJakarta.variable} ${geistMono.variable} ${bubblegumSans.variable} ${specialElite.variable} h-full antialiased notranslate`}
+      className={`${plusJakarta.variable} ${geistMono.variable} ${specialElite.variable} h-full antialiased notranslate`}
     >
       <body className="screenia-theme min-h-full flex flex-col">
         {children}

@@ -392,7 +392,7 @@ export async function POST(request: Request) {
     {
       field: "stripe_shipping_price_id",
       amountSek: shippingFeeSek,
-      name: `Screenia frakt inom Sverige (upp till ${plan.shipping_included_devices} enheter)`,
+      name: "Screenia frakt inom Sverige (fast pris oavsett antal enheter)",
     },
     ...(plan.additional_shipping_fee_sek > 0
       ? [
