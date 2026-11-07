@@ -1827,9 +1827,9 @@ async function displayAssetReviewReady(
       : null,
     !videoUploadRouteSource.includes("customerCanUploadVideos") ||
     !videoEntitlementSource.includes(
-      'CUSTOMER_VIDEO_UPLOAD_PLAN_CODE = "premium_plus_4k"',
+      'CUSTOMER_VIDEO_UPLOAD_PLAN_CODE = "premium_4k"',
     )
-      ? "customer video uploads are not restricted to active Premium Plus service"
+      ? "customer video uploads are not restricted to active Premium service"
       : null,
     !videoUploadRouteSource.includes("video/mp4") ||
     !videoUploadRouteSource.includes("video/webm") ||
@@ -2322,7 +2322,19 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
   if (error) return { ok: false, details: error.message };
 
   const activePlans = (data || []).filter((plan) => plan.is_active);
-  const issues = activePlans.flatMap((plan) => {
+  const expectedMonthlyFees = new Map([
+    ["standard_fhd", 99],
+    ["premium_4k", 129],
+  ]);
+  const catalogIssues =
+    activePlans.length !== 2
+      ? [`pricing catalog must contain exactly 2 active plans, found ${activePlans.length}`]
+      : activePlans.some((plan) => !expectedMonthlyFees.has(plan.code))
+        ? ["pricing catalog contains an unexpected active plan code"]
+        : [];
+  const issues = [
+    ...catalogIssues,
+    ...activePlans.flatMap((plan) => {
     const label = String(plan.code || plan.id || "unknown");
     const hardwareFee = Number(plan.hardware_fee_sek || 0);
     const planIssues = [];
@@ -2345,11 +2357,14 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (Number(plan.shipping_fee_sek || 0) !== 99) {
       planIssues.push(`${label}: base shipping must be 99 SEK`);
     }
-    if (Number(plan.shipping_included_devices || 0) !== 3) {
-      planIssues.push(`${label}: base shipping must include exactly 3 devices`);
+    if (Number(plan.shipping_included_devices || 0) !== 50) {
+      planIssues.push(`${label}: fixed shipping coverage must be 50 devices`);
     }
-    if (Number(plan.additional_shipping_fee_sek || 0) !== 29) {
-      planIssues.push(`${label}: additional-device shipping must be 29 SEK`);
+    if (Number(plan.additional_shipping_fee_sek || 0) !== 0) {
+      planIssues.push(`${label}: additional-device shipping must be 0 SEK`);
+    }
+    if (Number(plan.monthly_fee_sek || 0) !== expectedMonthlyFees.get(plan.code)) {
+      planIssues.push(`${label}: monthly fee does not match the approved package price`);
     }
     if (Number(plan.monthly_fee_sek || 0) <= 0) {
       planIssues.push(`${label}: monthly fee is missing`);
@@ -2366,15 +2381,16 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (!plan.stripe_shipping_price_id) {
       planIssues.push(`${label}: shipping Stripe price is missing`);
     }
-    if (!plan.stripe_additional_shipping_price_id) {
+    if (Number(plan.additional_shipping_fee_sek || 0) > 0 && !plan.stripe_additional_shipping_price_id) {
       planIssues.push(`${label}: additional-device shipping Stripe price is missing`);
     }
     if (!plan.stripe_monthly_price_id) {
       planIssues.push(`${label}: monthly Stripe price is missing`);
     }
 
-    return planIssues;
-  });
+      return planIssues;
+    }),
+  ];
 
   return {
     ok: activePlans.length > 0 && issues.length === 0,

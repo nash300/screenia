@@ -82,8 +82,9 @@ describe("shipping pricing scenarios", () => {
     [0, 0],
     [1, 99],
     [3, 99],
-    [4, 128],
-    [5.8, 157],
+    [4, 99],
+    [50, 99],
+    [100, 99],
   ])("prices shipping for %s devices at %s SEK", (quantity, expected) => {
     expect(calculateShippingFeeSek(quantity)).toBe(expected);
   });

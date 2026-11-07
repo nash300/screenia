@@ -1,4 +1,12 @@
-export const CUSTOMER_VIDEO_UPLOAD_PLAN_CODE = "premium_plus_4k";
+export const CUSTOMER_VIDEO_UPLOAD_PLAN_CODE = "premium_4k";
+const LEGACY_CUSTOMER_VIDEO_UPLOAD_PLAN_CODE = "premium_plus_4k";
+
+function isVideoEntitledPlanCode(code: string | null | undefined) {
+  return new Set([
+    CUSTOMER_VIDEO_UPLOAD_PLAN_CODE,
+    LEGACY_CUSTOMER_VIDEO_UPLOAD_PLAN_CODE,
+  ]).has(code || "");
+}
 
 type QuoteItem = {
   pricingPlanCode?: string | null;
@@ -24,7 +32,7 @@ export function subscriptionIncludesCustomerVideoUploads(
 
   if (
     (subscription.quote_items || []).some(
-      (item) => item.pricingPlanCode === CUSTOMER_VIDEO_UPLOAD_PLAN_CODE,
+      (item) => isVideoEntitledPlanCode(item.pricingPlanCode),
     )
   ) {
     return true;
@@ -37,7 +45,7 @@ export function subscriptionIncludesCustomerVideoUploads(
       : [];
 
   return relatedPlans.some(
-    (plan) => plan.code === CUSTOMER_VIDEO_UPLOAD_PLAN_CODE,
+    (plan) => isVideoEntitledPlanCode(plan.code),
   );
 }
 

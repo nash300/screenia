@@ -42,7 +42,7 @@ is present in the seeded batch.
 19. Shipped order with tracking evidence.
 20. Temporary discount with support cases in multiple states.
 
-Each group rotates through Standard FHD, Premium 4K, and Premium Plus 4K where
+Each group rotates through Standard FHD and Premium 4K where
 its available variations allow. The fixture set covers one to three matching
 devices and mixed three-device orders containing one of each package.
 Stored first-payment totals follow Screenia's inclusive-moms model: one setup

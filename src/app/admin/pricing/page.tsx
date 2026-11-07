@@ -70,8 +70,8 @@ function toForm(plan: PricingPlan): PricingForm {
     setupFeeSek: String(plan.setup_fee_sek ?? 0),
     hardwareFeeSek: String(plan.hardware_fee_sek ?? 0),
     shippingFeeSek: String(plan.shipping_fee_sek ?? 0),
-    shippingIncludedDevices: String(plan.shipping_included_devices ?? 3),
-    additionalShippingFeeSek: String(plan.additional_shipping_fee_sek ?? 29),
+    shippingIncludedDevices: String(plan.shipping_included_devices ?? 50),
+    additionalShippingFeeSek: String(plan.additional_shipping_fee_sek ?? 0),
     monthlyFeeSek: String(plan.monthly_fee_sek ?? 0),
     trialDays: String(plan.trial_days ?? 0),
     bindingMonths: String(plan.binding_months ?? 0),
@@ -91,9 +91,11 @@ function stripeSyncStatus(plan: PricingPlan) {
     plan.stripe_additional_setup_price_id,
     plan.stripe_hardware_price_id,
     plan.stripe_shipping_price_id,
-    plan.stripe_additional_shipping_price_id,
     plan.stripe_monthly_price_id,
   ];
+  if (plan.additional_shipping_fee_sek > 0) {
+    ids.push(plan.stripe_additional_shipping_price_id);
+  }
   const syncedCount = ids.filter(Boolean).length;
   if (syncedCount === ids.length) return "Synced";
   if (syncedCount > 0) return "Partial";
@@ -438,7 +440,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Base shipping (covers included devices)
+                    Fixed shipping for every order
                     <input
                       type="number"
                       min="0"
@@ -449,7 +451,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Devices included in base shipping
+                    Devices covered (standard order limit)
                     <input
                       type="number"
                       min="1"
@@ -460,7 +462,7 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Shipping per additional device
+                    Additional-device shipping (not used)
                     <input
                       type="number"
                       min="0"

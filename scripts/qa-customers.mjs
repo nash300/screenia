@@ -222,12 +222,12 @@ async function loadPlans() {
   const { data, error } = await supabase
     .from("pricing_plans")
     .select("id,code,name,resolution,setup_fee_sek,hardware_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,monthly_fee_sek,trial_days,is_active")
-    .in("code", ["standard_fhd", "premium_4k", "premium_plus_4k"])
+    .in("code", ["standard_fhd", "premium_4k"])
     .eq("is_active", true);
   if (error) throw new Error(`Could not load pricing plans: ${error.message}`);
-  if (!data || data.length !== 3) {
+  if (!data || data.length !== 2) {
     throw new Error(
-      "Active Standard FHD, Premium 4K, and Premium Plus 4K plans are required.",
+      "Active Standard FHD and Premium 4K plans are required.",
     );
   }
   return Object.fromEntries(data.map((plan) => [plan.code, plan]));
@@ -263,16 +263,14 @@ function buildFixtures(plans) {
       const sequence = index + 1;
       const standard = plans.standard_fhd;
       const premium = plans.premium_4k;
-      const premiumPlus = plans.premium_plus_4k;
-      const planCycle = [standard, premium, premiumPlus];
+      const planCycle = [standard, premium];
       const primaryPlan = planCycle[variation % planCycle.length];
       const mixedPackage = variation === 4;
-      const quantity = mixedPackage ? 3 : variation + 1;
+      const quantity = mixedPackage ? 2 : variation + 1;
       const quoteItems = mixedPackage
         ? [
             { plan: standard, quantity: 1 },
             { plan: premium, quantity: 1 },
-            { plan: premiumPlus, quantity: 1 },
           ]
         : [{ plan: primaryPlan, quantity }];
       const email = `qa.customer.${String(sequence).padStart(3, "0")}@example.test`;

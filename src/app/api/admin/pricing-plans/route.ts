@@ -255,12 +255,12 @@ export async function PATCH(request: Request) {
       1,
       sanitizeAmount(
         body.shippingIncludedDevices,
-        currentPlan.shipping_included_devices ?? 3,
+      currentPlan.shipping_included_devices ?? 50,
       ),
     ),
     additional_shipping_fee_sek: sanitizeAmount(
       body.additionalShippingFeeSek,
-      currentPlan.additional_shipping_fee_sek ?? 29,
+      currentPlan.additional_shipping_fee_sek ?? 0,
     ),
     monthly_fee_sek: sanitizeAmount(body.monthlyFeeSek, currentPlan.monthly_fee_sek),
     trial_days: sanitizeDays(body.trialDays, currentPlan.trial_days),
@@ -394,12 +394,16 @@ export async function POST(request: Request) {
       amountSek: shippingFeeSek,
       name: `Screenia frakt inom Sverige (upp till ${plan.shipping_included_devices} enheter)`,
     },
-    {
-      field: "stripe_additional_shipping_price_id",
-      amountSek: plan.additional_shipping_fee_sek,
-      name: "Screenia frakt för extra enhet",
-      description: `Frakt per enhet utöver de ${plan.shipping_included_devices} som ingår i grundfrakten.`,
-    },
+    ...(plan.additional_shipping_fee_sek > 0
+      ? [
+          {
+            field: "stripe_additional_shipping_price_id" as const,
+            amountSek: plan.additional_shipping_fee_sek,
+            name: "Screenia frakt för extra enhet",
+            description: `Frakt per enhet utöver de ${plan.shipping_included_devices} som ingår i grundfrakten.`,
+          },
+        ]
+      : []),
     {
       field: "stripe_monthly_price_id",
       amountSek: plan.monthly_fee_sek,
@@ -416,7 +420,9 @@ export async function POST(request: Request) {
       hardwareFeeSek > 0 ? plan.stripe_hardware_price_id || "" : null,
     stripe_shipping_price_id: plan.stripe_shipping_price_id || "",
     stripe_additional_shipping_price_id:
-      plan.stripe_additional_shipping_price_id || "",
+      plan.additional_shipping_fee_sek > 0
+        ? plan.stripe_additional_shipping_price_id || ""
+        : null,
     stripe_monthly_price_id: plan.stripe_monthly_price_id || "",
   };
 
@@ -463,6 +469,22 @@ export async function POST(request: Request) {
           error:
             "Stripe prices were created, but the shared additional-shipping reference could not be stored.",
         },
+        { status: 500 },
+      );
+    }
+  } else {
+    const { error: clearSharedShippingPriceError } = await supabaseAdmin
+      .from("pricing_plans")
+      .update({ stripe_additional_shipping_price_id: null })
+      .eq("additional_shipping_fee_sek", plan.additional_shipping_fee_sek);
+
+    if (clearSharedShippingPriceError) {
+      console.error(
+        "Clear shared additional shipping price error:",
+        clearSharedShippingPriceError,
+      );
+      return NextResponse.json(
+        { error: "Supabase could not clear the obsolete shipping price reference." },
         { status: 500 },
       );
     }

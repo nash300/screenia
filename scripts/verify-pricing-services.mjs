@@ -11,10 +11,7 @@ function loadEnvFile(path) {
     if (separator < 1) continue;
     const key = trimmed.slice(0, separator).trim();
     let value = trimmed.slice(separator + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
     if (!process.env[key]) process.env[key] = value;
@@ -23,130 +20,56 @@ function loadEnvFile(path) {
 
 loadEnvFile(".env.local");
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2026-08-26.dahlia",
-});
+const required = ["NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "STRIPE_SECRET_KEY"];
+for (const key of required) {
+  if (!process.env[key]) throw new Error(`Missing ${key}.`);
+}
+
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2026-08-26.dahlia" });
 
 const { data: plans, error } = await supabase
   .from("pricing_plans")
-  .select(
-    "code,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,tax_behavior,stripe_setup_price_id,stripe_hardware_price_id,stripe_shipping_price_id,stripe_monthly_price_id,stripe_additional_setup_price_id,stripe_additional_shipping_price_id",
-  )
+  .select("code,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,tax_behavior,stripe_setup_price_id,stripe_hardware_price_id,stripe_shipping_price_id,stripe_monthly_price_id,stripe_additional_setup_price_id,stripe_additional_shipping_price_id")
   .eq("is_active", true)
   .order("code");
 if (error) throw error;
-if (plans?.length !== 3) {
-  throw new Error(`Expected 3 active plans, found ${plans?.length || 0}.`);
-}
 
-const expectedPlanAmounts = {
-  standard_fhd: { hardwareOre: 69900, monthlyOre: 24900 },
-  premium_4k: { hardwareOre: 109900, monthlyOre: 34900 },
-  premium_plus_4k: { hardwareOre: 109900, monthlyOre: 39900 },
+const expectedPlans = {
+  standard_fhd: { hardwareOre: 69900, monthlyOre: 9900 },
+  premium_4k: { hardwareOre: 109900, monthlyOre: 12900 },
 };
-
-const additionalPriceIds = new Set(
-  plans.map((plan) => plan.stripe_additional_setup_price_id).filter(Boolean),
-);
-if (additionalPriceIds.size !== 1) {
-  throw new Error("Active plans do not share exactly one additional-screen Stripe price.");
+const actualCodes = (plans || []).map((plan) => plan.code);
+if (actualCodes.length !== 2 || actualCodes.some((code) => !expectedPlans[code])) {
+  throw new Error(`Expected exactly Standard and Premium active plans, found ${actualCodes.join(", ") || "none"}.`);
 }
 
-const sharedAdditionalPriceId = [...additionalPriceIds][0];
-const sharedAdditionalPrice = await stripe.prices.retrieve(
-  sharedAdditionalPriceId,
-  { expand: ["product"] },
-);
-if (
-  !sharedAdditionalPrice.active ||
-  sharedAdditionalPrice.currency !== "sek" ||
-  sharedAdditionalPrice.unit_amount !== 24900 ||
-  sharedAdditionalPrice.tax_behavior !== "inclusive" ||
-  sharedAdditionalPrice.recurring ||
-  !sharedAdditionalPrice.product ||
-  typeof sharedAdditionalPrice.product === "string" ||
-  sharedAdditionalPrice.product.deleted ||
-  sharedAdditionalPrice.product.name !==
-    "Screenia extra skärm - start och konfiguration"
-) {
+const additionalPriceIds = new Set((plans || []).map((plan) => plan.stripe_additional_setup_price_id).filter(Boolean));
+if (additionalPriceIds.size !== 1) throw new Error("Active plans do not share exactly one additional-screen Stripe price.");
+const additionalPrice = await stripe.prices.retrieve([...additionalPriceIds][0]);
+if (!additionalPrice.active || additionalPrice.currency !== "sek" || additionalPrice.unit_amount !== 24900 || additionalPrice.tax_behavior !== "inclusive" || additionalPrice.recurring) {
   throw new Error("The shared additional-screen Stripe price is misconfigured.");
 }
 
-const additionalShippingPriceIds = new Set(
-  plans.map((plan) => plan.stripe_additional_shipping_price_id).filter(Boolean),
-);
-if (additionalShippingPriceIds.size !== 1) {
-  throw new Error("Active plans do not share exactly one additional-device shipping Stripe price.");
-}
-const sharedAdditionalShippingPriceId = [...additionalShippingPriceIds][0];
-const sharedAdditionalShippingPrice = await stripe.prices.retrieve(
-  sharedAdditionalShippingPriceId,
-  { expand: ["product"] },
-);
-if (
-  !sharedAdditionalShippingPrice.active ||
-  sharedAdditionalShippingPrice.currency !== "sek" ||
-  sharedAdditionalShippingPrice.unit_amount !== 2900 ||
-  sharedAdditionalShippingPrice.tax_behavior !== "inclusive" ||
-  sharedAdditionalShippingPrice.recurring ||
-  !sharedAdditionalShippingPrice.product ||
-  typeof sharedAdditionalShippingPrice.product === "string" ||
-  sharedAdditionalShippingPrice.product.deleted ||
-  sharedAdditionalShippingPrice.product.name !==
-    "Screenia frakt för extra enhet"
-) {
-  throw new Error("The shared additional-device shipping Stripe price is misconfigured.");
-}
-
 for (const plan of plans) {
-  if (
-    plan.setup_fee_sek !== 499 ||
-    plan.setup_included_screens !== 3 ||
-    plan.additional_setup_fee_sek !== 249 ||
-    plan.shipping_fee_sek !== 99 ||
-    plan.shipping_included_devices !== 3 ||
-    plan.additional_shipping_fee_sek !== 29 ||
-    plan.tax_behavior !== "inclusive"
-  ) {
+  const expected = expectedPlans[plan.code];
+  if (plan.setup_fee_sek !== 499 || plan.setup_included_screens !== 3 || plan.additional_setup_fee_sek !== 249 || plan.shipping_fee_sek !== 99 || plan.shipping_included_devices !== 50 || plan.additional_shipping_fee_sek !== 0 || plan.tax_behavior !== "inclusive" || plan.stripe_additional_shipping_price_id !== null) {
     throw new Error(`Supabase pricing rule mismatch for ${plan.code}.`);
   }
 
   const priceChecks = [
     ["setup", plan.stripe_setup_price_id, 49900, false],
-    [
-      "hardware",
-      plan.stripe_hardware_price_id,
-      expectedPlanAmounts[plan.code]?.hardwareOre,
-      false,
-    ],
+    ["hardware", plan.stripe_hardware_price_id, expected.hardwareOre, false],
     ["shipping", plan.stripe_shipping_price_id, 9900, false],
-    [
-      "monthly",
-      plan.stripe_monthly_price_id,
-      expectedPlanAmounts[plan.code]?.monthlyOre,
-      true,
-    ],
+    ["monthly", plan.stripe_monthly_price_id, expected.monthlyOre, true],
   ];
-
   for (const [label, priceId, expectedOre, recurring] of priceChecks) {
     if (!priceId) throw new Error(`${plan.code} is missing ${label} Stripe price.`);
     const price = await stripe.prices.retrieve(priceId);
-    if (
-      !price.active ||
-      price.currency !== "sek" ||
-      price.unit_amount !== expectedOre ||
-      price.tax_behavior !== "inclusive" ||
-      Boolean(price.recurring) !== recurring
-    ) {
+    if (!price.active || price.currency !== "sek" || price.unit_amount !== expectedOre || price.tax_behavior !== "inclusive" || Boolean(price.recurring) !== recurring) {
       throw new Error(`${plan.code} ${label} Stripe price is misconfigured.`);
     }
   }
 }
 
-console.log(
-  `Pricing services verified: 3 plans with 499 SEK base administrative charge, shared 249 SEK setup addition ${sharedAdditionalPriceId}, shared 29 SEK shipping addition ${sharedAdditionalShippingPriceId}, inclusive moms, and correct one-time/monthly Stripe behavior.`,
-);
+console.log("Pricing services verified: Standard 99 SEK/month, Premium 129 SEK/month, fixed 99 SEK shipping, 499 SEK setup, unchanged device prices, and Premium video entitlement.");

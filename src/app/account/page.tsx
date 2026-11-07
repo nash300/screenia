@@ -905,7 +905,7 @@ export default function AccountPage() {
     );
 
     if (videoFiles.length > 0 && !data?.videoUploadEnabled) {
-      setNotice("Egen videouppladdning ingår i Premium Plus.");
+      setNotice("Egen videouppladdning ingår i Premium.");
       setUploadingMaterial(false);
       return;
     }
@@ -1717,8 +1717,8 @@ export default function AccountPage() {
               <AccountCard title="Skicka skärmmaterial">
                 <p>
                   {data.videoUploadEnabled
-                    ? "Premium Plus är aktivt. Du kan även ladda upp egna MP4- och WEBM-videor, högst 100 MB per fil."
-                    : "Bilder, logotyper, menyer och PDF-filer kan skickas här. Egen videouppladdning ingår i Premium Plus."}
+                    ? "Premium är aktivt. Du kan även ladda upp egna MP4- och WEBM-videor, högst 100 MB per fil."
+                    : "Bilder, logotyper, menyer och PDF-filer kan skickas här. Egen videouppladdning ingår i Premium."}
                 </p>
                 <div className="account-upload-workspace">
                   <label

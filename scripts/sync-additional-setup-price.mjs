@@ -11,283 +11,94 @@ function loadEnvFile(path) {
     if (separator < 1) continue;
     const key = trimmed.slice(0, separator).trim();
     let value = trimmed.slice(separator + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1);
-    }
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
     if (!process.env[key]) process.env[key] = value;
   }
 }
 
 loadEnvFile(".env.local");
-
 const stripeKey = process.env.STRIPE_SECRET_KEY || "";
-if (!stripeKey.startsWith("sk_test_")) {
-  throw new Error(
-    "This preparatory sync is restricted to Stripe test mode. Use the audited admin pricing sync for live mode.",
-  );
-}
+if (!stripeKey.startsWith("sk_test_")) throw new Error("This pricing sync is restricted to Stripe test mode.");
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error("Supabase service configuration is missing.");
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY,
-);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const stripe = new Stripe(stripeKey, { apiVersion: "2026-08-26.dahlia" });
 
-const { data: plans, error: plansError } = await supabase
+const { data: plans, error } = await supabase
   .from("pricing_plans")
-  .select(
-    "id,code,name,resolution,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,tax_behavior,stripe_setup_price_id,stripe_additional_setup_price_id,stripe_shipping_price_id,stripe_additional_shipping_price_id",
-  )
+  .select("id,code,name,resolution,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,hardware_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,monthly_fee_sek,tax_behavior,stripe_setup_price_id,stripe_additional_setup_price_id,stripe_hardware_price_id,stripe_shipping_price_id,stripe_monthly_price_id,stripe_additional_shipping_price_id")
   .eq("is_active", true)
   .order("code");
-
-if (plansError) throw plansError;
-if (!plans?.length) throw new Error("No active pricing plans were found.");
-
-for (const plan of plans) {
-  if (
-    plan.setup_fee_sek !== 499 ||
-    plan.setup_included_screens !== 3 ||
-    plan.additional_setup_fee_sek !== 249 ||
-    plan.shipping_fee_sek !== 99 ||
-    plan.shipping_included_devices !== 3 ||
-    plan.additional_shipping_fee_sek !== 29 ||
-    plan.tax_behavior !== "inclusive"
-  ) {
-    throw new Error(`Pricing rule mismatch for ${plan.code}.`);
-  }
-}
-
-let sharedShippingPriceId = plans.find(
-  (plan) => plan.stripe_additional_shipping_price_id,
-)?.stripe_additional_shipping_price_id;
-
-if (sharedShippingPriceId) {
-  try {
-    const existing = await stripe.prices.retrieve(sharedShippingPriceId, {
-      expand: ["product"],
-    });
-    if (
-      !existing.active ||
-      existing.currency !== "sek" ||
-      existing.unit_amount !== 2900 ||
-      existing.tax_behavior !== "inclusive" ||
-      existing.recurring
-    ) {
-      sharedShippingPriceId = null;
-    } else if (
-      existing.product &&
-      typeof existing.product !== "string" &&
-      !existing.product.deleted
-    ) {
-      await stripe.products.update(existing.product.id, {
-        name: "Screenia frakt för extra enhet",
-        description:
-          "Frakt per enhet utöver de tre enheter som ingår i grundfrakten.",
-        active: true,
-      });
-    }
-  } catch {
-    sharedShippingPriceId = null;
-  }
-}
-
-if (!sharedShippingPriceId) {
-  const product = await stripe.products.create({
-    name: "Screenia frakt för extra enhet",
-    description:
-      "Frakt per enhet utöver de tre enheter som ingår i grundfrakten.",
-    metadata: {
-      business_rule: "additional_device_shipping",
-      included_devices: "3",
-    },
-  });
-
-  const price = await stripe.prices.create({
-    currency: "sek",
-    unit_amount: 2900,
-    tax_behavior: "inclusive",
-    product: product.id,
-    metadata: {
-      business_rule: "additional_device_shipping",
-      included_devices: "3",
-    },
-  });
-  sharedShippingPriceId = price.id;
-}
-
-let sharedPriceId = plans.find(
-  (plan) => plan.stripe_additional_setup_price_id,
-)?.stripe_additional_setup_price_id;
-
-if (sharedPriceId) {
-  try {
-    const existing = await stripe.prices.retrieve(sharedPriceId, {
-      expand: ["product"],
-    });
-    if (
-      !existing.active ||
-      existing.currency !== "sek" ||
-      existing.unit_amount !== 24900 ||
-      existing.tax_behavior !== "inclusive" ||
-      existing.recurring
-    ) {
-      sharedPriceId = null;
-    } else if (
-      existing.product &&
-      typeof existing.product !== "string" &&
-      !existing.product.deleted
-    ) {
-      await stripe.products.update(existing.product.id, {
-        name: "Screenia extra skärm - start och konfiguration",
-        description:
-          "Engångsavgift per skärm utöver de tre skärmar som ingår i grundavgiften.",
-        active: true,
-      });
-    }
-  } catch {
-    sharedPriceId = null;
-  }
-}
-
-if (!sharedPriceId) {
-  const product = await stripe.products.create({
-    name: "Screenia extra skärm - start och konfiguration",
-    description:
-      "Engångsavgift per skärm utöver de tre skärmar som ingår i grundavgiften.",
-    metadata: {
-      business_rule: "additional_screen_setup",
-      included_screens: "3",
-    },
-  });
-
-  const price = await stripe.prices.create({
-    currency: "sek",
-    unit_amount: 24900,
-    tax_behavior: "inclusive",
-    product: product.id,
-    metadata: {
-      business_rule: "additional_screen_setup",
-      included_screens: "3",
-    },
-  });
-  sharedPriceId = price.id;
-}
-
-const basePriceIdsByPlan = new Map();
+if (error) throw error;
+if (!plans || plans.length !== 2 || !plans.every((plan) => ["standard_fhd", "premium_4k"].includes(plan.code))) throw new Error("Exactly Standard and Premium must be active before Stripe sync.");
 
 for (const plan of plans) {
-  let basePriceId = plan.stripe_setup_price_id;
-  let baseProductId = null;
+  if (plan.setup_fee_sek !== 499 || plan.setup_included_screens !== 3 || plan.additional_setup_fee_sek !== 249 || plan.shipping_fee_sek !== 99 || plan.shipping_included_devices !== 50 || plan.additional_shipping_fee_sek !== 0 || plan.tax_behavior !== "inclusive") throw new Error(`Pricing rule mismatch for ${plan.code}.`);
+}
 
-  if (basePriceId) {
-    const basePrice = await stripe.prices.retrieve(basePriceId, {
-      expand: ["product"],
-    });
-    if (
-      basePrice.product &&
-      typeof basePrice.product !== "string" &&
-      !basePrice.product.deleted
-    ) {
-      baseProductId = basePrice.product.id;
-    }
-    if (
-      !basePrice.active ||
-      basePrice.unit_amount !== 49900 ||
-      basePrice.currency !== "sek" ||
-      basePrice.tax_behavior !== "inclusive" ||
-      basePrice.recurring
-    ) {
-      basePriceId = null;
+async function deactivatePrice(priceId) {
+  if (!priceId) return;
+  try {
+    const price = await stripe.prices.retrieve(priceId);
+    if (price.active) await stripe.prices.update(priceId, { active: false });
+  } catch (error) {
+    if (error?.statusCode !== 404) throw error;
+  }
+}
+
+async function ensurePrice({ existingId, amountSek, recurring, productName, productDescription, metadata }) {
+  let existing = null;
+  if (existingId) {
+    try {
+      existing = await stripe.prices.retrieve(existingId, { expand: ["product"] });
+    } catch (error) {
+      if (error?.statusCode !== 404) throw error;
     }
   }
-
-  if (!baseProductId) {
-    const baseProduct = await stripe.products.create({
-      name: `Screenia ${plan.name} ${plan.resolution} - administrativ startavgift`,
-      description: "Administrativ grundavgift för start och konfiguration av upp till tre skärmar.",
-      metadata: {
-        business_rule: "base_administrative_charge",
-        pricing_plan_code: plan.code,
-        included_screens: "3",
-      },
-    });
-    baseProductId = baseProduct.id;
+  const valid = existing && existing.active && existing.currency === "sek" && existing.unit_amount === amountSek * 100 && existing.tax_behavior === "inclusive" && Boolean(existing.recurring) === Boolean(recurring) && existing.product && typeof existing.product !== "string" && !existing.product.deleted;
+  if (valid) {
+    await stripe.products.update(existing.product.id, { name: productName, description: productDescription, active: true, metadata });
+    return existing.id;
+  }
+  let productId = null;
+  if (existing?.product && typeof existing.product !== "string" && !existing.product.deleted) productId = existing.product.id;
+  if (!productId) {
+    const product = await stripe.products.create({ name: productName, description: productDescription, active: true, metadata });
+    productId = product.id;
   } else {
-    await stripe.products.update(baseProductId, {
-      name: `Screenia ${plan.name} ${plan.resolution} - administrativ startavgift`,
-      description: "Administrativ grundavgift för start och konfiguration av upp till tre skärmar.",
-      active: true,
-    });
+    await stripe.products.update(productId, { name: productName, description: productDescription, active: true, metadata });
   }
-
-  if (!basePriceId) {
-    const basePrice = await stripe.prices.create({
-      currency: "sek",
-      unit_amount: 49900,
-      tax_behavior: "inclusive",
-      product: baseProductId,
-      metadata: {
-        business_rule: "base_administrative_charge",
-        pricing_plan_code: plan.code,
-        included_screens: "3",
-      },
-    });
-    basePriceId = basePrice.id;
-  }
-
-  basePriceIdsByPlan.set(plan.id, basePriceId);
-
-  if (plan.stripe_shipping_price_id) {
-    const shippingPrice = await stripe.prices.retrieve(
-      plan.stripe_shipping_price_id,
-      { expand: ["product"] },
-    );
-    if (
-      shippingPrice.unit_amount !== 9900 ||
-      shippingPrice.currency !== "sek" ||
-      shippingPrice.tax_behavior !== "inclusive" ||
-      shippingPrice.recurring
-    ) {
-      throw new Error(`Base shipping Stripe price mismatch for ${plan.code}.`);
-    }
-    if (
-      shippingPrice.product &&
-      typeof shippingPrice.product !== "string" &&
-      !shippingPrice.product.deleted
-    ) {
-      await stripe.products.update(shippingPrice.product.id, {
-        name: "Screenia frakt inom Sverige (upp till 3 enheter)",
-        description: "Grundfrakt för upp till tre skärmenheter.",
-        active: true,
-      });
-    }
-  }
+  const price = await stripe.prices.create({ currency: "sek", unit_amount: amountSek * 100, tax_behavior: "inclusive", product: productId, ...(recurring ? { recurring: { interval: "month" } } : {}), metadata });
+  await stripe.products.update(productId, { default_price: price.id });
+  if (existing?.active) await deactivatePrice(existing.id);
+  return price.id;
 }
+
+const sharedSetupExistingId = plans.find((plan) => plan.stripe_additional_setup_price_id)?.stripe_additional_setup_price_id || null;
+const sharedSetupId = await ensurePrice({
+  existingId: sharedSetupExistingId,
+  amountSek: 249,
+  productName: "Screenia additional setup",
+  productDescription: "One-time setup fee for each screen beyond the included setup quantity.",
+  metadata: { business_rule: "additional_screen_setup", included_screens: "3" },
+});
 
 for (const plan of plans) {
-  const { error: basePriceUpdateError } = await supabase
-    .from("pricing_plans")
-    .update({ stripe_setup_price_id: basePriceIdsByPlan.get(plan.id) })
-    .eq("id", plan.id);
-  if (basePriceUpdateError) throw basePriceUpdateError;
+  const base = `Screenia ${plan.name} ${plan.resolution}`;
+  const metadata = { pricing_plan_code: plan.code };
+  const ids = {
+    stripe_setup_price_id: await ensurePrice({ existingId: plan.stripe_setup_price_id, amountSek: 499, productName: `${base} - administrative setup`, productDescription: "Administrative setup and configuration fee.", metadata: { ...metadata, business_rule: "base_administrative_charge" } }),
+    stripe_additional_setup_price_id: sharedSetupId,
+    stripe_hardware_price_id: await ensurePrice({ existingId: plan.stripe_hardware_price_id, amountSek: plan.hardware_fee_sek, productName: `${base} device`, productDescription: "Screenia display device.", metadata: { ...metadata, business_rule: "hardware" } }),
+    stripe_shipping_price_id: await ensurePrice({ existingId: plan.stripe_shipping_price_id, amountSek: 99, productName: "Screenia Sweden shipping", productDescription: "Fixed shipping fee regardless of device quantity.", metadata: { ...metadata, business_rule: "fixed_shipping" } }),
+    stripe_monthly_price_id: await ensurePrice({ existingId: plan.stripe_monthly_price_id, amountSek: plan.monthly_fee_sek, recurring: { interval: "month" }, productName: `${base} monthly subscription`, productDescription: "Monthly Screenia subscription.", metadata: { ...metadata, business_rule: "monthly_subscription" } }),
+    stripe_additional_shipping_price_id: null,
+  };
+  const { error: updateError } = await supabase.from("pricing_plans").update(ids).eq("id", plan.id);
+  if (updateError) throw updateError;
 }
 
-const { error: updateError } = await supabase
-  .from("pricing_plans")
-  .update({
-    stripe_additional_setup_price_id: sharedPriceId,
-    stripe_additional_shipping_price_id: sharedShippingPriceId,
-  })
-  .in(
-    "id",
-    plans.map((plan) => plan.id),
-  );
-if (updateError) throw updateError;
+const obsoleteShippingIds = [...new Set(plans.map((plan) => plan.stripe_additional_shipping_price_id).filter(Boolean))];
+for (const priceId of obsoleteShippingIds) await deactivatePrice(priceId);
 
-console.log(
-  `Synced 499 SEK base administrative prices, shared 249 SEK additional-screen setup (${sharedPriceId}), and shared 29 SEK additional-device shipping (${sharedShippingPriceId}) across ${plans.length} active plans.`,
-);
+console.log(`Synced Standard and Premium Stripe prices: fixed 99 SEK shipping, unchanged device prices, and monthly prices of 99/129 SEK.`);

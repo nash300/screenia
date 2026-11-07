@@ -7464,6 +7464,12 @@
   }
 }
 
+@media (max-width: 760px), (hover: none) and (pointer: coarse) {
+  .landing-video-rail {
+    touch-action: pan-x;
+  }
+}
+
 .landing-page .landing-hero-modern {
   position: relative;
   isolation: isolate;
@@ -9359,16 +9365,16 @@
   }
 
   .screenia-theme .landing-page .landing-pricing .landing-plan-details {
-    max-height: 0 !important;
-    margin-top: 0 !important;
+    max-height: 0;
+    margin-top: 0;
     overflow: hidden;
     opacity: 0;
     transition: max-height 260ms ease, margin-top 260ms ease, opacity 180ms ease;
   }
 
   .screenia-theme .landing-page .landing-pricing .landing-plan-details.landing-plan-details-expanded {
-    max-height: 900px !important;
-    margin-top: 12px !important;
+    max-height: 900px;
+    margin-top: 12px;
     opacity: 1;
   }
 
