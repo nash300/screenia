@@ -6,6 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import { displaySectionIds, displaySections } from "../display-workflow";
+import {
+  AdminTooltip,
+  AdminWorkflowStepIcon,
+} from "@/components/AdminWorkflow";
 import type {
   DisplayDetails,
   DisplayOperationDraft,
@@ -416,7 +420,17 @@ export default function AdminDevicePage({
     );
   }
 
-  const sections = displaySections(playlist.length);
+  const sections = displaySections(playlist.length).map((section) => ({
+    ...section,
+    complete:
+      section.id === "overview"
+        ? Boolean(device)
+        : section.id === "details"
+          ? Boolean(device?.location)
+          : section.id === "preview" || section.id === "media"
+            ? playlist.length > 0
+            : Boolean(device?.is_active),
+  }));
 
   return (
     <div>
@@ -465,25 +479,36 @@ export default function AdminDevicePage({
 
       <section className="admin-display-workflow admin-card" aria-label="Display workflow">
         {sections.map((section) => (
-          <button
+          <AdminTooltip
             key={section.id}
-            type="button"
-            onClick={() => navigateToSection(section.id)}
-            className={
-              activeSection === section.id
-                ? "admin-display-workflow-step admin-display-workflow-step-active"
-                : "admin-display-workflow-step"
-            }
+            text={`${section.description}. ${section.complete ? "Completed." : "Not completed yet."}`}
+            className="admin-workflow-tooltip"
           >
-            <span>{section.stage}</span>
-            <strong>
-              {section.label}
-              {typeof section.count === "number" ? (
-                <em>{section.count}</em>
-              ) : null}
-            </strong>
-            <small>{section.description}</small>
-          </button>
+            <button
+              type="button"
+              onClick={() => navigateToSection(section.id)}
+              className={
+                [
+                  "admin-display-workflow-step",
+                  activeSection === section.id
+                    ? "admin-display-workflow-step-active"
+                    : "",
+                  section.complete ? "admin-display-workflow-step-complete" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+              }
+            >
+              <AdminWorkflowStepIcon stage={section.stage} complete={section.complete} />
+              <strong>
+                {section.label}
+                {typeof section.count === "number" ? (
+                  <em>{section.count}</em>
+                ) : null}
+              </strong>
+              <small>{section.description}</small>
+            </button>
+          </AdminTooltip>
         ))}
       </section>
 

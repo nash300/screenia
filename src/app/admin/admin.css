@@ -5726,6 +5726,135 @@ div.admin-landing-video-preview {
   color: rgba(255, 255, 255, 0.78);
 }
 
+.admin-workflow-tooltip {
+  display: block;
+  min-width: 0;
+}
+
+.admin-workflow-tooltip > .admin-customer-workflow-step,
+.admin-workflow-tooltip > .admin-display-workflow-step,
+.admin-workflow-tooltip > .admin-communication-workflow-step,
+.admin-workflow-tooltip > .admin-inventory-workflow-step {
+  width: 100%;
+  height: 100%;
+}
+
+.admin-customer-workflow-step.admin-customer-workflow-step-complete > span,
+.admin-display-workflow-step.admin-display-workflow-step-complete > span,
+.admin-communication-workflow-step.admin-communication-workflow-step-complete > span,
+.admin-inventory-workflow-step.admin-inventory-workflow-step-complete > span {
+  background: #1f8f5a;
+  color: #ffffff;
+}
+
+.admin-customer-workflow-step.admin-customer-workflow-step-active.admin-customer-workflow-step-complete > span,
+.admin-display-workflow-step.admin-display-workflow-step-active.admin-display-workflow-step-complete > span,
+.admin-communication-workflow-step.admin-communication-workflow-step-active.admin-communication-workflow-step-complete > span {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.admin-workflow-step-icon svg {
+  display: block;
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.admin-tooltip-anchor {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.admin-tooltip-bubble {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 0.55rem);
+  left: 50%;
+  width: max-content;
+  min-width: 180px;
+  max-width: min(320px, 72vw);
+  transform: translate(-50%, -0.2rem);
+  border: 1px solid rgba(6, 25, 66, 0.18);
+  border-radius: 10px;
+  background: #061942;
+  padding: 0.55rem 0.7rem;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 650;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  box-shadow: 0 12px 24px rgba(7, 31, 84, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.14s ease,
+    transform 0.14s ease,
+    visibility 0.14s ease;
+}
+
+.admin-tooltip-bubble::before {
+  position: absolute;
+  top: -0.35rem;
+  left: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  transform: translateX(-50%) rotate(45deg);
+  background: #061942;
+  content: "";
+}
+
+.admin-tooltip-anchor:hover .admin-tooltip-bubble,
+.admin-tooltip-anchor:focus-within .admin-tooltip-bubble {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.admin-customer-section-help-hover-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-height: 78px;
+  padding: 0.85rem 0;
+}
+
+.admin-customer-section-help-hover-note > span {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1769d2;
+  font-weight: 950;
+}
+
+.admin-customer-section-help-hover-note h3 {
+  margin: 0 0 0.25rem;
+  color: #092d61;
+  font-size: 0.82rem;
+}
+
+.admin-customer-section-help-hover-note p {
+  margin: 0;
+  color: #4b6689;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.admin-customer-journal-heading > .admin-tooltip-anchor {
+  width: min(18rem, 100%);
+}
+
+.admin-customer-journal-heading > .admin-tooltip-anchor > input {
+  width: 100%;
+}
+
 .admin-customer-section-help {
   border: 1px solid #bdd6f7;
   border-radius: 18px;

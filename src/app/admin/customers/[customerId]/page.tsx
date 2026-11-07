@@ -47,6 +47,10 @@ import {
   type JournalCategory,
 } from "./customer-journal";
 import { getCustomerSectionHelp } from "./customer-section-help";
+import {
+  AdminTooltip,
+  AdminWorkflowStepIcon,
+} from "@/components/AdminWorkflow";
 import type {
   AuditEvent,
   CommunicationView,
@@ -1888,24 +1892,49 @@ export default function CustomerDetailPage({
       )
     : journalEntries;
 
+  const customerWorkflowCompletion: Record<CustomerDetailSection, boolean> = {
+    overview: Boolean(customer.name && (customer.email || customer.billing_email)),
+    onboarding: Boolean(
+      customer.onboarding_token ||
+        customer.requested_quote_items?.length ||
+        subscriptions.length > 0,
+    ),
+    communication:
+      messages.length + assets.length > 0 &&
+      messages.every((message) => message.status === "resolved") &&
+      assets.every((asset) => ["reviewed", "archived"].includes(asset.status)),
+    orders: Boolean(
+      subscriptions.length &&
+        (customer.payment_status === "paid" ||
+          subscriptions.some((subscription) =>
+            ["paid", "active", "completed"].includes(subscription.status),
+          )),
+    ),
+    devices: devices.length > 0 && devices.every((device) => device.is_active),
+    history: journalEntries.length > 0,
+  };
+
   const detailSections: Array<{
     id: CustomerDetailSection;
     label: string;
     count?: number;
     stage: string;
     description: string;
+    complete: boolean;
   }> = [
     {
       id: "overview",
       label: "Overview",
       stage: "1",
       description: "Contact details and permissions",
+      complete: customerWorkflowCompletion.overview,
     },
     {
       id: "onboarding",
       label: "Request & quote",
       stage: "2",
       description: "Create offer and send setup link",
+      complete: customerWorkflowCompletion.onboarding,
     },
     {
       id: "communication",
@@ -1913,6 +1942,7 @@ export default function CustomerDetailPage({
       count: messages.length + assets.length,
       stage: "3",
       description: "Customer questions and files",
+      complete: customerWorkflowCompletion.communication,
     },
     {
       id: "orders",
@@ -1920,6 +1950,7 @@ export default function CustomerDetailPage({
       count: subscriptions.length,
       stage: "4",
       description: "Payments, refunds, and subscriptions",
+      complete: customerWorkflowCompletion.orders,
     },
     {
       id: "devices",
@@ -1927,6 +1958,7 @@ export default function CustomerDetailPage({
       count: devices.length,
       stage: "5",
       description: "Customer screens and hardware",
+      complete: customerWorkflowCompletion.devices,
     },
     {
       id: "history",
@@ -1934,6 +1966,7 @@ export default function CustomerDetailPage({
       count: journalEntries.length,
       stage: "6",
       description: "Notes and work history",
+      complete: customerWorkflowCompletion.history,
     },
   ];
   const communicationWorkflows: Array<{
@@ -1942,6 +1975,7 @@ export default function CustomerDetailPage({
     label: string;
     count: number;
     description: string;
+    complete: boolean;
   }> = [
     {
       id: "messages",
@@ -1949,6 +1983,7 @@ export default function CustomerDetailPage({
       label: "Support inbox",
       count: messages.length,
       description: "Read questions and send replies",
+      complete: messages.length > 0 && messages.every((message) => message.status === "resolved"),
     },
     {
       id: "uploads",
@@ -1956,6 +1991,9 @@ export default function CustomerDetailPage({
       label: "Material review",
       count: assets.length,
       description: "Check logos, images, videos, and menus",
+      complete:
+        assets.length > 0 &&
+        assets.every((asset) => ["reviewed", "archived"].includes(asset.status)),
     },
   ];
   const paidDeviceQuantity = subscriptions
@@ -2163,6 +2201,18 @@ export default function CustomerDetailPage({
     )?.device_code,
   });
   const sectionHelp = getCustomerSectionHelp(activeSection, communicationView);
+  const allActionHelp = customerDetailSectionIds.flatMap((section) =>
+    section === "communication"
+      ? [
+          ...getCustomerSectionHelp("communication", "messages").actions,
+          ...getCustomerSectionHelp("communication", "uploads").actions,
+        ]
+      : getCustomerSectionHelp(section, communicationView).actions,
+  );
+  const actionTooltip = (label: string) =>
+    allActionHelp.find((action) =>
+      action.label.toLowerCase().includes(label.toLowerCase()),
+    )?.effect || "Open this control to review what it does before continuing.";
 
   return (
     <div>
@@ -2198,23 +2248,34 @@ export default function CustomerDetailPage({
 
       <section className="admin-customer-workflow admin-card" aria-label="Customer workflow">
         {detailSections.map((section) => (
-          <button
+          <AdminTooltip
             key={section.id}
-            type="button"
-            onClick={() => navigateToSection(section.id)}
-            className={
-              activeSection === section.id
-                ? "admin-customer-workflow-step admin-customer-workflow-step-active"
-                : "admin-customer-workflow-step"
-            }
+            text={`${section.description}. ${section.complete ? "Completed." : "Not completed yet."}`}
+            className="admin-workflow-tooltip"
           >
-            <span>{section.stage}</span>
-            <strong>
-              {section.label}
-              {typeof section.count === "number" ? <em>{section.count}</em> : null}
-            </strong>
-            <small>{section.description}</small>
-          </button>
+            <button
+              type="button"
+              onClick={() => navigateToSection(section.id)}
+              className={
+                [
+                  "admin-customer-workflow-step",
+                  activeSection === section.id
+                    ? "admin-customer-workflow-step-active"
+                    : "",
+                  section.complete ? "admin-customer-workflow-step-complete" : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")
+              }
+            >
+              <AdminWorkflowStepIcon stage={section.stage} complete={section.complete} />
+              <strong>
+                {section.label}
+                {typeof section.count === "number" ? <em>{section.count}</em> : null}
+              </strong>
+              <small>{section.description}</small>
+            </button>
+          </AdminTooltip>
         ))}
       </section>
 
@@ -2240,16 +2301,12 @@ export default function CustomerDetailPage({
                 ))}
               </ol>
             </div>
-            <div>
-              <h3>What each button does</h3>
-              <dl>
-                {sectionHelp.actions.map((action) => (
-                  <div key={action.label}>
-                    <dt>{action.label}</dt>
-                    <dd>{action.effect}</dd>
-                  </div>
-                ))}
-              </dl>
+            <div className="admin-customer-section-help-hover-note">
+              <span aria-hidden="true">i</span>
+              <div>
+                <h3>What each button does</h3>
+                <p>Hover over, or focus, the related button or action text to see its explanation.</p>
+              </div>
             </div>
           </div>
           {sectionHelp.caution ? (
@@ -2294,19 +2351,23 @@ export default function CustomerDetailPage({
         <div className="admin-compact-heading">
           <h2 className="admin-card-title admin-customer-overview-title">Customer overview</h2>
           <div className="admin-customer-overview-heading-actions">
-            <Link
-              href={`/admin/customers/${customerId}?section=history`}
-              className="admin-button-secondary"
-            >
-              Open customer journal
-            </Link>
-            <button
-              type="button"
-              className="admin-button-primary"
-              onClick={() => setIsEditingCustomer((current) => !current)}
-            >
-              {isEditingCustomer ? "Close edit" : "Edit customer details"}
-            </button>
+            <AdminTooltip text={actionTooltip("Open customer journal")}>
+              <Link
+                href={`/admin/customers/${customerId}?section=history`}
+                className="admin-button-secondary"
+              >
+                Open customer journal
+              </Link>
+            </AdminTooltip>
+            <AdminTooltip text={actionTooltip("Edit customer details")}>
+              <button
+                type="button"
+                className="admin-button-primary"
+                onClick={() => setIsEditingCustomer((current) => !current)}
+              >
+                {isEditingCustomer ? "Close edit" : "Edit customer details"}
+              </button>
+            </AdminTooltip>
           </div>
         </div>
 
@@ -2426,13 +2487,15 @@ export default function CustomerDetailPage({
                 className="admin-customer-overview-control"
               />
             </label>
-            <button
-              onClick={saveCustomerDetails}
-              disabled={saving}
-              className="admin-button-primary admin-customer-overview-save-button"
-            >
-              {saving ? "Saving..." : "Save customer details"}
-            </button>
+            <AdminTooltip text={actionTooltip("Save customer details")}>
+              <button
+                onClick={saveCustomerDetails}
+                disabled={saving}
+                className="admin-button-primary admin-customer-overview-save-button"
+              >
+                {saving ? "Saving..." : "Save customer details"}
+              </button>
+            </AdminTooltip>
           </div>
         )}
 
@@ -2467,22 +2530,26 @@ export default function CustomerDetailPage({
             references stay.
           </label>
           <div className="admin-customer-overview-danger-actions">
-            <button
-              type="button"
-              onClick={anonymizeCustomer}
-              disabled={saving || !anonymizeReason.trim() || !anonymizeConfirmed}
-              className="admin-button-warning"
-            >
-              {saving ? "Saving..." : "Anonymize customer"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setDeleteConfirmationOpen(true)}
-              disabled={saving}
-              className="admin-button-danger"
-            >
-              {saving ? "Deleting..." : "Delete customer"}
-            </button>
+            <AdminTooltip text={actionTooltip("Anonymize customer")}>
+              <button
+                type="button"
+                onClick={anonymizeCustomer}
+                disabled={saving || !anonymizeReason.trim() || !anonymizeConfirmed}
+                className="admin-button-warning"
+              >
+                {saving ? "Saving..." : "Anonymize customer"}
+              </button>
+            </AdminTooltip>
+            <AdminTooltip text={actionTooltip("Delete customer")}>
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmationOpen(true)}
+                disabled={saving}
+                className="admin-button-danger"
+              >
+                {saving ? "Deleting..." : "Delete customer"}
+              </button>
+            </AdminTooltip>
           </div>
         </div>
       </div>
@@ -2524,7 +2591,10 @@ export default function CustomerDetailPage({
                 key={step.label}
                 className={step.complete ? "admin-customer-onboarding-progress-complete" : ""}
               >
-                <span>{step.complete ? "✓" : index + 1}</span>
+                <AdminWorkflowStepIcon
+                  stage={String(index + 1)}
+                  complete={step.complete}
+                />
                 <strong>{step.label}</strong>
               </li>
             ))}
@@ -2537,22 +2607,24 @@ export default function CustomerDetailPage({
                   <p>
                     Screens / package lines
                   </p>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setQuoteItems((items) => [
-                        ...items,
-                        {
-                          id: crypto.randomUUID(),
-                          pricingPlanCode: pricingPlans[0]?.code || "",
-                          quantity: 1,
-                        },
-                      ])
-                    }
-                    className="admin-customer-quote-add"
-                  >
-                    + Add screen package
-                  </button>
+                  <AdminTooltip text={actionTooltip("Add screen package")}>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setQuoteItems((items) => [
+                          ...items,
+                          {
+                            id: crypto.randomUUID(),
+                            pricingPlanCode: pricingPlans[0]?.code || "",
+                            quantity: 1,
+                          },
+                        ])
+                      }
+                      className="admin-customer-quote-add"
+                    >
+                      + Add screen package
+                    </button>
+                  </AdminTooltip>
                 </div>
 
                 {quoteItems.map((item, index) => (
@@ -2615,20 +2687,22 @@ export default function CustomerDetailPage({
                       />
                     </label>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setQuoteItems((items) =>
-                          items.length === 1
-                            ? items
-                            : items.filter((line) => line.id !== item.id),
-                        )
-                      }
-                      disabled={quoteItems.length === 1}
-                      className="admin-button-danger admin-customer-quote-remove"
-                    >
-                      Remove
-                    </button>
+                    <AdminTooltip text={actionTooltip("Remove")}>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setQuoteItems((items) =>
+                            items.length === 1
+                              ? items
+                              : items.filter((line) => line.id !== item.id),
+                          )
+                        }
+                        disabled={quoteItems.length === 1}
+                        className="admin-button-danger admin-customer-quote-remove"
+                      >
+                        Remove
+                      </button>
+                    </AdminTooltip>
                   </div>
                 ))}
               </div>
@@ -2726,20 +2800,22 @@ export default function CustomerDetailPage({
                 </label>
               </details>
 
-              <button
-                type="button"
-                onClick={prepareQuoteAndOnboarding}
-                disabled={saving || quoteLines.length === 0}
-                className="admin-button-primary"
-              >
-                {saving
-                  ? hasExistingOnboarding
-                    ? "Resending..."
-                    : "Preparing..."
-                  : hasExistingOnboarding
-                    ? "Review and resend secure setup link"
-                    : "Review and send secure setup link"}
-              </button>
+              <AdminTooltip text={actionTooltip("Review and send secure setup link")}>
+                <button
+                  type="button"
+                  onClick={prepareQuoteAndOnboarding}
+                  disabled={saving || quoteLines.length === 0}
+                  className="admin-button-primary"
+                >
+                  {saving
+                    ? hasExistingOnboarding
+                      ? "Resending..."
+                      : "Preparing..."
+                    : hasExistingOnboarding
+                      ? "Review and resend secure setup link"
+                      : "Review and send secure setup link"}
+                </button>
+              </AdminTooltip>
 
               {hasExistingOnboarding && (
                 <p className="admin-customer-quote-resend-warning">
@@ -2923,7 +2999,11 @@ export default function CustomerDetailPage({
           id="customer-operations"
           open={Boolean(selectedOperationId)}
         >
-          <summary>More account and payment actions</summary>
+          <summary>
+            <AdminTooltip text={actionTooltip("More account and payment actions")}>
+              <span>More account and payment actions</span>
+            </AdminTooltip>
+          </summary>
         <div className="admin-operation-panel admin-customer-operation-panel">
           <div className="admin-operation-header">
             <div>
@@ -3093,20 +3173,22 @@ export default function CustomerDetailPage({
                   )}
 
                   <div className="admin-operation-actions">
-                    <button
-                      type="button"
-                      onClick={completeCustomerOperation}
-                      disabled={saving}
-                      className={
-                        selectedOperation.tone === "danger"
-                          ? "admin-button-danger"
-                          : selectedOperation.tone === "warning"
-                            ? "admin-button-warning"
-                            : "admin-button-primary"
-                      }
-                    >
-                      {saving ? "Saving..." : `Run: ${selectedOperation.title}`}
-                    </button>
+                    <AdminTooltip text={actionTooltip("Confirm operation")}>
+                      <button
+                        type="button"
+                        onClick={completeCustomerOperation}
+                        disabled={saving}
+                        className={
+                          selectedOperation.tone === "danger"
+                            ? "admin-button-danger"
+                            : selectedOperation.tone === "warning"
+                              ? "admin-button-warning"
+                              : "admin-button-primary"
+                        }
+                      >
+                        {saving ? "Saving..." : `Run: ${selectedOperation.title}`}
+                      </button>
+                    </AdminTooltip>
                     <button
                       type="button"
                       onClick={closeCustomerOperation}
@@ -3149,23 +3231,34 @@ export default function CustomerDetailPage({
 
           <div className="admin-communication-workflow">
             {communicationWorkflows.map((item) => (
-              <button
+              <AdminTooltip
                 key={item.id}
-                type="button"
-                onClick={() => navigateCommunicationView(item.id)}
-                className={
-                  communicationView === item.id
-                    ? "admin-communication-workflow-step admin-communication-workflow-step-active"
-                    : "admin-communication-workflow-step"
-                }
+                text={`${item.description}. ${item.complete ? "Completed." : "Not completed yet."}`}
+                className="admin-workflow-tooltip"
               >
-                <span>{item.stage}</span>
-                <strong>
-                  {item.label}
-                  <em>{item.count}</em>
-                </strong>
-                <small>{item.description}</small>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => navigateCommunicationView(item.id)}
+                  className={
+                    [
+                      "admin-communication-workflow-step",
+                      communicationView === item.id
+                        ? "admin-communication-workflow-step-active"
+                        : "",
+                      item.complete ? "admin-communication-workflow-step-complete" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")
+                  }
+                >
+                  <AdminWorkflowStepIcon stage={item.stage} complete={item.complete} />
+                  <strong>
+                    {item.label}
+                    <em>{item.count}</em>
+                  </strong>
+                  <small>{item.description}</small>
+                </button>
+              </AdminTooltip>
             ))}
           </div>
         </div>
@@ -3258,14 +3351,16 @@ export default function CustomerDetailPage({
                       />
                     </label>
                     <p className="admin-muted">This saves the reply here and sends the same text to the customer by email.</p>
-                    <button
-                      type="button"
-                      onClick={() => sendCustomerMessageReply(actionMessage)}
-                      disabled={saving || !(messageReplyDrafts[actionMessage.id] || "").trim()}
-                      className="admin-button-primary admin-customer-message-send-button"
-                    >
-                      {saving ? "Sending..." : "Save and email reply"}
-                    </button>
+                    <AdminTooltip text={actionTooltip("Send reply")}>
+                      <button
+                        type="button"
+                        onClick={() => sendCustomerMessageReply(actionMessage)}
+                        disabled={saving || !(messageReplyDrafts[actionMessage.id] || "").trim()}
+                        className="admin-button-primary admin-customer-message-send-button"
+                      >
+                        {saving ? "Sending..." : "Save and email reply"}
+                      </button>
+                    </AdminTooltip>
                   </div>
 
                   <details className="admin-customer-message-admin-details">
@@ -3333,14 +3428,16 @@ export default function CustomerDetailPage({
                         />
                       </label>
                       <div className="admin-customer-message-actions">
-                        <button
-                          type="button"
-                          onClick={() => updateCustomerMessage(actionMessage)}
-                          disabled={saving || !(messageDrafts[actionMessage.id]?.reason || "").trim()}
-                          className="admin-button-primary"
-                        >
-                          {saving ? "Saving..." : "Save internal update"}
-                        </button>
+                        <AdminTooltip text={actionTooltip("Save message update")}>
+                          <button
+                            type="button"
+                            onClick={() => updateCustomerMessage(actionMessage)}
+                            disabled={saving || !(messageDrafts[actionMessage.id]?.reason || "").trim()}
+                            className="admin-button-primary"
+                          >
+                            {saving ? "Saving..." : "Save internal update"}
+                          </button>
+                        </AdminTooltip>
                         {actionMessage.adminNoteUpdatedAt && (
                           <span className="admin-customer-message-action-note">
                             Note updated {new Date(actionMessage.adminNoteUpdatedAt).toLocaleString("sv-SE")}
@@ -3419,20 +3516,22 @@ export default function CustomerDetailPage({
               Verify that the link is view-only and contains no other customer
               data. Publishing emails the customer and requires paid, active service.
             </p>
-            <button
-              type="button"
-              onClick={publishCustomerPreview}
-              disabled={
-                saving ||
-                customer?.payment_status !== "paid" ||
-                customer?.service_access_status !== "active" ||
-                !previewUrlDraft.trim() ||
-                previewPublishReason.trim().length < 5
-              }
-              className="admin-button-primary"
-            >
-              {saving ? "Publishing..." : customer?.preview_url ? "Update preview" : "Publish preview"}
-            </button>
+            <AdminTooltip text={actionTooltip("Publish preview")}>
+              <button
+                type="button"
+                onClick={publishCustomerPreview}
+                disabled={
+                  saving ||
+                  customer?.payment_status !== "paid" ||
+                  customer?.service_access_status !== "active" ||
+                  !previewUrlDraft.trim() ||
+                  previewPublishReason.trim().length < 5
+                }
+                className="admin-button-primary"
+              >
+                {saving ? "Publishing..." : customer?.preview_url ? "Update preview" : "Publish preview"}
+              </button>
+            </AdminTooltip>
           </div>
           {customer?.preview_feedback && (
             <p className="admin-customer-preview-feedback">
@@ -3547,14 +3646,16 @@ export default function CustomerDetailPage({
                     />
                   </label>
                   <div className="admin-customer-material-review-actions">
-                    <button
-                      type="button"
-                      onClick={() => updateCustomerAsset(asset)}
-                      disabled={saving || !(assetDrafts[asset.id]?.reason || "").trim()}
-                      className="admin-button-primary"
-                    >
-                      {saving ? "Saving..." : "Save material review"}
-                    </button>
+                    <AdminTooltip text={actionTooltip("Save material update")}>
+                      <button
+                        type="button"
+                        onClick={() => updateCustomerAsset(asset)}
+                        disabled={saving || !(assetDrafts[asset.id]?.reason || "").trim()}
+                        className="admin-button-primary"
+                      >
+                        {saving ? "Saving..." : "Save material review"}
+                      </button>
+                    </AdminTooltip>
                     {asset.reviewedAt && (
                       <span>
                         Reviewed {new Date(asset.reviewedAt).toLocaleString("sv-SE")}
@@ -3613,25 +3714,31 @@ export default function CustomerDetailPage({
             </ol>
           )}
           {billingGuide.recommendedOperationId && (
-            <button
-              type="button"
-              className="admin-button-primary"
-              onClick={() =>
-                openCustomerOperationFromBilling(
-                  billingGuide.recommendedOperationId as CustomerOperationId,
-                )
-              }
-            >
-              Review {customerOperations.find(
-                (operation) => operation.id === billingGuide.recommendedOperationId,
-              )?.title.toLowerCase()}
-            </button>
+            <AdminTooltip text={actionTooltip("Review recommended action")}>
+              <button
+                type="button"
+                className="admin-button-primary"
+                onClick={() =>
+                  openCustomerOperationFromBilling(
+                    billingGuide.recommendedOperationId as CustomerOperationId,
+                  )
+                }
+              >
+                Review {customerOperations.find(
+                  (operation) => operation.id === billingGuide.recommendedOperationId,
+                )?.title.toLowerCase()}
+              </button>
+            </AdminTooltip>
           )}
         </section>
 
         {everydayCustomerOperations.length > 0 && (
           <details className="admin-billing-actions">
-            <summary>Payment changes requested by customer</summary>
+            <summary>
+              <AdminTooltip text={actionTooltip("Payment changes requested by customer")}>
+                <span>Payment changes requested by customer</span>
+              </AdminTooltip>
+            </summary>
             <p className="admin-muted">
               Choose an action only after confirming the customer request. You
               will review its effect and record a reason before anything changes.
@@ -3758,7 +3865,11 @@ export default function CustomerDetailPage({
                   />
                 ) : null}
                 <details className="admin-customer-order-technical">
-                  <summary>Payment details and history</summary>
+                  <summary>
+                    <AdminTooltip text={actionTooltip("Payment details and history")}>
+                      <span>Payment details and history</span>
+                    </AdminTooltip>
+                  </summary>
                   <dl>
                     <div>
                       <dt>Checkout</dt>
@@ -3886,14 +3997,16 @@ export default function CustomerDetailPage({
               Operational reasons entered elsewhere, including stock allocation,
               are added here automatically.
             </small>
-            <button
-              type="button"
-              className="admin-button-primary"
-              onClick={saveJournalEntry}
-              disabled={saving || journalNote.trim().length < 5}
-            >
-              {saving ? "Saving..." : "Save journal entry"}
-            </button>
+            <AdminTooltip text={actionTooltip("Save journal entry")}>
+              <button
+                type="button"
+                className="admin-button-primary"
+                onClick={saveJournalEntry}
+                disabled={saving || journalNote.trim().length < 5}
+              >
+                {saving ? "Saving..." : "Save journal entry"}
+              </button>
+            </AdminTooltip>
           </div>
         </section>
 
@@ -3905,13 +4018,15 @@ export default function CustomerDetailPage({
                 Manual entries and notes from customer actions are shown newest first.
               </p>
             </div>
-            <input
-              type="search"
-              value={journalSearch}
-              onChange={(event) => setJournalSearch(event.target.value)}
-              placeholder="Search journal"
-              aria-label="Search customer journal"
-            />
+            <AdminTooltip text={actionTooltip("Search journal")}>
+              <input
+                type="search"
+                value={journalSearch}
+                onChange={(event) => setJournalSearch(event.target.value)}
+                placeholder="Search journal"
+                aria-label="Search customer journal"
+              />
+            </AdminTooltip>
           </div>
 
           {visibleJournalEntries.length === 0 ? (
@@ -3944,10 +4059,12 @@ export default function CustomerDetailPage({
 
         <details className="admin-card admin-customer-history-panel">
           <summary className="admin-customer-history-summary">
-            <span>
-              <strong>Full system and payment history</strong>
-              <small>Extra details for troubleshooting</small>
-            </span>
+            <AdminTooltip text={actionTooltip("Full system and payment history")}>
+              <span>
+                <strong>Full system and payment history</strong>
+                <small>Extra details for troubleshooting</small>
+              </span>
+            </AdminTooltip>
             <span>{auditEvents.length} events</span>
           </summary>
           {auditEvents.length === 0 ? (
@@ -4131,12 +4248,14 @@ export default function CustomerDetailPage({
 
         <div className="admin-customer-device-actions">
           {remainingDeviceSlots > 0 || stockAllocationComplimentary ? (
-            <Link
-              href={`/admin/devices/new?customerId=${customer.id}${stockAllocationComplimentary ? `&complimentary=1&complimentary_expires_at=${encodeURIComponent(stockAllocationComplimentaryExpiresAt)}` : ""}`}
-              className="admin-button-primary"
-            >
-              Create customer display
-            </Link>
+            <AdminTooltip text={actionTooltip("Create customer display")}>
+              <Link
+                href={`/admin/devices/new?customerId=${customer.id}${stockAllocationComplimentary ? `&complimentary=1&complimentary_expires_at=${encodeURIComponent(stockAllocationComplimentaryExpiresAt)}` : ""}`}
+                className="admin-button-primary"
+              >
+                Create customer display
+              </Link>
+            </AdminTooltip>
           ) : (
             <span
               aria-disabled="true"
@@ -4146,9 +4265,11 @@ export default function CustomerDetailPage({
               Create customer display
             </span>
           )}
-          <Link href="/admin/inventory" className="admin-button-secondary">
-            Open Hardware stock
-          </Link>
+          <AdminTooltip text={actionTooltip("Open Hardware stock")}>
+            <Link href="/admin/inventory" className="admin-button-secondary">
+              Open Hardware stock
+            </Link>
+          </AdminTooltip>
         </div>
 
         <div className="admin-customer-stock-panel">
@@ -4274,21 +4395,23 @@ export default function CustomerDetailPage({
                       <dd>{item.seller || "Not set"}</dd>
                     </div>
                   </dl>
-                  <button
-                    type="button"
-                    onClick={() => allocateStockItemToCustomer(item)}
-                    disabled={
-                      saving ||
-                      allocatingStockItemId === item.id ||
-                      !canAllocateDevice ||
-                      !stockAllocationReason.trim()
-                    }
-                    className="admin-button-primary admin-customer-stock-allocate"
-                  >
-                    {allocatingStockItemId === item.id
-                      ? "Allocating..."
-                      : "Allocate to this customer"}
-                  </button>
+                  <AdminTooltip text={actionTooltip("Allocate to this customer")}>
+                    <button
+                      type="button"
+                      onClick={() => allocateStockItemToCustomer(item)}
+                      disabled={
+                        saving ||
+                        allocatingStockItemId === item.id ||
+                        !canAllocateDevice ||
+                        !stockAllocationReason.trim()
+                      }
+                      className="admin-button-primary admin-customer-stock-allocate"
+                    >
+                      {allocatingStockItemId === item.id
+                        ? "Allocating..."
+                        : "Allocate to this customer"}
+                    </button>
+                  </AdminTooltip>
                 </div>
               ))}
             </div>
@@ -4341,20 +4464,24 @@ export default function CustomerDetailPage({
                 ) : null}
 
                 <div className="admin-customer-display-actions">
-                  <Link
-                    href={`/admin/devices/${device.device_code}`}
-                    className="admin-customer-display-action admin-customer-display-action-primary"
-                  >
-                    Manage
-                  </Link>
+                  <AdminTooltip text={actionTooltip("Manage")}>
+                    <Link
+                      href={`/admin/devices/${device.device_code}`}
+                      className="admin-customer-display-action admin-customer-display-action-primary"
+                    >
+                      Manage
+                    </Link>
+                  </AdminTooltip>
 
-                  <a
-                    href={`/display/${device.device_code}`}
-                    target="_blank"
-                    className="admin-customer-display-action admin-customer-display-action-secondary"
-                  >
-                    Preview
-                  </a>
+                  <AdminTooltip text={actionTooltip("Preview")}>
+                    <a
+                      href={`/display/${device.device_code}`}
+                      target="_blank"
+                      className="admin-customer-display-action admin-customer-display-action-secondary"
+                    >
+                      Preview
+                    </a>
+                  </AdminTooltip>
                 </div>
               </div>
             ))}

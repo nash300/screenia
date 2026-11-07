@@ -5,6 +5,10 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { showAdminNotification } from "@/lib/admin/notifications";
 import {
+  AdminTooltip,
+  AdminWorkflowStepIcon,
+} from "@/components/AdminWorkflow";
+import {
   conditions,
   conditionLabel,
   createEmptyForm,
@@ -210,24 +214,28 @@ export default function AdminInventoryPage() {
       label: "Register purchase",
       value: counts.all,
       description: "Add each Android box with serial, seller, invoice, and warranty.",
+      complete: counts.all > 0,
     },
     {
       stage: "2",
       label: "Prepare stock",
       value: stockSummary.ready,
       description: "Keep tested hardware ready for customer assignment.",
+      complete: stockSummary.ready > 0,
     },
     {
       stage: "3",
       label: "Allocate from customer",
       value: stockSummary.allocated,
       description: "Reserve hardware from the customer profile after onboarding.",
+      complete: stockSummary.allocated > 0,
     },
     {
       stage: "4",
       label: "Service lifecycle",
       value: stockSummary.attention,
       description: "Track shipped, returned, defective, repair, lost, and retired boxes.",
+      complete: counts.all > 0 && stockSummary.attention === 0,
     },
   ];
 
@@ -454,14 +462,22 @@ export default function AdminInventoryPage() {
 
       <section className="admin-card admin-inventory-workflow" aria-label="Hardware stock workflow">
         {stockWorkflow.map((item) => (
-          <div key={item.stage} className="admin-inventory-workflow-step">
-            <span>{item.stage}</span>
-            <strong>
-              {item.label}
-              <em>{item.value}</em>
-            </strong>
-            <small>{item.description}</small>
-          </div>
+          <AdminTooltip
+            key={item.stage}
+            text={`${item.description}. ${item.complete ? "Completed." : "Not completed yet."}`}
+            className="admin-workflow-tooltip"
+          >
+            <div
+              className={`admin-inventory-workflow-step${item.complete ? " admin-inventory-workflow-step-complete" : ""}`}
+            >
+              <AdminWorkflowStepIcon stage={item.stage} complete={item.complete} />
+              <strong>
+                {item.label}
+                <em>{item.value}</em>
+              </strong>
+              <small>{item.description}</small>
+            </div>
+          </AdminTooltip>
         ))}
       </section>
 
