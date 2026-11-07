@@ -901,6 +901,40 @@
   line-height: 1.35;
 }
 
+.admin-pricing-rule-note,
+.admin-pricing-plan-note {
+  display: grid;
+  gap: 0.28rem;
+  border: 1px solid rgba(47, 125, 246, 0.16);
+  border-radius: 14px;
+  background: rgba(235, 244, 255, 0.72);
+  color: #52627a;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.admin-pricing-rule-note {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+}
+
+.admin-pricing-rule-note strong,
+.admin-pricing-plan-note span:first-child {
+  color: #061942;
+  font-weight: 900;
+}
+
+.admin-pricing-rule-note small {
+  color: #52627a;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.admin-pricing-plan-note {
+  padding: 0.65rem 0.75rem;
+}
+
 .admin-pricing-card {
   display: grid;
   gap: 0.75rem;
