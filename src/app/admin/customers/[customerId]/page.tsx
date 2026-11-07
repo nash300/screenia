@@ -47,6 +47,10 @@ import {
   type JournalCategory,
 } from "./customer-journal";
 import { getCustomerSectionHelp } from "./customer-section-help";
+import {
+  customerMessageStatusOptions,
+  normalizeCustomerMessageStatus,
+} from "@/lib/admin/customer-message-status";
 import type {
   AuditEvent,
   CommunicationView,
@@ -768,7 +772,7 @@ export default function CustomerDetailPage({
           nextMessages.map((message: CustomerMessage) => [
             message.id,
             {
-              status: message.status || "new",
+              status: normalizeCustomerMessageStatus(message.status) || "new",
               adminNote: message.adminNote || "",
               reason: "",
             },
@@ -2207,6 +2211,7 @@ export default function CustomerDetailPage({
                 ? "admin-customer-workflow-step admin-customer-workflow-step-active"
                 : "admin-customer-workflow-step"
             }
+            title={section.description}
           >
             <span>{section.stage}</span>
             <strong>
@@ -2219,7 +2224,7 @@ export default function CustomerDetailPage({
       </section>
 
       <details className="admin-customer-section-help">
-        <summary>
+        <summary title="Show or hide the step-by-step guidance for this customer area">
           <span>
             <small>Admin help</small>
             <strong>Simple help for this page</strong>
@@ -3288,11 +3293,11 @@ export default function CustomerDetailPage({
                             }))}
                             className="admin-customer-message-control"
                           >
-                            <option value="new">New</option>
-                            <option value="customer_reply">Customer reply</option>
-                            <option value="in_progress">In progress</option>
-                            <option value="waiting_for_customer">Waiting for customer</option>
-                            <option value="resolved">Resolved</option>
+                            {customerMessageStatusOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
                           </select>
                         </label>
                         <label className="admin-customer-message-field">

@@ -21,6 +21,7 @@ export default function AdminSidebarNav() {
         className="admin-nav-toggle"
         aria-expanded={isOpen}
         aria-controls="admin-sidebar-navigation"
+        title="Show or hide the admin navigation"
         onClick={() => setIsOpen((open) => !open)}
       >
         <span>Adminmeny</span>
@@ -66,7 +67,10 @@ export default function AdminSidebarNav() {
               );
             }}
           >
-            <summary className="admin-nav-group-title">
+            <summary
+              className="admin-nav-group-title"
+              title={`Show or hide ${group.title.toLowerCase()} tools`}
+            >
               <span>{group.title}</span>
               <span aria-hidden="true" className="admin-nav-group-chevron">+</span>
             </summary>
@@ -96,6 +100,7 @@ export default function AdminSidebarNav() {
                           ? "admin-nav-link admin-nav-link-active"
                           : "admin-nav-link"
                       }
+                      title={item.description}
                       aria-current={isActive ? "page" : undefined}
                       onClick={() => setIsOpen(false)}
                     >

@@ -428,6 +428,7 @@ function CustomersContent() {
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search name, email, phone, city, or order number"
             aria-label="Search customers"
+            title="Search by company, contact details, city, or order number"
           />
           <select
             value={statusFilter}
@@ -436,6 +437,7 @@ function CustomersContent() {
               navigateFilter(event.target.value);
             }}
             aria-label="Detailed customer queue"
+            title="Filter customers by the next business task"
           >
             <option value="all">All queues</option>
             <optgroup label="Customer intake">
@@ -471,11 +473,13 @@ function CustomersContent() {
               );
             }}
             aria-label="Customer status"
+            title="Filter customers by their stored lifecycle status"
           >
             <option value="all">All customer statuses</option>
             {["Intake", "Onboarding", "Delivery", "Service", "Closed"].map((group) => (
               <optgroup key={group} label={group}>
                 {customerStatusOptions
+                  .filter((option) => option.value !== "canceled")
                   .filter((option) => option.group === group)
                   .map((option) => (
                     <option key={option.value} value={option.value}>
@@ -489,6 +493,7 @@ function CustomersContent() {
             value={sortBy}
             onChange={(event) => setSortBy(event.target.value)}
             aria-label="Sort customers"
+            title="Change the order of the customer queue"
           >
             <option value="updated_desc">Sort: Recently updated</option>
             <option value="created_desc">Sort: Newest request</option>
@@ -529,6 +534,7 @@ function CustomersContent() {
             onClick={createCustomer}
             disabled={saving}
             className="admin-button-primary admin-customers-create-submit"
+            title="Create a draft for an offline or manually received customer"
           >
             {saving ? "Creating..." : "Create customer draft"}
           </button>

@@ -11,6 +11,10 @@ import {
   sendTransactionalEmail,
 } from "@/lib/server/email";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import {
+  isCustomerMessageStatus,
+  normalizeCustomerMessageStatus,
+} from "@/lib/admin/customer-message-status";
 
 
 type CustomerMessageRow = {
@@ -171,7 +175,7 @@ export async function GET(request: Request) {
         relatedTicketNumber: message.related_ticket_number || null,
         subject: message.subject,
         message: message.message,
-        status: message.status,
+        status: normalizeCustomerMessageStatus(message.status),
         senderRole:
           message.sender_role ||
           (String(message.subject || "").includes("Reply from Screenia")
@@ -196,14 +200,6 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ messages: messagesWithFiles });
 }
-
-const MESSAGE_STATUSES = new Set([
-  "new",
-  "customer_reply",
-  "in_progress",
-  "waiting_for_customer",
-  "resolved",
-]);
 
 function getReason(value: unknown) {
   return String(value || "").trim().slice(0, 1000);
@@ -232,7 +228,7 @@ async function rollbackSupportReply(
   await supabaseAdmin
     .from("customer_messages")
     .update({
-      status: originalMessage.status || "new",
+      status: normalizeCustomerMessageStatus(originalMessage.status) || "new",
       admin_note_updated_at: originalMessage.admin_note_updated_at || null,
       resolved_at: originalMessage.resolved_at || null,
     })
@@ -253,7 +249,7 @@ export async function PATCH(request: Request) {
   const body = (await request.json().catch(() => ({}))) as MessageUpdatePayload;
   const messageId = String(body.messageId || "").trim();
   const customerId = String(body.customerId || "").trim();
-  const status = String(body.status || "").trim();
+  const status = normalizeCustomerMessageStatus(String(body.status || "").trim());
   const adminNote = String(body.adminNote || "").trim();
   const reason = getReason(body.reason);
 
@@ -264,7 +260,7 @@ export async function PATCH(request: Request) {
     );
   }
 
-  if (!MESSAGE_STATUSES.has(status)) {
+  if (!isCustomerMessageStatus(status)) {
     return NextResponse.json({ error: "Invalid message status." }, { status: 400 });
   }
 
@@ -424,7 +420,9 @@ export async function POST(request: Request) {
   const messageId = String(body.messageId || "").trim();
   const customerId = String(body.customerId || "").trim();
   const reply = String(body.reply || "").trim();
-  const status = String(body.status || "waiting_for_customer").trim();
+  const status = normalizeCustomerMessageStatus(
+    String(body.status || "waiting_for_customer").trim(),
+  );
 
   if (!messageId || !customerId) {
     return NextResponse.json(
@@ -447,7 +445,7 @@ export async function POST(request: Request) {
     );
   }
 
-  if (!MESSAGE_STATUSES.has(status)) {
+  if (!isCustomerMessageStatus(status)) {
     return NextResponse.json({ error: "Invalid message status." }, { status: 400 });
   }
 

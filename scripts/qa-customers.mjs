@@ -586,7 +586,7 @@ async function seedFixtures() {
   const messages = fixtures
     .filter((fixture) => fixture.scenario.support)
     .map((fixture) => {
-      const status = ["new", "open", "waiting_customer", "resolved", "closed"][fixture.variation];
+      const status = ["new", "waiting_for_customer", "resolved", "resolved", "resolved"][fixture.variation];
       return {
         id: deterministicUuid(`message-${fixture.sequence}`),
         customer_id: fixture.id,

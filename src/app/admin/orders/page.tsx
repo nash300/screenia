@@ -398,6 +398,7 @@ function AdminOrdersContent() {
         <a
           href="/api/admin/accounting-export"
           className="admin-button-secondary"
+          title="Download the visible billing records as a CSV file"
         >
           Export accounting CSV
         </a>
@@ -419,11 +420,13 @@ function AdminOrdersContent() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search order, customer, email, or city"
               aria-label="Search orders"
+              title="Search by order, customer, email, or city"
             />
             <select
               value={activeSection}
               onChange={(event) => navigateSection(event.target.value as OrderSection)}
               aria-label="Order workflow"
+              title="Filter orders by the business stage that needs work"
             >
               {orderSections.map((section) => (
                 <option key={section.id} value={section.id}>
@@ -435,6 +438,7 @@ function AdminOrdersContent() {
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
               aria-label="Order status"
+              title="Filter orders by payment or lifecycle status"
             >
               {Object.entries(counts).map(([key, count]) => (
                 <option key={key} value={key}>
@@ -446,6 +450,7 @@ function AdminOrdersContent() {
               value={sortBy}
               onChange={(event) => setSortBy(event.target.value)}
               aria-label="Sort orders"
+              title="Change the order of the order queue"
             >
               <option value="updated_desc">Sort: Recently updated</option>
               <option value="created_desc">Sort: Newest order</option>
