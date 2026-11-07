@@ -1,7 +1,10 @@
 import Stripe from "stripe";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { recordAuditEvent } from "@/lib/server/audit";
-import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
+import {
+  getStripeSubscriptionEntitlement,
+  isManuallySuspendedCustomer,
+} from "@/lib/server/subscription-entitlements";
 import { supabaseAdmin } from "./stripe-webhook-clients";
 export async function syncStripeSubscription(subscription: Stripe.Subscription) {
   const entitlement = getStripeSubscriptionEntitlement(subscription);
@@ -117,11 +120,10 @@ export async function syncStripeSubscription(subscription: Stripe.Subscription) 
           cancellation_source: null,
         };
 
-  const { data: customers, error: customerError } = await supabaseAdmin
+  const { data: matchedCustomers, error: customerError } = await supabaseAdmin
     .from("customers")
-    .update(customerUpdate)
-    .eq("stripe_customer_id", stripeCustomerId)
-    .select("id");
+    .select("id, status, payment_status, service_access_status, inactive_reason")
+    .eq("stripe_customer_id", stripeCustomerId);
 
   if (customerError) {
     console.error("Stripe subscription customer sync error:", customerError);
@@ -136,9 +138,9 @@ export async function syncStripeSubscription(subscription: Stripe.Subscription) 
     });
   }
 
-  const syncedCustomers = customers ?? [];
+  const customers = matchedCustomers ?? [];
 
-  if (!syncedCustomers.length) {
+  if (!customers.length) {
     await recordStripeSubscriptionSyncFailureVisibility({
       eventType: "stripe_subscription_customer_sync_failed",
       title: "Stripe subscription customer sync failed",
@@ -195,7 +197,54 @@ export async function syncStripeSubscription(subscription: Stripe.Subscription) 
         ...syncErrorMetadata,
         error: subscriptionError.message,
       },
-      customerIds: syncedCustomers.map((customer) => customer.id),
+      customerIds: customers.map((customer) => customer.id),
+    });
+  }
+
+  const syncedCustomers: Array<{ id: string }> = [];
+  const customerSyncResults = await Promise.all(
+    customers.map(async (customer) => {
+      const preserveManualSuspension =
+        entitlement.serviceAccessStatus !== "cancelled" &&
+        entitlement.serviceAccessStatus !== "payment_failed" &&
+        isManuallySuspendedCustomer({
+          status: customer.status,
+          inactiveReason: customer.inactive_reason,
+        });
+      const update = preserveManualSuspension
+        ? {
+            ...customerUpdate,
+            status: "suspended",
+            payment_status: "paid",
+            service_access_status: "inactive",
+            service_access_until: null,
+            inactive_reason: "manual_suspend",
+            cancellation_source: "admin",
+          }
+        : customerUpdate;
+      const result = await supabaseAdmin
+        .from("customers")
+        .update(update)
+        .eq("id", customer.id)
+        .select("id")
+        .maybeSingle();
+      if (!result.error && result.data) syncedCustomers.push(result.data);
+      return result.error;
+    }),
+  );
+  const customerSyncError = customerSyncResults.find(Boolean);
+
+  if (customerSyncError) {
+    console.error("Stripe subscription customer sync error:", customerSyncError);
+    await recordStripeSubscriptionSyncFailureVisibility({
+      eventType: "stripe_subscription_customer_sync_failed",
+      title: "Stripe subscription customer sync failed",
+      message: `Stripe subscription ${subscription.id} could not update customer entitlement state: ${customerSyncError.message}`,
+      metadata: {
+        ...syncErrorMetadata,
+        error: customerSyncError.message,
+      },
+      customerIds: customers.map((customer) => customer.id),
     });
   }
 

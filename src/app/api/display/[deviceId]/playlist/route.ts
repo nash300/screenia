@@ -112,9 +112,9 @@ export async function GET(
       device.complimentary_expires_at &&
         Date.parse(device.complimentary_expires_at) <= Date.now(),
     );
-  const hasAccess = device?.is_complimentary
-    ? !complimentaryExpired
-    : hasDisplayEntitlement({
+  const hasAccess =
+    !complimentaryExpired &&
+    hasDisplayEntitlement({
       customerStatus: device?.customers?.status,
       paymentStatus: device?.customers?.payment_status,
       serviceAccessStatus: device?.customers?.service_access_status,

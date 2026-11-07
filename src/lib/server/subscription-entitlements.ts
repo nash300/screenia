@@ -6,6 +6,7 @@ export type ServiceAccessStatus =
   | "active_until_period_end"
   | "paused"
   | "payment_failed"
+  | "payment_disputed"
   | "cancelled"
   | "refunded";
 
@@ -106,4 +107,30 @@ export function hasDisplayEntitlement({
     return false;
   }
   return true;
+}
+
+export function isManuallySuspendedCustomer({
+  status,
+  inactiveReason,
+}: {
+  status: string | null | undefined;
+  inactiveReason: string | null | undefined;
+}) {
+  return status === "suspended" && inactiveReason === "manual_suspend";
+}
+
+export function isPaymentFailureCustomer({
+  paymentStatus,
+  serviceAccessStatus,
+  inactiveReason,
+}: {
+  paymentStatus: string | null | undefined;
+  serviceAccessStatus: string | null | undefined;
+  inactiveReason: string | null | undefined;
+}) {
+  return (
+    paymentStatus === "failed" ||
+    serviceAccessStatus === "payment_failed" ||
+    inactiveReason === "payment_failed"
+  );
 }

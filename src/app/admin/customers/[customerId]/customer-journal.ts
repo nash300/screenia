@@ -95,6 +95,33 @@ export function journalEntriesFromAuditEvents(events: AuditEvent[]) {
       ];
     }
 
+    if (event.event_type === "payment_failed") {
+      const invoiceId = String(event.metadata.invoiceId || "").trim();
+      const stripeSubscriptionId = String(
+        event.metadata.stripeSubscriptionId || "",
+      ).trim();
+      const troubleshootingDetails = [
+        invoiceId ? `Invoice: ${invoiceId}` : null,
+        stripeSubscriptionId ? `Subscription: ${stripeSubscriptionId}` : null,
+        "Display access was blocked automatically.",
+        "Review the Stripe invoice and ask the customer to update payment details.",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return [
+        {
+          id: `payment-failed-${event.id}`,
+          category: "troubleshooting",
+          title: "Payment failed — access blocked",
+          body: troubleshootingDetails,
+          source: "Stripe payment event",
+          createdAt: event.created_at,
+          actorLabel: event.actor_type,
+        },
+      ];
+    }
+
     return auditNoteTexts(event.metadata).map((body, index) => ({
       id: `audit-note-${event.id}-${index}`,
       category: inferAuditCategory(event.event_type),

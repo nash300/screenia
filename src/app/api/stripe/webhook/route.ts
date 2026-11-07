@@ -20,7 +20,10 @@ import {
 } from "./stripe-webhook-utils";
 import { recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
-import { getStripeSubscriptionEntitlement } from "@/lib/server/subscription-entitlements";
+import {
+  getStripeSubscriptionEntitlement,
+  isPaymentFailureCustomer,
+} from "@/lib/server/subscription-entitlements";
 import {
   escapeHtml,
   renderBrandedEmail,
@@ -867,7 +870,7 @@ export async function POST(request: Request) {
       const { data: customers, error: customerError } = await supabaseAdmin
         .from("customers")
         .select(
-          "id, name, email, billing_email, customer_number, status, payment_status, inactive_reason, production_status, layout_started_at, content_collected_at, preview_status",
+          "id, name, email, billing_email, customer_number, status, payment_status, service_access_status, inactive_reason, production_status, layout_started_at, content_collected_at, preview_status",
         )
         .eq("stripe_customer_id", paidStripeCustomerId);
 
@@ -1414,11 +1417,12 @@ Screenia`,
         syncedEntitlement.serviceAccessStatus === "active" ||
         syncedEntitlement.serviceAccessStatus === "active_until_period_end";
       const paymentFailureCustomerIds = matchedCustomers
-        .filter(
-          (customer) =>
-            customer.payment_status === "failed" ||
-            customer.status === "suspended" ||
-            customer.inactive_reason === "payment_failed",
+        .filter((customer) =>
+          isPaymentFailureCustomer({
+            paymentStatus: customer.payment_status,
+            serviceAccessStatus: customer.service_access_status,
+            inactiveReason: customer.inactive_reason,
+          }),
         )
         .map((customer) => customer.id);
 

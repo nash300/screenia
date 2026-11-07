@@ -504,7 +504,24 @@ export async function POST(
           ...auditBase,
           eventType: "customer_suspended",
           eventDescription: "Admin manually suspended customer access.",
-          metadata: { reason },
+          metadata: {
+            reason,
+            previousState: {
+              status: customer.status,
+              paymentStatus: customer.payment_status,
+              serviceAccessStatus: customer.service_access_status,
+              serviceAccessUntil: customer.service_access_until,
+              inactiveReason: customer.inactive_reason,
+              cancellationSource: customer.cancellation_source,
+            },
+            newState: {
+              status: "suspended",
+              serviceAccessStatus: "inactive",
+              serviceAccessUntil: null,
+              inactiveReason: "manual_suspend",
+              cancellationSource: "admin",
+            },
+          },
         },
         { throwOnError: true },
       );

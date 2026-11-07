@@ -4,6 +4,8 @@ import type Stripe from "stripe";
 import {
   getStripeSubscriptionEntitlement,
   hasDisplayEntitlement,
+  isManuallySuspendedCustomer,
+  isPaymentFailureCustomer,
 } from "./subscription-entitlements";
 
 function subscription(
@@ -97,6 +99,38 @@ describe("display access scenarios", () => {
         paymentStatus: "paid",
         serviceAccessStatus: "active_until_period_end",
         serviceAccessUntil: "2026-07-24T11:59:59.000Z",
+      }),
+    ).toBe(false);
+  });
+
+  it("recognizes only explicit payment-failure markers for recovery", () => {
+    expect(
+      isPaymentFailureCustomer({
+        paymentStatus: "paid",
+        serviceAccessStatus: "inactive",
+        inactiveReason: "manual_suspend",
+      }),
+    ).toBe(false);
+    expect(
+      isPaymentFailureCustomer({
+        paymentStatus: "failed",
+        serviceAccessStatus: "payment_failed",
+        inactiveReason: "payment_failed",
+      }),
+    ).toBe(true);
+  });
+
+  it("identifies an admin hold separately from payment failure", () => {
+    expect(
+      isManuallySuspendedCustomer({
+        status: "suspended",
+        inactiveReason: "manual_suspend",
+      }),
+    ).toBe(true);
+    expect(
+      isManuallySuspendedCustomer({
+        status: "suspended",
+        inactiveReason: "payment_failed",
       }),
     ).toBe(false);
   });
