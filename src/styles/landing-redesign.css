@@ -266,11 +266,15 @@
 
 .screenia-theme .landing-page .landing-price-grid {
   display: grid;
-  width: 100%;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 900px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
   gap: clamp(16px, 1.7vw, 24px);
   margin: clamp(40px, 5vw, 64px) auto 0;
+}
+
+.screenia-theme .landing-page .landing-price-rail-arrow {
+  display: none;
 }
 
 .screenia-theme .landing-page .landing-pricing .landing-price-card {
