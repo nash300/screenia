@@ -169,28 +169,30 @@ export default function PricingPage() {
   }, [forms, plans]);
 
   const firstPaymentByPlan = Object.fromEntries(totals);
+  const currentPlans = useMemo(
+    () => plans.filter((plan) => plan.is_active),
+    [plans],
+  );
   const pricingSummary = useMemo(() => {
-    const activePlans = plans.filter((plan) => plan.is_active);
-    const syncedPlanCount = plans.filter(
+    const syncedPlanCount = currentPlans.filter(
       (plan) => stripeSyncStatus(plan) === "Synced",
     ).length;
-    const partialPlanCount = plans.filter(
+    const partialPlanCount = currentPlans.filter(
       (plan) => stripeSyncStatus(plan) === "Partial",
     ).length;
 
     return {
-      activePlanCount: activePlans.length,
-      totalPlanCount: plans.length,
+      activePlanCount: currentPlans.length,
       syncedPlanCount,
       partialPlanCount,
-      firstPaymentRange: activePlans.map(
+      firstPaymentRange: currentPlans.map(
         (plan) => firstPaymentByPlan[plan.id] || 0,
       ),
-      monthlyRange: activePlans.map((plan) =>
+      monthlyRange: currentPlans.map((plan) =>
         parseInteger(forms[plan.id]?.monthlyFeeSek || String(plan.monthly_fee_sek)),
       ),
     };
-  }, [firstPaymentByPlan, forms, plans]);
+  }, [currentPlans, firstPaymentByPlan, forms]);
 
   const formatRange = (values: number[]) => {
     if (values.length === 0) return "No active plans";
@@ -365,9 +367,7 @@ export default function PricingPage() {
         <section className="admin-pricing-business-summary">
           <div>
             <span>Active packages</span>
-            <strong>
-              {pricingSummary.activePlanCount} / {pricingSummary.totalPlanCount}
-            </strong>
+            <strong>{pricingSummary.activePlanCount}</strong>
             <small>Available for new customer quotes</small>
           </div>
           <div>
@@ -392,8 +392,24 @@ export default function PricingPage() {
           </div>
         </section>
 
+        <div className="admin-pricing-rule-note">
+          <strong>Current package rules</strong>
+          <span>
+            Standard is 99 SEK/month and Premium is 129 SEK/month. Shipping is
+            99 SEK per order regardless of device quantity. Both packages have
+            unlimited slides and sections; customer videos are included with
+            Premium only.
+          </span>
+          {plans.some((plan) => !plan.is_active) && (
+            <small>
+              Historical inactive plans are retained for existing quotes and
+              subscriptions and are not offered to new customers.
+            </small>
+          )}
+        </div>
+
         <div className="admin-pricing-grid">
-          {plans.map((plan) => {
+          {currentPlans.map((plan) => {
             const form = forms[plan.id] || toForm(plan);
             const saving = savingPlanId === plan.id;
             const syncing = syncingPlanId === plan.id;
@@ -451,28 +467,6 @@ export default function PricingPage() {
                     />
                   </label>
                   <label>
-                    Devices covered (standard order limit)
-                    <input
-                      type="number"
-                      min="1"
-                      value={form.shippingIncludedDevices}
-                      onChange={(event) =>
-                        updateForm(plan.id, "shippingIncludedDevices", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
-                    Additional-device shipping (not used)
-                    <input
-                      type="number"
-                      min="0"
-                      value={form.additionalShippingFeeSek}
-                      onChange={(event) =>
-                        updateForm(plan.id, "additionalShippingFeeSek", event.target.value)
-                      }
-                    />
-                  </label>
-                  <label>
                     Monthly
                     <input
                       type="number"
@@ -507,6 +501,16 @@ export default function PricingPage() {
                       }
                     />
                   </label>
+                </div>
+
+                <div className="admin-pricing-plan-note">
+                  <span>
+                    Shipping: {formatSek(parseInteger(form.shippingFeeSek))} per
+                    order, regardless of device quantity.
+                  </span>
+                  <span>
+                    Slides and sections: unlimited. Customer videos: {plan.code.toLowerCase() === "premium_4k" ? "included" : "not included"}.
+                  </span>
                 </div>
 
                 <label className="admin-pricing-toggle">
@@ -554,10 +558,6 @@ export default function PricingPage() {
                   <p>
                     <strong>Shipping:</strong>{" "}
                     {shortStripeId(plan.stripe_shipping_price_id)}
-                  </p>
-                  <p>
-                    <strong>Additional-device shipping:</strong>{" "}
-                    {shortStripeId(plan.stripe_additional_shipping_price_id)}
                   </p>
                   <p>
                     <strong>Monthly:</strong>{" "}

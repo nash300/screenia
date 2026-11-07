@@ -5962,11 +5962,11 @@
 
 .landing-pricing .landing-price-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
   justify-content: center;
   gap: clamp(18px, 2vw, 26px);
-  width: min(100%, 1180px);
+  width: min(100%, 900px);
   margin-top: 32px;
   margin-inline: auto;
 }
