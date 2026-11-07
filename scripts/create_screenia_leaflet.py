@@ -307,7 +307,7 @@ def package_row(c, x, y, width, height, name, resolution, label, tone, descripti
     c.setFont("Screenia-Medium", 5.7)
     c.setFillColor(NAVY if tone == YELLOW else white)
     c.drawString(x + 5 * mm, y + height - 8 * mm, label)
-    c.setFont("Screenia-Bold", 11.8 if name == "Premium Plus" else 15.2)
+    c.setFont("Screenia-Bold", 15.2)
     c.drawString(x + 5 * mm, y + height - 16 * mm, name)
     c.setFont("Screenia-Medium", 6.2)
     c.drawString(x + 5 * mm, y + height - 22 * mm, resolution)
@@ -361,19 +361,13 @@ def back(c, page=2, total_pages=2):
             "Standard", "FULL HD 1080P", "STARTPAKET", BLUE,
             "För mindre skärmar och standardinnehåll i Full HD.",
             [["Uppspelning i Full HD (1080p)", "Rekommenderas för skärmar under 55 tum", "Passar kampanjer, erbjudanden och informationsskärmar"], ["Planeringshjälp, layoutdesign och överenskomna ändringar ingår i startavgiften", "3 veckors kostnadsfri provperiod", "Ingen bindningstid"]],
-            ASSETS / "brand" / "screenia-standard-device.png", "1 297 kr", "499 admin + 699 enhet + 99 frakt", "249 kr/mån efter provperiod",
+            ASSETS / "brand" / "screenia-standard-device.png", "1 297 kr", "499 admin + 699 enhet + 99 frakt", "99 kr/mån efter provperiod",
         ),
         (
-            "Premium", "ÄKTA 4K 3840 x 2160", "REKOMMENDERAS", YELLOW,
-            "För större skärmar och extra skarpt innehåll i 4K.",
-            [["Uppspelning i äkta 4K (3840 x 2160)", "Rekommenderas för skärmar från 55 tum", "Skarpare text, menyer och detaljerade bilder"], ["Planeringshjälp, layoutdesign och överenskomna ändringar ingår i startavgiften", "3 veckors kostnadsfri provperiod", "Ingen bindningstid"]],
-            ASSETS / "brand" / "screenia-premium-device.png", "1 697 kr", "499 admin + 1 099 enhet + 99 frakt", "349 kr/mån efter provperiod",
-        ),
-        (
-            "Premium Plus", "ÄKTA 4K + EGEN VIDEO", "NYHET", PLUS,
-            "För verksamheter som vill kombinera extra skarp 4K-visning med egna videoklipp.",
-            [["Alla funktioner som ingår i Premium", "Uppspelning i äkta 4K (3840 x 2160)", "Ladda upp egna MP4- och WEBM-videor via kundportalen", "Screenia granskar materialet före publicering"], ["Planeringshjälp, layoutdesign och överenskomna ändringar ingår i startavgiften", "3 veckors kostnadsfri provperiod", "Ingen bindningstid"]],
-            ASSETS / "brand" / "screenia-premium-device.png", "1 697 kr", "499 admin + 1 099 enhet + 99 frakt", "399 kr/mån efter provperiod",
+            "Premium", "ÄKTA 4K + EGEN VIDEO", "VIDEO", YELLOW,
+            "För större skärmar och verksamheter som vill använda egna videoklipp.",
+            [["Uppspelning i äkta 4K (3840 x 2160)", "Rekommenderas för skärmar från 55 tum", "Skarpare text, menyer och detaljerade bilder"], ["Ladda upp egna MP4- och WEBM-videor via kundportalen", "Screenia granskar materialet före publicering", "3 veckors kostnadsfri provperiod", "Ingen bindningstid"]],
+            ASSETS / "brand" / "screenia-premium-device.png", "1 697 kr", "499 admin + 1 099 enhet + 99 frakt", "129 kr/mån efter provperiod",
         ),
     ]
     for index, package in enumerate(packages):
@@ -387,7 +381,7 @@ def back(c, page=2, total_pages=2):
     c.setFont("Screenia-Bold", 10.8)
     c.setFillColor(NAVY)
     c.drawString(x0 + 5 * mm, info_y + 28 * mm, "Tydliga kostnader när du växer.")
-    draw_lines(c, "Administrativ startavgift 499 kr täcker upp till 3 skärmar. För fler skärmar tillkommer 249 kr per skärm i uppstart. Frakt är 99 kr för upp till 3 enheter, sedan 29 kr per extra enhet.", x0 + 5 * mm, info_y + 20.5 * mm, split - 10 * mm, size=6.15, color=MUTED, leading=7.6)
+    draw_lines(c, "Administrativ startavgift 499 kr täcker upp till 3 skärmar. För fler skärmar tillkommer 249 kr per skärm i uppstart. Frakt är alltid 99 kr oavsett antal enheter.", x0 + 5 * mm, info_y + 20.5 * mm, split - 10 * mm, size=6.15, color=MUTED, leading=7.6)
     c.setFont("Screenia-Medium", 6.0)
     c.setFillColor(BLUE)
     c.drawString(x0 + 5 * mm, info_y + 6 * mm, "Månadsabonnemanget börjar först efter den kostnadsfria provperioden.")

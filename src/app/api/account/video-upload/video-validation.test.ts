@@ -4,7 +4,7 @@ import {
   validateCustomerVideo,
 } from "./video-validation";
 
-describe("Premium Plus customer video validation", () => {
+describe("Premium customer video validation", () => {
   it.each(["video/mp4", "video/webm"])("accepts %s below 100 MB", (contentType) => {
     expect(
       validateCustomerVideo({

@@ -535,7 +535,7 @@ Start- och konfigurationsavgift: ${formatSek(setupFeeSek)}
 ${setupExplanationText}
 Skärmenhet: ${formatSek(deviceSubtotalSek)} inkl. moms
 Frakt: ${formatSek(shippingSubtotalSek)} inkl. moms
-Fraktregel: ${formatSek(shippingFeeSek)} för upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} à ${formatSek(additionalShippingFeeSek)}` : ""}
+Fraktregel: fast frakt ${formatSek(shippingFeeSek)} oavsett antal enheter
 Screens/devices: ${screenQuantity}
 Månadsabonnemang: ${formatSek(monthlySubtotalSek)} inkl. moms per månad
 Månadsrabatt: ${deviceDiscountMonths > 0 ? `${deviceDiscountPercent}% i ${deviceDiscountMonths} månader` : "Ingen"}
@@ -567,7 +567,7 @@ Screenia`,
             <p><strong>Skärmenhet:</strong> ${formatSek(deviceSubtotalSek)} inkl. moms</p>
             <p><strong>Antal skärmar/enheter:</strong> ${screenQuantity}</p>
             <p><strong>Frakt:</strong> ${formatSek(shippingSubtotalSek)} inkl. moms</p>
-            <p style="margin: 4px 0 0; color: #52657f;">${formatSek(shippingFeeSek)} f&ouml;r upp till ${shippingIncludedDevices} enheter${additionalShippingDevices > 0 ? ` + ${additionalShippingDevices} extra enhet${additionalShippingDevices === 1 ? "" : "er"} &times; ${formatSek(additionalShippingFeeSek)}` : ""}.</p>
+            <p style="margin: 4px 0 0; color: #52657f;">Fast frakt ${formatSek(shippingFeeSek)} oavsett antal enheter.</p>
             <p><strong>Månadsabonnemang:</strong> ${formatSek(monthlySubtotalSek)} inkl. moms per månad</p>
             <p><strong>Månadsrabatt:</strong> ${
               deviceDiscountMonths > 0

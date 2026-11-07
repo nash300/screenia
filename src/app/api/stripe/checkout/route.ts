@@ -715,7 +715,7 @@ export async function POST(request: Request) {
           unit_amount: toOre(baseShippingFeeSek),
           tax_behavior: priceTaxBehavior,
           product_data: {
-            name: `Frakt inom Sverige (upp till ${shippingIncludedDevices} enheter)`,
+            name: "Fast frakt inom Sverige",
             images: [subscriptionImage],
           },
         },
@@ -735,7 +735,7 @@ export async function POST(request: Request) {
                 tax_behavior: priceTaxBehavior,
                 product_data: {
                   name: "Frakt för extra enhet",
-                  description: `Tillägg per enhet utöver de ${shippingIncludedDevices} som ingår i grundfrakten.`,
+                  description: "Äldre offertregel för extra enhet; nya offerter använder fast frakt.",
                   images: [subscriptionImage],
                 },
               },

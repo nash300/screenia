@@ -1,20 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { PRICING_PLANS } from "./plans";
 
-describe("pricing plan presentation limits", () => {
-  it.each([
-    ["standard_fhd", 8, 2],
-    ["premium_4k", 8, 3],
-    ["premium_plus_4k", 12, 6],
-  ] as const)(
-    "%s supports the configured slide and section capacity",
-    (code, maxSlides, maxSectionsPerSlide) => {
-      const plan = PRICING_PLANS.find((item) => item.code === code);
+describe("approved pricing catalog", () => {
+  it("contains only Standard and Premium with the approved monthly prices", () => {
+    expect(PRICING_PLANS.map((plan) => plan.code)).toEqual([
+      "standard_fhd",
+      "premium_4k",
+    ]);
+    expect(PRICING_PLANS.map((plan) => plan.monthlyFeeSek)).toEqual([99, 129]);
+  });
 
-      expect(plan).toMatchObject({
-        maxSlides,
-        maxSectionsPerSlide,
-      });
-    },
-  );
+  it("keeps device pricing and fixed shipping consistent", () => {
+    expect(PRICING_PLANS).toMatchObject([
+      {
+        hardwareFeeSek: 699,
+        shippingFeeSek: 99,
+        shippingIncludedDevices: 50,
+        additionalShippingFeeSek: 0,
+      },
+      {
+        hardwareFeeSek: 1099,
+        shippingFeeSek: 99,
+        shippingIncludedDevices: 50,
+        additionalShippingFeeSek: 0,
+      },
+    ]);
+  });
 });

@@ -51,7 +51,7 @@ export async function POST(request: Request) {
   try {
     videoUploadEnabled = await loadVideoEntitlement(customer.id);
   } catch (error) {
-    console.error("Premium Plus video entitlement lookup error:", error);
+    console.error("Premium video entitlement lookup error:", error);
     return NextResponse.json(
       { error: "Videobehörigheten kunde inte kontrolleras." },
       { status: 500 },
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error:
-          "Egen videouppladdning ingår endast i ett aktivt Premium Plus-abonnemang.",
+          "Egen videouppladdning ingår endast i ett aktivt Premium-abonnemang.",
       },
       { status: 403 },
     );
@@ -197,7 +197,7 @@ export async function POST(request: Request) {
         actorId: user.id,
         eventType: "customer_video_uploaded",
         eventDescription:
-          "Premium Plus customer uploaded a video for display review.",
+          "Premium customer uploaded a video for display review.",
         metadata: {
           assetId: asset.id,
           fileName,
@@ -234,7 +234,7 @@ export async function POST(request: Request) {
       {
         customerId: customer.id,
         eventType: "customer_video_uploaded",
-        title: "New Premium Plus video",
+        title: "New Premium video",
         message: `${customer.name} uploaded ${fileName} for display review.`,
         priority: "high",
         metadata: {
@@ -253,7 +253,7 @@ export async function POST(request: Request) {
       actorType: "system",
       eventType: "customer_video_notification_failed",
       eventDescription:
-        "A Premium Plus video was stored, but the admin notification failed.",
+        "A Premium video was stored, but the admin notification failed.",
       metadata: {
         assetId: asset.id,
         fileName,

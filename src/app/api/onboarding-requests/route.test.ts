@@ -199,11 +199,11 @@ describe("customer creation to audit lifecycle", () => {
     expect(mocks.deletedCustomerIds).toEqual([]);
   });
 
-  it("accepts the Premium Plus video package", async () => {
+  it("accepts the Premium video package", async () => {
     const response = await POST(
       validRequest({
         quoteItems: [
-          { pricingPlanCode: "premium_plus_4k", quantity: 1 },
+          { pricingPlanCode: "premium_4k", quantity: 1 },
         ],
       }),
     );
@@ -213,7 +213,7 @@ describe("customer creation to audit lifecycle", () => {
       requested_screen_quantity: 1,
       requested_quote_items: [
         {
-          pricingPlanCode: "premium_plus_4k",
+          pricingPlanCode: "premium_4k",
           quantity: 1,
         },
       ],

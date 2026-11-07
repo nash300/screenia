@@ -149,7 +149,7 @@ const lifecycleAuditContracts = [
     ],
   },
   {
-    stage: "Premium Plus video upload",
+    stage: "Premium video upload",
     route: "src/app/api/account/video-upload/route.ts",
     events: ["customer_video_uploaded", "customer_video_notification_failed"],
   },

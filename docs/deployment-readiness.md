@@ -7,11 +7,10 @@ live payments.
 ## Verified
 
 - `npm run release:check` passes lint, encoding checks, billing invariants, TypeScript, and the production build.
-- Standard FHD: first payment 1 297 SEK, then 249 SEK/month after 21 days.
-- Premium 4K: first payment 1 697 SEK, then 349 SEK/month after 21 days.
-- Premium Plus 4K: first payment 1 697 SEK, then 399 SEK/month after 21 days. It includes customer MP4/WEBM uploads for Screenia review before publication.
-- These totals include moms. The 499 SEK base setup fee includes up to three screens and each screen after the third adds 249 SEK. Selected new clients can receive an explicitly recorded waiver of the 499 SEK base fee. Shipping is 99 SEK for up to three devices and 29 SEK per additional device.
-- Stripe test mode has 499 SEK base administrative Prices for all active plans and one shared 249 SEK additional-screen setup Price. Checkout omits the base line for an approved waiver and preserves separately quoted historical amounts.
+- Standard FHD: first payment 1 297 SEK for one device, then 99 SEK/month after 21 days.
+- Premium 4K: first payment 1 697 SEK for one device, then 129 SEK/month after 21 days. Premium includes customer MP4/WEBM uploads for Screenia review before publication.
+- These totals include moms. The 499 SEK base setup fee includes up to three screens and each screen after the third adds 249 SEK. Selected new clients can receive an explicitly recorded waiver of the 499 SEK base fee. Shipping is a fixed 99 SEK per order regardless of device quantity.
+- Stripe test mode has 499 SEK base administrative Prices for both active plans, one shared 249 SEK additional-screen setup Price, and package monthly Prices of 99/129 SEK. Checkout omits the base line for an approved waiver and preserves separately quoted historical amounts.
 - Supabase stores the base setup amount, waiver flag/reason, included-screen threshold, additional-screen unit price, additional-screen count, and calculated setup total on each prepared order.
 - Branded email, landing footer, contact page, confirmation pages, policy pages, and admin guide were visually checked at desktop and phone widths without horizontal overflow.
 - Public contact inquiries, email delivery evidence, audit events, subscriptions, and hardware inventory tables exist in Supabase.
@@ -19,14 +18,14 @@ live payments.
 ## Clean baseline
 
 - Confirm operational and test-record counts immediately before each clean test cycle; do not rely on an old fixed count in this document.
-- The three active pricing plans share additional-screen setup and additional-device shipping Prices while retaining package-specific base setup, device, base shipping, and monthly Price references.
+- The two active pricing plans share the additional-screen setup Price while retaining package-specific setup, device, fixed-shipping, and monthly Price references. The historical Premium Plus plan is inactive.
 - Future real payment history must not be deleted merely to make dashboards look empty.
 
 ## Billing verification
 
-1. Run `npm run billing:check` to verify the 1-, 3-, and 4-screen arithmetic and required checkout evidence.
+1. Run `npm run billing:check` to verify the one-time setup arithmetic, fixed shipping, and required checkout evidence.
 2. Run `npm run pricing:verify-services` to compare Supabase pricing rules with every referenced Stripe test Price.
-3. The preparatory `npm run pricing:sync-components:test` command is restricted to Stripe test keys and idempotently reuses the shared 249 SEK setup and 29 SEK shipping Prices.
+3. The preparatory `npm run pricing:sync-services:test` command is restricted to Stripe test keys and idempotently synchronizes both active packages, unchanged device prices, fixed 99 SEK shipping, and the shared 249 SEK additional-screen setup Price.
 4. A real browser checkout remains required to prove the generated Stripe invoice lines, webhook evidence, emails, and stored order totals together.
 
 ## Manual gates before live payments

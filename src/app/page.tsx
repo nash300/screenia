@@ -199,7 +199,6 @@ export default function Home() {
   const [planQuantities, setPlanQuantities] = useState<Record<(typeof plans)[number]["code"], number>>({
     standard_fhd: 0,
     premium_4k: 0,
-    premium_plus_4k: 0,
   });
   const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
@@ -263,7 +262,7 @@ export default function Home() {
         "@type": "Country",
         name: "Sweden",
       },
-      priceRange: "SEK 249-399 per månad",
+      priceRange: "SEK 99-129 per månad",
       description: t.seoIntro,
       knowsAbout: [
         "digital skyltning",
@@ -544,7 +543,6 @@ export default function Home() {
     setPlanQuantities({
       standard_fhd: 0,
       premium_4k: 0,
-      premium_plus_4k: 0,
     });
     setMessage("");
     setPrivacyAccepted(false);
@@ -695,7 +693,7 @@ export default function Home() {
           text="Välj det paket och antal skärmar som passar er verksamhet. Se månads- och startkostnaden direkt innan ni går vidare."
         >
           <p id="pricing-swipe-hint" className="landing-price-swipe-hint">
-            Svep åt sidan för att se Standard, Premium och Premium Plus.
+            Svep åt sidan för att se Standard och Premium.
           </p>
           <div className="landing-price-rail">
             <span className="landing-price-rail-arrow landing-price-rail-arrow-prev" aria-hidden="true">‹</span>
@@ -797,8 +795,6 @@ export default function Home() {
                   >
                     <p className="landing-plan-description">{planText.description}</p>
                     <ul>
-                      <li>Upp till {plan.maxSlides} slides per skärm</li>
-                      <li>Upp till {plan.maxSectionsPerSlide} sektioner per slide</li>
                       {planText.features.map((feature) => <li key={feature}>{feature}</li>)}
                     </ul>
                   </div>
