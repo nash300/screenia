@@ -57,8 +57,10 @@ treat a network/advisory-service delay as a project failure.
 - Existing-customer add-ons do not inherit the new-client waiver.
 - Issued offers retain their recorded terms during their validity period.
 - Customer-facing prices include Swedish moms.
-- Current plans: Standard FHD 249 kr/month, Premium 349 kr/month, and Premium
-  Plus 399 kr/month. Hardware and shipping remain separate offer/order items.
+- Current plans: Standard FHD 99 kr/month and Premium 129 kr/month. Both plans
+  have unlimited slides and sections, unchanged device prices, and fixed
+  shipping of 99 kr per order. Premium also enables customer video uploads.
+  The historical Premium Plus row remains inactive for old quotes/subscriptions.
 
 The automated billing scenarios verify one-time setup charging, multi-screen
 thresholds, the selected-client waiver, existing-customer add-ons, and mixed

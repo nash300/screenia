@@ -34,7 +34,7 @@ describe("legal document catalog", () => {
     );
   });
 
-  it("covers Premium Plus uploads and customer-owned display equipment", () => {
+  it("covers Premium uploads and customer-owned display equipment", () => {
     expect(documentContent("terms")).toContain("kundens egen videouppladdning");
     expect(documentContent("terms")).toContain("kundens egen TV");
     expect(documentContent("terms")).toContain("publiceras inte automatiskt");

@@ -44,8 +44,10 @@ discard, or overwrite uncommitted work automatically.
 - A selected new client may receive that charge free; existing-customer
   add-ons must not inherit the waiver.
 - Issued offers retain their recorded terms during their validity period.
-- Current monthly plans are Standard FHD 249 kr, Premium 349 kr, and Premium
-  Plus 399 kr. Hardware and shipping remain separate offer/order items.
+- Current monthly plans are Standard FHD 99 kr and Premium 129 kr. Both plans
+  have unlimited slides and sections, unchanged device prices, and fixed
+  shipping of 99 kr per order. Premium enables customer video uploads; the
+  historical Premium Plus row remains inactive for old references.
 - A price change is a cross-system change: inspect and update application
   pricing, Supabase rows/migrations, Stripe replacement Prices, persisted quote
   snapshots, documents/PDFs, customer-facing copy, and billing tests together.

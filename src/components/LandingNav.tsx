@@ -68,6 +68,7 @@ export function LandingNav({
                 href={href}
                 className="landing-nav-link"
                 aria-current={isCurrentPage ? "page" : undefined}
+                onMouseDown={(event) => event.preventDefault()}
                 onClick={() => setMenuOpen(false)}
               >
                 {item.label}

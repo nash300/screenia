@@ -9,7 +9,7 @@ function exists(file) {
 }
 
 function read(file) {
-  return fs.readFileSync(path.join(root, file), "utf8");
+  return fs.readFileSync(path.join(root, file), "utf8").replace(/\r\n/g, "\n");
 }
 
 function walk(dir, files = []) {
