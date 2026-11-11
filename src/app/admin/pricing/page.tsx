@@ -88,7 +88,6 @@ function parseInteger(value: string) {
 function stripeSyncStatus(plan: PricingPlan) {
   const ids = [
     plan.stripe_setup_price_id,
-    plan.stripe_additional_setup_price_id,
     plan.stripe_hardware_price_id,
     plan.stripe_shipping_price_id,
     plan.stripe_monthly_price_id,
@@ -434,7 +433,7 @@ export default function PricingPage() {
 
                 <div className="admin-pricing-fields">
                   <label>
-                    Base setup fee (covers 1-3 screens)
+                    Fixed setup fee per order
                     <input
                       type="number"
                       min="0"
@@ -546,10 +545,6 @@ export default function PricingPage() {
                   <p>
                     <strong>Setup:</strong>{" "}
                     {shortStripeId(plan.stripe_setup_price_id)}
-                  </p>
-                  <p>
-                    <strong>Additional screen setup:</strong>{" "}
-                    {shortStripeId(plan.stripe_additional_setup_price_id)}
                   </p>
                   <p>
                     <strong>Device:</strong>{" "}

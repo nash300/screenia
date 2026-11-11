@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { markCheckoutOrderMaterialsSubmitted } from "@/lib/server/checkout-order";
 import {
   customerAccessDeniedResponse,
   getAuthenticatedUser,
@@ -298,6 +299,8 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+
+  await markCheckoutOrderMaterialsSubmitted(customer.id);
 
   try {
     await recordAuditEvent(

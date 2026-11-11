@@ -539,51 +539,6 @@
   pointer-events: none;
 }
 
-.landing-hero-video-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 72% 26%, rgba(47, 125, 246, 0.34), transparent 34%),
-    radial-gradient(circle at 20% 74%, rgba(244, 122, 32, 0.18), transparent 28%),
-    linear-gradient(135deg, #061942 0%, #0b2d78 56%, #123fa8 100%);
-  transform: scale(1.001);
-}
-
-.landing-hero-video-layer::before {
-  position: absolute;
-  inset: -24px;
-  background:
-    linear-gradient(90deg, rgba(6, 25, 66, 0.9), rgba(6, 25, 66, 0.18) 58%, rgba(6, 25, 66, 0.56)),
-    radial-gradient(circle at 78% 22%, rgba(255, 255, 255, 0.16), transparent 32%);
-  content: "";
-  opacity: 0.88;
-}
-
-.landing-hero-video-layer video,
-.landing-hero-video-layer img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.landing-hero-background-image {
-  z-index: 1;
-  animation: hero-slide-in-next 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-
-.landing-hero-background-image-next {
-  animation-name: hero-slide-in-next;
-}
-
-.landing-hero-background-image-previous {
-  animation-name: hero-slide-in-previous;
-}
-
 .landing-hero-copy,
 .landing-section-surface {
   width: 100%;
@@ -765,30 +720,6 @@
 
   to {
     transform: translateX(-33.3333%);
-  }
-}
-
-@keyframes hero-slide-in-next {
-  from {
-    opacity: 0;
-    transform: translateX(4.5%) scale(1.035);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
-  }
-}
-
-@keyframes hero-slide-in-previous {
-  from {
-    opacity: 0;
-    transform: translateX(-4.5%) scale(1.035);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateX(0) scale(1);
   }
 }
 
@@ -3148,10 +3079,6 @@
     min-height: 100svh;
     justify-content: center;
     padding: 98px 18px 104px;
-  }
-
-  .landing-hero-video-layer img {
-    object-position: 58% center;
   }
 
   .landing-hero::before {
@@ -7650,88 +7577,46 @@
   min-height: clamp(590px, 72vh, 790px);
 }
 
-.landing-hero-modern-visual::before {
+.landing-hero-video-frame {
   position: absolute;
-  z-index: 0;
-  top: 2%;
-  right: -12%;
-  bottom: 2%;
-  left: 5%;
-  border: 1px solid rgba(145, 205, 255, 0.18);
-  background:
-    radial-gradient(circle at 68% 23%, rgba(83, 187, 255, 0.34), transparent 24%),
-    linear-gradient(145deg, rgba(33, 149, 255, 0.3), rgba(5, 46, 125, 0.42));
-  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
-  content: "";
-}
-
-.landing-hero-process {
-  position: absolute;
-  z-index: 2;
-  inset: 0 -5% 0 20%;
-}
-
-.landing-hero-process-card {
-  position: absolute;
-  overflow: hidden;
-  margin: 0;
-  border: 1px solid rgba(189, 221, 255, 0.36);
-  border-radius: clamp(18px, 1.7vw, 28px);
-  background: #0a2454;
-  box-shadow:
-    0 26px 64px rgba(0, 10, 39, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform-origin: right center;
-}
-
-.landing-hero-process-card::after {
-  position: absolute;
+  z-index: 1;
   inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(115deg, rgba(255, 255, 255, 0.1), transparent 32%, rgba(1, 20, 63, 0.1));
-  content: "";
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #071b42;
+  clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
   pointer-events: none;
 }
 
-.landing-hero-process-card img {
+.landing-hero-video {
+  display: block;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
   object-fit: cover;
-  filter: saturate(0.96) contrast(1.04);
+  object-position: center;
+  transform: scale(1.75);
+  transform-origin: 35% 50%;
+  opacity: 0.82;
+  visibility: visible;
+  filter: saturate(0.92) contrast(1.02) brightness(0.98);
+  pointer-events: none;
 }
 
-.landing-hero-process-delivery {
-  top: 0;
-  right: 0;
-  width: 82%;
-  height: 32%;
-  animation: screenia-process-in 780ms 260ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.landing-hero-process-delivery img {
-  object-position: 50% 56%;
-}
-
-.landing-hero-process-connection {
-  top: 34%;
-  right: 6%;
-  width: 72%;
-  height: 31%;
-  animation: screenia-process-in 780ms 390ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.landing-hero-process-connection img {
-  object-position: 52% 53%;
-}
-
-.landing-hero-process-display {
-  right: 0;
-  bottom: 0;
-  width: 88%;
-  height: 32%;
-  animation: screenia-process-in 780ms 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.landing-hero-process-display img {
-  object-position: 52% 44%;
+.landing-hero-video-backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  object-fit: cover;
+  transform: scale(1.08);
+  filter: blur(20px) saturate(0.82) brightness(0.62);
+  opacity: 0.48;
 }
 
 .landing-hero-product-cluster {
@@ -7747,7 +7632,6 @@
 .landing-hero-product-layer {
   position: absolute;
   display: block;
-  animation: screenia-product-in 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .landing-hero-product-layer img {
@@ -7766,46 +7650,6 @@
   z-index: 3;
   width: 69%;
   animation-delay: 430ms;
-}
-
-.landing-hero-product-box img {
-  animation: screenia-product-float 6s 1.4s ease-in-out infinite;
-}
-
-.landing-hero-product-box-remote {
-  top: 3%;
-  left: 48%;
-  z-index: 4;
-  width: 23%;
-  animation-delay: 560ms;
-}
-
-.landing-hero-product-box-remote img {
-  animation: screenia-remote-float 6.8s 1.6s ease-in-out infinite;
-}
-
-.landing-hero-product-stick-remote {
-  top: 55%;
-  left: 46%;
-  z-index: 1;
-  width: 19%;
-  animation-delay: 690ms;
-}
-
-.landing-hero-product-stick-remote img {
-  animation: screenia-product-float 7.2s 1.7s ease-in-out infinite reverse;
-}
-
-.landing-hero-product-stick {
-  top: 50%;
-  left: 58%;
-  z-index: 4;
-  width: 28%;
-  animation-delay: 760ms;
-}
-
-.landing-hero-product-stick img {
-  animation: screenia-stick-float 6.4s 1.9s ease-in-out infinite;
 }
 
 @keyframes screenia-hero-copy-in {
@@ -7829,63 +7673,6 @@
   to {
     opacity: 0.86;
     clip-path: polygon(22% 0, 100% 0, 100% 100%, 0 100%);
-  }
-}
-
-@keyframes screenia-process-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -105vh, 0) scale(0.96);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes screenia-product-in {
-  from {
-    opacity: 0;
-    transform: translate3d(-22px, 58px, 0) scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes screenia-product-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0);
-  }
-
-  50% {
-    transform: translate3d(0, -9px, 0);
-  }
-}
-
-@keyframes screenia-remote-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-
-  50% {
-    transform: translate3d(4px, -11px, 0) rotate(1.2deg);
-  }
-}
-
-@keyframes screenia-stick-float {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-
-  50% {
-    transform: translate3d(5px, -10px, 0) rotate(-1deg);
   }
 }
 
@@ -7949,8 +7736,12 @@
     justify-self: center;
   }
 
-  .landing-hero-process {
-    inset-inline: 18% -3%;
+  .landing-hero-video {
+    width: 100%;
+  }
+
+  .landing-hero-video-frame {
+    clip-path: polygon(18% 0, 100% 0, 100% 100%, 0 100%);
   }
 
   .landing-hero-product-cluster {
@@ -8024,30 +7815,13 @@
     min-height: 540px;
   }
 
-  .landing-hero-modern-visual::before {
-    right: -25%;
-    left: 0;
+  .landing-hero-video {
+    width: 100%;
+    border-radius: 0;
   }
 
-  .landing-hero-process {
-    inset: 0 -10% 0 15%;
-  }
-
-  .landing-hero-process-delivery {
-    width: 84%;
-    height: 31%;
-  }
-
-  .landing-hero-process-connection {
-    top: 34%;
-    right: 2%;
-    width: 75%;
-    height: 30%;
-  }
-
-  .landing-hero-process-display {
-    width: 91%;
-    height: 32%;
+  .landing-hero-video-frame {
+    clip-path: polygon(14% 0, 100% 0, 100% 100%, 0 100%);
   }
 
   .landing-hero-product-cluster {
@@ -8082,10 +7856,6 @@
     min-height: 500px;
   }
 
-  .landing-hero-process {
-    inset-inline: 12% -18%;
-  }
-
   .landing-hero-product-cluster {
     left: -10%;
     width: 74%;
@@ -8095,14 +7865,9 @@
 @media (prefers-reduced-motion: reduce) {
   .landing-page .landing-hero-modern::after,
   .landing-hero-modern-copy,
-  .landing-hero-process-card,
   .landing-hero-product-layer,
   .landing-hero-product-layer img {
     animation: none;
-  }
-
-  .landing-hero-process-card img {
-    transition: none;
   }
 }
 
@@ -8194,112 +7959,6 @@
 
 .landing-hero-modern-trust span:nth-child(3) i {
   animation-delay: 760ms;
-}
-
-.landing-hero-modern .landing-hero-modern-visual {
-  perspective: 1200px;
-}
-
-.landing-hero-modern .landing-hero-modern-visual::before {
-  animation: screenia-visual-glow 6.5s ease-in-out infinite;
-}
-
-.landing-hero-modern-visual::after {
-  position: absolute;
-  z-index: 1;
-  top: 7%;
-  right: 0;
-  width: 54%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 30deg,
-    transparent 0 22%,
-    rgba(119, 208, 255, 0.2) 32%,
-    transparent 42% 72%,
-    rgba(71, 145, 255, 0.16) 82%,
-    transparent 92%
-  );
-  content: "";
-  filter: blur(2px);
-  opacity: 0.72;
-  animation: screenia-orbit 16s linear infinite;
-  pointer-events: none;
-}
-
-.landing-hero-process::before {
-  position: absolute;
-  z-index: 0;
-  top: 9%;
-  bottom: 9%;
-  left: 9%;
-  width: 2px;
-  border-radius: 999px;
-  background: linear-gradient(
-    180deg,
-    transparent,
-    rgba(142, 216, 255, 0.28) 18%,
-    #71c8ff 50%,
-    rgba(89, 158, 255, 0.3) 82%,
-    transparent
-  );
-  background-size: 100% 220%;
-  box-shadow: 0 0 18px rgba(86, 173, 255, 0.42);
-  content: "";
-  animation: screenia-process-flow 3.8s linear infinite;
-}
-
-.landing-hero-process::after {
-  position: absolute;
-  z-index: 1;
-  top: 14%;
-  bottom: 14%;
-  left: calc(9% - 5px);
-  width: 12px;
-  background:
-    radial-gradient(circle, #bde9ff 0 2px, #3c9fff 3px, transparent 6px) center top / 12px 33.333% repeat-y;
-  content: "";
-  filter: drop-shadow(0 0 7px rgba(94, 181, 255, 0.9));
-  animation: screenia-process-dots 2.8s ease-in-out infinite;
-}
-
-.landing-hero-process-card::before {
-  position: absolute;
-  z-index: 3;
-  top: -60%;
-  bottom: -60%;
-  left: -45%;
-  width: 28%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.24), transparent);
-  content: "";
-  opacity: 0;
-  transform: rotate(16deg);
-  animation: none;
-  pointer-events: none;
-}
-
-.landing-hero-modern .landing-hero-process-delivery {
-  animation: screenia-process-in 1050ms 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.landing-hero-process-delivery::before {
-  animation-delay: 1.8s;
-}
-
-.landing-hero-modern .landing-hero-process-connection {
-  animation: screenia-process-in 1100ms 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.landing-hero-process-connection::before {
-  animation-delay: 3.4s;
-}
-
-.landing-hero-modern .landing-hero-process-display {
-  animation: screenia-process-in 1150ms 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.landing-hero-process-display::before {
-  animation-delay: 5s;
 }
 
 .landing-hero-product-cluster::before {
@@ -8457,41 +8116,9 @@
   }
 }
 
-@keyframes screenia-visual-glow {
-  0%,
-  100% {
-    filter: saturate(1) brightness(1);
-  }
-
-  50% {
-    filter: saturate(1.12) brightness(1.08);
-  }
-}
-
 @keyframes screenia-orbit {
   to {
     transform: rotate(1turn);
-  }
-}
-
-@keyframes screenia-process-flow {
-  from {
-    background-position: 0 100%;
-  }
-
-  to {
-    background-position: 0 -120%;
-  }
-}
-
-@keyframes screenia-process-dots {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-
-  50% {
-    opacity: 1;
   }
 }
 
@@ -8556,12 +8183,6 @@
   .landing-hero-modern-actions .landing-button-primary,
   .landing-hero-modern-actions .landing-button-primary::after,
   .landing-hero-modern-trust i,
-  .landing-hero-modern-visual::before,
-  .landing-hero-modern-visual::after,
-  .landing-hero-process::before,
-  .landing-hero-process::after,
-  .landing-hero-process-card,
-  .landing-hero-process-card::before,
   .landing-hero-product-layer,
   .landing-hero-product-layer img,
   .landing-hero-product-cluster::before,
@@ -8914,95 +8535,12 @@
 
 .screenia-theme .landing-page .landing-hero-modern-visual {
   position: absolute;
-  z-index: 2;
-  inset: 0 0 0 47.8%;
-  width: auto;
+  z-index: 9;
+  inset: 0;
+  width: 100%;
   min-height: 0;
   overflow: visible;
   justify-self: stretch;
-}
-
-.screenia-theme .landing-page .landing-hero-modern-visual::before,
-.screenia-theme .landing-page .landing-hero-modern-visual::after {
-  display: none;
-}
-
-.screenia-theme .landing-page .landing-hero-process {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.screenia-theme .landing-page .landing-hero-process::before,
-.screenia-theme .landing-page .landing-hero-process::after {
-  display: none;
-}
-
-.screenia-theme .landing-page .landing-hero-process-card {
-  overflow: hidden;
-  border: 0;
-  border-radius: 0;
-  background: #071b42;
-  filter:
-    drop-shadow(0 0 1px rgba(231, 249, 255, 0.98))
-    drop-shadow(0 0 4px rgba(79, 207, 255, 0.92))
-    drop-shadow(0 0 15px rgba(0, 119, 255, 0.58));
-  box-shadow: inset 0 0 0 2px rgba(132, 222, 255, 0.94);
-}
-
-.screenia-theme .landing-page .landing-hero-process-card img {
-  filter: saturate(1.08) contrast(1.05);
-}
-
-.screenia-theme .landing-page .landing-hero-process-card::after {
-  z-index: 2;
-  border-radius: 0;
-  background:
-    linear-gradient(115deg, rgba(98, 205, 255, 0.1), transparent 28%, rgba(0, 46, 132, 0.12)),
-    linear-gradient(180deg, transparent 82%, rgba(0, 111, 255, 0.18));
-  box-shadow:
-    inset 0 0 0 2px rgba(157, 229, 255, 0.82),
-    inset 0 0 24px rgba(0, 101, 255, 0.16);
-}
-
-.screenia-theme .landing-page .landing-hero-process-delivery {
-  top: 0;
-  right: 0;
-  width: 78%;
-  height: 45%;
-  border-radius: 0 21px 21px 0;
-  clip-path: polygon(10% 0, 100% 0, 100% 84%, 0 100%);
-}
-
-.screenia-theme .landing-page .landing-hero-process-delivery img {
-  object-position: 52% 52%;
-}
-
-.screenia-theme .landing-page .landing-hero-process-connection {
-  top: 38.4%;
-  right: 0;
-  width: 80%;
-  height: 39%;
-  clip-path: polygon(0 12%, 100% 0, 100% 100%, 9% 82%);
-}
-
-.screenia-theme .landing-page .landing-hero-process-connection img {
-  object-position: 57% 50%;
-}
-
-.screenia-theme .landing-page .landing-hero-process-display {
-  right: 0;
-  bottom: 0;
-  width: 92%;
-  height: 31.5%;
-  border-radius: 0 0 21px;
-  clip-path: polygon(20% 0, 100% 28%, 100% 100%, 0 100%);
-}
-
-.screenia-theme .landing-page .landing-hero-process-display img {
-  object-position: 52% 45%;
 }
 
 .screenia-theme .landing-page .landing-hero-product-cluster {
@@ -9046,6 +8584,50 @@
 .screenia-theme .landing-page .landing-hero-product-box img {
   animation: screenia-box-float 6s 1.4s ease-in-out infinite;
   transform-origin: center;
+}
+
+/* On desktop, the video owns the full right-hand shape. Keeping this layer
+   full-width makes the clip path the visible boundary instead of the copy
+   column's rectangular stacking box. */
+@media (min-width: 901px) {
+  .screenia-theme .landing-page .landing-hero-video-frame {
+    z-index: 8;
+    clip-path: polygon(59% 0, 100% 0, 100% 100%, 48% 100%);
+  }
+
+  .screenia-theme .landing-page .landing-hero-video {
+    transform: none;
+    transform-origin: center;
+    object-fit: contain;
+    object-position: right center;
+    opacity: 0.92;
+  }
+
+  .screenia-theme .landing-page .landing-hero-video-backdrop {
+    object-fit: cover;
+    transform: scale(1.08);
+    filter: blur(20px) saturate(0.82) brightness(0.62);
+    opacity: 0.48;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-cluster {
+    z-index: 10;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-cluster::before {
+    left: 30.3%;
+    width: 41%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-cluster::after {
+    left: 35.6%;
+    width: 30.6%;
+  }
+
+  .screenia-theme .landing-page .landing-hero-product-box {
+    left: 50.4%;
+    width: 36%;
+  }
 }
 
 @keyframes screenia-reference-band {
@@ -9233,22 +8815,6 @@
     inset: auto 0 0;
     width: 100%;
     height: 560px;
-  }
-
-  .screenia-theme .landing-page .landing-hero-process-delivery {
-    width: 74%;
-    height: 32%;
-  }
-
-  .screenia-theme .landing-page .landing-hero-process-connection {
-    top: 31%;
-    width: 75%;
-    height: 34%;
-  }
-
-  .screenia-theme .landing-page .landing-hero-process-display {
-    width: 92%;
-    height: 36%;
   }
 
   .screenia-theme .landing-page .landing-hero-product-cluster {

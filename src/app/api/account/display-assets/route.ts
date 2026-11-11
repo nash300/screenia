@@ -8,6 +8,7 @@ import {
 } from "@/lib/server/customer-account";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
+import { markCheckoutOrderMaterialsSubmitted } from "@/lib/server/checkout-order";
 import {
   DISPLAY_ASSET_BUCKET,
   saveDisplayAssets,
@@ -119,6 +120,7 @@ export async function POST(request: Request) {
         },
         { throwOnError: true },
       );
+      await markCheckoutOrderMaterialsSubmitted(customer.id);
     } catch (notificationError) {
       console.error(
         "Customer display material notification error:",

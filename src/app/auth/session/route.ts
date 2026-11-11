@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { markCustomerAccountActivated } from "@/lib/server/customer-account";
+import { markCheckoutOrderActivated } from "@/lib/server/checkout-order";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
   } = await supabase.auth.getUser();
 
   if (user && user.app_metadata?.role !== "admin") {
-    await markCustomerAccountActivated(user);
+    const customer = await markCustomerAccountActivated(user);
+    if (customer) await markCheckoutOrderActivated(customer.id);
   }
 
   return response;

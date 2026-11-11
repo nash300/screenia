@@ -14,6 +14,7 @@ import {
   markCustomerAccountActivated,
   supabaseAdmin,
 } from "@/lib/server/customer-account";
+import { markCheckoutOrderActivated } from "@/lib/server/checkout-order";
 import { rateLimitHeaders } from "@/lib/server/rate-limit";
 import { checkPersistentRateLimit } from "@/lib/server/persistent-rate-limit";
 import { isValidEmailAddress } from "@/lib/validation/email";
@@ -228,7 +229,8 @@ export async function POST(request: Request) {
     );
   }
 
-  await markCustomerAccountActivated(user);
+  const activatedCustomer = await markCustomerAccountActivated(user);
+  if (activatedCustomer) await markCheckoutOrderActivated(activatedCustomer.id);
 
   await recordAuditEvent(supabaseAdmin, {
     customerId: customer.id,

@@ -446,10 +446,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (
+      event.type === "checkout.session.completed" ||
+      event.type === "checkout.session.async_payment_succeeded"
+    ) {
     const session = event.data.object as Stripe.Checkout.Session;
 
+    if (session.payment_status !== "paid") {
+      await finishWebhookEventProcessing(eventRowId, "processed");
+      return NextResponse.json({ received: true, paymentPending: true });
+    }
+
     const customerId = session.metadata?.customer_id;
+    const checkoutOrderId = session.metadata?.checkout_order_id || null;
     const customerSubscriptionId = session.metadata?.customer_subscription_id;
     const orderNumber = session.metadata?.order_number;
     const discountCouponId =
@@ -466,7 +475,38 @@ export async function POST(request: Request) {
       session.metadata?.existing_stripe_subscription_id || null;
 
     if (customerId) {
-      await ensureCustomerAuthUser(customerId, accountEmail);
+      const authUserId = await ensureCustomerAuthUser(customerId, accountEmail);
+      if (checkoutOrderId) {
+        if (authUserId) {
+          const { error: activationUpdateError } = await supabaseAdmin
+            .from("checkout_orders")
+            .update({ activation_email_sent_at: new Date().toISOString() })
+            .eq("id", checkoutOrderId);
+          if (activationUpdateError) {
+            await recordStripeWebhookFailureVisibility({
+              eventType: "public_checkout_activation_record_failed",
+              title: "Activation email status could not be recorded",
+              message: "Payment succeeded and an account activation was attempted, but the checkout order could not record the activation email milestone.",
+              metadata: { checkoutOrderId, stripeCheckoutSessionId: session.id, error: activationUpdateError.message },
+              customerIds: [customerId],
+            });
+          }
+        } else {
+          await supabaseAdmin
+            .from("checkout_orders")
+            .update({ status: "activation_failed" })
+            .eq("id", checkoutOrderId);
+          await createAdminNotification(supabaseAdmin, {
+            customerId,
+            eventType: "activation_failed",
+            dedupeKey: `activation_failed:${session.id}`,
+            title: "Customer activation email failed",
+            message: "Payment succeeded, but the customer activation email could not be prepared.",
+            priority: "urgent",
+            metadata: { checkoutOrderId, stripeCheckoutSessionId: session.id, email: accountEmail },
+          });
+        }
+      }
       let stripeSubscription: Stripe.Subscription | null = null;
       let effectiveStripeSubscriptionId =
         typeof session.subscription === "string" ? session.subscription : null;
@@ -550,6 +590,7 @@ export async function POST(request: Request) {
           : {
               onboarding_token: null,
               onboarding_token_expires_at: null,
+              ...(checkoutOrderId ? { onboarding_stage: "activation_pending" } : {}),
             }),
       };
 
@@ -581,6 +622,7 @@ export async function POST(request: Request) {
         await createAdminNotification(supabaseAdmin, {
           customerId,
           eventType: "payment_completed",
+          dedupeKey: `payment_completed:${session.id}`,
           title: "Payment completed",
           message: `Stripe checkout completed for order ${orderNumber || session.id}.`,
           priority: "urgent",
@@ -593,6 +635,32 @@ export async function POST(request: Request) {
             customerEmail,
           },
         });
+      }
+
+      if (checkoutOrderId) {
+        const { error: orderUpdateError } = await supabaseAdmin
+          .from("checkout_orders")
+          .update({
+            status: "activation_pending",
+            stripe_customer_id: session.customer as string,
+            stripe_subscription_id: effectiveStripeSubscriptionId,
+            stripe_payment_intent_id:
+              typeof session.payment_intent === "string"
+                ? session.payment_intent
+                : session.payment_intent?.id,
+            paid_at: new Date().toISOString(),
+          })
+          .eq("id", checkoutOrderId);
+
+        if (orderUpdateError) {
+          await recordStripeWebhookFailureVisibility({
+            eventType: "public_checkout_order_sync_failed",
+            title: "Public checkout order sync failed",
+            message: `Payment ${session.id} succeeded, but the public checkout order could not be marked paid.`,
+            metadata: { checkoutOrderId, stripeCheckoutSessionId: session.id, error: orderUpdateError.message },
+            customerIds: [customerId],
+          });
+        }
       }
 
       if (effectiveStripeSubscriptionId) {
@@ -653,6 +721,46 @@ export async function POST(request: Request) {
       }
     }
   }
+
+    if (
+      event.type === "checkout.session.async_payment_failed" ||
+      event.type === "checkout.session.expired"
+    ) {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const customerId = session.metadata?.customer_id;
+      const checkoutOrderId = session.metadata?.checkout_order_id;
+
+      if (checkoutOrderId) {
+        await supabaseAdmin
+          .from("checkout_orders")
+          .update({ status: "payment_failed" })
+          .eq("id", checkoutOrderId);
+      }
+
+      if (customerId) {
+        await supabaseAdmin
+          .from("customers")
+          .update({ status: "payment_failed", payment_status: "failed", onboarding_stage: "payment_failed" })
+          .eq("id", customerId);
+        await recordAuditEvent(supabaseAdmin, {
+          customerId,
+          actorType: "stripe",
+          eventType: "payment_failed",
+          dedupeKey: `payment_failed:${event.id}`,
+          eventDescription: "Public cart checkout payment failed or expired.",
+          metadata: { stripeCheckoutSessionId: session.id, checkoutOrderId, stripeEventType: event.type },
+        });
+        await createAdminNotification(supabaseAdmin, {
+          customerId,
+          eventType: "payment_failed",
+          dedupeKey: `payment_failed:${event.id}`,
+          title: "Cart checkout payment failed",
+          message: `Public checkout ${session.id} did not complete payment.`,
+          priority: "urgent",
+          metadata: { stripeCheckoutSessionId: session.id, checkoutOrderId, stripeEventType: event.type },
+        });
+      }
+    }
 
     if (event.type === "invoice.payment_failed") {
     const invoice = event.data.object as Stripe.Invoice;

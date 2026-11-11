@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { escapeHtml, renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
 
 type AdminNotificationInput = {
   customerId?: string | null;
@@ -45,4 +46,41 @@ export async function createAdminNotification(
       throw error;
     }
   }
+
+  if (!error) {
+    await sendAdminMilestoneEmail(notification).catch((emailError) => {
+      console.warn("Admin milestone email was not sent:", emailError);
+    });
+  }
+}
+
+const emailEventPattern = /checkout_started|payment_completed|payment_failed|activated|uploaded|submitted|content_received|message|shipped|review|failed/i;
+
+async function sendAdminMilestoneEmail(notification: AdminNotificationInput) {
+  const recipients = (process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS || process.env.ADMIN_NOTIFICATION_EMAILS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (!recipients.length || !emailEventPattern.test(notification.eventType)) return;
+
+  const metadata = Object.entries(notification.metadata || {})
+    .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value))
+    .map(([key, value]) => `<li><strong>${escapeHtml(key)}:</strong> ${escapeHtml(String(value))}</li>`)
+    .join("");
+  const html = renderBrandedEmail({
+    eyebrow: "Adminavisering",
+    title: notification.title,
+    intro: notification.message,
+    showHelper: false,
+    children: `<p><strong>Prioritet:</strong> ${escapeHtml(notification.priority || "normal")}</p>${metadata ? `<ul>${metadata}</ul>` : ""}`,
+    footer: "Screenia Admin",
+  });
+
+  await Promise.all(recipients.map((to) => sendTransactionalEmail({
+    to,
+    subject: `[Screenia] ${notification.title}`,
+    text: `${notification.title}\n\n${notification.message}`,
+    html,
+  })));
 }

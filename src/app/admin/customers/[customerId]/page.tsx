@@ -56,6 +56,7 @@ import type {
   CommunicationView,
   Customer,
   CustomerAsset,
+  CheckoutOrderSummary,
   CustomerDetailSection,
   CustomerMessage,
   CustomerOperationId,
@@ -90,6 +91,7 @@ export default function CustomerDetailPage({
   const [devices, setDevices] = useState<Device[]>([]);
   const [stockItems, setStockItems] = useState<InventoryStockItem[]>([]);
   const [subscriptions, setSubscriptions] = useState<CustomerSubscription[]>([]);
+  const [checkoutOrder, setCheckoutOrder] = useState<CheckoutOrderSummary | null>(null);
   const [refundCases, setRefundCases] = useState<CustomerRefundCase[]>([]);
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [messages, setMessages] = useState<CustomerMessage[]>([]);
@@ -280,6 +282,7 @@ export default function CustomerDetailPage({
         analytics_consent,
         notes,
         status,
+        onboarding_stage,
         created_at,
         updated_at,
         onboarding_token,
@@ -326,6 +329,7 @@ export default function CustomerDetailPage({
         analytics_consent,
         notes,
         status,
+        onboarding_stage,
         created_at,
         updated_at,
         onboarding_token,
@@ -411,6 +415,7 @@ export default function CustomerDetailPage({
       setDevices([]);
       setStockItems([]);
       setSubscriptions([]);
+      setCheckoutOrder(null);
       setMessages([]);
       setAssets([]);
       setAuditEvents([]);
@@ -453,6 +458,23 @@ export default function CustomerDetailPage({
       setQuotePlanCode(
         loadedCustomer.requested_quote_items[0]?.pricingPlanCode || "",
       );
+    }
+
+    const { data: checkoutOrderData, error: checkoutOrderError } = await supabase
+      .from("checkout_orders")
+      .select("id, status, initial_amount_sek, monthly_amount_sek, currency, stripe_checkout_session_id, stripe_customer_id, stripe_subscription_id, paid_at, activation_email_sent_at, account_activated_at, materials_submitted_at, created_at")
+      .eq("customer_id", customerId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (checkoutOrderError) {
+      if (!isSchemaMismatch(checkoutOrderError)) {
+        console.warn("Checkout order could not be loaded.", checkoutOrderError);
+      }
+      setCheckoutOrder(null);
+    } else {
+      setCheckoutOrder((checkoutOrderData || null) as CheckoutOrderSummary | null);
     }
 
     const { data: devicesData, error: devicesError } = await supabase
@@ -1894,8 +1916,9 @@ export default function CustomerDetailPage({
 
   const customerWorkflowCompletion: Record<CustomerDetailSection, boolean> = {
     overview: Boolean(customer.name && (customer.email || customer.billing_email)),
-    onboarding: Boolean(
-      customer.onboarding_token ||
+      onboarding: Boolean(
+      customer.onboarding_stage && customer.onboarding_stage !== "lead" ||
+        customer.onboarding_token ||
         customer.requested_quote_items?.length ||
         subscriptions.length > 0,
     ),
@@ -1931,7 +1954,7 @@ export default function CustomerDetailPage({
     },
     {
       id: "onboarding",
-      label: "Request & quote",
+      label: "Cart & order",
       stage: "2",
       description: "Create offer and send setup link",
       complete: customerWorkflowCompletion.onboarding,
@@ -2403,6 +2426,24 @@ export default function CustomerDetailPage({
           <InfoRow label="Cancelled" value={formatDateTime(customer.cancelled_at)} />
           <InfoRow label="Customer ID" value={customer.id} />
         </div>
+
+        {checkoutOrder && (
+          <div className="admin-customer-status-panel" aria-label="Public checkout status">
+            <div>
+              <p className="admin-operation-kicker">Public cart checkout</p>
+              <h3>{checkoutOrder.status.replaceAll("_", " ")}</h3>
+              <p className="admin-muted">
+                Initial payment {formatSek(checkoutOrder.initial_amount_sek)} · monthly {formatSek(checkoutOrder.monthly_amount_sek)} · order {checkoutOrder.id}
+              </p>
+            </div>
+            <div className="admin-compact-info-grid">
+              <InfoRow label="Payment confirmed" value={formatDateTime(checkoutOrder.paid_at)} />
+              <InfoRow label="Activation email" value={formatDateTime(checkoutOrder.activation_email_sent_at)} />
+              <InfoRow label="Account activated" value={formatDateTime(checkoutOrder.account_activated_at)} />
+              <InfoRow label="Materials submitted" value={formatDateTime(checkoutOrder.materials_submitted_at)} />
+            </div>
+          </div>
+        )}
 
         <div className="admin-customer-status-panel">
           <div>

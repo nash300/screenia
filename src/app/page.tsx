@@ -24,17 +24,10 @@ import {
   type LandingAsset,
 } from "./landing-content";
 import {
-  ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
-  INCLUDED_SETUP_SCREEN_COUNT,
-  additionalSetupScreenCount,
-  calculateSetupFeeSek,
+  BASE_SETUP_FEE_SEK,
 } from "@/lib/pricing/setup-fee";
 import {
-  ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK,
   BASE_SHIPPING_FEE_SEK,
-  INCLUDED_SHIPPING_DEVICE_COUNT,
-  additionalShippingDeviceCount,
-  calculateShippingFeeSek,
 } from "@/lib/pricing/shipping-fee";
 import {
   type LandingExampleVideo,
@@ -204,7 +197,15 @@ export default function Home() {
   const [email, setEmail] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("");
+  const [organisationNumber, setOrganisationNumber] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [city, setCity] = useState("");
+  const [businessCategory, setBusinessCategory] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [preferredContactChannel, setPreferredContactChannel] = useState("email");
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [requestStatus, setRequestStatus] = useState<
     "idle" | "saving" | "success" | "error"
@@ -213,7 +214,6 @@ export default function Home() {
   const [serviceLogos, setServiceLogos] = useState<LandingAsset[]>([]);
   const [exampleVideos, setExampleVideos] = useState<LandingExampleVideo[]>([]);
   const exampleSwipeStart = useRef<{ x: number; y: number } | null>(null);
-
   const t = copy.sv;
   const faqGroups = [
     { title: "Kom igång", items: t.faqs.slice(0, 3) },
@@ -377,19 +377,12 @@ export default function Home() {
     (sum, item) => sum + item.quantity,
     0,
   );
-  const selectedSetupFee = calculateSetupFeeSek(
-    selectedScreenCount,
-    plans[0].setupFeeSek,
-  );
-  const selectedAdditionalSetupScreens =
-    additionalSetupScreenCount(selectedScreenCount);
+  const selectedSetupFee = selectedScreenCount > 0 ? BASE_SETUP_FEE_SEK : 0;
   const selectedHardwareTotal = selectedQuoteItems.reduce(
     (sum, item) => sum + item.plan.hardwareFeeSek * item.quantity,
     0,
   );
-  const selectedAdditionalShippingDevices =
-    additionalShippingDeviceCount(selectedScreenCount);
-  const selectedShippingTotal = calculateShippingFeeSek(selectedScreenCount);
+  const selectedShippingTotal = selectedScreenCount > 0 ? BASE_SHIPPING_FEE_SEK : 0;
   const selectedMonthlyTotal = selectedQuoteItems.reduce(
     (sum, item) => sum + item.plan.monthlyFeeSek * item.quantity,
     0,
@@ -433,6 +426,16 @@ export default function Home() {
     setRequestOpen(true);
     setRequestStatus("idle");
     setRequestMessage("");
+  };
+
+  const handleCartClick = () => {
+    if (selectedScreenCount === 0) {
+      document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    if (requestOpen || priceBreakdownOpen) return;
+    setSelectionSummaryOpen((current) => !current);
   };
 
   const closePlanRequest = () => {
@@ -509,23 +512,59 @@ export default function Home() {
       return;
     }
 
+    if (!organisationNumber.trim() || !address.trim() || !postalCode.trim() || !city.trim()) {
+      setRequestStatus("error");
+      setRequestMessage("Fyll i organisationsnummer och komplett svensk leveransadress.");
+      return;
+    }
+
+    if (!acceptedTerms || !privacyAccepted) {
+      setRequestStatus("error");
+      setRequestMessage("Godkänn villkoren och integritetspolicyn innan betalning.");
+      return;
+    }
+
     setRequestStatus("saving");
     setRequestMessage("");
 
-    const response = await fetch("/api/onboarding-requests", {
+    const cartResponse = await fetch("/api/cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        quoteItems: selectedQuoteItems.map(({ plan, quantity }) => ({
+        items: selectedQuoteItems.map(({ plan, quantity }) => ({
           pricingPlanCode: plan.code,
           quantity,
         })),
+      }),
+    });
+    const cartData = await cartResponse.json();
+
+    if (!cartResponse.ok || !cartData.token) {
+      setRequestStatus("error");
+      setRequestMessage(cartData.error || "Varukorgen kunde inte skapas.");
+      return;
+    }
+
+    const response = await fetch("/api/checkout/session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        cartToken: cartData.token,
         companyName,
         email,
         contactPerson,
         phone,
-        message,
-        privacyAccepted,
+        organisationNumber,
+        billingEmail,
+        address,
+        postalCode,
+        city,
+        country: "Sverige",
+        businessCategory,
+        websiteUrl,
+        preferredContactChannel,
+        acceptedTerms,
+        acceptedPrivacy: privacyAccepted,
       }),
     });
     const data = await response.json();
@@ -536,24 +575,18 @@ export default function Home() {
       return;
     }
 
-    setCompanyName("");
-    setEmail("");
-    setContactPerson("");
-    setPhone("");
-    setPlanQuantities({
-      standard_fhd: 0,
-      premium_4k: 0,
-    });
-    setMessage("");
-    setPrivacyAccepted(false);
-    setRequestStatus("success");
-    setRequestMessage(t.success);
+    if (data.url) window.location.assign(data.url);
   };
 
   return (
     <div className="landing-page">
       <LandingScrollReveal />
-      <LandingNav currentPath="/" />
+      <LandingNav
+        currentPath="/"
+        cartCount={selectedScreenCount}
+        cartOpen={selectionSummaryOpen}
+        onCartClick={handleCartClick}
+      />
 
       <main id="top">
         <section className="landing-hero landing-hero-modern" aria-labelledby="landing-hero-title">
@@ -582,34 +615,31 @@ export default function Home() {
             </div>
 
             <div className="landing-hero-modern-visual" aria-label="Screenias skärmenhet">
-              <div className="landing-hero-process landing-hero-process-background" aria-hidden="true">
-                <figure className="landing-hero-process-card landing-hero-process-delivery">
-                  <Image
-                    src="/landing/hero-process/delivery-kit.webp"
-                    alt=""
-                    fill
-                    priority
-                    sizes="(max-width: 900px) 74vw, 41vw"
-                  />
-                </figure>
-                <figure className="landing-hero-process-card landing-hero-process-connection">
-                  <Image
-                    src="/landing/hero-process/tv-connection.webp"
-                    alt=""
-                    fill
-                    priority
-                    sizes="(max-width: 900px) 75vw, 42vw"
-                  />
-                </figure>
-                <figure className="landing-hero-process-card landing-hero-process-display">
-                  <Image
-                    src="/landing/hero-process/restaurant-display.webp"
-                    alt=""
-                    fill
-                    priority
-                    sizes="(max-width: 900px) 92vw, 48vw"
-                  />
-                </figure>
+              <div className="landing-hero-video-frame" aria-hidden="true">
+                <video
+                  className="landing-hero-video landing-hero-video-backdrop"
+                  src="/landing/hero/hero-loop.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="metadata"
+                  aria-hidden="true"
+                  disablePictureInPicture
+                  disableRemotePlayback
+                />
+                <video
+                  className="landing-hero-video"
+                  src="/landing/hero/hero-loop.mp4"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  preload="auto"
+                  aria-hidden="true"
+                  disablePictureInPicture
+                  disableRemotePlayback
+                />
               </div>
 
               <div className="landing-hero-product-cluster" aria-hidden="true">
@@ -753,7 +783,7 @@ export default function Home() {
                       label="Skärmenhet, engångsvis"
                       value={formatLandingSek(plan.hardwareFeeSek)}
                     />
-                    <PriceRow label="Startavgift (upp till 3 skärmar)" value={plan.setupFee} />
+                    <PriceRow label="Fast startavgift" value={plan.setupFee} />
                   </div>
                   <div className="landing-plan-quantity">
                     <div>
@@ -954,10 +984,46 @@ export default function Home() {
           >
             <div className="landing-selection-plan-list" aria-label="Valda paket">
               {selectedQuoteItems.map(({ plan, quantity }) => (
-                <span key={`selection-${plan.code}`}>
-                  <b>{quantity}×</b> {plan.name} {plan.resolution}
+                <span key={`selection-${plan.code}`} className="landing-selection-line">
+                  <span className="landing-selection-line-copy">
+                    <b>{quantity}×</b> {plan.name} {plan.resolution}
+                  </span>
+                  <span className="landing-selection-line-controls" aria-label={`Ändra antal ${plan.name} ${plan.resolution}`}>
+                    <button
+                      type="button"
+                      aria-label={`Minska antal ${plan.name} ${plan.resolution}`}
+                      onClick={() => setPlanQuantity(plan.code, quantity - 1)}
+                    >
+                      −
+                    </button>
+                    <span aria-hidden="true">{quantity}</span>
+                    <button
+                      type="button"
+                      aria-label={`Öka antal ${plan.name} ${plan.resolution}`}
+                      onClick={() => setPlanQuantity(plan.code, quantity + 1)}
+                      disabled={selectedScreenCount >= 50}
+                    >
+                      +
+                    </button>
+                  </span>
                 </span>
               ))}
+            </div>
+
+            <div className="landing-selection-add-more">
+              <span>Lägg till fler skärmar</span>
+              <div className="landing-selection-add-more-buttons">
+                {plans.map((plan) => (
+                  <button
+                    key={`selection-add-${plan.code}`}
+                    type="button"
+                    onClick={() => setPlanQuantity(plan.code, planQuantities[plan.code] + 1)}
+                    disabled={selectedScreenCount >= 50}
+                  >
+                    + {plan.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="landing-package-totals landing-selection-totals">
@@ -1146,7 +1212,7 @@ export default function Home() {
             <p>
               {selectedQuoteItems
                 .map(({ plan, quantity }) => `${quantity} × ${plan.name} ${plan.resolution}`)
-              .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och frakt {formatLandingSek(selectedShippingTotal)}. Startavgiften täcker upp till tre skärmar och fraktpriset täcker upp till tre enheter.
+              .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och fast frakt {formatLandingSek(selectedShippingTotal)}.
             </p>
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <input
@@ -1159,22 +1225,41 @@ export default function Home() {
               />
               <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
               <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
-              <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} />
+              <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} required />
               <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} type="tel" />
+              <FormField label="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} placeholder="556000-0000" required />
+              <FormField label="Faktura-e-post" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" />
+              <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
+              <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
+              <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
+              <FormField label="Bransch" value={businessCategory} onChange={setBusinessCategory} placeholder="Restaurang, salong..." />
+              <FormField label="Webbplats" value={websiteUrl} onChange={setWebsiteUrl} placeholder="https://..." />
+              <label>
+                <span>Föredragen kontakt</span>
+                <select value={preferredContactChannel} onChange={(event) => setPreferredContactChannel(event.target.value)}>
+                  <option value="email">E-post</option>
+                  <option value="phone">Telefon</option>
+                  <option value="sms">SMS</option>
+                </select>
+              </label>
               <div className="landing-request-selection landing-request-form-wide">
                 {selectedQuoteItems.map(({ plan, quantity }) => (
                   <span key={plan.code}>{quantity} × {plan.name} {plan.resolution}</span>
                 ))}
               </div>
-              <label className="landing-request-form-wide">
-                <span>{t.fields[4]}</span>
-                <textarea value={message} onChange={(event) => setMessage(event.target.value)} rows={3} placeholder={t.placeholders[4]} />
-              </label>
-
               <p className="landing-request-privacy landing-request-form-wide">
-                {t.requestPrivacy} <a href="/privacy" target="_blank">Integritetspolicy</a>
+                Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen.
               </p>
 
+              <label className="landing-request-checkbox landing-request-form-wide">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(event) => setAcceptedTerms(event.target.checked)}
+                  required
+                />
+                <span>Jag godkänner <a href="/terms" target="_blank">villkoren</a>.</span>
+              </label>
               <label className="landing-request-checkbox landing-request-form-wide">
                 <input
                   type="checkbox"
@@ -1182,7 +1267,7 @@ export default function Home() {
                   onChange={(event) => setPrivacyAccepted(event.target.checked)}
                   required
                 />
-                <span>{t.requestPrivacyConsent}</span>
+                <span>Jag godkänner <a href="/privacy" target="_blank">integritetspolicyn</a>.</span>
               </label>
 
               {requestMessage && (
@@ -1192,7 +1277,7 @@ export default function Home() {
               )}
 
               <button type="submit" disabled={requestStatus === "saving"} className="landing-button landing-button-primary landing-request-submit">
-                {requestStatus === "saving" ? t.sending : t.submit}
+                {requestStatus === "saving" ? "Förbereder säker betalning..." : "Fortsätt till Stripe"}
               </button>
             </form>
           </section>
@@ -1227,10 +1312,7 @@ export default function Home() {
                 <dt>
                   Start och konfiguration
                   <small>
-                    Grundavgift {formatLandingSek(plans[0].setupFeeSek)} (upp till {INCLUDED_SETUP_SCREEN_COUNT} skärmar). Inkluderar personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen.
-                    {selectedAdditionalSetupScreens > 0
-                      ? ` ${selectedAdditionalSetupScreens} extra skärm${selectedAdditionalSetupScreens === 1 ? "" : "ar"} × ${formatLandingSek(ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK)}.`
-                      : ""}
+                    Fast start- och konfigurationsavgift på {formatLandingSek(BASE_SETUP_FEE_SEK)} per order. Inkluderar personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen.
                   </small>
                 </dt>
                 <dd>{formatLandingSek(selectedSetupFee)}</dd>
@@ -1254,10 +1336,7 @@ export default function Home() {
                 <dt>
                   Frakt inom Sverige
                   <small>
-                    {formatLandingSek(BASE_SHIPPING_FEE_SEK)} (upp till {INCLUDED_SHIPPING_DEVICE_COUNT} enheter)
-                    {selectedAdditionalShippingDevices > 0
-                      ? ` + ${selectedAdditionalShippingDevices} extra enhet${selectedAdditionalShippingDevices === 1 ? "" : "er"} × ${formatLandingSek(ADDITIONAL_SHIPPING_FEE_PER_DEVICE_SEK)}`
-                      : ""}.
+                    Fast fraktavgift på {formatLandingSek(BASE_SHIPPING_FEE_SEK)} per order, oavsett antal enheter.
                   </small>
                 </dt>
                 <dd>{formatLandingSek(selectedShippingTotal)}</dd>

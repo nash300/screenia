@@ -20,13 +20,13 @@ export const copy = {
     workflowText:
       "Ni gör de enkla valen. Screenia sköter planering, innehåll, enhet och support.",
     steps: [
-      ["1", "Välj paket & skicka förfrågan", [
-        "Ni väljer paket och antal skärmar, fyller i företags- och leveransuppgifter och skickar förfrågan.",
-        "Screenia granskar den och återkommer.",
+      ["1", "Välj paket & betala", [
+        "Ni väljer paket och antal skärmar, fyller i företags- och leveransuppgifter och betalar säkert via Stripe.",
+        "Standard och Premium kan kombineras i samma kundvagn.",
       ]],
       ["2", "Bekräfta, betala & skapa profil", [
-        "Screenia skickar en personlig beställningslänk där ni bekräftar uppgifterna och betalar.",
-        "Därefter skapar ni kundprofilen via länken i e-postmeddelandet.",
+        "Efter bekräftad betalning skickar Screenia en aktiveringslänk till e-postadressen.",
+        "Ni skapar ett lösenord och kommer sedan direkt till kundportalen.",
       ]],
       ["3", "Skicka material – Screenia designar", [
         "Ni skickar materialet som ska visas, och Screenia planerar och designar innehållet.",
@@ -43,7 +43,7 @@ export const copy = {
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
-      "Välj Standard Full HD eller Premium 4K. Premium inkluderar möjlighet att ladda upp egna videor, startavgiften täcker upp till tre skärmar och månadsabonnemanget startar efter provperioden.",
+      "Välj Standard Full HD eller Premium 4K. Premium inkluderar möjlighet att ladda upp egna videor, och månadsabonnemanget startar efter den kostnadsfria provperioden.",
     recommended: "Rekommenderas",
     setupFee: "Startavgift",
     monthly: "Per månad",
@@ -59,12 +59,12 @@ export const copy = {
       "Se hur professionellt utformade presentationer kan lyfta information och erbjudanden på både stående och liggande skärmar.",
     faqTitle: "Svar inför val av skärmlösning",
     faqs: [
-      ["Vad händer efter valet av skärmar?", "En kort förfrågan skickas med önskad kombination. Efter Screenias granskning skickas en personlig startguide för bekräftelse av uppgifter, villkor och betalning."],
+      ["Vad händer efter valet av skärmar?", "Ni lägger Standard och Premium i kundvagnen, fyller i uppgifterna och betalar startkostnaden via Stripe. Därefter får ni en aktiveringslänk till kundportalen."],
       ["Vilket material behövs?", "Inget material behövs före betalningen. Därefter kan meny, prislista, logotyp och bilder laddas upp eller en Screenia-mall väljas."],
       ["Hur lång är uppstartstiden?", "Efter betalningen samlas innehållet in. Screenia tar därefter fram den första layouten, förbereder hårdvaran och skickar enheten när arbetet är klart."],
       ["Vilken TV eller skärm krävs?", "En Smart TV eller skärm med HDMI-ingång och tillgång till Wi-Fi krävs."],
       ["När börjar abonnemanget debiteras?", "Månadsabonnemanget börjar först efter den kostnadsfria provperioden. Första betalningen avser uppstart, valda enheter och frakt."],
-      ["Går det att kombinera paketen?", "Ja. Standard Full HD och Premium 4K kan kombineras i samma förfrågan. Screenia kontrollerar att kombinationen passar innehållet och användningen."],
+      ["Går det att kombinera paketen?", "Ja. Standard Full HD och Premium 4K kan kombineras i samma kundvagn och betalas i en gemensam checkout."],
       ["Vilken upplösning bör väljas?", "Full HD passar enklare innehåll och mindre skärmar. 4K rekommenderas när menyer, små texter, detaljerade bilder eller större skärmar ska vara extra tydliga."],
       ["Kan jag använda egna videor?", "Ja. Premium inkluderar uppladdning av egna MP4- och WEBM-videor i kundportalen. Screenia granskar materialet före publicering för att säkerställa att det fungerar på skärmen."],
       ["Kan kampanjer och priser visas samtidigt?", "Ja. En layout kan innehålla prislista, erbjudanden, öppettider, QR-kod och bildmaterial i samma visning."],
@@ -73,8 +73,8 @@ export const copy = {
       ["Behövs ett eget tekniskt system?", "Nej. Screenia hanterar skärmupplägg, publicering och uppföljning så att kunden inte behöver bygga ett eget system."],
       ["Vad händer om internetanslutningen bryts?", "Skärmen behöver nätverk för uppdateringar och normal drift. Vid problem kontaktas Screenia för felsökning och nästa åtgärd."],
       ["Hur levereras enheten?", "Lämpligt leveranssätt väljs utifrån adress, paketstorlek och ledtid. Leveransinformation och instruktioner skickas när enheten lämnar Screenia."],
-      ["Vad ingår i startavgiften?", "I start- och konfigurationsavgiften ingår personlig rådgivning vid planering, framtagning av layout och överenskomna justeringar under uppstartsfasen. Aktuella belopp visas i prisverktyget innan förfrågan skickas. Avgiften återbetalas inte efter att layout- eller produktionsarbetet har påbörjats."],
-      ["Kan beställningen avbrytas?", "En förfrågan är inte bindande. Efter betalning beror återbetalning och avbrytande på om layout- eller produktionsarbete har startat."],
+      ["Vad ingår i startavgiften?", "Startavgiften på 499 kr visas tillsammans med enhetskostnader och fast frakt i kundvagnen. Månadsabonnemanget börjar efter den kostnadsfria 21-dagarsperioden."],
+      ["Kan beställningen avbrytas?", "Kontakta Screenia om du behöver hjälp med en betald order. Abonnemang och betalningar hanteras enligt villkoren."],
     ],
     companyTitle: "Företagsinformation",
     companyText:
@@ -86,23 +86,23 @@ export const copy = {
     contactButton: "Kontakta Screenia",
     seoIntro:
       "Screenia erbjuder digital skyltning för företag och organisationer i Sverige, oavsett bransch eller verksamhetstyp. Visa information, erbjudanden och annat visuellt innehåll på en vanlig TV eller professionell informationsskärm. Ni använder er befintliga skärm medan Screenia sköter skärminnehåll, publicering och teknisk support.",
-    modalEyebrow: "Skicka förfrågan",
+    modalEyebrow: "Slutför beställningen",
     modalTitle: "Starta med",
     modalText:
-      "Efter att företagets uppgifter har skickats återkommer Screenia med en personlig startguide för uppgifter, villkor och betalning.",
+      "Fyll i företags- och leveransuppgifterna. Du skickas sedan till Stripe för att betala startkostnaden.",
     close: "Stäng",
     fields: ["Företagsnamn *", "E-post *", "Kontaktperson", "Telefon", "Meddelande"],
     screenCountLabel: "Antal skärmar *",
     screenCountHelp: "Ange önskat antal skärmar eller enheter.",
     placeholders: ["Exempel: Salon Bella", "namn@foretag.se", "Kontaktpersonens namn", "+46...", "Plats, bransch eller annan relevant information."],
     requestPrivacy:
-      "Uppgifterna används för att hantera förfrågan och skapa en personlig startguide. Känsliga personuppgifter ska inte anges i meddelandet.",
+      "Uppgifterna används för att skapa ordern och aktivera kundportalen efter betalning.",
     requestPrivacyConsent:
-      "Jag har läst integritetspolicyn och förstår att Screenia sparar uppgifterna för att hantera min förfrågan.",
-    sending: "Skickar förfrågan...",
-    submit: "Skicka förfrågan",
+      "Jag har läst integritetspolicyn och förstår att Screenia sparar uppgifterna för att hantera min order.",
+    sending: "Förbereder säker betalning...",
+    submit: "Fortsätt till Stripe",
     success:
-      "Tack. Förfrågan är mottagen och Screenia återkommer med en personlig startguide.",
+      "Tack. Ordern är registrerad och du skickas vidare till säker betalning.",
     error: "Förfrågan kunde inte skickas.",
     legal: ["Villkor", "Integritet", "Alla rättigheter förbehållna."],
   },
@@ -125,13 +125,13 @@ export const copy = {
     workflowText:
       "You make the simple choices. Screenia handles planning, content, the device, and support.",
     steps: [
-      ["1", "Choose a package & send a request", [
-        "You choose a package and number of screens, enter the company and delivery details, and send the request.",
-        "Screenia reviews it and contacts you.",
+      ["1", "Choose a package & pay", [
+        "Choose packages and screen quantities, enter company and delivery details, and pay securely through Stripe.",
+        "Standard and Premium can be combined in one cart.",
       ]],
       ["2", "Confirm, pay & create a profile", [
-        "Screenia sends a personal order link where you confirm the details and pay.",
-        "You then create your profile using the link in the email.",
+        "After payment is confirmed, Screenia sends an activation link to your email.",
+        "Create a password and continue to the customer portal.",
       ]],
       ["3", "Send material — Screenia designs", [
         "You send the material to be displayed, and Screenia plans and designs the content.",
@@ -148,7 +148,7 @@ export const copy = {
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
     pricingText:
-      "Choose Standard Full HD or Premium 4K. Premium includes customer video uploads, the base setup fee covers up to three screens, and the monthly subscription starts after the trial.",
+      "Choose Standard Full HD or Premium 4K. Premium includes customer video uploads, and the monthly subscription starts after the free trial.",
     recommended: "Recommended",
     setupFee: "Setup fee",
     monthly: "Per month",
@@ -164,12 +164,12 @@ export const copy = {
       "See examples of digital presentations we have designed for clear, engaging display on screen.",
     faqTitle: "Answers before selecting a screen solution",
     faqs: [
-      ["What happens after the screens are selected?", "A short request is submitted with the preferred combination. After Screenia reviews it, a personal setup guide is sent for confirmation of details, terms, and payment."],
+      ["What happens after the screens are selected?", "Add Standard and Premium to the cart, enter the required details, and pay the initial cost through Stripe. You then receive an activation link to the customer portal."],
       ["What material is required?", "No material is required before payment. A menu, price list, logo, and images can then be uploaded, or a Screenia template can be selected."],
       ["How long does setup take?", "After payment, the content is collected. Screenia then creates the first layout, prepares the hardware, and ships the device when the work is complete."],
       ["What type of TV or screen is required?", "A Smart TV or screen with an HDMI input and Wi-Fi access is required."],
       ["When does subscription billing start?", "The monthly subscription starts only after the free trial period. The first payment covers setup, selected devices, and shipping."],
-      ["Can the packages be combined?", "Yes. Standard Full HD and Premium 4K can be combined in one request. Screenia checks that the combination fits the content and use case."],
+      ["Can the packages be combined?", "Yes. Standard Full HD and Premium 4K can be combined in one cart and paid in one checkout."],
       ["Which resolution should be selected?", "Full HD suits simpler content and smaller screens. 4K is recommended when menus, small text, detailed images, or larger screens need extra clarity."],
       ["Can I use my own videos?", "Yes. Premium includes customer uploads of MP4 and WEBM videos through the customer portal. Screenia reviews the material before publishing it to the screen."],
       ["Can campaigns and prices be displayed together?", "Yes. A layout can include price lists, offers, opening hours, QR codes, and imagery in the same presentation."],
@@ -178,8 +178,8 @@ export const copy = {
       ["Is a separate technical system required?", "No. Screenia handles screen setup, publishing, and follow-up so the customer does not need to build a separate system."],
       ["What happens if the internet connection fails?", "The screen needs network access for updates and normal operation. If a problem occurs, Screenia can help troubleshoot and agree the next action."],
       ["How is the device shipped?", "A suitable delivery option is selected according to the address, parcel size, and lead time. Delivery information and instructions are sent when the device leaves Screenia."],
-      ["What is included in the setup fee?", "The setup and configuration fee includes personal planning support, layout creation, and agreed adjustments during the setup phase. Current amounts are shown in the pricing tool before the request is submitted."],
-      ["Can the order be cancelled?", "A request is not binding. After payment, cancellation and refunds depend on whether layout or production work has started."],
+      ["What is included in the setup fee?", "The 499 SEK setup fee is shown together with device costs and fixed shipping in the cart. Monthly billing starts after the free 21-day trial."],
+      ["Can the order be cancelled?", "Contact Screenia if you need help with a paid order. Subscriptions and payments are handled according to the terms."],
     ],
     companyTitle: "Company information",
     companyText:
@@ -191,22 +191,22 @@ export const copy = {
     contactButton: "Contact Screenia",
     seoIntro:
       "Screenia provides digital signage in Sweden for salons, shops, restaurants, and local service businesses that want to show menus, price lists, campaigns, and customer information on TV screens.",
-    modalEyebrow: "Send request",
+    modalEyebrow: "Complete your order",
     modalTitle: "Start with",
     modalText:
-      "After the company details are submitted, Screenia provides a personal setup guide for information, terms, and payment.",
+      "Enter the company and delivery details. You will then continue to Stripe to pay the initial cost.",
     close: "Close",
     fields: ["Company name *", "Email *", "Contact person", "Phone", "Message"],
     screenCountLabel: "Number of screens *",
     screenCountHelp: "Specify the required number of screens or devices.",
     placeholders: ["Example: Salon Bella", "name@company.com", "Contact name", "+46...", "Location, industry, or other relevant information."],
     requestPrivacy:
-      "The information is used to handle the request and create a personal setup guide. Sensitive personal data must not be included in the message.",
+      "The information is used to create the order and activate the customer portal after payment.",
     requestPrivacyConsent:
-      "I have read the privacy policy and understand that Screenia stores these details to handle my request.",
-    sending: "Sending request...",
-    submit: "Send request",
-    success: "Thank you. The request has been received, and Screenia will provide a personal setup guide.",
+      "I have read the privacy policy and understand that Screenia stores these details to handle my order.",
+    sending: "Preparing secure payment...",
+    submit: "Continue to Stripe",
+    success: "Thank you. The order is registered and you will continue to secure payment.",
     error: "The request could not be sent.",
     legal: ["Terms", "Privacy", "All rights reserved."],
   },

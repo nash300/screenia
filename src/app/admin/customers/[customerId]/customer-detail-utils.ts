@@ -58,6 +58,7 @@ export const normalizeCustomer = (row: Partial<Customer>): Customer => ({
   analytics_consent: row.analytics_consent ?? null,
   notes: row.notes ?? null,
   status: row.status ?? null,
+  onboarding_stage: row.onboarding_stage ?? null,
   created_at: row.created_at ?? null,
   updated_at: row.updated_at ?? null,
   onboarding_token: row.onboarding_token ?? null,

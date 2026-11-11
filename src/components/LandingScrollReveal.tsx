@@ -99,7 +99,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     const replayHeroMotion = (hero: HTMLElement) => {
       hero
         .querySelectorAll<HTMLElement>(
-          ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+          ".landing-hero-modern-copy, .landing-hero-modern-visual",
         )
         .forEach((target) => target.style.removeProperty("animation"));
       hero.classList.remove("landing-hero-motion-active");
@@ -124,21 +124,6 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
         "screenia-hero-visual-in 900ms cubic-bezier(0.16, 1, 0.3, 1)",
         "90ms",
       );
-      cssFallback(
-        ".landing-hero-process-delivery",
-        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "180ms",
-      );
-      cssFallback(
-        ".landing-hero-process-connection",
-        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "300ms",
-      );
-      cssFallback(
-        ".landing-hero-process-display",
-        "screenia-hero-card-in 720ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "420ms",
-      );
     };
     const heroObserver = new IntersectionObserver(
       (entries) => {
@@ -149,7 +134,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
           } else {
             hero
               .querySelectorAll<HTMLElement>(
-                ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+                ".landing-hero-modern-copy, .landing-hero-modern-visual",
               )
               .forEach((target) => target.style.removeProperty("animation"));
             hero.classList.remove("landing-hero-motion-active");
@@ -195,7 +180,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
       heroSections.forEach((section) => {
         section
           .querySelectorAll<HTMLElement>(
-            ".landing-hero-modern-copy, .landing-hero-modern-visual, .landing-hero-process-card",
+            ".landing-hero-modern-copy, .landing-hero-modern-visual",
           )
           .forEach((target) => target.style.removeProperty("animation"));
         section.classList.remove("landing-hero-motion-active");

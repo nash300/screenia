@@ -20,6 +20,7 @@ export type Customer = {
   analytics_consent: boolean | null;
   notes: string | null;
   status: string | null;
+  onboarding_stage?: string | null;
   created_at: string | null;
   updated_at: string | null;
   onboarding_token: string | null;
@@ -103,6 +104,22 @@ export type CustomerSubscription = {
   monthly_discount_amount_sek: number | null;
   quote_items: QuoteItemRecord[] | null;
   quote_notes: string | null;
+  created_at: string;
+};
+
+export type CheckoutOrderSummary = {
+  id: string;
+  status: string;
+  initial_amount_sek: number;
+  monthly_amount_sek: number;
+  currency: string;
+  stripe_checkout_session_id: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  paid_at: string | null;
+  activation_email_sent_at: string | null;
+  account_activated_at: string | null;
+  materials_submitted_at: string | null;
   created_at: string;
 };
 
