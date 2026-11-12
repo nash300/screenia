@@ -153,7 +153,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Production tracking columns are missing. Apply the latest Supabase migration first.",
+            "Production information is temporarily unavailable. Please try again later.",
         },
         { status: 409 },
       );
@@ -231,7 +231,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Production tracking columns are missing. Apply the latest Supabase migration first.",
+            "Production information is temporarily unavailable. Please try again later.",
         },
         { status: 409 },
       );

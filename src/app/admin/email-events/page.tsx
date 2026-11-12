@@ -174,12 +174,12 @@ export default function AdminEmailEventsPage() {
         <div>
           <span>Total events</span>
           <strong>{events.length}</strong>
-          <small>Latest transactional email evidence</small>
+          <small>Latest messages</small>
         </div>
         <div>
           <span>Healthy delivery</span>
           <strong>{deliveredCount}</strong>
-          <small>Received, processed, delivered, opened, or clicked</small>
+          <small>Delivered, opened, or clicked</small>
         </div>
         <div>
           <span>Needs follow-up</span>
@@ -193,8 +193,7 @@ export default function AdminEmailEventsPage() {
           <div>
             <h2 className="admin-card-title">Delivery evidence</h2>
             <p className="admin-email-heading-copy">
-              Start with messages that need follow-up, then use provider IDs
-              only when troubleshooting delivery with Resend or webhook logs.
+              Start with messages that need follow-up.
             </p>
           </div>
         </div>
@@ -203,7 +202,7 @@ export default function AdminEmailEventsPage() {
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search recipient, subject, event, Resend ID, or Svix ID..."
+            placeholder="Search recipient, subject, or event..."
           />
           <div className="admin-email-filter-row">
             {emailEventFilters.map((filter) => (

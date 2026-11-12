@@ -355,7 +355,7 @@ export default function ExampleGalleryPage() {
       </header>
 
       {notice && <div className={`admin-pricing-notice admin-pricing-notice-${notice.type}`}>{notice.message}</div>}
-      {migrationRequired && <div className="admin-pricing-notice admin-pricing-notice-info">Apply the gallery database migration before editing or uploading videos.</div>}
+      {migrationRequired && <div className="admin-pricing-notice admin-pricing-notice-info">Gallery editing is temporarily unavailable. Please try again later.</div>}
 
       {loading ? <section className="admin-card"><p className="admin-muted">Loading example gallery...</p></section> : (
         <section className="admin-landing-content-section">

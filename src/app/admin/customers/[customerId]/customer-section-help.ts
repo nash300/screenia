@@ -98,7 +98,7 @@ const sectionHelp: Record<Exclude<CustomerDetailSection, "communication">, Custo
       },
       {
         label: "Payment details and history",
-        effect: "Shows payment reference numbers for troubleshooting. It does not change anything.",
+        effect: "Shows payment references and history.",
       },
     ],
     caution:
@@ -153,8 +153,8 @@ const sectionHelp: Record<Exclude<CustomerDetailSection, "communication">, Custo
         effect: "Finds matching notes. Example: search for offline, refund, or reception. It does not change anything.",
       },
       {
-        label: "Full system and payment history",
-        effect: "Shows detailed system and payment history for troubleshooting. It does not change anything.",
+        label: "Payment and activity history",
+        effect: "Shows the customer's payment and activity history.",
       },
     ],
   },

@@ -33,7 +33,7 @@ export async function createAdminNotification(
   if (error) {
     if (error.code === "42P01" || error.code === "PGRST205") {
       console.warn(
-        "Admin notification was not stored because the table is missing. Apply the latest Supabase migrations.",
+        "Admin notification could not be stored because setup is incomplete.",
       );
       if (options?.throwOnError) {
         throw error;

@@ -605,7 +605,7 @@ export default function CustomerDetailPage({
     if (subscriptionError) {
       if (isSchemaMismatch(subscriptionError)) {
         setSchemaNotice(
-          "The database is missing the latest order columns. Apply the latest Supabase migrations before sending quotes or taking payments.",
+          "Order information is temporarily unavailable. Please try again later.",
         );
       } else {
         console.warn("Subscriptions could not be loaded.", subscriptionError);
@@ -659,7 +659,7 @@ export default function CustomerDetailPage({
     } else {
       if (usedSubscriptionFallback) {
         setSchemaNotice(
-          "The database is missing the latest order columns. Some order details are hidden until migrations are applied.",
+          "Some order details are temporarily unavailable. Please try again later.",
         );
       }
       const normalizedSubscriptions = (subscriptionData || []).map(
@@ -742,7 +742,7 @@ export default function CustomerDetailPage({
     if (pricingError) {
       if (pricingError.code === "42703") {
         setSchemaNotice(
-          "The database is missing the latest pricing/order columns. Apply the latest Supabase migrations before sending quotes or taking payments.",
+          "Pricing information is temporarily unavailable. Please try again later.",
         );
       } else {
         console.warn("Pricing plans could not be loaded.", pricingError);
@@ -2223,7 +2223,6 @@ export default function CustomerDetailPage({
       (device) => (device.playlists?.[0]?.count || 0) === 0,
     )?.device_code,
   });
-  const sectionHelp = getCustomerSectionHelp(activeSection, communicationView);
   const allActionHelp = customerDetailSectionIds.flatMap((section) =>
     section === "communication"
       ? [
@@ -2301,44 +2300,6 @@ export default function CustomerDetailPage({
           </AdminTooltip>
         ))}
       </section>
-
-      <details className="admin-customer-section-help">
-        <summary>
-          <span>
-            <small>Admin help</small>
-            <strong>Simple help for this page</strong>
-          </span>
-          <em>Show or hide help</em>
-        </summary>
-        <div className="admin-customer-section-help-body">
-          <div className="admin-customer-section-help-purpose">
-            <h2>{sectionHelp.title}</h2>
-            <p>{sectionHelp.purpose}</p>
-          </div>
-          <div className="admin-customer-section-help-columns">
-            <div>
-              <h3>Steps to follow</h3>
-              <ol>
-                {sectionHelp.steps.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
-            </div>
-            <div className="admin-customer-section-help-hover-note">
-              <span aria-hidden="true">i</span>
-              <div>
-                <h3>What each button does</h3>
-                <p>Hover over, or focus, the related button or action text to see its explanation.</p>
-              </div>
-            </div>
-          </div>
-          {sectionHelp.caution ? (
-            <p className="admin-customer-section-help-caution">
-              <strong>Before you continue:</strong> {sectionHelp.caution}
-            </p>
-          ) : null}
-        </div>
-      </details>
 
       {recommendedAction && (
         <section
@@ -3017,7 +2978,7 @@ export default function CustomerDetailPage({
                 <td>Setup fee refund boundary</td>
                 <td>
                   {!productionTrackingReady
-                    ? "Migration needed"
+                    ? "Temporarily unavailable"
                     : customer.setup_fee_locked_at
                     ? "Locked as non-refundable"
                     : customer.payment_status === "refunded"
@@ -3728,8 +3689,7 @@ export default function CustomerDetailPage({
               Orders &amp; payments
             </h2>
             <p className="admin-muted">
-              Start with the status below. Technical identifiers and exceptional
-              actions stay out of the normal workflow.
+              Use the status below to keep the customer’s next step clear.
             </p>
           </div>
           <div className="admin-operation-summary">
@@ -4100,10 +4060,10 @@ export default function CustomerDetailPage({
 
         <details className="admin-card admin-customer-history-panel">
           <summary className="admin-customer-history-summary">
-            <AdminTooltip text={actionTooltip("Full system and payment history")}>
+            <AdminTooltip text={actionTooltip("Payment and activity history")}>
               <span>
-                <strong>Full system and payment history</strong>
-                <small>Extra details for troubleshooting</small>
+                <strong>Payment and activity history</strong>
+                <small>View the customer&apos;s history</small>
               </span>
             </AdminTooltip>
             <span>{auditEvents.length} events</span>
@@ -4548,7 +4508,7 @@ export default function CustomerDetailPage({
               </h2>
               <p>
                 This removes the customer and cleanup-safe related records. Audit
-                history is kept without the customer link for troubleshooting.
+                A record of the action is kept without the customer’s personal details.
               </p>
             </div>
 

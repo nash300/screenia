@@ -8541,6 +8541,7 @@
   min-height: 0;
   overflow: visible;
   justify-self: stretch;
+  pointer-events: none;
 }
 
 .screenia-theme .landing-page .landing-hero-product-cluster {

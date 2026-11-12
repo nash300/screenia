@@ -42,10 +42,6 @@ export default async function AdminLayout({
           </Link>
 
           <div className="admin-sidebar-intro">
-            <p className="admin-sidebar-kicker">Admin workspace</p>
-            <p className="admin-sidebar-description">
-              Start on Overview. It shows the next customer task.
-            </p>
             {adminRole ? (
               <div className="admin-sidebar-role" aria-label="Current admin role">
                 <span>Access role</span>

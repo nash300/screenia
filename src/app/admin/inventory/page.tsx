@@ -90,7 +90,7 @@ export default function AdminInventoryPage() {
     if (itemError) {
       if (itemError.code === "PGRST205") {
         setSchemaWarning(
-          "Hardware stock is not ready in the database yet. Ask the developer to apply the inventory setup before adding boxes.",
+          "Hardware stock is temporarily unavailable. Please try again later.",
         );
       } else {
         console.error("Load inventory error:", itemError);

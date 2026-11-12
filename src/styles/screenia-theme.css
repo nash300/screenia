@@ -3123,8 +3123,6 @@
 }
 
 .screenia-theme .admin-sidebar :is(
-  .admin-sidebar-kicker,
-  .admin-sidebar-description,
   .admin-sidebar-version,
   .admin-nav-group-title
 ) {

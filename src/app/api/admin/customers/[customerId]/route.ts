@@ -800,7 +800,7 @@ export async function POST(
 
   if (profilePreflight.error) {
     return deleteErrorResponse(
-      "Anonymization cannot start because customer profile columns are missing. Apply the latest Supabase migrations first.",
+      "Customer information is temporarily unavailable. Please try again later.",
       profilePreflight.error,
     );
   }

@@ -131,7 +131,7 @@ export async function GET(request: Request) {
       return NextResponse.json({
         messages: [],
         warning:
-          "Customer message tables are not available. Apply the latest Supabase migrations.",
+          "Customer messages are temporarily unavailable. Please try again later.",
       });
     }
 

@@ -59,7 +59,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Refund safety columns are missing. Apply the latest Supabase migration before refunding customers.",
+            "Refund information is temporarily unavailable. Please try again later.",
         },
         { status: 409 },
       );

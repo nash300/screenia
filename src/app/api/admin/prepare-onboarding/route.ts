@@ -343,7 +343,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "Database migrations are not applied yet. Apply the latest Supabase migrations before sending quote/onboarding emails.",
+            "Onboarding is temporarily unavailable. Please try again later.",
         },
         { status: 409 },
       );

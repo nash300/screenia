@@ -167,7 +167,7 @@ export async function GET(request: Request) {
       return NextResponse.json({
         assets: [],
         warning:
-          "Customer material tables are not available. Apply the latest Supabase migrations.",
+          "Customer materials are temporarily unavailable. Please try again later.",
       });
     }
 
