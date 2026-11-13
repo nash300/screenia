@@ -21,6 +21,7 @@ import type { AccountData, MaterialUploadItem } from "./account-types";
 import { fetchAccountData } from "./account-loader";
 import { accountRequest } from "./account-request";
 import { groupCustomerMessageThreads } from "@/lib/communication/customer-message-threads";
+import ScreeniaPortalGraphic from "@/components/ScreeniaPortalGraphic";
 
 type AccountSection = "overview" | "setup" | "material" | "messages" | "billing" | "legal";
 
@@ -1332,6 +1333,7 @@ export default function AccountPage() {
                 Hantera abonnemang, skärmmaterial, ärenden och kontohistorik på ett samlat ställe.
               </p>
             </div>
+            <ScreeniaPortalGraphic className="account-hero-graphic" />
             <StatusPill label={statusLabel(visibleCustomerStatus)} />
           </section>
 

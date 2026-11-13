@@ -3328,6 +3328,16 @@
   text-transform: uppercase;
 }
 
+.screenia-admin-login-graphic {
+  position: absolute;
+  right: 7%;
+  bottom: 8%;
+  width: 240px;
+  height: 150px;
+  opacity: 0.78;
+  pointer-events: none;
+}
+
 .screenia-admin-login-status > span {
   width: 8px;
   height: 8px;
@@ -3557,6 +3567,14 @@
 
   .screenia-admin-login-overview-copy {
     margin-block: 44px;
+  }
+
+  .screenia-admin-login-graphic {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    align-self: flex-end;
+    margin: -18px 4px 28px 0;
   }
 
   .screenia-admin-login-overview h1 {

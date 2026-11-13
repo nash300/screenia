@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
+import ScreeniaPortalGraphic from "@/components/ScreeniaPortalGraphic";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -100,6 +101,8 @@ export default function AdminLoginPage() {
               </li>
             </ul>
           </div>
+
+          <ScreeniaPortalGraphic className="screenia-admin-login-graphic" label="Screenia operations dashboard illustration" />
 
           <p className="screenia-admin-login-restricted">
             Endast för behörig Screenia-personal

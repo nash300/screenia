@@ -3525,6 +3525,32 @@
     url("/landing/section-art/digital-menu-board.jpg") center / cover;
 }
 
+.account-hero-copy {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  max-width: 39rem;
+  padding-right: clamp(120px, 14vw, 190px);
+}
+
+.account-hero-graphic {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: clamp(54px, 10vw, 132px);
+  width: clamp(170px, 22vw, 260px);
+  height: 176px;
+  opacity: 0.9;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.account-hero-panel > .account-status {
+  position: relative;
+  z-index: 3;
+  align-self: flex-start;
+}
+
 .account-hero-panel::after {
   position: absolute;
   inset: 14px;
@@ -7738,6 +7764,25 @@
 
   .landing-hero-video {
     width: 100%;
+  }
+
+  .account-hero-panel {
+    min-height: 250px;
+  }
+
+  .account-hero-copy {
+    max-width: none;
+    padding-right: 0;
+  }
+
+  .account-hero-graphic {
+    top: auto;
+    right: 24px;
+    bottom: 18px;
+    width: 150px;
+    height: 112px;
+    opacity: 0.48;
+    transform: none;
   }
 
   .landing-hero-video-frame {

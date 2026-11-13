@@ -88,8 +88,12 @@ export function renderBrandedEmail({
           @media only screen and (max-width: 520px) {
             .screenia-email-shell { padding: 14px 8px !important; }
             .screenia-email-header { padding: 18px 20px !important; }
+            .screenia-email-graphic { padding: 18px 20px !important; }
+            .screenia-email-graphic-table { width: 100% !important; }
+            .screenia-email-graphic-screen { width: 150px !important; height: 82px !important; }
             .screenia-email-title { font-size: 28px !important; overflow-wrap: anywhere !important; }
             .screenia-email-section { padding-left: 20px !important; padding-right: 20px !important; }
+            .screenia-email-button { display: block !important; width: auto !important; text-align: center !important; }
           }
         </style>
       </head>
@@ -102,6 +106,20 @@ export function renderBrandedEmail({
             <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
               <td style="padding:0 12px 0 0; vertical-align:middle;"><img src="${logoUrl}" alt="" width="44" height="44" style="display:block; width:44px; height:44px; border:0;" /></td>
               <td style="vertical-align:middle; font-family:Arial, sans-serif; font-size:24px; font-weight:800; line-height:1; color:#ffffff;">screenia<span style="color:#ffd32a;">.se</span></td>
+            </tr></table>
+          </div>
+          <div class="screenia-email-graphic" style="padding:20px 28px 0; background:#073984;">
+            <table class="screenia-email-graphic-table" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;"><tr>
+              <td style="height:8px; background:#44d7ff; width:20%;"></td>
+              <td style="height:8px; background:#2f7df6; width:45%;"></td>
+              <td style="height:8px; background:#ffd21f; width:35%;"></td>
+            </tr><tr>
+              <td colspan="3" style="padding:0;">
+                <div class="screenia-email-graphic-screen" style="width:210px; height:108px; margin:0 auto; border:1px solid rgba(180,225,255,.72); border-radius:14px 14px 0 0; background:linear-gradient(145deg,#eaf6ff,#317fe1); box-shadow:0 18px 30px rgba(0,21,64,.32);">
+                  <div style="padding:8px 10px; background:#0d4b9f; text-align:left;"><span style="display:inline-block; width:5px; height:5px; margin-right:4px; border-radius:50%; background:#fff;"></span><span style="display:inline-block; width:5px; height:5px; margin-right:4px; border-radius:50%; background:#fff;"></span><span style="display:inline-block; width:5px; height:5px; border-radius:50%; background:#ffd21f;"></span></div>
+                  <div style="padding:15px 14px; text-align:left;"><span style="display:inline-block; width:44%; height:35px; margin-right:8%; vertical-align:bottom; border-bottom:4px solid #fff; border-left:8px solid #54aaff; border-right:8px solid #54aaff;"></span><span style="display:inline-block; width:38%; height:8px; border-radius:99px; background:#fff; box-shadow:0 15px 0 rgba(7,57,132,.28), 0 30px 0 rgba(7,57,132,.22);"></span></div>
+                </div>
+              </td>
             </tr></table>
           </div>
           <div class="screenia-email-section" style="padding:30px 28px 8px;">

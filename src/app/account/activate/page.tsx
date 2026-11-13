@@ -9,6 +9,7 @@ import {
   syncEmailLinkSession,
 } from "@/lib/supabase/sync-browser-session";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
+import ScreeniaPortalGraphic from "@/components/ScreeniaPortalGraphic";
 import {
   PASSWORD_POLICY_MAX_LENGTH,
   passwordPolicyDescription,
@@ -203,6 +204,7 @@ function AuthShell({
           <h1 className="screenia-auth-hero-title">
             En trygg plats för order, innehåll och support.
           </h1>
+          <ScreeniaPortalGraphic className="screenia-auth-hero-graphic" />
         </section>
 
         <section className="screenia-auth-card-wrap">

@@ -61,6 +61,33 @@
         padding: 30px 28px 8px;
       }
 
+      .email-graphic {
+        padding: 20px 28px 0;
+        background: #061942;
+      }
+
+      .email-graphic-bar {
+        height: 8px;
+        background: linear-gradient(90deg, #44d7ff 0 20%, #2f7df6 20% 65%, #ffd21f 65%);
+      }
+
+      .email-graphic-screen {
+        width: min(210px, 70%);
+        height: 108px;
+        margin: 0 auto;
+        border: 1px solid rgba(180, 225, 255, 0.72);
+        border-radius: 14px 14px 0 0;
+        background: linear-gradient(145deg, #eaf6ff, #317fe1);
+        box-shadow: 0 18px 30px rgba(0, 21, 64, 0.32);
+      }
+
+      .email-graphic-screen-top { padding: 8px 10px; background: #0d4b9f; }
+      .email-graphic-screen-top span { display: inline-block; width: 5px; height: 5px; margin-right: 4px; border-radius: 50%; background: #fff; }
+      .email-graphic-screen-top span:last-child { background: #ffd21f; }
+      .email-graphic-screen-body { padding: 15px 14px; }
+      .email-graphic-chart { display: inline-block; width: 44%; height: 35px; margin-right: 8%; vertical-align: bottom; border-bottom: 4px solid #fff; border-left: 8px solid #54aaff; border-right: 8px solid #54aaff; }
+      .email-graphic-lines { display: inline-block; width: 38%; height: 8px; border-radius: 99px; background: #fff; box-shadow: 0 15px 0 rgba(7, 57, 132, 0.28), 0 30px 0 rgba(7, 57, 132, 0.22); }
+
       .eyebrow {
         margin: 0 0 10px;
         color: #155ee8;
@@ -121,6 +148,17 @@
         color: #65788d;
         font-size: 13px;
       }
+
+      @media only screen and (max-width: 520px) {
+        .shell { padding: 14px 8px; }
+        .email-header, .email-body, .content, .footer { padding-left: 20px; padding-right: 20px; }
+        .email-header { padding-top: 18px; padding-bottom: 18px; }
+        .email-graphic { padding-left: 20px; padding-right: 20px; }
+        h1 { font-size: 28px; overflow-wrap: anywhere; }
+        .intro { font-size: 15px; }
+        .email-graphic-screen { width: 150px; height: 82px; }
+        .summary { padding: 14px; }
+      }
     </style>
   </head>
   <body>
@@ -132,6 +170,13 @@
             <span>screenia<span>.se</span></span>
           </div>
         </header>
+        <div class="email-graphic" aria-hidden="true">
+          <div class="email-graphic-bar"></div>
+          <div class="email-graphic-screen">
+            <div class="email-graphic-screen-top"><span></span><span></span><span></span></div>
+            <div class="email-graphic-screen-body"><span class="email-graphic-chart"></span><span class="email-graphic-lines"></span></div>
+          </div>
+        </div>
         <div class="email-body">
           <p class="eyebrow">Screenia</p>
           <h1>Din Screenia-beställning</h1>
