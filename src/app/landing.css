@@ -3449,13 +3449,14 @@
 .account-sidebar-profile strong {
   color: var(--landing-text);
   font-family: var(--landing-font-ui);
+  font-size: 0.9rem;
   font-weight: 950;
 }
 
 .account-sidebar-profile span,
 .account-menu button span {
   color: var(--landing-muted);
-  font-size: 0.82rem;
+  font-size: 0.75rem;
 }
 
 .account-avatar {
@@ -3482,7 +3483,7 @@
   color: var(--landing-text);
   cursor: pointer;
   font: inherit;
-  padding: 12px;
+  padding: 10px;
   text-align: left;
   transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
@@ -3502,6 +3503,7 @@
 .account-menu button strong {
   color: var(--landing-blue-900);
   font-family: var(--landing-font-ui);
+  font-size: 0.88rem;
   font-weight: 950;
 }
 
@@ -3563,7 +3565,7 @@
   margin: 6px 0;
   color: #ffffff;
   font-family: var(--landing-font-ui);
-  font-size: clamp(2rem, 4vw, 3.1rem);
+  font-size: clamp(1.7rem, 2.8vw, 2.35rem);
   font-weight: 950;
   letter-spacing: 0;
   line-height: 1.04;
@@ -3575,6 +3577,8 @@
 }
 
 .account-hero-panel p {
+  font-size: 0.9rem;
+  line-height: 1.5;
   opacity: 0.78;
 }
 
@@ -3640,7 +3644,7 @@
   display: block;
   margin-top: 8px;
   color: var(--landing-text);
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 950;
 }
 
@@ -3658,7 +3662,7 @@
   padding-bottom: 14px;
   color: var(--landing-text);
   font-family: var(--landing-font-ui);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 950;
   letter-spacing: 0;
 }
@@ -7764,6 +7768,10 @@
 
   .landing-hero-video {
     width: 100%;
+  }
+
+  .account-hero-panel h1 {
+    font-size: 1.7rem;
   }
 
   .account-hero-panel {

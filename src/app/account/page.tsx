@@ -215,7 +215,6 @@ export default function AccountPage() {
   const [messageText, setMessageText] = useState("");
   const [messageFiles, setMessageFiles] = useState<File[]>([]);
   const [requestType, setRequestType] = useState("general");
-  const [requestPriority, setRequestPriority] = useState("normal");
   const [relatedTicketNumber, setRelatedTicketNumber] = useState("");
   const [materialDescription, setMaterialDescription] = useState("");
   const [materialCategory, setMaterialCategory] = useState("image");
@@ -973,7 +972,7 @@ export default function AccountPage() {
         subject: messageSubject,
         message: messageText,
         requestType,
-        priority: requestPriority,
+        priority: "normal",
         relatedTicketNumber: relatedTicketNumber || null,
         files,
       }),
@@ -1865,23 +1864,6 @@ export default function AccountPage() {
                       {requestTypes.map((type) => (
                         <option key={type.value} value={type.value}>
                           {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label>
-                    Prioritet
-                    <select
-                      id="support-priority"
-                      name="requestPriority"
-                      value={requestPriority}
-                      onChange={(event) => setRequestPriority(event.target.value)}
-                      className="account-input"
-                    >
-                      {priorities.map((priority) => (
-                        <option key={priority.value} value={priority.value}>
-                          {priority.label}
                         </option>
                       ))}
                     </select>
