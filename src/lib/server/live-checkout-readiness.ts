@@ -2345,14 +2345,14 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (plan.tax_behavior !== "inclusive") {
       planIssues.push(`${label}: tax_behavior is not inclusive`);
     }
-    if (Number(plan.setup_fee_sek || 0) !== 499) {
-      planIssues.push(`${label}: base administrative/setup fee must be 499 SEK`);
+    if (Number(plan.setup_fee_sek || 0) !== 199) {
+      planIssues.push(`${label}: base administrative/setup fee must be 199 SEK`);
     }
-    if (Number(plan.setup_included_screens || 0) !== 3) {
-      planIssues.push(`${label}: setup must include exactly 3 screens`);
+    if (Number(plan.setup_included_screens || 0) !== 50) {
+      planIssues.push(`${label}: setup must include exactly 50 screens`);
     }
-    if (Number(plan.additional_setup_fee_sek || 0) !== 249) {
-      planIssues.push(`${label}: additional-screen setup fee must be 249 SEK`);
+    if (Number(plan.additional_setup_fee_sek || 0) !== 0) {
+      planIssues.push(`${label}: additional-screen setup fee must be 0 SEK`);
     }
     if (Number(plan.shipping_fee_sek || 0) !== 99) {
       planIssues.push(`${label}: base shipping must be 99 SEK`);
@@ -2372,8 +2372,8 @@ async function pricingReady(supabaseAdmin: SupabaseClient): Promise<CheckResult>
     if (!plan.stripe_setup_price_id) {
       planIssues.push(`${label}: setup Stripe price is missing`);
     }
-    if (!plan.stripe_additional_setup_price_id) {
-      planIssues.push(`${label}: additional-screen setup Stripe price is missing`);
+    if (plan.stripe_additional_setup_price_id) {
+      planIssues.push(`${label}: obsolete additional-screen setup Stripe price must be removed`);
     }
     if (hardwareFee > 0 && !plan.stripe_hardware_price_id) {
       planIssues.push(`${label}: hardware Stripe price is missing`);

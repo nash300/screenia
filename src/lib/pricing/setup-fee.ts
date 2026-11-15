@@ -1,6 +1,6 @@
-export const BASE_SETUP_FEE_SEK = 499;
-export const INCLUDED_SETUP_SCREEN_COUNT = 3;
-export const ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK = 249;
+export const BASE_SETUP_FEE_SEK = 199;
+export const INCLUDED_SETUP_SCREEN_COUNT = 50;
+export const ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK = 0;
 
 export function additionalSetupScreenCount(
   screenQuantity: number,

@@ -17,11 +17,11 @@ describe("cart pricing", () => {
       { pricingPlanCode: "premium_4k", quantity: 1 },
     ])).toMatchObject({
       screenQuantity: 3,
-      setupFeeSek: 499,
+      setupFeeSek: 199,
       hardwareFeeSek: 2497,
       shippingFeeSek: 99,
       monthlyFeeSek: 327,
-      initialPaymentSek: 3095,
+      initialPaymentSek: 2795,
       trialDays: 21,
     });
   });
@@ -44,8 +44,8 @@ describe("cart pricing", () => {
       { pricingPlanCode: "standard_fhd", quantity: 50 },
     ]);
 
-    expect(quote.setupFeeSek).toBe(499);
+    expect(quote.setupFeeSek).toBe(199);
     expect(quote.shippingFeeSek).toBe(99);
-    expect(quote.initialPaymentSek).toBe(50 * 699 + 499 + 99);
+    expect(quote.initialPaymentSek).toBe(50 * 699 + 199 + 99);
   });
 });

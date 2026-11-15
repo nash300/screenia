@@ -12,23 +12,23 @@ import { includedVatFromGross } from "./vat";
 describe("setup pricing scenarios", () => {
   it.each([
     [0, 0],
-    [1, 499],
-    [3, 499],
-    [4, 748],
-    [5.9, 997],
+    [1, 199],
+    [3, 199],
+    [4, 199],
+    [50, 199],
   ])("prices %s screens at %s SEK", (quantity, expected) => {
     expect(calculateSetupFeeSek(quantity)).toBe(expected);
   });
 
   it("charges only newly crossed setup thresholds for add-on screens", () => {
     expect(calculateIncrementalSetupFeeSek(2, 1)).toBe(0);
-    expect(calculateIncrementalSetupFeeSek(3, 1)).toBe(249);
-    expect(calculateIncrementalSetupFeeSek(4, 2)).toBe(498);
+    expect(calculateIncrementalSetupFeeSek(3, 1)).toBe(0);
+    expect(calculateIncrementalSetupFeeSek(4, 2)).toBe(0);
     expect(calculateIncrementalSetupFeeSek(4, 0)).toBe(0);
   });
 
-  it("uses 499 SEK as the default base administrative charge", () => {
-    expect(BASE_SETUP_FEE_SEK).toBe(499);
+  it("uses 199 SEK as the default base administrative charge", () => {
+    expect(BASE_SETUP_FEE_SEK).toBe(199);
   });
 
   it("waives the base charge for a selected new client", () => {
@@ -54,9 +54,9 @@ describe("setup pricing scenarios", () => {
         waiveBaseSetupFee: true,
       }),
     ).toMatchObject({
-      setupFeeSek: 498,
+      setupFeeSek: 0,
       baseSetupFeeChargedSek: 0,
-      additionalSetupScreens: 2,
+      additionalSetupScreens: 0,
       setupFeeWaived: true,
     });
   });
@@ -69,9 +69,9 @@ describe("setup pricing scenarios", () => {
         waiveBaseSetupFee: true,
       }),
     ).toMatchObject({
-      setupFeeSek: 249,
+      setupFeeSek: 0,
       baseSetupFeeChargedSek: 0,
-      additionalSetupScreens: 1,
+      additionalSetupScreens: 0,
       setupFeeWaived: false,
     });
   });

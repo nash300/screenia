@@ -221,7 +221,7 @@ async function cleanFixtures() {
 async function loadPlans() {
   const { data, error } = await supabase
     .from("pricing_plans")
-    .select("id,code,name,resolution,setup_fee_sek,hardware_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,monthly_fee_sek,trial_days,is_active")
+    .select("id,code,name,resolution,setup_fee_sek,setup_included_screens,additional_setup_fee_sek,hardware_fee_sek,shipping_fee_sek,shipping_included_devices,additional_shipping_fee_sek,monthly_fee_sek,trial_days,is_active")
     .in("code", ["standard_fhd", "premium_4k"])
     .eq("is_active", true);
   if (error) throw new Error(`Could not load pricing plans: ${error.message}`);
@@ -311,7 +311,11 @@ function fixtureAmounts(fixture) {
     0,
   );
   const setupFeeSek =
-    fixture.primaryPlan.setup_fee_sek + Math.max(0, screenQuantity - 3) * 249;
+    screenQuantity > 0
+      ? fixture.primaryPlan.setup_fee_sek +
+        Math.max(0, screenQuantity - fixture.primaryPlan.setup_included_screens) *
+          fixture.primaryPlan.additional_setup_fee_sek
+      : 0;
   const deviceSubtotal = fixture.quoteItems.reduce(
     (sum, item) => sum + item.plan.hardware_fee_sek * item.quantity,
     0,
@@ -452,9 +456,12 @@ async function seedFixtures() {
         currency: "sek",
         setup_fee_sek: amounts.setupFeeSek,
         base_setup_fee_sek: fixture.primaryPlan.setup_fee_sek,
-        setup_included_screens: 3,
-        additional_setup_fee_per_screen_sek: 249,
-        additional_setup_screen_count: Math.max(0, amounts.screenQuantity - 3),
+        setup_included_screens: fixture.primaryPlan.setup_included_screens,
+        additional_setup_fee_per_screen_sek: fixture.primaryPlan.additional_setup_fee_sek,
+        additional_setup_screen_count: Math.max(
+          0,
+          amounts.screenQuantity - fixture.primaryPlan.setup_included_screens,
+        ),
         hardware_fee_sek: fixture.primaryPlan.hardware_fee_sek,
         shipping_fee_sek: amounts.shippingSubtotal,
         base_shipping_fee_sek: fixture.primaryPlan.shipping_fee_sek,

@@ -20,8 +20,8 @@ const subscription = (overrides: Partial<Subscription> = {}) =>
     status: "active",
     stripe_payment_status: "active",
     screen_quantity: 1,
-    monthly_fee_sek: 299,
-    setup_fee_sek: 499,
+    monthly_fee_sek: 99,
+    setup_fee_sek: 199,
     hardware_fee_sek: 1_999,
     shipping_fee_sek: 149,
     device_discount_amount_sek: 0,
@@ -80,14 +80,14 @@ describe("customer account billing presentation", () => {
           name: "Standard",
           resolution: "FHD",
           quantity: 2,
-          monthlyFeeSek: 299,
+          monthlyFeeSek: 99,
         },
         {
           pricingPlanCode: "premium_4k",
           name: "Premium",
           resolution: "4K",
           quantity: 1,
-          monthlyFeeSek: 499,
+          monthlyFeeSek: 129,
         },
       ],
     });
@@ -95,19 +95,19 @@ describe("customer account billing presentation", () => {
     expect(subscriptionPackageLabel(mixed)).toBe(
       "2 x Standard FHD + 1 x Premium 4K",
     );
-    expect(subscriptionMonthlyTotalSek(mixed)).toBe(1_097);
+    expect(subscriptionMonthlyTotalSek(mixed)).toBe(327);
     expect(subscriptionPausePlanOptions(mixed)).toEqual([
       {
         value: "standard_fhd",
         pricingPlanCode: "standard_fhd",
         label: "Standard FHD",
-        monthlyFeeSek: 299,
+        monthlyFeeSek: 99,
       },
       {
         value: "premium_4k",
         pricingPlanCode: "premium_4k",
         label: "Premium 4K",
-        monthlyFeeSek: 499,
+        monthlyFeeSek: 129,
       },
     ]);
   });
@@ -115,15 +115,15 @@ describe("customer account billing presentation", () => {
   it("calculates the first payment and legacy multi-screen monthly total", () => {
     const legacy = subscription({
       screen_quantity: 3,
-      monthly_fee_sek: 299,
-      setup_fee_sek: 499,
+      monthly_fee_sek: 99,
+      setup_fee_sek: 199,
       hardware_fee_sek: 3_000,
       shipping_fee_sek: 300,
       device_discount_amount_sek: 500,
     });
 
-    expect(subscriptionInitialPaymentSek(legacy)).toBe(3_299);
-    expect(subscriptionMonthlyTotalSek(legacy)).toBe(897);
+    expect(subscriptionInitialPaymentSek(legacy)).toBe(2_999);
+    expect(subscriptionMonthlyTotalSek(legacy)).toBe(297);
   });
 
   it.each([

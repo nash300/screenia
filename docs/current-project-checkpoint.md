@@ -52,7 +52,7 @@ treat a network/advisory-service delay as a project failure.
 
 ## Current product rules
 
-- Administrative/startup charge: **499 kr including moms**.
+- Administrative/startup charge: **199 kr including moms**.
 - Selected new clients can receive the administrative charge free.
 - Existing-customer add-ons do not inherit the new-client waiver.
 - Issued offers retain their recorded terms during their validity period.
@@ -121,7 +121,7 @@ Security details and applied migrations are recorded in
   the production build passed.
 - Local dev smoke tests passed after a clean Next cache/process restart: `/`,
   `/sa-fungerar-det`, and `/kontakt` returned 200; `/admin` returned 307.
-- Billing invariant scenarios passed, including the 499 kr charge and free
+- Billing invariant scenarios passed, including the 199 kr charge and free
   selected-new-client case.
 - The last GitHub Release checks and CodeQL runs on the preceding source commit
   completed successfully.
