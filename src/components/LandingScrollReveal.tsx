@@ -20,7 +20,7 @@ const defaultSelectors = [
   ".about-hero-copy",
   ".about-hero-visual",
   ".about-belief",
-  ".about-signal-card",
+  ".about-story-card",
   ".about-strategy-card",
   ".about-closing",
 ];

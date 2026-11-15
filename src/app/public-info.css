@@ -682,11 +682,6 @@
   line-height: 1.05;
 }
 
-.public-info-page .about-story {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 0;
-}
-
 .public-info-page .about-story-panel {
   display: grid;
   min-height: 360px;
@@ -741,6 +736,80 @@
   color: #f2c46d;
 }
 
+.public-info-page .about-story {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(18px, 2.4vw, 30px);
+  margin: 0;
+  padding: clamp(26px, 4vw, 48px);
+}
+
+.public-info-page .about-story-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(14px, 1.6vw, 20px);
+}
+
+.public-info-page .about-story-card,
+.public-info-page .about-story-highlight {
+  border: 1px solid rgba(218, 236, 255, 0.24);
+  border-radius: 14px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.045)),
+    rgba(7, 30, 78, 0.36);
+  box-shadow:
+    0 18px 48px rgba(0, 10, 32, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(18px) saturate(126%);
+  -webkit-backdrop-filter: blur(18px) saturate(126%);
+}
+
+.public-info-page .about-story-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-height: 220px;
+  padding: clamp(20px, 2.4vw, 28px);
+}
+
+.public-info-page .about-story-card .about-card-icon,
+.public-info-page .about-story-highlight > .about-card-icon {
+  color: #f2c46d;
+}
+
+.public-info-page .about-story-card h3,
+.public-info-page .about-story-highlight h3 {
+  margin: 0;
+  color: #ffffff;
+  font-family: var(--font-special-elite), Georgia, serif;
+  font-size: clamp(1.35rem, 2vw, 1.75rem);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.public-info-page .about-story-card p,
+.public-info-page .about-story-highlight p {
+  margin: 0;
+  color: rgba(239, 246, 240, 0.8);
+  line-height: 1.62;
+}
+
+.public-info-page .about-story-highlight {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(20px, 2.4vw, 28px);
+  background:
+    linear-gradient(135deg, rgba(21, 94, 232, 0.54), rgba(5, 20, 55, 0.7)),
+    rgba(7, 30, 78, 0.42);
+}
+
+.public-info-page .about-story-highlight > .about-card-icon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+
 @media (max-width: 1120px) {
   .public-info-page .how-hero {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
@@ -762,6 +831,10 @@
   .public-info-page .about-hero,
   .public-info-page .about-story,
   .public-info-page .about-strategy-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .public-info-page .about-story-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -850,6 +923,10 @@
 
   .public-info-page .about-hero-visual {
     min-height: 330px;
+  }
+
+  .public-info-page .about-story-highlight {
+    align-items: flex-start;
   }
 
   .public-info-page .about-hero-dashboard {

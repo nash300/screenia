@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollReveal } from "@/components/LandingScrollReveal";
 import { createPublicPageMetadata, serializeJsonLd } from "@/lib/seo";
@@ -30,16 +29,10 @@ const beliefs = [
   ["growth", "Växer med dig", "Lägg till skärmar när verksamheten växer."],
 ] as const;
 
-const signals = [
-  ["Planera", "Vi hittar rätt upplägg för din verksamhet.", "/landing/free-source/business-consultation.jpg"],
-  ["Visa", "Ditt innehåll får en tydlig plats där kunderna ser det.", "/landing/free-source/retail-digital-signage.jpg"],
-  ["Väx", "Uppdatera enkelt när erbjudandet förändras.", "/landing/free-source/restaurant-neon-sign.jpg"],
-] as const;
-
 const steps = [
-  ["1", "Välj", "Välj paket och skärmar som passar.", "cart"],
-  ["2", "Förbered", "Skicka ditt material så hjälper vi dig vidare.", "upload"],
-  ["3", "Syns", "Vi gör din visning klar för lokalen.", "spark"],
+  ["1", "Välj", "Berätta hur många skärmar du behöver och välj Standard eller Premium. Du ser hela startkostnaden och månadspriset innan du beställer.", "cart"],
+  ["2", "Förbered", "Efter betalningen skapar du ditt konto och laddar upp logo, prislista, bilder och annat du vill visa.", "upload"],
+  ["3", "Syns", "Vi går igenom materialet tillsammans med dig och gör visningen redo för din verksamhet.", "spark"],
 ] as const;
 
 function AboutIcon({ name }: { name: "spark" | "screen" | "growth" | "cart" | "upload" }) {
@@ -107,14 +100,6 @@ export default function AboutPage() {
               Vi hjälper verksamheter att visa menyer, priser, kampanjer och
               information på skärm – tydligt, snyggt och enkelt.
             </p>
-            <div className="about-hero-actions">
-              <Link href="/#pricing" className="landing-button landing-button-primary">
-                Se paket
-              </Link>
-              <Link href="/sa-fungerar-det" className="landing-button landing-button-secondary">
-                Se fördelar
-              </Link>
-            </div>
           </div>
 
           <div className="about-hero-background" aria-hidden="true">
@@ -160,16 +145,36 @@ export default function AboutPage() {
           ))}
         </section>
 
-        <section className="about-signals" aria-label="Screenias arbetssätt">
-          {signals.map(([title, text, image]) => (
-            <article className="about-signal-card" key={title}>
-              <Image src={image} alt={`${title} hos Screenia`} width={1000} height={760} />
-              <div>
-                <h2>{title}</h2>
-                <p>{text}</p>
-              </div>
+        <section className="about-story" aria-labelledby="about-story-title">
+          <div className="about-section-heading">
+            <p className="landing-eyebrow">Om Screenia</p>
+            <h2 id="about-story-title">En tydligare väg från idé till synlighet.</h2>
+            <p>Du ska kunna fokusera på din verksamhet medan din skärm gör jobbet i bakgrunden.</p>
+          </div>
+          <div className="about-story-grid">
+            <article className="about-story-card">
+              <AboutIcon name="spark" />
+              <h3>Vår idé</h3>
+              <p>Vi gör digital skyltning lättare för företag som vill visa mer, sälja bättre och skapa en trevligare kundupplevelse.</p>
             </article>
-          ))}
+            <article className="about-story-card">
+              <AboutIcon name="growth" />
+              <h3>Vår vision</h3>
+              <p>Varje företag ska kunna kommunicera tydligt med en skärm som känns relevant, levande och enkel att uppdatera.</p>
+            </article>
+            <article className="about-story-card">
+              <AboutIcon name="screen" />
+              <h3>Vår lösning</h3>
+              <p>Vi samlar paket, innehåll och personlig hjälp i ett lugnt flöde – så att du alltid vet vad nästa steg är.</p>
+            </article>
+          </div>
+          <div className="about-story-highlight">
+            <AboutIcon name="spark" />
+            <div>
+              <h3>Därför känns Screenia enklare</h3>
+              <p>Du får tydliga priser, hjälp när du behöver den och en visning som är byggd för just din vardag.</p>
+            </div>
+          </div>
         </section>
 
         <section className="about-strategy">
@@ -193,9 +198,6 @@ export default function AboutPage() {
           <p className="landing-eyebrow">Screenia</p>
           <h2>Tydligare budskap. Enklare vardag.</h2>
           <p>Gör mer av skärmen du redan har och låt ditt erbjudande synas där det räknas.</p>
-          <Link href="/#pricing" className="landing-button landing-button-primary">
-            Se paketen
-          </Link>
         </section>
       </main>
 
