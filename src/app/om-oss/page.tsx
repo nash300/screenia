@@ -12,7 +12,7 @@ export const metadata: Metadata = createPublicPageMetadata({
   path: "/om-oss",
   title: "Om Screenia och vår digitala skyltning",
   description:
-    "Lär känna Screenia och hur vi hjälper företag i Sverige med planering, innehåll och teknik för enkel och professionell digital skyltning.",
+    "Lär känna Screenia och hur vi hjälper företag i Sverige att synas tydligare med enkel digital skyltning.",
   keywords: [
     "om Screenia",
     "digital skyltning Sverige",
@@ -25,34 +25,33 @@ export const metadata: Metadata = createPublicPageMetadata({
 });
 
 const beliefs = [
-  ["Tydlighet före teknik", "Kunden ska förstå upplägg, nästa steg och resultat utan att behöva tolka tekniska begrepp."],
-  ["Personlig planering", "Varje uppstart ska kännas genomtänkt, enkel att följa och anpassad efter verksamhetens lokal."],
-  ["Kontrollerad tillväxt", "Tjänsten ska kunna växa med fler skärmar utan att processen blir tung eller otydlig."],
-] as const;
-
-const values = [
-  ["Enkelhet", "Vi skalar bort tekniskt brus och bygger flöden som är lätta att följa."],
-  ["Noggrannhet", "Beställningar, betalningar, innehåll och status ska vara spårbara."],
-  ["Förtroende", "Priser, villkor, leverans och ansvar ska vara tydliga från början."],
-] as const;
-
-const strategy = [
-  ["1", "Lyssna på behovet", "Först identifieras vad verksamheten vill visa och vilken typ av skärm som passar bäst."],
-  ["2", "Göra starten trygg", "Förfrågan, onboarding, betalning, innehåll och support kopplas ihop i ett kontrollerat flöde."],
-  ["3", "Förbättra med data", "När verkliga kundflöden används kan tjänsten utvecklas utan att förlora enkelheten."],
-] as const;
-
-const proofPoints = [
-  ["Planering", "personligt stöd från start"],
-  ["Tydlighet", "samma flöde för uppstart och betalning"],
-  ["Skalbart", "fler skärmar när behovet växer"],
+  ["spark", "Tydligt från start", "Du vet vad som händer och vad det kostar."],
+  ["screen", "Innehåll som syns", "Vi hjälper dig visa rätt budskap i lokalen."],
+  ["growth", "Växer med dig", "Lägg till skärmar när verksamheten växer."],
 ] as const;
 
 const signals = [
-  ["Planering med kunden", "Processen börjar med att förstå lokal, målgrupp och vilket budskap som ska synas.", "/landing/free-source/business-consultation.jpg"],
-  ["Synlighet i lokalen", "Innehållet ska upplevas professionellt där kunden faktiskt möter verksamheten.", "/landing/free-source/retail-digital-signage.jpg"],
-  ["Enkel drift", "Tjänsten byggs för återkommande uppdateringar utan att kunden behöver hantera teknisk drift.", "/landing/free-source/restaurant-neon-sign.jpg"],
+  ["Planera", "Vi hittar rätt upplägg för din verksamhet.", "/landing/free-source/business-consultation.jpg"],
+  ["Visa", "Ditt innehåll får en tydlig plats där kunderna ser det.", "/landing/free-source/retail-digital-signage.jpg"],
+  ["Väx", "Uppdatera enkelt när erbjudandet förändras.", "/landing/free-source/restaurant-neon-sign.jpg"],
 ] as const;
+
+const steps = [
+  ["1", "Välj", "Välj paket och skärmar som passar.", "cart"],
+  ["2", "Förbered", "Skicka ditt material så hjälper vi dig vidare.", "upload"],
+  ["3", "Syns", "Vi gör din visning klar för lokalen.", "spark"],
+] as const;
+
+function AboutIcon({ name }: { name: "spark" | "screen" | "growth" | "cart" | "upload" }) {
+  const paths = {
+    spark: <><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z" /><path d="m19 15 .8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15Z" /></>,
+    screen: <><rect x="3" y="4" width="18" height="13" rx="2" /><path d="M8 21h8M12 17v4" /></>,
+    growth: <><path d="M4 19V9M10 19V5M16 19v-7M22 19V3" /><path d="m4 7 5-3 6 3 6-4" /></>,
+    cart: <><path d="M3 4h2l2.2 10.2a2 2 0 0 0 2 1.6h7.6a2 2 0 0 0 1.9-1.4L20 8H6" /><circle cx="10" cy="20" r="1" /><circle cx="18" cy="20" r="1" /></>,
+    upload: <><path d="M12 16V4m0 0L8 8m4-4 4 4" /><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" /></>,
+  } as const;
+  return <svg className="about-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>;
+}
 
 export default function AboutPage() {
   const structuredData = [
@@ -105,9 +104,8 @@ export default function AboutPage() {
             <p className="landing-eyebrow">Om Screenia</p>
             <h1>Vi gör digital skyltning enklare för företag som vill synas bättre.</h1>
             <p>
-              Screenia är byggt för verksamheter som vill visa menyer, priser,
-              kampanjer och information på skärm utan att fastna i tekniska
-              system, dyra installationer eller otydliga leverantörsflöden.
+              Vi hjälper verksamheter att visa menyer, priser, kampanjer och
+              information på skärm – tydligt, snyggt och enkelt.
             </p>
             <div className="about-hero-actions">
               <Link href="/#pricing" className="landing-button landing-button-primary">
@@ -145,16 +143,17 @@ export default function AboutPage() {
                 </div>
               </div>
               <div className="about-hero-dashboard-stats">
-                <span><b>24/7</b> aktiv visning</span>
-                <span><b>4K</b> skärmkvalitet</span>
+                <span><b>Alltid</b> aktiv visning</span>
+                <span><b>Klar</b> kommunikation</span>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="about-beliefs" aria-label="Vad Screenia tror på">
-          {beliefs.map(([title, text]) => (
+        <section className="about-beliefs" aria-label="Det här får du med Screenia">
+          {beliefs.map(([icon, title, text]) => (
             <article className="about-belief" key={title}>
+              <AboutIcon name={icon} />
               <h2>{title}</h2>
               <p>{text}</p>
             </article>
@@ -173,86 +172,29 @@ export default function AboutPage() {
           ))}
         </section>
 
-        <section className="about-story">
-          <div className="about-story-panel">
-            <p className="landing-eyebrow">Vår vision</p>
-            <h2>Digital skyltning ska vara lika enkel att använda som den är effektiv att se.</h2>
-            <p>
-              Många mindre företag har redan en TV, en meny, en prislista eller
-              kampanjidé, men saknar tid och tekniskt stöd för att göra det
-              snyggt på skärm. Vår vision är att göra den vägen kortare:
-              från första förfrågan till en färdig visning som känns modern,
-              tydlig och relevant för kundens lokal.
-            </p>
-          </div>
-          <div className="about-story-panel about-story-panel-dark">
-            <p className="landing-eyebrow">Vår roll</p>
-            <h2>Vi kombinerar innehåll, arbetsflöde och teknik i en hanterad tjänst.</h2>
-            <p>
-              Screenia ska inte bara leverera en enhet. Tjänsten ska hjälpa
-              kunden genom val av paket, insamling av material, betalning,
-              layoutförberedelse, leverans och fortsatt uppdatering när
-              verksamheten förändras.
-            </p>
-          </div>
-        </section>
-
-        <section className="about-values">
-          <div className="about-section-heading">
-            <p className="landing-eyebrow">Värderingar</p>
-            <h2>Så bygger vi Screenia.</h2>
-          </div>
-          <div className="about-value-grid">
-            {values.map(([title, text]) => (
-              <article className="about-value-card" key={title}>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </article>
-            ))}
-          </div>
-        </section>
-
         <section className="about-strategy">
           <div className="about-section-heading">
-            <p className="landing-eyebrow">Strategi</p>
-            <h2>Vi bygger för stabilitet först, tillväxt sedan.</h2>
-            <p>
-              Strategin är att skapa en tjänst som fungerar professionellt i
-              verkliga kundflöden innan den skalas upp. Det gör produkten mer
-              pålitlig och lättare att förbättra över tid.
-            </p>
+            <p className="landing-eyebrow">Så fungerar det</p>
+            <h2>Från idé till skärm på ett enkelt sätt.</h2>
           </div>
           <div className="about-strategy-grid">
-            {strategy.map(([number, title, text]) => (
+            {steps.map(([number, title, text, icon]) => (
               <article className="about-strategy-card" key={number}>
-                <span>{number}</span>
+                <div className="about-step-topline"><span>{number}</span><AboutIcon name={icon} /></div>
                 <h3>{title}</h3>
                 <p>{text}</p>
               </article>
             ))}
           </div>
-        </section>
-
-        <section className="about-proof">
-          {proofPoints.map(([value, label]) => (
-            <div className="about-proof-card" key={value}>
-              <strong>{value}</strong>
-              <span>{label}</span>
-            </div>
-          ))}
         </section>
 
         <section className="about-closing">
-          <p className="landing-eyebrow">Framåt</p>
-          <h2>Vårt mål är att bli det självklara valet för enkel digital skyltning i Sverige.</h2>
-          <p>
-            Vi vill hjälpa fler lokala företag att kommunicera tydligare i sin
-            egen miljö. Därför utvecklar vi Screenia med fokus på enkel start,
-            tydliga priser, säkra flöden och ett visuellt uttryck som gör
-            skillnad i vardagen.
-          </p>
-          <Link href="/kontakt" className="landing-button landing-button-primary">
-            Kontakta Screenia
+          <AboutIcon name="spark" />
+          <p className="landing-eyebrow">Screenia</p>
+          <h2>Tydligare budskap. Enklare vardag.</h2>
+          <p>Gör mer av skärmen du redan har och låt ditt erbjudande synas där det räknas.</p>
+          <Link href="/#pricing" className="landing-button landing-button-primary">
+            Se paketen
           </Link>
         </section>
       </main>

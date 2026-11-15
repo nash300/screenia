@@ -21,10 +21,7 @@ const defaultSelectors = [
   ".about-hero-visual",
   ".about-belief",
   ".about-signal-card",
-  ".about-story-panel",
-  ".about-value-card",
   ".about-strategy-card",
-  ".about-proof-card",
   ".about-closing",
 ];
 
