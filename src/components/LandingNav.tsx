@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 
 const navItems = [
-  { href: "/#top", homeHref: "#top", label: "Tj\u00e4nsten" },
+  { href: "/#top", homeHref: "#top", label: "Sk\u00e4rml\u00f6sningen" },
   { href: "/sa-fungerar-det", homeHref: "/sa-fungerar-det", label: "S\u00e5 fungerar det" },
   { href: "/#pricing", homeHref: "#pricing", label: "Priser" },
   { href: "/#examples", homeHref: "#examples", label: "Exempel" },

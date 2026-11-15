@@ -334,14 +334,40 @@
 
 .public-info-page .about-hero {
   display: grid;
-  min-height: min(620px, calc(100svh - 132px));
-  grid-template-columns: minmax(0, 0.85fr) minmax(360px, 0.96fr);
+  min-height: min(680px, calc(100svh - 132px));
+  grid-template-columns: minmax(0, 0.92fr) minmax(360px, 0.82fr);
   gap: clamp(26px, 5vw, 72px);
   align-items: center;
   padding: clamp(34px, 5vw, 66px);
 }
 
+.public-info-page .about-hero-background {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  background: #061942;
+}
+
+.public-info-page .about-hero-background::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 15, 42, 0.96) 0%, rgba(3, 15, 42, 0.82) 38%, rgba(3, 15, 42, 0.34) 72%, rgba(3, 15, 42, 0.62) 100%),
+    linear-gradient(0deg, rgba(3, 15, 42, 0.72), transparent 42%);
+  content: "";
+}
+
+.public-info-page .about-hero-background img {
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.9;
+  transform: scale(1.04);
+}
+
 .public-info-page .about-hero-copy {
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: 18px;
   max-width: 650px;
@@ -354,9 +380,18 @@
   line-height: 0.96;
 }
 
+.screenia-theme .public-info-page .about-hero .about-hero-copy h1 {
+  color: #ffffff;
+  text-shadow: 0 14px 34px rgba(0, 8, 28, 0.5);
+}
+
 .public-info-page .about-hero-copy p {
   max-width: 620px;
   margin: 0;
+}
+
+.screenia-theme .public-info-page .about-hero .about-hero-copy > p:not(.landing-eyebrow) {
+  color: rgba(239, 246, 255, 0.86);
 }
 
 .public-info-page .about-hero-actions {
@@ -368,58 +403,107 @@
 
 .public-info-page .about-hero-visual {
   position: relative;
-  min-height: clamp(360px, 42vw, 520px);
-  overflow: hidden;
-  border: 1px solid rgba(218, 236, 255, 0.22);
-  border-radius: 16px;
-  background:
-    radial-gradient(circle at 42% 18%, rgba(255, 255, 255, 0.24), transparent 26%),
-    linear-gradient(145deg, rgba(109, 141, 255, 0.38), rgba(5, 20, 55, 0.82));
-  box-shadow:
-    0 28px 70px rgba(0, 10, 32, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
-.public-info-page .about-hero-visual img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-.public-info-page .about-hero-stat {
-  position: absolute;
-  right: 22px;
-  bottom: 22px;
   z-index: 2;
-  width: min(310px, calc(100% - 44px));
-  border: 1px solid rgba(218, 236, 255, 0.18);
+  display: grid;
+  min-height: clamp(360px, 38vw, 480px);
+  place-items: center;
+}
+
+.public-info-page .about-hero-dashboard {
+  width: min(100%, 430px);
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(8, 29, 71, 0.86), rgba(4, 17, 45, 0.68));
+  box-shadow: 0 30px 80px rgba(0, 6, 24, 0.46), 0 0 0 10px rgba(112, 171, 255, 0.08);
+  backdrop-filter: blur(18px) saturate(130%);
+  transform: rotate(3deg);
+}
+
+.public-info-page .about-hero-dashboard-topline,
+.public-info-page .about-hero-dashboard-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: rgba(238, 246, 255, 0.66);
+  font-family: var(--landing-font-ui);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.public-info-page .about-hero-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #f2c46d;
+}
+
+.public-info-page .about-hero-live i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #5de2a4;
+  box-shadow: 0 0 0 5px rgba(93, 226, 164, 0.16);
+}
+
+.public-info-page .about-hero-dashboard-screen {
+  display: grid;
+  min-height: 265px;
+  align-content: end;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 24px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
-  background: rgba(10, 13, 18, 0.76);
+  background:
+    radial-gradient(circle at 78% 18%, rgba(67, 153, 255, 0.74), transparent 26%),
+    linear-gradient(145deg, rgba(24, 112, 226, 0.86), rgba(7, 28, 75, 0.88));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.public-info-page .about-hero-dashboard-kicker {
+  color: #d4e9ff;
+  font-family: var(--landing-font-ui);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.public-info-page .about-hero-dashboard-screen strong {
   color: #ffffff;
-  padding: 18px;
-  box-shadow: 0 18px 42px rgba(0, 10, 32, 0.28);
-  backdrop-filter: blur(16px) saturate(128%);
-  -webkit-backdrop-filter: blur(16px) saturate(128%);
-}
-
-.public-info-page .about-hero-stat strong,
-.public-info-page .about-hero-stat span {
-  display: block;
-}
-
-.public-info-page .about-hero-stat strong {
   font-family: var(--font-special-elite), Georgia, serif;
-  font-size: 1.16rem;
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 400;
+  line-height: 0.98;
 }
 
-.public-info-page .about-hero-stat span {
-  margin-top: 6px;
-  color: rgba(239, 246, 240, 0.82);
-  line-height: 1.5;
+.public-info-page .about-hero-dashboard-bars {
+  display: flex;
+  align-items: end;
+  gap: 7px;
+  height: 40px;
+}
+
+.public-info-page .about-hero-dashboard-bars span {
+  width: 22px;
+  border-radius: 4px 4px 0 0;
+  background: #f2c46d;
+}
+
+.public-info-page .about-hero-dashboard-bars span:nth-child(1) { height: 42%; }
+.public-info-page .about-hero-dashboard-bars span:nth-child(2) { height: 72%; }
+.public-info-page .about-hero-dashboard-bars span:nth-child(3) { height: 100%; }
+
+.public-info-page .about-hero-dashboard-stats span {
+  display: grid;
+  gap: 4px;
+}
+
+.public-info-page .about-hero-dashboard-stats b {
+  color: #ffffff;
+  font-size: 0.84rem;
 }
 
 .public-info-page .about-beliefs,
@@ -699,10 +783,8 @@
     min-height: 330px;
   }
 
-  .public-info-page .about-hero-stat {
-    right: 14px;
-    bottom: 14px;
-    width: calc(100% - 28px);
+  .public-info-page .about-hero-dashboard {
+    transform: rotate(1deg);
   }
 }
 
@@ -715,6 +797,10 @@
   .public-info-page .about-proof-card {
     animation: public-card-rise 760ms cubic-bezier(0.2, 0.78, 0.22, 1) both;
     animation-delay: calc(var(--public-card-delay, 0) * 90ms);
+  }
+
+  .public-info-page .about-hero-dashboard {
+    animation: about-dashboard-float 6s ease-in-out infinite;
   }
 
   .public-info-page .how-reason-card:nth-child(1),
@@ -752,4 +838,9 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@keyframes about-dashboard-float {
+  0%, 100% { transform: rotate(3deg) translateY(0); }
+  50% { transform: rotate(1.5deg) translateY(-10px); }
 }

@@ -20,8 +20,8 @@ export const metadata: Metadata = createPublicPageMetadata({
     "skärmlösningar småföretag",
     "Screenia vision",
   ],
-  image: "/landing/free-source/business-consultation.jpg",
-  imageAlt: "Planering inför digital skyltning med Screenia",
+  image: "/landing/free-source/retail-digital-signage.jpg",
+  imageAlt: "Digitala informationsskärmar i en butiksmiljö",
 });
 
 const beliefs = [
@@ -119,17 +119,35 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="about-hero-visual" aria-label="Screenia skärmvisning">
+          <div className="about-hero-background" aria-hidden="true">
             <Image
-              src="/landing/free-source/business-consultation.jpg"
-              alt="Planering inför digital skyltning"
-              width={1400}
-              height={900}
+              src="/landing/free-source/retail-digital-signage.jpg"
+              alt=""
+              fill
+              sizes="100vw"
               priority
             />
-            <div className="about-hero-stat">
-              <strong>Från behov till tydlig visning</strong>
-              <span>Planering, innehåll och uppstart ska kännas lugnt och professionellt.</span>
+          </div>
+
+          <div className="about-hero-visual" aria-label="Exempel på Screenias skärmhantering">
+            <div className="about-hero-dashboard">
+              <div className="about-hero-dashboard-topline">
+                <span className="about-hero-live"><i /> LIVE</span>
+                <span>SCREENIA / ÖVERSIKT</span>
+              </div>
+              <div className="about-hero-dashboard-screen">
+                <span className="about-hero-dashboard-kicker">DAGENS INNEHÅLL</span>
+                <strong>Syns tydligare.<br />Sälj mer.</strong>
+                <div className="about-hero-dashboard-bars" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
+              </div>
+              <div className="about-hero-dashboard-stats">
+                <span><b>24/7</b> aktiv visning</span>
+                <span><b>4K</b> skärmkvalitet</span>
+              </div>
             </div>
           </div>
         </section>
