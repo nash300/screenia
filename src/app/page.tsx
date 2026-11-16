@@ -240,7 +240,7 @@ export default function Home() {
     },
   ];
   void faqGroups;
-  const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se";
+  const companyEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se";
   const footerLinks = [
     { label: "Så fungerar digital skyltning", href: "/sa-fungerar-det" },
     { label: "Integritet", href: "/privacy" },
@@ -257,7 +257,7 @@ export default function Home() {
       url: publicSiteUrl,
       image: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
       logo: `${publicSiteUrl}/brand/screenia-logo-full-white-bg.png`,
-      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se",
+      email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se",
       areaServed: {
         "@type": "Country",
         name: "Sweden",

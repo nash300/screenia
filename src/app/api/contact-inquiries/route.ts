@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
+  CLIENT_COMMUNICATION_FROM_EMAIL,
   escapeHtml,
   getContactInquiryReplyAddress,
   renderBrandedEmail,
@@ -167,9 +168,7 @@ export async function POST(request: Request) {
   const safeOriginal = htmlLines(message);
   const safeName = escapeHtml(name);
   const safeSubject = escapeHtml(subject);
-  const adminEmail =
-    process.env.SCREENIA_ADMIN_NOTIFICATION_EMAIL?.trim() ||
-    "admin@screenia.se";
+  const adminEmail = CLIENT_COMMUNICATION_FROM_EMAIL;
 
   const [confirmationResult, adminEmailResult] = await Promise.all([
     sendTransactionalEmail({
