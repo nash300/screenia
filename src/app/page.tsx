@@ -1054,6 +1054,7 @@ export default function Home() {
                 type="button"
                 onClick={openPlanRequest}
                 className="landing-button landing-button-primary landing-package-continue"
+                disabled={process.env.NEXT_PUBLIC_CHECKOUT_ENABLED !== "true"}
               >
                 Fortsätt med valda skärmar
               </button>
@@ -1276,7 +1277,11 @@ export default function Home() {
                 </p>
               )}
 
-              <button type="submit" disabled={requestStatus === "saving"} className="landing-button landing-button-primary landing-request-submit">
+              <button
+                type="submit"
+                disabled={requestStatus === "saving" || process.env.NEXT_PUBLIC_CHECKOUT_ENABLED !== "true"}
+                className="landing-button landing-button-primary landing-request-submit"
+              >
                 {requestStatus === "saving" ? "Förbereder säker betalning..." : "Fortsätt till Stripe"}
               </button>
             </form>

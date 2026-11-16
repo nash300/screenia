@@ -22,6 +22,10 @@ import {
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getLiveCheckoutBlockers } from "@/lib/server/live-checkout-readiness";
+import {
+  CHECKOUT_PAUSED_MESSAGE,
+  isCheckoutEnabled,
+} from "@/lib/server/checkout-availability";
 import { PRICING_PLANS } from "@/lib/pricing/plans";
 import {
   ADDITIONAL_SETUP_FEE_PER_SCREEN_SEK,
@@ -42,6 +46,19 @@ import {
 } from "@/lib/business/sweden";
 
 export async function POST(request: Request) {
+  if (!isCheckoutEnabled()) {
+    return NextResponse.json(
+      { error: CHECKOUT_PAUSED_MESSAGE },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Retry-After": "86400",
+        },
+      },
+    );
+  }
+
   const ipAddress = getRequestIp(request);
   const userAgent = request.headers.get("user-agent");
   const failureContext: CheckoutFailureContext = {};

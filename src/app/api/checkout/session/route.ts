@@ -7,6 +7,10 @@ import { supabaseAdmin } from "@/lib/server/admin-api";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getCheckoutCart, isValidCartToken } from "@/lib/server/checkout-cart";
 import { getLiveCheckoutBlockers } from "@/lib/server/live-checkout-readiness";
+import {
+  CHECKOUT_PAUSED_MESSAGE,
+  isCheckoutEnabled,
+} from "@/lib/server/checkout-availability";
 import { CURRENT_PRIVACY_DOCUMENT, CURRENT_TERMS_DOCUMENT } from "@/lib/legal/documents";
 import { isValidEmailAddress } from "@/lib/validation/email";
 import { isLiveStripeKey } from "@/app/api/stripe/checkout/stripe-checkout-utils";
@@ -29,6 +33,19 @@ function randomIntegrationIdentifier() {
 }
 
 export async function POST(request: Request) {
+  if (!isCheckoutEnabled()) {
+    return NextResponse.json(
+      { error: CHECKOUT_PAUSED_MESSAGE },
+      {
+        status: 503,
+        headers: {
+          "Cache-Control": "no-store",
+          "Retry-After": "86400",
+        },
+      },
+    );
+  }
+
   try {
     const body = await request.json();
     const cartToken = String(body.cartToken || "").trim();
