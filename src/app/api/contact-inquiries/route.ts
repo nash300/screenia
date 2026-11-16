@@ -6,6 +6,7 @@ import {
   escapeHtml,
   getConfiguredPublicSender,
   getContactInquiryReplyAddress,
+  getContactInquiryThreadMessageId,
   PUBLIC_COMMUNICATION_FROM_EMAIL,
   renderBrandedEmail,
   sendTransactionalEmail,
@@ -178,8 +179,11 @@ export async function POST(request: Request) {
     sendTransactionalEmail({
       to: email,
       from: getConfiguredPublicSender(),
-      subject: `${inquiry.case_number} – Vi har tagit emot din fråga`,
+      subject: `${inquiry.case_number} – ${subject}`,
       replyTo: getContactInquiryReplyAddress(inquiry.case_number),
+      headers: {
+        "Message-ID": getContactInquiryThreadMessageId(inquiry.case_number),
+      },
       text: `Hej ${name},\n\nTack för att du kontaktar Screenia. Vi har tagit emot din fråga och svarar till den här e-postadressen.\n\nÄrendenummer: ${inquiry.case_number}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nDin fråga:\n${message}\n\nDu kan svara direkt på detta mejl om du vill lägga till något.\n\nVänliga hälsningar,\nScreenia`,
       html: renderBrandedEmail({
         eyebrow: `Ärende ${inquiry.case_number}`,

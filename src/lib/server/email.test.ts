@@ -2,7 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getConfiguredPublicSender,
+  getContactInquiryReplyMessageId,
   getContactInquiryReplyAddress,
+  getContactInquiryThreadMessageId,
   renderBrandedEmail,
   PUBLIC_COMMUNICATION_FROM_EMAIL,
   sendTransactionalEmail,
@@ -13,6 +15,20 @@ afterEach(() => {
 });
 
 describe("renderBrandedEmail", () => {
+  it("creates stable message ids for a contact conversation", () => {
+    expect(getContactInquiryThreadMessageId("SC-20261116-ABC123")).toBe(
+      "<sc-20261116-abc123@screenia.se>",
+    );
+    expect(
+      getContactInquiryReplyMessageId(
+        "SC-20261116-ABC123",
+        "3F8A0B4C-1234-5678-9ABC-DEF012345678",
+      ),
+    ).toBe(
+      "<sc-20261116-abc123.3f8a0b4c-1234-5678-9abc-def012345678@screenia.se>",
+    );
+  });
+
   it("uses the permanent Screenia theme in every transactional email", () => {
     const html = renderBrandedEmail({
       eyebrow: "Orderbekräftelse",
@@ -91,5 +107,35 @@ describe("renderBrandedEmail", () => {
     const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
     expect(requestBody.from).toBe("Screenia <info@screenia.se>");
     expect(requestBody.reply_to).toBe("info@screenia.se");
+  });
+
+  it("passes threading headers to Resend", async () => {
+    vi.stubEnv("RESEND_API_KEY", "re_test_key");
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ id: "email-threaded" }), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendTransactionalEmail({
+      to: "visitor@example.test",
+      subject: "Re: SC-20261116-ABC123 – Question",
+      text: "Reply",
+      html: "<p>Reply</p>",
+      headers: {
+        "Message-ID": "<reply@screenia.se>",
+        "In-Reply-To": "<original@screenia.se>",
+        References: "<original@screenia.se> <reply@screenia.se>",
+      },
+    });
+
+    const requestBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    expect(requestBody.headers).toEqual({
+      "Message-ID": "<reply@screenia.se>",
+      "In-Reply-To": "<original@screenia.se>",
+      References: "<original@screenia.se> <reply@screenia.se>",
+    });
   });
 });

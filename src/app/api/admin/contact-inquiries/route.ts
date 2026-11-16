@@ -9,7 +9,9 @@ import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
   escapeHtml,
   getConfiguredPublicSender,
+  getContactInquiryReplyMessageId,
   getContactInquiryReplyAddress,
+  getContactInquiryThreadMessageId,
   PUBLIC_COMMUNICATION_FROM_EMAIL,
   renderBrandedEmail,
   sendTransactionalEmail,
@@ -112,6 +114,14 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: latestReply } = await supabaseAdmin
+    .from("contact_inquiry_replies")
+    .select("inbound_message_id, email_message_id, created_at")
+    .eq("inquiry_id", inquiry.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: savedReply, error: replyError } = await supabaseAdmin
     .from("contact_inquiry_replies")
     .insert({
@@ -130,12 +140,34 @@ export async function POST(request: Request) {
     );
   }
 
+  const threadMessageId = getContactInquiryThreadMessageId(inquiry.case_number);
+  const replyMessageId = getContactInquiryReplyMessageId(
+    inquiry.case_number,
+    savedReply.id,
+  );
+  const parentMessageId =
+    latestReply?.email_message_id ||
+    latestReply?.inbound_message_id ||
+    threadMessageId;
+
+  await supabaseAdmin
+    .from("contact_inquiry_replies")
+    .update({ email_message_id: replyMessageId })
+    .eq("id", savedReply.id);
+
   const sentAt = formatDateTime(savedReply.created_at);
   const emailResult = await sendTransactionalEmail({
     to: inquiry.email,
     from: getConfiguredPublicSender(),
-    subject: `Svar från Screenia – ${inquiry.case_number}: ${inquiry.subject}`,
+    subject: `Re: ${inquiry.case_number} – ${inquiry.subject}`,
     replyTo: getContactInquiryReplyAddress(inquiry.case_number),
+    headers: {
+      "Message-ID": replyMessageId,
+      "In-Reply-To": parentMessageId,
+      References: [threadMessageId, parentMessageId]
+        .filter((value, index, values) => values.indexOf(value) === index)
+        .join(" "),
+    },
     text: `Hej ${inquiry.name},\n\nVårt svar:\n${reply}\n\nDin ursprungliga fråga:\n${inquiry.message}\n\nÄrendenummer: ${inquiry.case_number}\nÄmne: ${inquiry.subject}\nSvarat: ${sentAt}\n\nDu kan svara direkt på detta mejl.\n\nVänliga hälsningar,\nScreenia`,
     html: renderBrandedEmail({
       eyebrow: `Svar på ärende ${inquiry.case_number}`,

@@ -7,6 +7,7 @@ type SendEmailInput = {
   html: string;
   from?: string;
   replyTo?: string;
+  headers?: Record<string, string>;
 };
 
 export type SendEmailResult =
@@ -36,6 +37,20 @@ export function getContactInquiryReplyAddress(caseNumber: string) {
     process.env.SCREENIA_INBOUND_REPLY_DOMAIN,
     PUBLIC_COMMUNICATION_FROM_EMAIL,
   );
+}
+
+export function getContactInquiryThreadMessageId(caseNumber: string) {
+  const safeCaseNumber = caseNumber.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  return `<${safeCaseNumber}@screenia.se>`;
+}
+
+export function getContactInquiryReplyMessageId(
+  caseNumber: string,
+  replyId: string,
+) {
+  const safeCaseNumber = caseNumber.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  const safeReplyId = replyId.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  return `<${safeCaseNumber}.${safeReplyId}@screenia.se>`;
 }
 
 export function getConfiguredTransactionalSender() {
@@ -225,6 +240,7 @@ export async function sendTransactionalEmail(
         from,
         to: email.to,
         reply_to: email.replyTo || CLIENT_COMMUNICATION_FROM_EMAIL,
+        ...(email.headers ? { headers: email.headers } : {}),
         subject: email.subject,
         text: email.text,
         html: email.html,
