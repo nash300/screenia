@@ -9183,3 +9183,12 @@ a.admin-button-secondary::after,
     font-size: 0.62rem;
   }
 }
+.admin-nav-unread-dot {
+  width: 9px;
+  height: 9px;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18);
+  flex: 0 0 auto;
+}

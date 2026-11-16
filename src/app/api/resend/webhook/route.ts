@@ -178,7 +178,7 @@ async function processReceivedContactEmail(event: ResendWebhookPayload) {
     async reopenInquiry(inquiryId) {
       const { error } = await supabaseAdmin
         .from("contact_inquiries")
-        .update({ status: "open", closed_at: null, closed_by: null })
+        .update({ status: "open", closed_at: null, closed_by: null, admin_unread_at: new Date().toISOString() })
         .eq("id", inquiryId);
       if (error) throw error;
     },
@@ -378,7 +378,7 @@ async function synchronizeContactInquiryEmailState(
     if (["failed", "bounced", "complained"].includes(nextStatus)) {
       const updateResult = await supabaseAdmin
         .from("contact_inquiries")
-        .update({ status: "open", closed_at: null, closed_by: null })
+        .update({ status: "open", closed_at: null, closed_by: null, admin_unread_at: new Date().toISOString() })
         .eq("id", inquiry.id);
       inquiryUpdateError = updateResult.error;
     }

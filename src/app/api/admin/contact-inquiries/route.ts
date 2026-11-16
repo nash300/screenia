@@ -31,7 +31,7 @@ function htmlLines(value: string) {
   return escapeHtml(value).replace(/\r?\n/g, "<br />");
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const user = await getAuthenticatedAdmin();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
@@ -40,10 +40,20 @@ export async function GET() {
     return NextResponse.json({ error: "This admin role cannot view visitor messages." }, { status: 403 });
   }
 
+  const url = new URL(request.url);
+  if (url.searchParams.get("summary") === "1") {
+    const { count, error: countError } = await supabaseAdmin
+      .from("contact_inquiries")
+      .select("id", { count: "exact", head: true })
+      .not("admin_unread_at", "is", null);
+    if (countError) return NextResponse.json({ error: "Could not load message status." }, { status: 500 });
+    return NextResponse.json({ unreadCount: count || 0 }, { headers: { "Cache-Control": "no-store" } });
+  }
+
   const { data, error } = await supabaseAdmin
     .from("contact_inquiries")
     .select(
-      "id, case_number, name, email, company_name, subject, message, status, privacy_accepted_at, confirmation_email_id, confirmation_email_status, admin_notification_email_id, admin_notification_email_status, first_opened_at, closed_at, created_at, updated_at, contact_inquiry_replies(id, admin_user_id, sender_role, sender_email, message, email_id, email_status, inbound_email_id, inbound_message_id, created_at)",
+      "id, case_number, name, email, company_name, subject, message, status, privacy_accepted_at, confirmation_email_id, confirmation_email_status, admin_notification_email_id, admin_notification_email_status, first_opened_at, admin_unread_at, closed_at, created_at, updated_at, contact_inquiry_replies(id, admin_user_id, sender_role, sender_email, message, email_id, email_status, inbound_email_id, inbound_message_id, email_message_id, created_at)",
     )
     .order("created_at", { ascending: false });
 
@@ -59,11 +69,21 @@ export async function GET() {
   if (firstNew.length > 0) {
     await supabaseAdmin
       .from("contact_inquiries")
-      .update({ status: "open", first_opened_at: new Date().toISOString() })
+      .update({ status: "open", first_opened_at: new Date().toISOString(), admin_unread_at: null })
       .in(
         "id",
         firstNew.map((item) => item.id),
       );
+  }
+
+  const openedUnreadIds = (data || [])
+    .filter((item) => item.admin_unread_at)
+    .map((item) => item.id);
+  if (openedUnreadIds.length > 0) {
+    await supabaseAdmin
+      .from("contact_inquiries")
+      .update({ admin_unread_at: null })
+      .in("id", openedUnreadIds);
   }
 
   const inquiries = (data || []).map((item) => ({

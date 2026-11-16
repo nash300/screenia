@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   adminNavGroups,
   adminNavItems,
@@ -13,6 +13,20 @@ export default function AdminSidebarNav() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    const loadUnread = async () => {
+      const response = await fetch("/api/admin/contact-inquiries?summary=1", { cache: "no-store" });
+      if (!active || !response.ok) return;
+      const result = await response.json().catch(() => ({}));
+      if (active) setUnreadMessages(Number(result.unreadCount) || 0);
+    };
+    loadUnread();
+    const timer = window.setInterval(loadUnread, 30000);
+    return () => { active = false; window.clearInterval(timer); };
+  }, []);
 
   return (
     <>
@@ -103,6 +117,9 @@ export default function AdminSidebarNav() {
                         {item.icon}
                       </span>
                       <span>{item.label}</span>
+                      {item.href === "/admin/contact-inquiries" && unreadMessages > 0 ? (
+                        <span className="admin-nav-unread-dot" aria-label={`${unreadMessages} unread message${unreadMessages === 1 ? "" : "s"}`} title="Unread visitor message" />
+                      ) : null}
                     </Link>
                   );
                 })}

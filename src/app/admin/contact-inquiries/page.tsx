@@ -210,11 +210,18 @@ export default function AdminContactInquiriesPage() {
     if (!confirmed) return;
 
     setWorkingId(inquiry.id);
-    const response = await fetch("/api/admin/contact-inquiries", {
+    let response: Response;
+    try {
+      response = await fetch("/api/admin/contact-inquiries", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ inquiryId: inquiry.id }),
-    });
+      });
+    } catch {
+      showAdminNotification("error", "Could not reach the admin server. Try again.");
+      setWorkingId(null);
+      return;
+    }
     const result = await response.json().catch(() => ({}));
 
     if (!response.ok) {

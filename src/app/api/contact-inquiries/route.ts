@@ -128,6 +128,7 @@ export async function POST(request: Request) {
       message,
       privacy_accepted_at: createdAt,
       created_at: createdAt,
+      admin_unread_at: createdAt,
     })
     .select("id, case_number, created_at")
     .single();
