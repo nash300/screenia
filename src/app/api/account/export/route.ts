@@ -10,8 +10,8 @@ import { checkPersistentRateLimit } from "@/lib/server/persistent-rate-limit";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 
 export const dynamic = "force-dynamic";
-export const DATA_EXPORT_LIMIT = 3;
-export const DATA_EXPORT_WINDOW_MS = 60 * 60 * 1000;
+const DATA_EXPORT_LIMIT = 3;
+const DATA_EXPORT_WINDOW_MS = 60 * 60 * 1000;
 
 type AuditEventExportRow = {
   id: string;

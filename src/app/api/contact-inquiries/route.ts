@@ -4,7 +4,9 @@ import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
   escapeHtml,
+  getConfiguredPublicSender,
   getContactInquiryReplyAddress,
+  PUBLIC_COMMUNICATION_FROM_EMAIL,
   renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
@@ -167,13 +169,15 @@ export async function POST(request: Request) {
   const safeOriginal = htmlLines(message);
   const safeName = escapeHtml(name);
   const safeSubject = escapeHtml(subject);
-  const adminEmail =
-    process.env.SCREENIA_ADMIN_NOTIFICATION_EMAIL?.trim() ||
-    "admin@screenia.se";
+  const prospectNotificationEmail =
+    process.env.SCREENIA_PROSPECT_NOTIFICATION_EMAIL?.trim() ||
+    process.env.NEXT_PUBLIC_COMPANY_EMAIL?.trim() ||
+    PUBLIC_COMMUNICATION_FROM_EMAIL;
 
   const [confirmationResult, adminEmailResult] = await Promise.all([
     sendTransactionalEmail({
       to: email,
+      from: getConfiguredPublicSender(),
       subject: `${inquiry.case_number} – Vi har tagit emot din fråga`,
       replyTo: getContactInquiryReplyAddress(inquiry.case_number),
       text: `Hej ${name},\n\nTack för att du kontaktar Screenia. Vi har tagit emot din fråga och svarar till den här e-postadressen.\n\nÄrendenummer: ${inquiry.case_number}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nDin fråga:\n${message}\n\nDu kan svara direkt på detta mejl om du vill lägga till något.\n\nVänliga hälsningar,\nScreenia`,
@@ -183,6 +187,7 @@ export async function POST(request: Request) {
         intro:
           "Tack för att du kontaktar Screenia. Vi svarar till den e-postadress du angav.",
         footer: "Screenia kundservice",
+        footerEmail: PUBLIC_COMMUNICATION_FROM_EMAIL,
         showHelper: false,
         children: `
           <div style="border:1px solid #d8e6f8; border-radius:14px; background:#f5f9ff; padding:18px 20px;">
@@ -199,7 +204,8 @@ export async function POST(request: Request) {
       }),
     }),
     sendTransactionalEmail({
-      to: adminEmail,
+      to: prospectNotificationEmail,
+      from: getConfiguredPublicSender(),
       subject: `[${inquiry.case_number}] Ny kontaktfråga: ${subject}`,
       replyTo: email,
       text: `Ny kontaktfråga\n\nÄrende: ${inquiry.case_number}\nNamn: ${name}\nFöretag: ${companyName || "-"}\nE-post: ${email}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nMeddelande:\n${message}\n\nÖppna Screenia Admin och svara från Visitor messages.`,
@@ -208,6 +214,7 @@ export async function POST(request: Request) {
         title: "Ny kontaktfråga",
         intro: `${safeName} har skickat ett meddelande via screenia.se.`,
         footer: "Screenia Admin",
+        footerEmail: PUBLIC_COMMUNICATION_FROM_EMAIL,
         showHelper: false,
         children: `
           <div style="border:1px solid #d8e6f8; border-radius:14px; background:#f5f9ff; padding:18px 20px;">

@@ -5,6 +5,7 @@ type SendEmailInput = {
   subject: string;
   text: string;
   html: string;
+  from?: string;
   replyTo?: string;
 };
 
@@ -26,13 +27,14 @@ export function formatSek(amount: number | null | undefined) {
 }
 
 export const CLIENT_COMMUNICATION_FROM_EMAIL = "service@screenia.se";
+export const PUBLIC_COMMUNICATION_FROM_EMAIL = "info@screenia.se";
 export const NEWSLETTER_FROM_EMAIL = "info@screenia.se";
 
 export function getContactInquiryReplyAddress(caseNumber: string) {
   return contactInquiryReplyAddress(
     caseNumber,
     process.env.SCREENIA_INBOUND_REPLY_DOMAIN,
-    CLIENT_COMMUNICATION_FROM_EMAIL,
+    PUBLIC_COMMUNICATION_FROM_EMAIL,
   );
 }
 
@@ -40,6 +42,13 @@ export function getConfiguredTransactionalSender() {
   return (
     process.env.RESEND_FROM_EMAIL?.trim() ||
     `Screenia <${CLIENT_COMMUNICATION_FROM_EMAIL}>`
+  );
+}
+
+export function getConfiguredPublicSender() {
+  return (
+    process.env.RESEND_PUBLIC_FROM_EMAIL?.trim() ||
+    `Screenia <${PUBLIC_COMMUNICATION_FROM_EMAIL}>`
   );
 }
 
@@ -56,6 +65,7 @@ export function renderBrandedEmail({
   intro,
   children,
   footer = "Screenia",
+  footerEmail = CLIENT_COMMUNICATION_FROM_EMAIL,
   showHelper = true,
 }: {
   eyebrow?: string;
@@ -63,6 +73,7 @@ export function renderBrandedEmail({
   intro?: string;
   children: string;
   footer?: string;
+  footerEmail?: string;
   showHelper?: boolean;
 }) {
   const configuredAppUrl = (
@@ -78,6 +89,9 @@ export function renderBrandedEmail({
     `${publicAppUrl}/brand`;
   const logoUrl = `${emailAssetBase}/screenia-icon-512-transparent.png`;
   const helperUrl = `${emailAssetBase}/screenia-helper.png`;
+  const safeFooterEmail = escapeHtml(
+    footerEmail.trim() || CLIENT_COMMUNICATION_FROM_EMAIL,
+  );
 
   return `<!doctype html>
     <html lang="sv">
@@ -150,7 +164,7 @@ export function renderBrandedEmail({
           <div style="border-top:1px solid #d6e3f6; background:#f3f7ff; padding:18px 28px; color:#61769a; font-size:13px;">
             <strong style="color:#09295f;">${footer}</strong><br />
             <span>Digital skyltning, tydligt hanterad.</span><br />
-            <a href="mailto:${CLIENT_COMMUNICATION_FROM_EMAIL}" style="color:#1457bd; text-decoration:underline;">${CLIENT_COMMUNICATION_FROM_EMAIL}</a>
+            <a href="mailto:${safeFooterEmail}" style="color:#1457bd; text-decoration:underline;">${safeFooterEmail}</a>
           </div>
         </div>
       </div>
@@ -188,13 +202,13 @@ export async function sendTransactionalEmail(
   email: SendEmailInput,
 ): Promise<SendEmailResult> {
   const apiKey = process.env.RESEND_API_KEY?.trim() || "";
-  const from = getConfiguredTransactionalSender();
+  const from = email.from?.trim() || getConfiguredTransactionalSender();
 
   if (!apiKey || !from) {
     return {
       ok: false,
       configured: false,
-      error: "RESEND_API_KEY and RESEND_FROM_EMAIL must be configured.",
+      error: "RESEND_API_KEY and an email sender must be configured.",
     };
   }
 

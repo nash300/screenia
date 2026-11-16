@@ -83,6 +83,8 @@ vi.mock("@/lib/server/persistent-rate-limit", () => ({
 vi.mock("@/lib/server/email", () => ({
   escapeHtml: (value: string) => value,
   formatSek: (value: number) => `${value} kr`,
+  getConfiguredPublicSender: () => "Screenia <info@screenia.se>",
+  PUBLIC_COMMUNICATION_FROM_EMAIL: "info@screenia.se",
   renderBrandedEmail: () => "<html>confirmation</html>",
   sendTransactionalEmail: mocks.sendTransactionalEmail,
 }));

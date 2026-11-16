@@ -8,7 +8,9 @@ import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
   escapeHtml,
+  getConfiguredPublicSender,
   getContactInquiryReplyAddress,
+  PUBLIC_COMMUNICATION_FROM_EMAIL,
   renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
@@ -131,6 +133,7 @@ export async function POST(request: Request) {
   const sentAt = formatDateTime(savedReply.created_at);
   const emailResult = await sendTransactionalEmail({
     to: inquiry.email,
+    from: getConfiguredPublicSender(),
     subject: `Svar från Screenia – ${inquiry.case_number}: ${inquiry.subject}`,
     replyTo: getContactInquiryReplyAddress(inquiry.case_number),
     text: `Hej ${inquiry.name},\n\nVårt svar:\n${reply}\n\nDin ursprungliga fråga:\n${inquiry.message}\n\nÄrendenummer: ${inquiry.case_number}\nÄmne: ${inquiry.subject}\nSvarat: ${sentAt}\n\nDu kan svara direkt på detta mejl.\n\nVänliga hälsningar,\nScreenia`,
@@ -139,6 +142,7 @@ export async function POST(request: Request) {
       title: "Svar från Screenia",
       intro: `Hej ${escapeHtml(inquiry.name)}, här är vårt svar på din fråga.`,
       footer: "Screenia kundservice",
+      footerEmail: PUBLIC_COMMUNICATION_FROM_EMAIL,
       showHelper: false,
       children: `
         <div style="border-radius:14px; background:#eef6ff; border:1px solid #cfe1fb; padding:20px;">

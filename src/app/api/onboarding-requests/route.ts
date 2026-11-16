@@ -9,6 +9,8 @@ import { CURRENT_PRIVACY_DOCUMENT } from "@/lib/legal/documents";
 import {
   escapeHtml,
   formatSek,
+  getConfiguredPublicSender,
+  PUBLIC_COMMUNICATION_FROM_EMAIL,
   renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
@@ -95,6 +97,7 @@ async function sendRequestConfirmationEmail({
 
   return sendTransactionalEmail({
     to: email,
+    from: getConfiguredPublicSender(),
     subject: "Screenia har tagit emot din förfrågan",
     text: `Hej ${companyName},
 
@@ -121,6 +124,7 @@ Screenia`,
       title: "F&ouml;rfr&aring;gan mottagen",
       intro: "Vi har tagit emot din f&ouml;rfr&aring;gan och sammanfattningen finns h&auml;r.",
       footer: "V&auml;nliga h&auml;lsningar,<br />Screenia",
+      footerEmail: PUBLIC_COMMUNICATION_FROM_EMAIL,
       children: `
         <p>Hej ${safeCompanyName},</p>
         <p>Vi har tagit emot din förfrågan och sammanfattningen nedan.</p>

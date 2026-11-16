@@ -1,5 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { escapeHtml, renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
+import {
+  CLIENT_COMMUNICATION_FROM_EMAIL,
+  escapeHtml,
+  getConfiguredPublicSender,
+  getConfiguredTransactionalSender,
+  PUBLIC_COMMUNICATION_FROM_EMAIL,
+  renderBrandedEmail,
+  sendTransactionalEmail,
+} from "@/lib/server/email";
 
 type AdminNotificationInput = {
   customerId?: string | null;
@@ -55,14 +63,42 @@ export async function createAdminNotification(
 }
 
 const emailEventPattern = /checkout_started|payment_completed|payment_failed|activated|uploaded|submitted|content_received|message|shipped|review|failed/i;
+const prospectEventPattern = /visitor|landing_purchase|onboarding_request|contact_inquiry/i;
 
-async function sendAdminMilestoneEmail(notification: AdminNotificationInput) {
-  const recipients = (process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS || process.env.ADMIN_NOTIFICATION_EMAILS || "")
+function notificationRecipients(notification: AdminNotificationInput) {
+  const isProspect = prospectEventPattern.test(notification.eventType);
+  const configuredRecipients = isProspect
+    ? process.env.SCREENIA_PROSPECT_NOTIFICATION_EMAILS ||
+      process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS ||
+      process.env.ADMIN_NOTIFICATION_EMAILS ||
+      ""
+    : process.env.SCREENIA_CUSTOMER_NOTIFICATION_EMAILS ||
+      process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS ||
+      process.env.ADMIN_NOTIFICATION_EMAILS ||
+      "";
+  const recipients = configuredRecipients
     .split(",")
     .map((value) => value.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((value) => value.toLowerCase() !== "admin@screenia.se");
 
-  if (!recipients.length || !emailEventPattern.test(notification.eventType)) return;
+  return {
+    isProspect,
+    recipients:
+      recipients.length > 0
+        ? recipients
+        : [
+            isProspect
+              ? PUBLIC_COMMUNICATION_FROM_EMAIL
+              : CLIENT_COMMUNICATION_FROM_EMAIL,
+          ],
+  };
+}
+
+async function sendAdminMilestoneEmail(notification: AdminNotificationInput) {
+  const { isProspect, recipients } = notificationRecipients(notification);
+
+  if (!emailEventPattern.test(notification.eventType)) return;
 
   const metadata = Object.entries(notification.metadata || {})
     .filter(([, value]) => ["string", "number", "boolean"].includes(typeof value))
@@ -75,10 +111,12 @@ async function sendAdminMilestoneEmail(notification: AdminNotificationInput) {
     showHelper: false,
     children: `<p><strong>Prioritet:</strong> ${escapeHtml(notification.priority || "normal")}</p>${metadata ? `<ul>${metadata}</ul>` : ""}`,
     footer: "Screenia Admin",
+    footerEmail: isProspect ? PUBLIC_COMMUNICATION_FROM_EMAIL : CLIENT_COMMUNICATION_FROM_EMAIL,
   });
 
   await Promise.all(recipients.map((to) => sendTransactionalEmail({
     to,
+    from: isProspect ? getConfiguredPublicSender() : getConfiguredTransactionalSender(),
     subject: `[Screenia] ${notification.title}`,
     text: `${notification.title}\n\n${notification.message}`,
     html,
