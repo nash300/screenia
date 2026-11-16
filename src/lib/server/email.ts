@@ -34,7 +34,7 @@ export const NEWSLETTER_FROM_EMAIL = "info@screenia.se";
 export function getContactInquiryReplyAddress(caseNumber: string) {
   return contactInquiryReplyAddress(
     caseNumber,
-    process.env.SCREENIA_INBOUND_REPLY_DOMAIN,
+    process.env.SCREENIA_INBOUND_REPLY_DOMAIN?.trim() || "reply.screenia.se",
     PUBLIC_COMMUNICATION_FROM_EMAIL,
   );
 }

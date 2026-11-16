@@ -67,7 +67,7 @@ describe("renderBrandedEmail", () => {
 
     vi.stubEnv("SCREENIA_INBOUND_REPLY_DOMAIN", "");
     expect(getContactInquiryReplyAddress("SC-20260816-ABC123")).toBe(
-      PUBLIC_COMMUNICATION_FROM_EMAIL,
+      "sc-20260816-abc123@reply.screenia.se",
     );
   });
 
