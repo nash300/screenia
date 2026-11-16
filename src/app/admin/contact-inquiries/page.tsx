@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { showAdminNotification } from "@/lib/admin/notifications";
-import { buildContactInquiryConversation } from "@/lib/communication/contact-inquiry-conversation";
 
 type InquiryStatus = "new" | "open" | "replied" | "closed";
 type EmailStatus =
@@ -13,19 +12,6 @@ type EmailStatus =
   | "failed"
   | "bounced"
   | "complained";
-
-type InquiryReply = {
-  id: string;
-  admin_user_id: string | null;
-  sender_role: "visitor" | "admin";
-  sender_email: string | null;
-  message: string;
-  email_id: string | null;
-  email_status: EmailStatus | null;
-  inbound_email_id: string | null;
-  inbound_message_id: string | null;
-  created_at: string;
-};
 
 type ContactInquiry = {
   id: string;
@@ -45,7 +31,6 @@ type ContactInquiry = {
   closed_at: string | null;
   created_at: string;
   updated_at: string;
-  contact_inquiry_replies: InquiryReply[];
 };
 
 type Filter = "active" | "all" | InquiryStatus;
@@ -53,7 +38,7 @@ type Filter = "active" | "all" | InquiryStatus;
 const filters: Array<{ id: Filter; label: string }> = [
   { id: "active", label: "Needs attention" },
   { id: "open", label: "Open" },
-  { id: "replied", label: "Replied" },
+  { id: "replied", label: "Previously replied" },
   { id: "closed", label: "Closed" },
   { id: "all", label: "All" },
 ];
@@ -69,7 +54,7 @@ function formatDateTime(value: string | null) {
 function statusLabel(status: InquiryStatus) {
   if (status === "new") return "New";
   if (status === "open") return "Open";
-  if (status === "replied") return "Replied";
+  if (status === "replied") return "Previously replied";
   return "Closed";
 }
 
@@ -79,7 +64,6 @@ export default function AdminContactInquiriesPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("active");
   const [sortBy, setSortBy] = useState("newest");
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [workingId, setWorkingId] = useState<string | null>(null);
 
   const loadInquiries = async () => {
@@ -119,64 +103,35 @@ export default function AdminContactInquiriesPage() {
 
   const visibleInquiries = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return inquiries.filter((item) => {
-      const matchesFilter =
-        filter === "all" ||
-        (filter === "active" && ["new", "open"].includes(item.status)) ||
-        item.status === filter;
-      if (!matchesFilter) return false;
-      if (!normalizedQuery) return true;
+    return inquiries
+      .filter((item) => {
+        const matchesFilter =
+          filter === "all" ||
+          (filter === "active" && ["new", "open"].includes(item.status)) ||
+          item.status === filter;
+        if (!matchesFilter) return false;
+        if (!normalizedQuery) return true;
 
-      return [
-        item.case_number,
-        item.name,
-        item.email,
-        item.company_name,
-        item.subject,
-        item.message,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedQuery);
-    }).sort((left, right) => {
-      if (sortBy === "oldest") return Date.parse(left.created_at) - Date.parse(right.created_at);
-      if (sortBy === "name_asc") return left.name.localeCompare(right.name, "sv");
-      if (sortBy === "status") return left.status.localeCompare(right.status, "sv");
-      return Date.parse(right.created_at) - Date.parse(left.created_at);
-    });
+        return [
+          item.case_number,
+          item.name,
+          item.email,
+          item.company_name,
+          item.subject,
+          item.message,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+          .includes(normalizedQuery);
+      })
+      .sort((left, right) => {
+        if (sortBy === "oldest") return Date.parse(left.created_at) - Date.parse(right.created_at);
+        if (sortBy === "name_asc") return left.name.localeCompare(right.name, "sv");
+        if (sortBy === "status") return left.status.localeCompare(right.status, "sv");
+        return Date.parse(right.created_at) - Date.parse(left.created_at);
+      });
   }, [filter, inquiries, query, sortBy]);
-
-  const sendReply = async (inquiry: ContactInquiry) => {
-    const reply = (drafts[inquiry.id] || "").trim();
-    if (reply.length < 5) {
-      showAdminNotification("warning", "Write a reply of at least 5 characters.");
-      return;
-    }
-
-    setWorkingId(inquiry.id);
-    const response = await fetch("/api/admin/contact-inquiries", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ inquiryId: inquiry.id, reply }),
-    });
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      showAdminNotification(
-        result.replySaved ? "warning" : "error",
-        result.error || "Could not send the reply.",
-      );
-    } else {
-      showAdminNotification(
-        "success",
-        `Reply sent to ${inquiry.email} and recorded in ${inquiry.case_number}.`,
-      );
-      setDrafts((current) => ({ ...current, [inquiry.id]: "" }));
-    }
-    await loadInquiries();
-    setWorkingId(null);
-  };
 
   const updateStatus = async (inquiry: ContactInquiry, status: "open" | "closed") => {
     setWorkingId(inquiry.id);
@@ -190,7 +145,7 @@ export default function AdminContactInquiriesPage() {
     if (!response.ok) {
       showAdminNotification(
         "error",
-        result.error || "Could not update the case status.",
+        result.error || "Could not update the message status.",
       );
     } else {
       showAdminNotification(
@@ -208,11 +163,19 @@ export default function AdminContactInquiriesPage() {
         <div>
           <h1 className="admin-title">Messages</h1>
           <p className="admin-subtitle">
-            Read public questions, reply by email, and retain the full case and
-            delivery history.
+            Read visitor questions here, then reply from Zoho Mail. The original
+            message and delivery status remain available in Screenia.
           </p>
         </div>
         <div className="admin-dashboard-header-actions">
+          <Link
+            href="https://mail.zoho.eu/zm/#mail/folder/inbox"
+            className="admin-button-secondary"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Open Zoho Mail
+          </Link>
           <Link href="/admin/email-events" className="admin-button-secondary">
             Email delivery evidence
           </Link>
@@ -226,11 +189,19 @@ export default function AdminContactInquiriesPage() {
         </div>
       </div>
 
+      <div className="admin-contact-zoho-note" role="note">
+        <strong>Communication is handled in Zoho Mail.</strong>
+        <span>Use the service@screenia.se mailbox when answering a visitor.</span>
+        <Link href="https://mail.zoho.eu/zm/#mail/folder/inbox" target="_blank" rel="noreferrer">
+          Open mailbox
+        </Link>
+      </div>
+
       <section className="admin-contact-summary" aria-label="Visitor message summary">
-        <div><span>Needs attention</span><strong>{counts.active}</strong><small>Open without a sent reply</small></div>
-        <div><span>Replied</span><strong>{counts.replied}</strong><small>Customer email was sent</small></div>
+        <div><span>Needs attention</span><strong>{counts.active}</strong><small>Open messages</small></div>
+        <div><span>Open</span><strong>{counts.open}</strong><small>Waiting for handling</small></div>
         <div><span>Closed</span><strong>{counts.closed}</strong><small>Completed cases</small></div>
-        <div><span>Total</span><strong>{counts.all}</strong><small>Full retained history</small></div>
+        <div><span>Total</span><strong>{counts.all}</strong><small>Original messages retained</small></div>
       </section>
 
       <section className="admin-card admin-contact-panel">
@@ -248,10 +219,10 @@ export default function AdminContactInquiriesPage() {
               aria-label="Filter visitor messages"
             >
               {filters.map((item) => {
-              const count = item.id === "active" ? counts.active : item.id === "all" ? counts.all : counts[item.id];
-              return (
+                const count = item.id === "active" ? counts.active : item.id === "all" ? counts.all : counts[item.id];
+                return (
                   <option key={item.id} value={item.id}>{item.label} ({count})</option>
-              );
+                );
               })}
             </select>
             <select
@@ -294,98 +265,27 @@ export default function AdminContactInquiriesPage() {
                   <div><dt>Confirmation</dt><dd><span className={`admin-contact-email admin-contact-email-${inquiry.confirmation_email_status}`}>{inquiry.confirmation_email_status}</span></dd></div>
                 </dl>
 
-                <section
-                  className="admin-contact-conversation"
-                  aria-label={`Conversation for ${inquiry.case_number}`}
-                >
-                  <header className="admin-contact-conversation-heading">
-                    <div>
-                      <h3>Conversation</h3>
-                      <p>
-                        Read from top to bottom. Client replies and Screenia
-                        replies are kept together.
-                      </p>
-                    </div>
-                    <span>
-                      {inquiry.contact_inquiry_replies.length === 0
-                        ? "No reply yet"
-                        : `${inquiry.contact_inquiry_replies.length} ${
-                            inquiry.contact_inquiry_replies.length === 1
-                              ? "reply"
-                              : "replies"
-                          }`}
-                    </span>
+                <section className="admin-contact-source-message" aria-label={`Visitor message for ${inquiry.case_number}`}>
+                  <header>
+                    <strong>Visitor message</strong>
+                    <span>{formatDateTime(inquiry.created_at)}</span>
                   </header>
-
-                  <div className="admin-contact-conversation-list">
-                    {buildContactInquiryConversation({
-                      inquiryId: inquiry.id,
-                      message: inquiry.message,
-                      createdAt: inquiry.created_at,
-                      replies: inquiry.contact_inquiry_replies.map((reply) => ({
-                        id: reply.id,
-                        senderRole: reply.sender_role,
-                        message: reply.message,
-                        emailStatus: reply.email_status,
-                        createdAt: reply.created_at,
-                      })),
-                    }).map((item) => (
-                      <article
-                        key={item.id}
-                        className={`admin-contact-conversation-message admin-contact-conversation-message-${item.sender}`}
-                      >
-                        <header>
-                          <strong>
-                            {item.sender === "visitor"
-                              ? inquiry.name
-                              : "Screenia"}
-                          </strong>
-                          <span>{formatDateTime(item.createdAt)}</span>
-                          {item.emailStatus && (
-                            <span
-                              className={`admin-contact-email admin-contact-email-${item.emailStatus}`}
-                            >
-                              Email {item.emailStatus}
-                            </span>
-                          )}
-                        </header>
-                        <p>{item.message}</p>
-                      </article>
-                    ))}
-                  </div>
+                  <p>{inquiry.message}</p>
                 </section>
 
-                {inquiry.status !== "closed" && (
-                  <div className="admin-contact-reply">
-                    <label htmlFor={`reply-${inquiry.id}`}>Reply to {inquiry.name}</label>
-                    <textarea
-                      id={`reply-${inquiry.id}`}
-                      rows={6}
-                      maxLength={4000}
-                      value={drafts[inquiry.id] || ""}
-                      onChange={(event) =>
-                        setDrafts((current) => ({
-                          ...current,
-                          [inquiry.id]: event.target.value,
-                        }))
-                      }
-                      placeholder="Write a clear answer. The email will include this reply and the visitor's original question."
-                    />
-                    <div className="admin-contact-reply-actions">
-                      <small>{(drafts[inquiry.id] || "").length}/4,000 characters · sends from service@screenia.se</small>
-                      <button
-                        type="button"
-                        className="admin-button-primary"
-                        disabled={workingId === inquiry.id}
-                        onClick={() => sendReply(inquiry)}
-                      >
-                        {workingId === inquiry.id ? "Working..." : "Send reply"}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <p className="admin-contact-zoho-instruction">
+                  Reply in Zoho Mail from <strong>service@screenia.se</strong>. Screenia does not send replies from this page.
+                </p>
 
                 <div className="admin-contact-case-actions">
+                  <Link
+                    href="https://mail.zoho.eu/zm/#mail/folder/inbox"
+                    className="admin-button-secondary"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open Zoho Mail
+                  </Link>
                   {inquiry.status === "closed" ? (
                     <button
                       type="button"

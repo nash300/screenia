@@ -52,7 +52,7 @@ for (const file of repositoryFiles()) {
 
   if (
     /^(?:"use client"|'use client')/u.test(source.trimStart()) &&
-    /SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|RESEND_API_KEY|RESEND_RECEIVING_API_KEY|RESEND_WEBHOOK_SECRET|CRON_SECRET/u.test(source)
+    /SUPABASE_SERVICE_ROLE_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|RESEND_API_KEY|RESEND_WEBHOOK_SECRET|CRON_SECRET/u.test(source)
   ) {
     issues.push(`${file}: server credential referenced by a client module`);
   }

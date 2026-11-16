@@ -1,10 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import { getContactInquiryReplyAddress, renderBrandedEmail } from "./email";
-
-afterEach(() => {
-  vi.unstubAllEnvs();
-});
+import { renderBrandedEmail } from "./email";
 
 describe("renderBrandedEmail", () => {
   it("uses the permanent Screenia theme in every transactional email", () => {
@@ -37,15 +33,4 @@ describe("renderBrandedEmail", () => {
     expect(html).toContain("overflow-wrap:anywhere");
   });
 
-  it("uses the case-specific inbound address only when its domain is configured", () => {
-    vi.stubEnv("SCREENIA_INBOUND_REPLY_DOMAIN", "reply.screenia.se");
-    expect(getContactInquiryReplyAddress("SC-20260816-ABC123")).toBe(
-      "sc-20260816-abc123@reply.screenia.se",
-    );
-
-    vi.stubEnv("SCREENIA_INBOUND_REPLY_DOMAIN", "");
-    expect(getContactInquiryReplyAddress("SC-20260816-ABC123")).toBe(
-      "service@screenia.se",
-    );
-  });
 });

@@ -3,8 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 import { createAdminNotification } from "@/lib/server/admin-notifications";
 import { getRequestIp, recordAuditEvent } from "@/lib/server/audit";
 import {
+  CLIENT_COMMUNICATION_FROM_EMAIL,
   escapeHtml,
-  getContactInquiryReplyAddress,
   renderBrandedEmail,
   sendTransactionalEmail,
 } from "@/lib/server/email";
@@ -167,15 +167,13 @@ export async function POST(request: Request) {
   const safeOriginal = htmlLines(message);
   const safeName = escapeHtml(name);
   const safeSubject = escapeHtml(subject);
-  const adminEmail =
-    process.env.SCREENIA_ADMIN_NOTIFICATION_EMAIL?.trim() ||
-    "admin@screenia.se";
+  const adminEmail = CLIENT_COMMUNICATION_FROM_EMAIL;
 
   const [confirmationResult, adminEmailResult] = await Promise.all([
     sendTransactionalEmail({
       to: email,
       subject: `${inquiry.case_number} – Vi har tagit emot din fråga`,
-      replyTo: getContactInquiryReplyAddress(inquiry.case_number),
+      replyTo: CLIENT_COMMUNICATION_FROM_EMAIL,
       text: `Hej ${name},\n\nTack för att du kontaktar Screenia. Vi har tagit emot din fråga och svarar till den här e-postadressen.\n\nÄrendenummer: ${inquiry.case_number}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nDin fråga:\n${message}\n\nDu kan svara direkt på detta mejl om du vill lägga till något.\n\nVänliga hälsningar,\nScreenia`,
       html: renderBrandedEmail({
         eyebrow: `Ärende ${inquiry.case_number}`,
@@ -202,7 +200,7 @@ export async function POST(request: Request) {
       to: adminEmail,
       subject: `[${inquiry.case_number}] Ny kontaktfråga: ${subject}`,
       replyTo: email,
-      text: `Ny kontaktfråga\n\nÄrende: ${inquiry.case_number}\nNamn: ${name}\nFöretag: ${companyName || "-"}\nE-post: ${email}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nMeddelande:\n${message}\n\nÖppna Screenia Admin och svara från Visitor messages.`,
+      text: `Ny kontaktfråga\n\nÄrende: ${inquiry.case_number}\nNamn: ${name}\nFöretag: ${companyName || "-"}\nE-post: ${email}\nÄmne: ${subject}\nMottaget: ${receivedAt}\n\nMeddelande:\n${message}\n\nÖppna Zoho Mail och svara från service@screenia.se.`,
       html: renderBrandedEmail({
         eyebrow: "Adminavisering",
         title: "Ny kontaktfråga",
@@ -221,7 +219,7 @@ export async function POST(request: Request) {
             <p style="margin:0 0 8px; color:#526579; font-size:13px; font-weight:700; text-transform:uppercase;">Besökarens meddelande</p>
             <p style="margin:0; color:#102033;">${safeOriginal}</p>
           </div>
-          <p style="margin:22px 0 0; color:#526579;">Svara och följ ärendet i Screenia Admin under Visitor messages.</p>
+          <p style="margin:22px 0 0; color:#526579;">Öppna Zoho Mail och svara från service@screenia.se.</p>
         `,
       }),
     }),

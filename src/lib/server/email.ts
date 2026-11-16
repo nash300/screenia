@@ -1,5 +1,3 @@
-import { contactInquiryReplyAddress } from "@/lib/server/contact-inquiry-inbound";
-
 type SendEmailInput = {
   to: string;
   subject: string;
@@ -27,14 +25,6 @@ export function formatSek(amount: number | null | undefined) {
 
 export const CLIENT_COMMUNICATION_FROM_EMAIL = "service@screenia.se";
 export const NEWSLETTER_FROM_EMAIL = "info@screenia.se";
-
-export function getContactInquiryReplyAddress(caseNumber: string) {
-  return contactInquiryReplyAddress(
-    caseNumber,
-    process.env.SCREENIA_INBOUND_REPLY_DOMAIN,
-    CLIENT_COMMUNICATION_FROM_EMAIL,
-  );
-}
 
 export function getConfiguredTransactionalSender() {
   return (

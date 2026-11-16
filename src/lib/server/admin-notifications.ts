@@ -1,5 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { escapeHtml, renderBrandedEmail, sendTransactionalEmail } from "@/lib/server/email";
+import {
+  CLIENT_COMMUNICATION_FROM_EMAIL,
+  escapeHtml,
+  renderBrandedEmail,
+  sendTransactionalEmail,
+} from "@/lib/server/email";
 
 type AdminNotificationInput = {
   customerId?: string | null;
@@ -57,7 +62,7 @@ export async function createAdminNotification(
 const emailEventPattern = /checkout_started|payment_completed|payment_failed|activated|uploaded|submitted|content_received|message|shipped|review|failed/i;
 
 async function sendAdminMilestoneEmail(notification: AdminNotificationInput) {
-  const recipients = (process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS || process.env.ADMIN_NOTIFICATION_EMAILS || "")
+  const recipients = (process.env.SCREENIA_ADMIN_NOTIFICATION_EMAILS || process.env.ADMIN_NOTIFICATION_EMAILS || CLIENT_COMMUNICATION_FROM_EMAIL)
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean);

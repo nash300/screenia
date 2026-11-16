@@ -382,132 +382,77 @@
   color: #155ee8;
 }
 
-.admin-contact-conversation {
+.admin-contact-zoho-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+  border: 1px solid #e5b3b9;
+  border-radius: 0.8rem;
+  background: #fff5f5;
+  padding: 0.8rem 1rem;
+  color: #7b2a35;
+  font-size: 0.8rem;
+}
+
+.admin-contact-zoho-note strong {
+  color: #8f1d2c;
+}
+
+.admin-contact-zoho-note a,
+.admin-contact-zoho-instruction strong {
+  color: #155ee8;
+  font-weight: 800;
+}
+
+.admin-contact-source-message {
   display: grid;
-  gap: 1rem;
+  gap: 0.65rem;
   border: 1px solid #d8e2ef;
-  border-radius: 10px;
+  border-radius: 0.8rem;
   background: #f7f9fc;
   padding: 1rem;
 }
 
-.admin-contact-conversation-heading {
+.admin-contact-source-message header {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   align-items: flex-start;
   justify-content: space-between;
 }
 
-.admin-contact-conversation-heading h3 {
+.admin-contact-source-message header strong {
   margin: 0;
   color: #10264a;
   font-size: 0.95rem;
 }
 
-.admin-contact-conversation-heading p {
-  margin: 0.25rem 0 0;
-  color: #65788d;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.admin-contact-conversation-heading > span {
-  flex: 0 0 auto;
-  border: 1px solid #c7d5e6;
-  border-radius: 999px;
-  background: #fff;
-  padding: 0.3rem 0.65rem;
-  color: #53667e;
-  font-size: 0.7rem;
-  font-weight: 800;
-}
-
-.admin-contact-conversation-list {
-  display: grid;
-  gap: 0.8rem;
-}
-
-.admin-contact-conversation-message {
-  width: min(88%, 46rem);
-  border: 1px solid #cedae8;
-  border-radius: 12px 12px 12px 3px;
-  background: #fff;
-  padding: 0.9rem 1rem;
-}
-
-.admin-contact-conversation-message-screenia {
-  justify-self: end;
-  border-color: #a8c9fb;
-  border-radius: 12px 12px 3px 12px;
-  background: #eaf3ff;
-}
-
-.admin-contact-conversation-message header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.8rem;
-  align-items: center;
+.admin-contact-source-message header span {
   color: #65788d;
   font-size: 0.72rem;
 }
 
-.admin-contact-conversation-message header strong {
-  color: #10264a;
-  font-size: 0.8rem;
-}
-
-.admin-contact-conversation-message p {
-  margin: 0.55rem 0 0;
+.admin-contact-source-message p {
+  margin: 0;
   color: #20354f;
   line-height: 1.65;
   white-space: pre-wrap;
 }
 
-.admin-contact-reply {
-  display: grid;
-  gap: 0.55rem;
-  border-top: 1px solid #dfe7f1;
-  padding-top: 1rem;
-}
-
-.admin-contact-reply > label {
-  color: #10264a;
+.admin-contact-zoho-instruction {
+  margin: 0;
+  color: #65788d;
   font-size: 0.8rem;
-  font-weight: 900;
-}
-
-.admin-contact-reply textarea {
-  width: 100%;
-  min-height: 8rem;
-  resize: vertical;
-  border: 1px solid #b8c7d9;
-  border-radius: 5px;
-  background: #fff;
-  padding: 0.8rem;
-  color: #102033;
   line-height: 1.55;
-  outline: none;
 }
 
-.admin-contact-reply textarea:focus {
-  border-color: #2f7df6;
-  box-shadow: 0 0 0 3px rgba(47, 125, 246, 0.12);
-}
-
-.admin-contact-reply-actions,
 .admin-contact-case-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
   justify-content: space-between;
-}
-
-.admin-contact-reply-actions small {
-  color: #6b7e95;
-}
-
-.admin-contact-case-actions {
   justify-content: flex-end;
 }
 
@@ -552,17 +497,9 @@
     white-space: normal;
   }
 
-  .admin-contact-reply-actions {
-    align-items: stretch;
+  .admin-contact-source-message header {
+    align-items: flex-start;
     flex-direction: column;
-  }
-
-  .admin-contact-conversation-heading {
-    flex-direction: column;
-  }
-
-  .admin-contact-conversation-message {
-    width: 100%;
   }
 }
 

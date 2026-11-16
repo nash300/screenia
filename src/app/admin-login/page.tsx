@@ -124,7 +124,7 @@ export default function AdminLoginPage() {
               <span className="screenia-auth-label">E-post</span>
               <input
                 type="email"
-                placeholder="admin@screenia.se"
+                placeholder="Admin email address"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="screenia-auth-input"

@@ -40,7 +40,7 @@ Each admin must use an individual account. Admin password resets require at leas
 ## Admin page responsibilities
 
 - `/admin/customers`: customer lifecycle, quote, onboarding, communication, uploads, account, device assignment, and customer audit history.
-- `/admin/contact-inquiries`: public contact questions and reply history.
+- `/admin/contact-inquiries`: public contact questions and their delivery status.
 - `/admin/orders`: payment status, invoices, refunds, cancellation, and accounting export.
 - `/admin/pricing`: package, start fee, hardware, shipping, trial, moms behavior, and Stripe price synchronization.
 - `/admin/inventory`: physical hardware lifecycle, serial numbers, warranty, assignment, return, repair, loss, and retirement.
@@ -50,7 +50,7 @@ Each admin must use an individual account. Admin password resets require at leas
 ## Email procedure
 
 - Customer-visible sender and reply address: `service@screenia.se`.
-- Public questions are answered from Visitor messages so the visitor sees their original question and Screenia's reply.
+- Public questions are answered from the `service@screenia.se` mailbox in Zoho Mail. The admin page retains the original question and delivery evidence but does not send or store email conversations.
 - Order communication is sent from the customer profile so it remains attached to the customer record.
 - Verify delivery evidence after sending. Investigate bounces and complaints before retrying.
 - Email templates must include plain text, readable mobile HTML, a descriptive subject, the company identity, and the support address.

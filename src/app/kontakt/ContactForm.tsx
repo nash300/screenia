@@ -14,7 +14,7 @@ type SubmitResult = {
 };
 
 export function ContactForm() {
-  const publicContactEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "info@screenia.se";
+  const publicContactEmail = process.env.NEXT_PUBLIC_COMPANY_EMAIL || "service@screenia.se";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
