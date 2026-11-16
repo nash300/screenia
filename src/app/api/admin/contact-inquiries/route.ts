@@ -263,3 +263,58 @@ export async function PATCH(request: Request) {
 
   return NextResponse.json({ success: true });
 }
+
+export async function DELETE(request: Request) {
+  const user = await getAuthenticatedAdmin();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
+  }
+  if (!hasAdminPermission(user, "customer.support")) {
+    return NextResponse.json({ error: "This admin role cannot delete visitor messages." }, { status: 403 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const inquiryId = String(body?.inquiryId || "").trim();
+  if (!inquiryId) {
+    return NextResponse.json({ error: "Inquiry id is required." }, { status: 400 });
+  }
+
+  const { data: inquiry, error: lookupError } = await supabaseAdmin
+    .from("contact_inquiries")
+    .select("id, case_number, email")
+    .eq("id", inquiryId)
+    .maybeSingle();
+
+  if (lookupError) {
+    return NextResponse.json({ error: "Could not find the visitor message." }, { status: 500 });
+  }
+  if (!inquiry) {
+    return NextResponse.json({ error: "Visitor message not found." }, { status: 404 });
+  }
+
+  const { error: deleteError } = await supabaseAdmin
+    .from("contact_inquiries")
+    .delete()
+    .eq("id", inquiryId);
+
+  if (deleteError) {
+    return NextResponse.json({ error: "Could not delete the visitor message." }, { status: 500 });
+  }
+
+  await recordAuditEvent(supabaseAdmin, {
+    actorType: "admin",
+    actorId: user.id,
+    eventType: "visitor_contact_inquiry_deleted",
+    eventDescription: "Admin deleted a visitor contact inquiry from the admin workspace.",
+    metadata: {
+      inquiryId,
+      caseNumber: inquiry.case_number,
+      visitorEmail: inquiry.email,
+      note: "This removes the Screenia admin case only; it does not delete provider email records.",
+    },
+    ipAddress: getRequestIp(request),
+    userAgent: request.headers.get("user-agent"),
+  });
+
+  return NextResponse.json({ success: true });
+}

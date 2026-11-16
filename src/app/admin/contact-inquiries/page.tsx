@@ -81,6 +81,7 @@ export default function AdminContactInquiriesPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [workingId, setWorkingId] = useState<string | null>(null);
+  const [expandedInquiryId, setExpandedInquiryId] = useState<string | null>(null);
 
   const loadInquiries = async () => {
     setLoading(true);
@@ -202,6 +203,35 @@ export default function AdminContactInquiriesPage() {
     setWorkingId(null);
   };
 
+  const deleteInquiry = async (inquiry: ContactInquiry) => {
+    const confirmed = window.confirm(
+      `Delete ${inquiry.case_number}? This removes the case from Screenia Admin, but does not delete any email from Zoho.`,
+    );
+    if (!confirmed) return;
+
+    setWorkingId(inquiry.id);
+    const response = await fetch("/api/admin/contact-inquiries", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ inquiryId: inquiry.id }),
+    });
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      showAdminNotification("error", result.error || "Could not delete the case.");
+    } else {
+      setInquiries((current) => current.filter((item) => item.id !== inquiry.id));
+      setDrafts((current) => {
+        const next = { ...current };
+        delete next[inquiry.id];
+        return next;
+      });
+      setExpandedInquiryId((current) => (current === inquiry.id ? null : current));
+      showAdminNotification("success", `${inquiry.case_number} was deleted from Admin.`);
+    }
+    setWorkingId(null);
+  };
+
   return (
     <div className="admin-dashboard-page admin-contact-page">
       <div className="admin-page-header admin-dashboard-header">
@@ -272,15 +302,44 @@ export default function AdminContactInquiriesPage() {
             <details
               key={inquiry.id}
               className={`admin-contact-case admin-contact-case-${inquiry.status}`}
-              open={inquiry.status === "new" || inquiry.status === "open"}
+              open={expandedInquiryId === inquiry.id}
+              onToggle={(event) => {
+                setExpandedInquiryId(event.currentTarget.open ? inquiry.id : null);
+              }}
             >
               <summary>
                 <span className="admin-contact-case-main">
                   <strong>{inquiry.subject}</strong>
                   <small>{inquiry.case_number} · {inquiry.name} · {formatDateTime(inquiry.created_at)}</small>
                 </span>
-                <span className={`admin-contact-status admin-contact-status-${inquiry.status}`}>
-                  {statusLabel(inquiry.status)}
+                <span className="admin-contact-case-summary-actions">
+                  <span className={`admin-contact-status admin-contact-status-${inquiry.status}`}>
+                    {statusLabel(inquiry.status)}
+                  </span>
+                  <button
+                    type="button"
+                    className="admin-contact-action-button"
+                    disabled={workingId === inquiry.id}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      updateStatus(inquiry, inquiry.status === "closed" ? "open" : "closed");
+                    }}
+                  >
+                    {inquiry.status === "closed" ? "Reopen" : "Close"}
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-contact-action-button admin-contact-action-button-danger"
+                    disabled={workingId === inquiry.id}
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      deleteInquiry(inquiry);
+                    }}
+                  >
+                    Delete
+                  </button>
                 </span>
               </summary>
 
@@ -372,7 +431,7 @@ export default function AdminContactInquiriesPage() {
                       placeholder="Write a clear answer. The email will include this reply and the visitor's original question."
                     />
                     <div className="admin-contact-reply-actions">
-                      <small>{(drafts[inquiry.id] || "").length}/4,000 characters · sends from service@screenia.se</small>
+                      <small>{(drafts[inquiry.id] || "").length}/4,000 characters · sends from info@screenia.se</small>
                       <button
                         type="button"
                         className="admin-button-primary"
@@ -385,27 +444,6 @@ export default function AdminContactInquiriesPage() {
                   </div>
                 )}
 
-                <div className="admin-contact-case-actions">
-                  {inquiry.status === "closed" ? (
-                    <button
-                      type="button"
-                      className="admin-button-secondary"
-                      disabled={workingId === inquiry.id}
-                      onClick={() => updateStatus(inquiry, "open")}
-                    >
-                      Reopen case
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="admin-button-secondary"
-                      disabled={workingId === inquiry.id}
-                      onClick={() => updateStatus(inquiry, "closed")}
-                    >
-                      Close case
-                    </button>
-                  )}
-                </div>
               </div>
             </details>
           ))}
