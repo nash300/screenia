@@ -51,10 +51,17 @@ export async function POST(request: Request) {
     const cartToken = String(body.cartToken || "").trim();
     const companyName = String(body.companyName || "").trim();
     const email = String(body.email || "").trim().toLowerCase();
+    const emailConfirmation = String(body.emailConfirmation || "").trim().toLowerCase();
     const contactPerson = String(body.contactPerson || "").trim();
     const phone = String(body.phone || "").trim();
     const organisationNumber = normalizeSwedishRegistrationNumber(String(body.organisationNumber || ""));
-    const billingEmail = String(body.billingEmail || "").trim().toLowerCase();
+    const billingEmailSameAsEmail = body.billingEmailSameAsEmail !== false;
+    const billingEmail = billingEmailSameAsEmail
+      ? email
+      : String(body.billingEmail || "").trim().toLowerCase();
+    const billingEmailConfirmation = billingEmailSameAsEmail
+      ? email
+      : String(body.billingEmailConfirmation || "").trim().toLowerCase();
     const address = String(body.address || "").trim();
     const postalCode = String(body.postalCode || "").replace(/\s/g, "");
     const city = String(body.city || "").trim();
@@ -72,7 +79,8 @@ export async function POST(request: Request) {
 
     if (!isValidCartToken(cartToken)) return NextResponse.json({ error: "Varukorg saknas." }, { status: 400 });
     if (!companyName || !contactPerson) return NextResponse.json({ error: "Företag och kontaktperson måste anges." }, { status: 400 });
-    if (!isValidEmailAddress(email) || (billingEmail && !isValidEmailAddress(billingEmail))) return NextResponse.json({ error: "Ange giltiga e-postadresser." }, { status: 400 });
+    if (!isValidEmailAddress(email) || email !== emailConfirmation) return NextResponse.json({ error: "Kontrollera att e-postadressen är giltig och att båda fälten matchar." }, { status: 400 });
+    if (!isValidEmailAddress(billingEmail) || billingEmail !== billingEmailConfirmation) return NextResponse.json({ error: "Kontrollera att fakturaadressen är giltig och att båda fälten matchar." }, { status: 400 });
     if (!isValidSwedishRegistrationNumber(organisationNumber)) return NextResponse.json({ error: "Ange ett giltigt svenskt organisationsnummer." }, { status: 400 });
     if (!/^\d{5}$/.test(postalCode) || !city || !address) return NextResponse.json({ error: "Ange en komplett svensk leveransadress." }, { status: 400 });
     if (!/^sverige|sweden|se$/i.test(country)) return NextResponse.json({ error: "Screenia tar bara emot beställningar från svenska kunder." }, { status: 400 });

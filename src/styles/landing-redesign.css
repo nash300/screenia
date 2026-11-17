@@ -1879,6 +1879,13 @@
 	grid-column: auto;
 }
 
+.screenia-theme .landing-page .landing-email-same-checkbox {
+	margin-top: 14px;
+	padding: 10px 12px;
+	border: 1px solid rgba(42, 91, 153, 0.14);
+	background: rgba(255, 255, 255, 0.72);
+}
+
 .screenia-theme .landing-modal::before {
   height: 3px;
   background: var(--landing-editorial-blue);

@@ -32,6 +32,7 @@ import {
 import {
   type LandingExampleVideo,
 } from "@/lib/landing/example-videos";
+import { isValidEmailAddress } from "@/lib/validation/email";
 import "../styles/landing-redesign.css";
 
 const quickStartSteps = [
@@ -216,10 +217,13 @@ export default function Home() {
   });
   const [companyName, setCompanyName] = useState("");
   const [email, setEmail] = useState("");
+  const [emailConfirmation, setEmailConfirmation] = useState("");
   const [contactPerson, setContactPerson] = useState("");
   const [phone, setPhone] = useState("");
   const [organisationNumber, setOrganisationNumber] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
+  const [billingEmailConfirmation, setBillingEmailConfirmation] = useState("");
+  const [billingEmailSameAsEmail, setBillingEmailSameAsEmail] = useState(true);
   const [address, setAddress] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
@@ -532,6 +536,30 @@ export default function Home() {
       return;
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedEmailConfirmation = emailConfirmation.trim().toLowerCase();
+    const normalizedBillingEmail = billingEmail.trim().toLowerCase();
+    const normalizedBillingEmailConfirmation = billingEmailConfirmation.trim().toLowerCase();
+
+    if (
+      !isValidEmailAddress(normalizedEmail) ||
+      normalizedEmail !== normalizedEmailConfirmation
+    ) {
+      setRequestStatus("error");
+      setRequestMessage("Kontrollera att e-postadressen är giltig och att båda fälten matchar.");
+      return;
+    }
+
+    if (
+      !billingEmailSameAsEmail &&
+      (!isValidEmailAddress(normalizedBillingEmail) ||
+        normalizedBillingEmail !== normalizedBillingEmailConfirmation)
+    ) {
+      setRequestStatus("error");
+      setRequestMessage("Kontrollera att fakturaadressen är giltig och att båda fälten matchar.");
+      return;
+    }
+
     if (!organisationNumber.trim() || !address.trim() || !postalCode.trim() || !city.trim()) {
       setRequestStatus("error");
       setRequestMessage("Fyll i organisationsnummer och komplett svensk leveransadress.");
@@ -571,11 +599,16 @@ export default function Home() {
       body: JSON.stringify({
         cartToken: cartData.token,
         companyName,
-        email,
+        email: normalizedEmail,
+        emailConfirmation: normalizedEmailConfirmation,
         contactPerson,
         phone: formatSwedishPhone(phone),
         organisationNumber,
-        billingEmail,
+        billingEmail: billingEmailSameAsEmail ? normalizedEmail : normalizedBillingEmail,
+        billingEmailConfirmation: billingEmailSameAsEmail
+          ? normalizedEmail
+          : normalizedBillingEmailConfirmation,
+        billingEmailSameAsEmail,
         address,
         postalCode,
         city,
@@ -1278,6 +1311,15 @@ export default function Home() {
                 <div className="landing-checkout-fields">
                   <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
                   <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
+                  <FormField label="Bekräfta e-post *" value={emailConfirmation} onChange={setEmailConfirmation} placeholder="Skriv e-postadressen igen" type="email" autoComplete="off" required />
+                  <label className="landing-request-checkbox landing-email-same-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={billingEmailSameAsEmail}
+                      onChange={(event) => setBillingEmailSameAsEmail(event.target.checked)}
+                    />
+                    <span>Samma e-postadress för faktura</span>
+                  </label>
                   <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} required />
                   <label>
                     <span>{t.fields[3]}</span>
@@ -1300,7 +1342,12 @@ export default function Home() {
                 <legend>Fakturering och leverans</legend>
                 <div className="landing-checkout-fields">
                   <FormField label="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} placeholder="556000-0000" required />
-                  <FormField label="Faktura-e-post *" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" required />
+                  {!billingEmailSameAsEmail ? (
+                    <>
+                      <FormField label="Faktura-e-post *" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" required />
+                      <FormField label="Bekräfta faktura-e-post *" value={billingEmailConfirmation} onChange={setBillingEmailConfirmation} placeholder="Skriv fakturaadressen igen" type="email" autoComplete="off" required />
+                    </>
+                  ) : null}
                   <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
                   <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
                   <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
@@ -1518,6 +1565,7 @@ function FormField({
   onChange,
   placeholder,
   type = "text",
+  autoComplete,
   required = false,
 }: {
   label: string;
@@ -1525,6 +1573,7 @@ function FormField({
   onChange: (value: string) => void;
   placeholder: string;
   type?: string;
+  autoComplete?: string;
   required?: boolean;
 }) {
   return (
@@ -1547,6 +1596,7 @@ function FormField({
         onChange={(event) => onChange(event.target.value)}
         required={required}
         placeholder={placeholder}
+        autoComplete={autoComplete}
       />
     </label>
   );
