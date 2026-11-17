@@ -40,7 +40,7 @@ discard, or overwrite uncommitted work automatically.
 ## Screenia product and billing rules
 
 - Customer-facing prices are final Swedish prices including moms.
-- The administrative/startup charge is 499 kr including moms.
+- The administrative/startup charge is 199 kr including moms.
 - A selected new client may receive that charge free; existing-customer
   add-ons must not inherit the waiver.
 - Issued offers retain their recorded terms during their validity period.

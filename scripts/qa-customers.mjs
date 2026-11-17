@@ -310,8 +310,7 @@ function fixtureAmounts(fixture) {
     (sum, item) => sum + item.quantity,
     0,
   );
-  const setupFeeSek =
-    fixture.primaryPlan.setup_fee_sek + Math.max(0, screenQuantity - 3) * 249;
+  const setupFeeSek = fixture.primaryPlan.setup_fee_sek;
   const deviceSubtotal = fixture.quoteItems.reduce(
     (sum, item) => sum + item.plan.hardware_fee_sek * item.quantity,
     0,
@@ -453,7 +452,7 @@ async function seedFixtures() {
         setup_fee_sek: amounts.setupFeeSek,
         base_setup_fee_sek: fixture.primaryPlan.setup_fee_sek,
         setup_included_screens: 3,
-        additional_setup_fee_per_screen_sek: 249,
+        additional_setup_fee_per_screen_sek: 0,
         additional_setup_screen_count: Math.max(0, amounts.screenQuantity - 3),
         hardware_fee_sek: fixture.primaryPlan.hardware_fee_sek,
         shipping_fee_sek: amounts.shippingSubtotal,

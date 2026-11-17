@@ -748,7 +748,7 @@ function AdminOrdersContent() {
                 <div className="admin-order-money">
                   <span>
                     Setup {formatSek(order.setup_fee_sek)}
-                    {order.setup_fee_waived ? " (499 kr base waived)" : ""}
+                    {order.setup_fee_waived ? " (199 kr base waived)" : ""}
                   </span>
                   <span>Device {formatSek(order.hardware_fee_sek)}</span>
                   <span>Shipping {formatSek(order.shipping_fee_sek)}</span>

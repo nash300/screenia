@@ -341,7 +341,7 @@ email-assets
 ```text
 Standard FHD
 Premium 4K
-setup fee
+setup fee (199 kr)
 device fee
 shipping fee
 monthly fee

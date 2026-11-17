@@ -33,7 +33,7 @@ if (error) throw error;
 if (!plans || plans.length !== 2 || !plans.every((plan) => ["standard_fhd", "premium_4k"].includes(plan.code))) throw new Error("Exactly Standard and Premium must be active before Stripe sync.");
 
 for (const plan of plans) {
-  if (plan.setup_fee_sek !== 499 || plan.setup_included_screens !== 3 || plan.additional_setup_fee_sek !== 249 || plan.shipping_fee_sek !== 99 || plan.shipping_included_devices !== 50 || plan.additional_shipping_fee_sek !== 0 || plan.tax_behavior !== "inclusive") throw new Error(`Pricing rule mismatch for ${plan.code}.`);
+  if (plan.setup_fee_sek !== 199 || plan.setup_included_screens !== 50 || plan.additional_setup_fee_sek !== 0 || plan.shipping_fee_sek !== 99 || plan.shipping_included_devices !== 50 || plan.additional_shipping_fee_sek !== 0 || plan.tax_behavior !== "inclusive") throw new Error(`Pricing rule mismatch for ${plan.code}.`);
 }
 
 async function deactivatePrice(priceId) {
@@ -74,21 +74,12 @@ async function ensurePrice({ existingId, amountSek, recurring, productName, prod
   return price.id;
 }
 
-const sharedSetupExistingId = plans.find((plan) => plan.stripe_additional_setup_price_id)?.stripe_additional_setup_price_id || null;
-const sharedSetupId = await ensurePrice({
-  existingId: sharedSetupExistingId,
-  amountSek: 249,
-  productName: "Screenia additional setup",
-  productDescription: "One-time setup fee for each screen beyond the included setup quantity.",
-  metadata: { business_rule: "additional_screen_setup", included_screens: "3" },
-});
-
 for (const plan of plans) {
   const base = `Screenia ${plan.name} ${plan.resolution}`;
   const metadata = { pricing_plan_code: plan.code };
   const ids = {
-    stripe_setup_price_id: await ensurePrice({ existingId: plan.stripe_setup_price_id, amountSek: 499, productName: `${base} - administrative setup`, productDescription: "Administrative setup and configuration fee.", metadata: { ...metadata, business_rule: "base_administrative_charge" } }),
-    stripe_additional_setup_price_id: sharedSetupId,
+    stripe_setup_price_id: await ensurePrice({ existingId: plan.stripe_setup_price_id, amountSek: 199, productName: `${base} - administrative setup`, productDescription: "Administrative setup and configuration fee.", metadata: { ...metadata, business_rule: "base_administrative_charge" } }),
+    stripe_additional_setup_price_id: null,
     stripe_hardware_price_id: await ensurePrice({ existingId: plan.stripe_hardware_price_id, amountSek: plan.hardware_fee_sek, productName: `${base} device`, productDescription: "Screenia display device.", metadata: { ...metadata, business_rule: "hardware" } }),
     stripe_shipping_price_id: await ensurePrice({ existingId: plan.stripe_shipping_price_id, amountSek: 99, productName: "Screenia Sweden shipping", productDescription: "Fixed shipping fee regardless of device quantity.", metadata: { ...metadata, business_rule: "fixed_shipping" } }),
     stripe_monthly_price_id: await ensurePrice({ existingId: plan.stripe_monthly_price_id, amountSek: plan.monthly_fee_sek, recurring: { interval: "month" }, productName: `${base} monthly subscription`, productDescription: "Monthly Screenia subscription.", metadata: { ...metadata, business_rule: "monthly_subscription" } }),

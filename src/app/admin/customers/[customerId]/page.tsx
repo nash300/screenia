@@ -2724,7 +2724,7 @@ export default function CustomerDetailPage({
                         }
                       }}
                     />{" "}
-                    Waive the 499 kr administrative charge for this new client
+                    Waive the 199 kr administrative charge for this new client
                   </span>
                 </label>
 
@@ -2785,7 +2785,7 @@ export default function CustomerDetailPage({
 
                 <p className="admin-customer-quote-discount-note">
                   A discount reduces only the monthly subscription for the chosen
-                  period. The new-client waiver removes only the 499 kr base
+                  period. The new-client waiver removes only the 199 kr base
                   administrative charge; extra-screen setup, devices, and shipping
                   are unchanged.
                 </p>
@@ -2863,7 +2863,7 @@ export default function CustomerDetailPage({
                   <div className="admin-customer-quote-preview-row">
                     <span>
                       Setup fee incl. VAT
-                      {quoteSetupFeeWaived ? " (499 kr base waived)" : ""}
+                      {quoteSetupFeeWaived ? " (199 kr base waived)" : ""}
                     </span>
                     <strong>{formatSek(quoteSetupSubtotal)}</strong>
                   </div>
