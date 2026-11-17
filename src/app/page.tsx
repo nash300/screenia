@@ -1300,7 +1300,7 @@ export default function Home() {
                 <legend>Fakturering och leverans</legend>
                 <div className="landing-checkout-fields">
                   <FormField label="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} placeholder="556000-0000" required />
-                  <FormField label="Faktura-e-post" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" />
+                  <FormField label="Faktura-e-post *" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" required />
                   <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
                   <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
                   <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
