@@ -67,6 +67,12 @@ function formatLandingSek(value: number) {
   return `${value.toLocaleString("sv-SE")} kr`;
 }
 
+function formatSwedishPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (!digits) return "";
+  return `+46 ${digits.startsWith("0") ? digits.slice(1) : digits}`;
+}
+
 function LandingVideoPreviewCard({
   example,
   orientation,
@@ -567,7 +573,7 @@ export default function Home() {
         companyName,
         email,
         contactPerson,
-        phone,
+        phone: formatSwedishPhone(phone),
         organisationNumber,
         billingEmail,
         address,
@@ -1273,7 +1279,20 @@ export default function Home() {
                   <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
                   <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
                   <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} required />
-                  <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} type="tel" />
+                  <label>
+                    <span>{t.fields[3]}</span>
+                    <div className="landing-phone-field">
+                      <span className="landing-phone-prefix" aria-hidden="true">+46</span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(event) => setPhone(event.target.value)}
+                        placeholder="70 123 45 67"
+                        autoComplete="tel-national"
+                        inputMode="tel"
+                      />
+                    </div>
+                  </label>
                 </div>
               </fieldset>
 
