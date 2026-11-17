@@ -219,7 +219,6 @@ export default function Home() {
   const [city, setCity] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
   const [customBusinessCategory, setCustomBusinessCategory] = useState("");
-  const [preferredContactChannel, setPreferredContactChannel] = useState("email");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [requestStatus, setRequestStatus] = useState<
@@ -577,7 +576,7 @@ export default function Home() {
         country: "Sverige",
         businessCategory:
           businessCategory === "Annat" ? customBusinessCategory : businessCategory,
-        preferredContactChannel,
+        preferredContactChannel: "email",
         acceptedTerms,
         acceptedPrivacy: privacyAccepted,
       }),
@@ -1290,7 +1289,7 @@ export default function Home() {
               </fieldset>
 
               <fieldset className="landing-checkout-group landing-request-form-wide">
-                <legend>Verksamhet och kontakt</legend>
+                <legend>Verksamhet</legend>
                 <div className="landing-checkout-fields">
                   <label>
                     <span>Bransch</span>
@@ -1315,14 +1314,6 @@ export default function Home() {
                       required
                     />
                   ) : null}
-                  <label>
-                    <span>Föredragen kontakt</span>
-                    <select value={preferredContactChannel} onChange={(event) => setPreferredContactChannel(event.target.value)}>
-                      <option value="email">E-post</option>
-                      <option value="phone">Telefon</option>
-                      <option value="sms">SMS</option>
-                    </select>
-                  </label>
                 </div>
               </fieldset>
 
