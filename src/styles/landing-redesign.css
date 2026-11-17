@@ -1896,6 +1896,11 @@
   color: var(--landing-editorial-muted);
 }
 
+.screenia-theme .landing-modal label > span .landing-required-mark {
+  color: #8f1d2c;
+  font-weight: 900;
+}
+
 .screenia-theme .landing-modal input,
 .screenia-theme .landing-modal textarea,
 .screenia-theme .landing-modal select {

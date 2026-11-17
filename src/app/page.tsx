@@ -1529,7 +1529,18 @@ function FormField({
 }) {
   return (
     <label>
-      <span>{label}</span>
+      <span>
+        {label.endsWith(" *") ? (
+          <>
+            {label.slice(0, -2)}{" "}
+            <span className="landing-required-mark" aria-hidden="true">
+              *
+            </span>
+          </>
+        ) : (
+          label
+        )}
+      </span>
       <input
         type={type}
         value={value}
