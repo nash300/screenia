@@ -1296,6 +1296,7 @@ export default function Home() {
                     <select
                       value={businessCategory}
                       onChange={(event) => setBusinessCategory(event.target.value)}
+                      required
                     >
                       <option value="">Välj bransch</option>
                       {businessTypeOptions.map((businessType) => (
