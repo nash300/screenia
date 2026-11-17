@@ -1320,11 +1320,6 @@ export default function Home() {
               <fieldset className="landing-checkout-group landing-request-form-wide">
                 <legend>Order och godkännanden</legend>
                 <div className="landing-checkout-order">
-                  <div className="landing-request-selection">
-                    {selectedQuoteItems.map(({ plan, quantity }) => (
-                      <span key={plan.code}>{quantity} × {plan.name} {plan.resolution}</span>
-                    ))}
-                  </div>
                   <p className="landing-request-privacy">
                     Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen i kundprofilen.
                   </p>
