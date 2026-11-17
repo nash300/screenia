@@ -147,21 +147,6 @@ export function LandingNav({
 
       </header>
 
-      {!accountMode ? (
-        <aside className="landing-payment-banner" role="status" aria-live="polite">
-          <span className="landing-payment-banner-icon" aria-hidden="true">
-            !
-          </span>
-          <div className="landing-payment-banner-copy">
-            <strong>Betalningar tillfälligt pausade</strong>
-            <span>
-              Vi har just nu ett tillfälligt problem med betalningarna och arbetar på att lösa det.
-              Betalningarna öppnar igen inom kort.
-            </span>
-          </div>
-        </aside>
-      ) : null}
-
       {!accountMode && resolvedPath !== "/kontakt" ? (
         <Link
           className="landing-floating-contact"
