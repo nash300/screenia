@@ -40,6 +40,21 @@ const quickStartSteps = [
   ["03", "Börja visa innehåll", "/landing/quick-start/quick-start-3.png"],
 ] as const;
 
+const businessTypeOptions = [
+  "Restaurang eller café",
+  "Salong eller skönhet",
+  "Butik eller handel",
+  "Hotell eller boende",
+  "Fastighet eller bostadsrättsförening",
+  "Kontor eller arbetsplats",
+  "Vård eller tandvård",
+  "Gym eller träning",
+  "Skola eller förskola",
+  "Bil eller verkstad",
+  "Kultur eller evenemang",
+  "Annat",
+] as const;
+
 function isValidOptionalPhone(value: string) {
   const trimmed = value.trim();
   if (!trimmed) return true;
@@ -203,7 +218,7 @@ export default function Home() {
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
-  const [websiteUrl, setWebsiteUrl] = useState("");
+  const [customBusinessCategory, setCustomBusinessCategory] = useState("");
   const [preferredContactChannel, setPreferredContactChannel] = useState("email");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
@@ -560,8 +575,8 @@ export default function Home() {
         postalCode,
         city,
         country: "Sverige",
-        businessCategory,
-        websiteUrl,
+        businessCategory:
+          businessCategory === "Annat" ? customBusinessCategory : businessCategory,
         preferredContactChannel,
         acceptedTerms,
         acceptedPrivacy: privacyAccepted,
@@ -1205,15 +1220,45 @@ export default function Home() {
             >
               <span aria-hidden="true">×</span>
             </button>
-            <p className="landing-eyebrow">{t.modalEyebrow}</p>
-            <h2 id="landing-request-title">
-              Vald skärmlösning
-            </h2>
-            <p>
-              {selectedQuoteItems
-                .map(({ plan, quantity }) => `${quantity} × ${plan.name} ${plan.resolution}`)
-              .join(" + ")}. Efter den kostnadsfria 21-dagarsperioden är abonnemanget {formatLandingSek(selectedMonthlyTotal)}/månad. Engångsbetalningen vid start är {formatLandingSek(selectedFirstPayment)} och inkluderar startavgift {formatLandingSek(selectedSetupFee)}, alla enheter och fast frakt {formatLandingSek(selectedShippingTotal)}.
-            </p>
+            <div className="landing-checkout-heading">
+              <span className="landing-checkout-heading-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4 4h16v16H4z" />
+                  <path d="M8 8h8M8 12h5M8 16h8" />
+                </svg>
+              </span>
+              <div>
+                <p className="landing-eyebrow">{t.modalEyebrow}</p>
+                <h2 id="landing-request-title">Vald skärmlösning</h2>
+                <p className="landing-checkout-intro">
+                  Kontrollera dina val och fyll i uppgifterna som behövs för leveransen.
+                </p>
+              </div>
+            </div>
+            <div className="landing-checkout-summary" aria-label="Sammanfattning av beställningen">
+              <div className="landing-checkout-summary-items">
+                <span className="landing-checkout-summary-label">Ditt paket</span>
+                <div className="landing-checkout-summary-lines">
+                  {selectedQuoteItems.map(({ plan, quantity }) => (
+                    <span key={plan.code}>
+                      <strong>{quantity} ×</strong> {plan.name} {plan.resolution}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="landing-checkout-summary-grid">
+                <div className="landing-checkout-summary-card">
+                  <span>Vid start</span>
+                  <strong>{formatLandingSek(selectedFirstPayment)}</strong>
+                  <small>Startavgift, enheter och fast frakt</small>
+                </div>
+                <div className="landing-checkout-summary-card">
+                  <span>Efter 21 dagar</span>
+                  <strong>{formatLandingSek(selectedMonthlyTotal)}/månad</strong>
+                  <small>Kostnadsfri period och ingen bindningstid</small>
+                </div>
+              </div>
+            </div>
             <form onSubmit={submitPlanRequest} className="landing-request-form">
               <input
                 type="text"
@@ -1232,8 +1277,29 @@ export default function Home() {
               <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
               <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
               <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
-              <FormField label="Bransch" value={businessCategory} onChange={setBusinessCategory} placeholder="Restaurang, salong..." />
-              <FormField label="Webbplats" value={websiteUrl} onChange={setWebsiteUrl} placeholder="https://..." />
+              <label>
+                <span>Bransch</span>
+                <select
+                  value={businessCategory}
+                  onChange={(event) => setBusinessCategory(event.target.value)}
+                >
+                  <option value="">Välj bransch</option>
+                  {businessTypeOptions.map((businessType) => (
+                    <option key={businessType} value={businessType}>
+                      {businessType}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {businessCategory === "Annat" ? (
+                <FormField
+                  label="Skriv din bransch"
+                  value={customBusinessCategory}
+                  onChange={setCustomBusinessCategory}
+                  placeholder="Beskriv verksamheten"
+                  required
+                />
+              ) : null}
               <label>
                 <span>Föredragen kontakt</span>
                 <select value={preferredContactChannel} onChange={(event) => setPreferredContactChannel(event.target.value)}>
@@ -1248,7 +1314,7 @@ export default function Home() {
                 ))}
               </div>
               <p className="landing-request-privacy landing-request-form-wide">
-                Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen.
+                Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen i kundprofilen.
               </p>
 
               <label className="landing-request-checkbox landing-request-form-wide">
