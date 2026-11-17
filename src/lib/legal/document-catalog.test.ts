@@ -10,14 +10,14 @@ function documentContent(type: (typeof legalDocumentTypes)[number]) {
 }
 
 describe("legal document catalog", () => {
-  it("contains one current draft for every public legal document type", () => {
+  it("contains one current version for every public legal document type", () => {
     expect(defaultLegalDocuments.map((document) => document.document_type)).toEqual(
       legalDocumentTypes,
     );
     expect(
       defaultLegalDocuments.every(
         (document) =>
-          document.version === "2026-07-27-avtalsutkast" &&
+          document.version === "2026-11-18" &&
           document.status === "active",
       ),
     ).toBe(true);
@@ -59,5 +59,14 @@ describe("legal document catalog", () => {
     expect(documentContent("subscription_billing")).toContain(
       "En ny provperiod gäller endast",
     );
+  });
+
+  it("contains the customer-facing device and support rules", () => {
+    expect(documentContent("terms")).toContain("endast användas med de skärmenheter");
+    expect(documentContent("terms")).toContain("10 Mbit/s nedladdning");
+    expect(documentContent("terms")).toContain("ettårig garanti");
+    expect(documentContent("terms")).toContain("frivillig provretur");
+    expect(documentContent("terms")).not.toMatch(/avtalsutkast|juridisk granskning/i);
+    expect(documentContent("privacy")).toContain("Fotografier och annan dokumentation");
   });
 });

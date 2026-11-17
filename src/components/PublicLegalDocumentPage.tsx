@@ -104,7 +104,6 @@ export default async function PublicLegalDocumentPage({
 }: PublicLegalDocumentPageProps) {
   const document = await getActiveDocument(documentType);
   const blocks = splitBlocks(document.content);
-  const isDraft = /utkast|prelaunch/i.test(document.version);
   const sections = blocks.flatMap((block, index) =>
     block.startsWith("## ")
       ? [{ id: `avsnitt-${index + 1}`, label: block.slice(3) }]
@@ -118,26 +117,11 @@ export default async function PublicLegalDocumentPage({
           <div className="legal-document-heading">
             <div className="legal-document-heading-topline">
               <p className="landing-eyebrow">Villkor och policy</p>
-              <span>{isDraft ? "Avtalsutkast" : "Aktuell version"}</span>
+              <span>Aktuell version</span>
             </div>
             <h1>{document.title || legalDocumentLabels[documentType]}</h1>
             {document.summary ? <p>{document.summary}</p> : null}
           </div>
-
-          {isDraft ? (
-            <aside className="legal-draft-notice">
-              <span className="legal-draft-notice-icon" aria-hidden="true">
-                !
-              </span>
-              <div>
-                <strong>Dokumentet är ett avtalsutkast.</strong>
-                <span>
-                  Texten används för granskning och test. Slutlig juridisk
-                  granskning krävs innan livebetalningar aktiveras.
-                </span>
-              </div>
-            </aside>
-          ) : null}
 
           <dl className="legal-document-meta">
             <div>

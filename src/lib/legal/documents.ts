@@ -1,28 +1,33 @@
-export const CURRENT_TERMS_VERSION = "2026-07-24-avtalsutkast";
-export const CURRENT_PRIVACY_VERSION = "2026-07-24-avtalsutkast";
+import { defaultLegalDocuments } from "@/lib/legal/document-catalog";
+
+export const CURRENT_TERMS_VERSION = "2026-11-18";
+export const CURRENT_PRIVACY_VERSION = "2026-11-18";
+
+const currentTermsCatalogDocument = defaultLegalDocuments.find(
+  (document) => document.document_type === "terms",
+)!;
+const currentPrivacyCatalogDocument = defaultLegalDocuments.find(
+  (document) => document.document_type === "privacy",
+)!;
 
 export const CURRENT_TERMS_DOCUMENT = {
   type: "terms",
   title: "Villkor",
   version: CURRENT_TERMS_VERSION,
-  effectiveDate: "2026-07-24",
+  effectiveDate: "2026-11-18",
   url: "/terms",
   pdfUrl: null,
-  summary:
-    "Avtalsutkast för Screenias tjänst. Juridisk granskning krävs innan livebetalningar aktiveras.",
-  content:
-    "Screenia tillhandahåller en förvaltad tjänst för digital skyltning. Kunden ansvarar för riktiga företags-, fakturerings- och leveransuppgifter samt för rätten att använda lämnat material. Första betalningen omfattar uppstart, valda enheter och frakt. Månadsavgiften börjar efter provperioden. Uppsägning gäller normalt vid den betalda periodens slut. Rätten till full återbetalning kan påverkas när layout- eller produktionsarbete har påbörjats.",
+  summary: currentTermsCatalogDocument.summary,
+  content: currentTermsCatalogDocument.content,
 } as const;
 
 export const CURRENT_PRIVACY_DOCUMENT = {
   type: "privacy",
   title: "Integritetspolicy",
   version: CURRENT_PRIVACY_VERSION,
-  effectiveDate: "2026-07-24",
+  effectiveDate: "2026-11-18",
   url: "/privacy",
   pdfUrl: null,
-  summary:
-    "Utkast till integritetspolicy. Juridisk granskning krävs innan livebetalningar aktiveras.",
-  content:
-    "Screenia behandlar de personuppgifter som behövs för förfrågan, avtal, betalning, leverans, support och förvaltning av tjänsten. Uppgifter delas endast med leverantörer som behövs för dessa ändamål. Den registrerade kan kontakta Screenia för tillgång, rättelse, radering, begränsning eller andra integritetsfrågor. Vissa uppgifter måste bevaras enligt lag eller för att hantera betalning, säkerhet och rättsliga anspråk.",
+  summary: currentPrivacyCatalogDocument.summary,
+  content: currentPrivacyCatalogDocument.content,
 } as const;
