@@ -1268,73 +1268,96 @@ export default function Home() {
                 className="landing-honeypot"
                 aria-hidden="true"
               />
-              <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
-              <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
-              <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} required />
-              <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} type="tel" />
-              <FormField label="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} placeholder="556000-0000" required />
-              <FormField label="Faktura-e-post" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" />
-              <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
-              <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
-              <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
-              <label>
-                <span>Bransch</span>
-                <select
-                  value={businessCategory}
-                  onChange={(event) => setBusinessCategory(event.target.value)}
-                >
-                  <option value="">Välj bransch</option>
-                  {businessTypeOptions.map((businessType) => (
-                    <option key={businessType} value={businessType}>
-                      {businessType}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {businessCategory === "Annat" ? (
-                <FormField
-                  label="Skriv din bransch"
-                  value={customBusinessCategory}
-                  onChange={setCustomBusinessCategory}
-                  placeholder="Beskriv verksamheten"
-                  required
-                />
-              ) : null}
-              <label>
-                <span>Föredragen kontakt</span>
-                <select value={preferredContactChannel} onChange={(event) => setPreferredContactChannel(event.target.value)}>
-                  <option value="email">E-post</option>
-                  <option value="phone">Telefon</option>
-                  <option value="sms">SMS</option>
-                </select>
-              </label>
-              <div className="landing-request-selection landing-request-form-wide">
-                {selectedQuoteItems.map(({ plan, quantity }) => (
-                  <span key={plan.code}>{quantity} × {plan.name} {plan.resolution}</span>
-                ))}
-              </div>
-              <p className="landing-request-privacy landing-request-form-wide">
-                Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen i kundprofilen.
-              </p>
+              <fieldset className="landing-checkout-group landing-request-form-wide">
+                <legend>Kunduppgifter</legend>
+                <div className="landing-checkout-fields">
+                  <FormField label={t.fields[0]} value={companyName} onChange={setCompanyName} placeholder={t.placeholders[0]} required />
+                  <FormField label={t.fields[1]} value={email} onChange={setEmail} placeholder={t.placeholders[1]} type="email" required />
+                  <FormField label={t.fields[2]} value={contactPerson} onChange={setContactPerson} placeholder={t.placeholders[2]} required />
+                  <FormField label={t.fields[3]} value={phone} onChange={setPhone} placeholder={t.placeholders[3]} type="tel" />
+                </div>
+              </fieldset>
 
-              <label className="landing-request-checkbox landing-request-form-wide">
-                <input
-                  type="checkbox"
-                  checked={acceptedTerms}
-                  onChange={(event) => setAcceptedTerms(event.target.checked)}
-                  required
-                />
-                <span>Jag godkänner <a href="/terms" target="_blank">villkoren</a>.</span>
-              </label>
-              <label className="landing-request-checkbox landing-request-form-wide">
-                <input
-                  type="checkbox"
-                  checked={privacyAccepted}
-                  onChange={(event) => setPrivacyAccepted(event.target.checked)}
-                  required
-                />
-                <span>Jag godkänner <a href="/privacy" target="_blank">integritetspolicyn</a>.</span>
-              </label>
+              <fieldset className="landing-checkout-group landing-request-form-wide">
+                <legend>Fakturering och leverans</legend>
+                <div className="landing-checkout-fields">
+                  <FormField label="Organisationsnummer *" value={organisationNumber} onChange={setOrganisationNumber} placeholder="556000-0000" required />
+                  <FormField label="Faktura-e-post" value={billingEmail} onChange={setBillingEmail} placeholder="faktura@foretag.se" type="email" />
+                  <FormField label="Leveransadress *" value={address} onChange={setAddress} placeholder="Gatuadress och nummer" required />
+                  <FormField label="Postnummer *" value={postalCode} onChange={setPostalCode} placeholder="12345" required />
+                  <FormField label="Ort *" value={city} onChange={setCity} placeholder="Stockholm" required />
+                </div>
+              </fieldset>
+
+              <fieldset className="landing-checkout-group landing-request-form-wide">
+                <legend>Verksamhet och kontakt</legend>
+                <div className="landing-checkout-fields">
+                  <label>
+                    <span>Bransch</span>
+                    <select
+                      value={businessCategory}
+                      onChange={(event) => setBusinessCategory(event.target.value)}
+                    >
+                      <option value="">Välj bransch</option>
+                      {businessTypeOptions.map((businessType) => (
+                        <option key={businessType} value={businessType}>
+                          {businessType}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  {businessCategory === "Annat" ? (
+                    <FormField
+                      label="Skriv din bransch"
+                      value={customBusinessCategory}
+                      onChange={setCustomBusinessCategory}
+                      placeholder="Beskriv verksamheten"
+                      required
+                    />
+                  ) : null}
+                  <label>
+                    <span>Föredragen kontakt</span>
+                    <select value={preferredContactChannel} onChange={(event) => setPreferredContactChannel(event.target.value)}>
+                      <option value="email">E-post</option>
+                      <option value="phone">Telefon</option>
+                      <option value="sms">SMS</option>
+                    </select>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset className="landing-checkout-group landing-request-form-wide">
+                <legend>Order och godkännanden</legend>
+                <div className="landing-checkout-order">
+                  <div className="landing-request-selection">
+                    {selectedQuoteItems.map(({ plan, quantity }) => (
+                      <span key={plan.code}>{quantity} × {plan.name} {plan.resolution}</span>
+                    ))}
+                  </div>
+                  <p className="landing-request-privacy">
+                    Företags- och leveransuppgifterna används för att skapa ordern och leverera skärmenheten. Material laddas upp efter betalningen i kundprofilen.
+                  </p>
+
+                  <label className="landing-request-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(event) => setAcceptedTerms(event.target.checked)}
+                      required
+                    />
+                    <span>Jag godkänner <a href="/terms" target="_blank">villkoren</a>.</span>
+                  </label>
+                  <label className="landing-request-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={privacyAccepted}
+                      onChange={(event) => setPrivacyAccepted(event.target.checked)}
+                      required
+                    />
+                    <span>Jag godkänner <a href="/privacy" target="_blank">integritetspolicyn</a>.</span>
+                  </label>
+                </div>
+              </fieldset>
 
               {requestMessage && (
                 <p className={`landing-request-message landing-request-${requestStatus}`}>
