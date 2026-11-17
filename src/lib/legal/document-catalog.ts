@@ -16,7 +16,7 @@ export const legalDocumentLabels: Record<LegalDocumentType, string> = {
   support_service: "Support- och servicevillkor",
 };
 
-const effectiveAt = "2026-11-18T00:00:00+01:00";
+const effectiveAt = "2026-11-18T12:00:00+01:00";
 const currentVersion = "2026-11-18";
 
 const termsContent = [
