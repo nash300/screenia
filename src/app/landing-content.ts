@@ -100,7 +100,7 @@ export const copy = {
     requestPrivacyConsent:
       "Jag har läst integritetspolicyn och förstår att Screenia sparar uppgifterna för att hantera min order.",
     sending: "Förbereder säker betalning...",
-    submit: "Fortsätt till Stripe",
+    submit: "Gå vidare till betalning",
     success:
       "Tack. Ordern är registrerad och du skickas vidare till säker betalning.",
     error: "Förfrågan kunde inte skickas.",
@@ -205,7 +205,7 @@ export const copy = {
     requestPrivacyConsent:
       "I have read the privacy policy and understand that Screenia stores these details to handle my order.",
     sending: "Preparing secure payment...",
-    submit: "Continue to Stripe",
+    submit: "Continue to payment",
     success: "Thank you. The order is registered and you will continue to secure payment.",
     error: "The request could not be sent.",
     legal: ["Terms", "Privacy", "All rights reserved."],
