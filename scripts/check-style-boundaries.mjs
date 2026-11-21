@@ -154,6 +154,7 @@ const adminSidebarNavSource = read("src/components/AdminSidebarNav.tsx");
 const landingNavSource = read("src/components/LandingNav.tsx");
 const landingScrollRevealSource = read("src/components/LandingScrollReveal.tsx");
 const landingPageSource = read("src/app/page.tsx");
+const landingScrollVideoSource = read("src/components/LandingScrollVideo.tsx");
 const accountPageSource = read("src/app/account/page.tsx");
 const onboardingPageSource = read("src/app/onboarding/[token]/page.tsx");
 const adminDashboardPageSource = read("src/app/admin/page.tsx");
@@ -542,7 +543,7 @@ if (/\.landing-page\s+:is\(\s*h1\s*,\s*h2\s*,\s*h3\s*,\s*h4\s*,\s*h5\s*,\s*h6\s*
 }
 
 const explicitLandingHeadingMatch = landingCss.match(
-  /(^|\n)\.landing-hero-copy h1,\s*\.landing-hero-copy-main h1,\s*\.landing-section-heading h2,\s*\.landing-page \.landing-workflow-heading h2,\s*\.landing-contact h2\s*\{([\s\S]*?)\n\}/,
+  /(^|\n)\.landing-hero-copy h1,\s*\.landing-hero-copy-main h1,\s*\.landing-section-heading h2,\s*\.landing-screen-demo-copy h2,\s*\.landing-contact h2\s*\{([\s\S]*?)\n\}/,
 );
 const explicitLandingHeadingBody = explicitLandingHeadingMatch?.[2] || "";
 
@@ -812,7 +813,6 @@ for (const retiredPublicThemeOverride of [
   "url(\"/landing/section-art/platform-workflow.jpg\") no-repeat center / cover !important",
   "url(\"/landing/section-art/platform-workflow.jpg\") no-repeat fixed center / cover !important",
   "url(\"/landing/section-art/platform-workflow.jpg\") center / cover !important",
-  ".landing-workflow-step:hover {\n  border-color: rgba(255, 210, 31, 0.34) !important;",
   "linear-gradient(145deg, #6d8dff, #2f7df6 64%, #0a3eaa) !important;",
   "rgba(5, 20, 55, 0.56) !important;",
   ".landing-pricing .landing-section-panel {\n  overflow: hidden;",
@@ -1185,8 +1185,6 @@ for (const retiredLandingClass of [
   "landing-device-visual",
   "landing-device-screen",
   "landing-pricing-layout",
-  "landing-workflow-banner",
-  "landing-workflow-layout",
   "landing-pricing-note",
   "landing-timeline",
   "landing-checkout-visual",
@@ -1204,10 +1202,6 @@ for (const retiredLandingClass of [
 }
 
 for (const selector of [
-  ".landing-workflow-panel",
-  ".landing-workflow-heading",
-  ".landing-workflow-grid",
-  ".landing-workflow-step",
 ]) {
   const unscopedWorkflowOwner = new RegExp(
     `(^|\\n)${selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|:|\\{|>)`,
@@ -1424,8 +1418,6 @@ for (const { token, message } of retiredAdminTokenNames) {
 for (const retiredLandingGlassPattern of [
   ".landing-page :is(.landing-section, .landing-contact, .landing-footer, .flow-shell, .account-shell)",
   ".landing-page :is(.landing-section-panel, .landing-contact-panel)",
-  ".landing-page main > .landing-platform,\n.landing-page main > .landing-workflow",
-  ".landing-page main > .landing-platform::before,\n.landing-page main > .landing-workflow::before",
   ".landing-page main > .landing-platform > .landing-section-panel",
   ".landing-hero-copy,\n.landing-section,\n.landing-contact",
   ".landing-gallery,",
@@ -1442,7 +1434,6 @@ for (const retiredLandingGlassPattern of [
 
 for (const sectionClass of [
   "landing-platform",
-  "landing-workflow",
   "landing-examples",
   "landing-faq",
   "landing-contact",
@@ -1473,11 +1464,11 @@ for (const sectionClass of [
 }
 
 for (const requiredSurfaceClass of [
-  "landing-section landing-section-surface landing-workflow",
+  "landing-screen-demo",
   "landing-section-surface landing-contact",
   "landing-section landing-section-surface landing-${id}",
 ]) {
-  if (!landingPageSource.includes(requiredSurfaceClass)) {
+  if (!landingPageSource.includes(requiredSurfaceClass) && !landingScrollVideoSource.includes(requiredSurfaceClass)) {
     problems.push(`src/app/page.tsx must mark shared landing sections with ${requiredSurfaceClass}.`);
   }
 }

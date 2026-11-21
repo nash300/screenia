@@ -16,30 +16,6 @@ export const copy = {
       ["Ingen bindningstid", "Avsluta abonnemanget när du vill."],
       ["Vi tar hand om tekniken", "Du behöver bara en TV. Screenia hanterar systemet, innehållet och den tekniska driften åt dig."],
     ],
-    workflowTitle: "Från paketval till fungerande skärm",
-    workflowText:
-      "Ni gör de enkla valen. Screenia sköter planering, innehåll, enhet och support.",
-    steps: [
-      ["1", "Välj paket & betala", [
-        "Ni väljer paket och antal skärmar, fyller i företags- och leveransuppgifter och betalar säkert via Stripe.",
-        "Standard och Premium kan kombineras i samma kundvagn.",
-      ]],
-      ["2", "Bekräfta, betala & skapa profil", [
-        "Efter bekräftad betalning skickar Screenia en aktiveringslänk till e-postadressen.",
-        "Ni skapar ett lösenord och kommer sedan direkt till kundportalen.",
-      ]],
-      ["3", "Skicka material – Screenia designar", [
-        "Ni skickar materialet som ska visas, och Screenia planerar och designar innehållet.",
-        "Screenia kontaktar er om något behöver stämmas av.",
-      ]],
-      ["4", "Screenia förbereder & levererar", [
-        "Screenia förbereder enheten med ert innehåll och skickar den med enkla instruktioner.",
-      ]],
-      ["5", "Koppla in & börja visa", [
-        "Ni ansluter enheten till TV:n och internet, och mallen visas automatiskt när TV:n slås på.",
-        "Screenia hjälper er vid start och framtida uppdateringar.",
-      ]],
-    ],
     process: [["Förfrågan", "Paket valt"], ["Betalning", "Säker checkout"], ["Innehåll", "Efter betalning"], ["Start", "TV + Wi-Fi"]],
     pricingTitle: "Tydliga paket för hanterade skärmar",
     pricingText:
@@ -120,30 +96,6 @@ export const copy = {
       ["Use your own equipment", "Choose which screens to use and where to place them."],
       ["No commitment period", "Cancel the subscription whenever you want."],
       ["Easy to get started", "No technical knowledge is required."],
-    ],
-    workflowTitle: "From package choice to working screen",
-    workflowText:
-      "You make the simple choices. Screenia handles planning, content, the device, and support.",
-    steps: [
-      ["1", "Choose a package & pay", [
-        "Choose packages and screen quantities, enter company and delivery details, and pay securely through Stripe.",
-        "Standard and Premium can be combined in one cart.",
-      ]],
-      ["2", "Confirm, pay & create a profile", [
-        "After payment is confirmed, Screenia sends an activation link to your email.",
-        "Create a password and continue to the customer portal.",
-      ]],
-      ["3", "Send material — Screenia designs", [
-        "You send the material to be displayed, and Screenia plans and designs the content.",
-        "Screenia contacts you if anything needs clarification.",
-      ]],
-      ["4", "Screenia prepares & delivers", [
-        "Screenia prepares the device with your content and ships it with simple instructions.",
-      ]],
-      ["5", "Connect & start displaying", [
-        "You connect the device to the TV and internet, and the template displays automatically when the TV is turned on.",
-        "Screenia helps with startup and future updates.",
-      ]],
     ],
     process: [["Request", "Package selected"], ["Material", "Menu, images, logo"], ["Production", "Layout + USB device"], ["Start", "HDMI + Wi-Fi"]],
     pricingTitle: "Clear packages for managed screens",
@@ -313,14 +265,6 @@ export const planCopy = {
     },
   },
 } as const;
-
-export const workflowImages = [
-  "/landing/workflow/01-package-request.png",
-  "/landing/workflow/02-customer-planning.jpg",
-  "/landing/workflow/03-device-shipping.png",
-  "/landing/workflow/04-device-shipping.jpg",
-  "/landing/workflow/05-display-installation.jpg",
-] as const;
 
 export const heroBenefits = [
   ["Ingen bindningstid", "Avsluta när som helst."],

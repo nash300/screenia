@@ -9,11 +9,10 @@ const defaultSelectors = [
   ".landing-price-card",
   ".landing-gallery-card",
   ".landing-faq-item",
-  ".landing-workflow-step",
   ".landing-hero-modern",
   ".landing-contact",
   ".landing-footer",
-  ".landing-quick-start",
+  ".landing-screen-demo",
   ".how-hero",
   ".how-section-heading",
   ".how-reason-card",
@@ -70,28 +69,6 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
     );
 
     elements.forEach((element) => observer.observe(element));
-
-    const workflowSections = elements.filter((element) =>
-      element.matches(".landing-workflow"),
-    );
-    const workflowObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const grid = entry.target.querySelector<HTMLElement>(
-            ".landing-workflow-grid",
-          );
-          if (!grid) return;
-
-          grid.classList.remove("landing-workflow-motion-active");
-          if (entry.isIntersecting) {
-            void grid.offsetWidth;
-            grid.classList.add("landing-workflow-motion-active");
-          }
-        });
-      },
-      { threshold: 0.18 },
-    );
-    workflowSections.forEach((section) => workflowObserver.observe(section));
 
     const heroSections = elements.filter((element) =>
       element.matches(".landing-hero-modern"),
@@ -170,13 +147,7 @@ export function LandingScrollReveal({ selectors = defaultSelectors }: LandingScr
       window.cancelAnimationFrame(initialHeroMotionFrame);
       window.clearTimeout(initialRevealTimer);
       observer.disconnect();
-      workflowObserver.disconnect();
       heroObserver.disconnect();
-      workflowSections.forEach((section) => {
-        section
-          .querySelector(".landing-workflow-grid")
-          ?.classList.remove("landing-workflow-motion-active");
-      });
       heroSections.forEach((section) => {
         section
           .querySelectorAll<HTMLElement>(

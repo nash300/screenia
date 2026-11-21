@@ -9,10 +9,14 @@ const landingStyles = readFileSync(
 );
 
 describe("landing video gallery", () => {
-  it("provides an obvious tap-to-play action with accessible video controls", () => {
-    expect(pageSource).toContain("landing-video-gallery-play");
-    expect(pageSource).toContain("Spela förhandsvisning:");
-    expect(pageSource).toMatch(/autoPlay\s+controls\s+loop/u);
+  it("autoplays muted looping previews while keeping cards accessible", () => {
+    expect(pageSource).toContain("landing-video-gallery-video");
+    expect(pageSource).toContain("Visa förhandsvisning:");
+    expect(pageSource).toContain("autoPlay");
+    expect(pageSource).toContain("loop");
+    expect(pageSource).toContain("muted");
+    expect(pageSource).toContain("playsInline");
+    expect(pageSource).not.toContain("landing-video-gallery-play");
   });
 
   it("uses native horizontal snap scrolling on phones and touch screens", () => {

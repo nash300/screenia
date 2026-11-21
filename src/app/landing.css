@@ -3453,6 +3453,16 @@
   font-weight: 950;
 }
 
+.landing-hero-copy h1,
+.landing-hero-copy-main h1,
+.landing-section-heading h2,
+.landing-screen-demo-copy h2,
+.landing-contact h2 {
+  font-family: var(--landing-font-display);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
 .account-sidebar-profile span,
 .account-menu button span {
   color: var(--landing-muted);
@@ -5596,96 +5606,6 @@
   letter-spacing: 0;
 }
 
-.landing-lede,
-.landing-seo-copy,
-.landing-section-heading p,
-.landing-page .landing-workflow-heading p,
-.landing-platform .landing-feature p,
-.landing-platform .landing-section-heading p,
-.landing-pricing .landing-section-heading p,
-.landing-pricing .landing-plan-description,
-.landing-pricing .landing-price-card li,
-.landing-gallery-content p,
-.landing-faq-item summary,
-.landing-faq-item p,
-.landing-company p,
-.landing-contact p,
-.landing-footer p,
-.landing-modal p,
-.landing-request-form label,
-.landing-request-privacy,
-.landing-package-breakdown-list dt,
-.landing-package-breakdown-list dd,
-.landing-package-breakdown-modal-list dt,
-.landing-package-breakdown-modal-list dd,
-.contact-intro-copy p,
-.contact-process p,
-.contact-form-heading p,
-.contact-success p,
-.contact-form-grid label,
-.contact-privacy,
-.contact-form-footnote,
-.flow-shell p,
-.flow-card p,
-.flow-material li,
-.flow-checks label,
-.flow-result-copy p,
-.account-hero-panel p,
-.account-card p,
-.account-list-item p,
-.account-policy-card p,
-.account-status-step p,
-.account-file-row p,
-.account-dialog p,
-.account-dialog-summary dt,
-.account-dialog-summary dd {
-  letter-spacing: 0;
-}
-
-.landing-lede,
-.landing-seo-copy,
-.landing-section-heading p,
-.landing-page .landing-workflow-heading p,
-.landing-platform .landing-feature p,
-.landing-pricing .landing-plan-description,
-.landing-pricing .landing-price-card li,
-.landing-gallery-content p,
-.landing-faq-item p,
-.landing-company p,
-.landing-contact p,
-.landing-footer p,
-.landing-modal p,
-.landing-request-privacy,
-.contact-intro-copy p,
-.contact-process p,
-.contact-form-heading p,
-.contact-success p,
-.contact-privacy,
-.contact-form-footnote,
-.flow-shell p,
-.flow-card p,
-.flow-material li,
-.flow-result-copy p,
-.account-hero-panel p,
-.account-card p,
-.account-list-item p,
-.account-policy-card p,
-.account-status-step p,
-.account-file-row p,
-.account-dialog p {
-  line-height: 1.68;
-}
-
-.landing-hero-copy h1,
-.landing-hero-copy-main h1,
-.landing-section-heading h2,
-.landing-page .landing-workflow-heading h2,
-.landing-contact h2 {
-  font-family: var(--landing-font-display);
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
 .landing-page .landing-nav,
 .landing-page .landing-button,
 .landing-page .landing-plan-badge,
@@ -5764,15 +5684,6 @@
   position: relative;
   z-index: 1;
   max-width: 760px;
-}
-
-.landing-page .landing-workflow-step,
-.landing-page .landing-price-card,
-.landing-page .landing-package-builder,
-.landing-page .landing-gallery-card,
-.landing-page .landing-faq-item {
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
 }
 
 @media (max-width: 840px) {
@@ -6398,273 +6309,6 @@
   }
 }
 
-/* Five-step customer journey with supplied Screenia workflow imagery. */
-.landing-page .landing-workflow-panel {
-  overflow: hidden;
-  max-width: 1280px;
-  padding: clamp(22px, 3vw, 36px);
-}
-
-.landing-page .landing-workflow-heading {
-  display: grid;
-  gap: 12px;
-  max-width: 880px;
-}
-
-.landing-page .landing-workflow-heading h2 {
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(2rem, 3.6vw, 3.55rem);
-  line-height: 1.04;
-}
-
-.landing-page .landing-workflow-heading p {
-  margin: 0;
-  color: rgba(238, 245, 255, 0.84);
-  max-width: 760px;
-  font-size: clamp(0.95rem, 1.15vw, 1.04rem);
-  line-height: 1.55;
-}
-
-.landing-page .landing-workflow-grid {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: clamp(12px, 1.4vw, 18px);
-  margin-top: clamp(20px, 3vw, 30px);
-}
-
-.landing-page .landing-workflow-grid::before {
-  content: "";
-  position: absolute;
-  top: clamp(134px, 14vw, 178px);
-  right: 8%;
-  left: 8%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255, 224, 138, 0.62), rgba(40, 190, 255, 0.58), transparent);
-  opacity: 0.85;
-  pointer-events: none;
-}
-
-.landing-page .landing-workflow-step {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  min-width: 0;
-  min-height: 0;
-  grid-template-rows: auto 1fr;
-  gap: 12px;
-  border: 1px solid rgba(217, 234, 255, 0.34);
-  border-radius: 18px;
-  background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.055)),
-    rgba(3, 16, 43, 0.38);
-  padding: clamp(10px, 1vw, 14px);
-  box-shadow:
-    0 24px 62px rgba(0, 10, 32, 0.24),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(22px) saturate(132%);
-  -webkit-backdrop-filter: blur(22px) saturate(132%);
-  transform: translateY(0);
-  transition:
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    transform 220ms ease;
-}
-
-.landing-page .landing-workflow-step:hover {
-  border-color: rgba(255, 210, 31, 0.34);
-  box-shadow:
-    0 28px 70px rgba(0, 10, 32, 0.3),
-    0 0 0 1px rgba(255, 210, 31, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transform: translateY(-4px);
-}
-
-.landing-page .landing-workflow-image-wrap {
-  position: relative;
-  overflow: hidden;
-  aspect-ratio: 1 / 0.9;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 16px;
-  background: rgba(2, 12, 32, 0.36);
-  box-shadow:
-    0 20px 44px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
-.landing-page .landing-workflow-image-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 28% 18%, rgba(255, 255, 255, 0.2), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%),
-    linear-gradient(0deg, rgba(3, 16, 43, 0.26), transparent 42%);
-  pointer-events: none;
-}
-
-.landing-page .landing-workflow-image-wrap img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  transform: scale(1.16);
-  filter: saturate(1.06) contrast(1.04);
-}
-
-.landing-page .landing-workflow-step-copy {
-  display: grid;
-  grid-template-rows: 42px auto auto;
-  align-content: start;
-  gap: 8px;
-  padding: 0 4px 4px;
-  text-align: center;
-}
-
-.landing-page .landing-workflow-step-copy > span {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  justify-self: center;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  border-radius: 999px;
-  background:
-    radial-gradient(circle at 32% 24%, rgba(255, 255, 255, 0.28), transparent 34%),
-    linear-gradient(145deg, #124ff0, #062a9f);
-  color: #ffffff;
-  font-size: 1.04rem;
-  font-weight: 900;
-  box-shadow:
-    0 14px 28px rgba(0, 20, 96, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
-}
-
-.landing-page .landing-workflow-step h3 {
-  display: flex;
-  min-height: 3.4em;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  color: #ffffff;
-  font-size: clamp(1rem, 1.16vw, 1.24rem);
-  line-height: 1.13;
-}
-
-.landing-page .landing-workflow-description {
-  margin: 0;
-  text-align: left;
-  color: rgba(238, 245, 255, 0.86);
-  font-size: clamp(0.78rem, 0.82vw, 0.86rem);
-  line-height: 1.38;
-}
-
-@media (max-width: 1180px) {
-  .landing-page .landing-workflow-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .landing-page .landing-workflow-grid::before {
-    content: none;
-  }
-
-}
-
-@media (max-width: 780px) {
-  .landing-page .landing-workflow-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .landing-page .landing-workflow-step {
-    grid-template-columns: minmax(112px, 0.44fr) minmax(0, 0.56fr);
-    align-items: center;
-  }
-
-  .landing-page .landing-workflow-step:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    bottom: -26px;
-    left: 50%;
-    z-index: 5;
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(255, 224, 138, 0.34);
-    border-radius: 999px;
-    background:
-      radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.38), transparent 34%),
-      linear-gradient(145deg, rgba(255, 224, 138, 0.92), rgba(47, 125, 246, 0.92));
-    box-shadow:
-      0 12px 30px rgba(0, 12, 42, 0.28),
-      0 0 0 6px rgba(255, 255, 255, 0.08),
-      inset 0 1px 0 rgba(255, 255, 255, 0.36);
-    transform: translateX(-50%);
-  }
-
-  .landing-page .landing-workflow-step:not(:last-child)::before {
-    content: "";
-    position: absolute;
-    bottom: -13px;
-    left: 50%;
-    z-index: 6;
-    width: 9px;
-    height: 9px;
-    border-right: 2px solid #ffffff;
-    border-bottom: 2px solid #ffffff;
-    transform: translateX(-50%) rotate(45deg);
-  }
-
-  .landing-page .landing-workflow-image-wrap {
-    aspect-ratio: 1;
-  }
-
-  .landing-page .landing-workflow-step-copy {
-    grid-template-rows: auto;
-    text-align: left;
-  }
-
-  .landing-page .landing-workflow-step h3,
-  .landing-page .landing-workflow-description {
-    min-height: 0;
-    height: auto;
-    overflow: visible;
-    justify-content: flex-start;
-  }
-
-  .landing-page .landing-workflow-step-copy > span {
-    justify-self: start;
-  }
-}
-
-@media (max-width: 520px) {
-  .landing-page .landing-workflow-step {
-    grid-template-columns: 92px minmax(0, 1fr);
-    align-items: center;
-    gap: 10px;
-    padding: 9px;
-  }
-
-  .landing-page .landing-workflow-step-copy {
-    gap: 6px;
-    padding: 0 2px 0 0;
-    text-align: left;
-  }
-
-  .landing-page .landing-workflow-step h3,
-  .landing-page .landing-workflow-description {
-    justify-content: flex-start;
-  }
-
-  .landing-page .landing-workflow-step-copy > span {
-    width: 34px;
-    height: 34px;
-    justify-self: start;
-    font-size: 0.88rem;
-  }
-}
-
 /* =========================================
    SCREENIA PUBLIC EXPERIENCE
    Unified non-hero landing sections and public subpages.
@@ -6704,60 +6348,6 @@
   box-shadow: 0 0 28px rgba(109, 141, 255, 0.22);
   content: "";
   pointer-events: none;
-}
-
-.landing-page .landing-section-heading,
-.landing-page .landing-workflow-heading {
-  position: relative;
-  z-index: 1;
-}
-
-.landing-page .landing-section-heading::before,
-.landing-page .landing-workflow-heading::before {
-  display: block;
-  width: 74px;
-  height: 4px;
-  margin-bottom: 18px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
-  box-shadow: 0 0 24px rgba(109, 141, 255, 0.2);
-  content: "";
-}
-
-.landing-page .landing-section-heading h2,
-.landing-page .landing-workflow-heading h2 {
-  text-shadow: 0 14px 36px rgba(0, 10, 32, 0.28);
-}
-
-.landing-page .landing-workflow-step,
-.landing-page .landing-price-card,
-.landing-page .landing-package-builder {
-  position: relative;
-  overflow: hidden;
-  border-color: rgba(211, 229, 255, 0.28);
-  background: var(--screenia-glass-card);
-  box-shadow:
-    0 20px 54px rgba(3, 18, 52, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.landing-page .landing-feature::after,
-.landing-page .landing-workflow-step::after {
-  position: absolute;
-  inset: auto 0 0;
-  height: 3px;
-  background: linear-gradient(90deg, #2f7df6, #6d8dff 58%, #f2c46d);
-  content: "";
-  opacity: 0.74;
-  transform: scaleX(0.28);
-  transform-origin: left;
-  transition: transform 260ms ease, opacity 260ms ease;
-}
-
-.landing-page .landing-feature:hover::after,
-.landing-page .landing-workflow-step:hover::after {
-  opacity: 1;
-  transform: scaleX(1);
 }
 
 .landing-platform .landing-feature-grid,
@@ -6900,11 +6490,6 @@
 }
 
 @media (max-width: 560px) {
-  .landing-page .landing-section-heading::before,
-  .landing-page .landing-workflow-heading::before {
-    width: 56px;
-    margin-bottom: 14px;
-  }
 
   .flow-shell {
     border-radius: 14px;
@@ -7033,10 +6618,6 @@
   padding-right: clamp(0.75rem, 1.4vw, 1.25rem);
 }
 
-.landing-video-rail:hover .landing-video-rail-track {
-  animation-play-state: paused;
-}
-
 .landing-video-gallery-card {
   flex: 0 0 auto;
   overflow: hidden;
@@ -7071,10 +6652,6 @@
   outline-offset: 3px;
 }
 
-.landing-video-gallery-card-playing {
-  border-color: rgba(242, 196, 109, 0.9);
-}
-
 .landing-video-gallery-media {
   position: relative;
   overflow: hidden;
@@ -7092,59 +6669,14 @@
   aspect-ratio: 16 / 9;
 }
 
-.landing-video-gallery-poster,
-.landing-video-gallery-playing-video {
+.landing-video-gallery-video {
   display: block;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
-.landing-video-gallery-poster {
-  position: absolute;
-  inset: 0;
-}
-
-.landing-video-gallery-playing-video {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-}
-
-.landing-video-gallery-play {
-  position: absolute;
-  z-index: 3;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-}
-
-.landing-video-gallery-play span {
-  display: grid;
-  width: clamp(2.55rem, 4vw, 3.35rem);
-  height: clamp(2.55rem, 4vw, 3.35rem);
-  place-items: center;
-  padding-left: 0.18rem;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 999px;
-  background: rgba(3, 22, 53, 0.76);
-  color: #fff;
-  box-shadow: 0 12px 30px rgba(0, 8, 30, 0.36);
-  font-size: clamp(0.9rem, 1.5vw, 1.2rem);
-  transition: transform 180ms ease, background 180ms ease;
-}
-
-.landing-video-gallery-card:hover .landing-video-gallery-play span,
-.landing-video-gallery-card:focus-visible .landing-video-gallery-play span {
-  transform: scale(1.08);
-  background: rgba(10, 73, 173, 0.92);
-}
-
-.landing-video-gallery-card-playing .landing-video-gallery-play {
-  opacity: 0;
-}
-
 .landing-video-lightbox-backdrop {
   position: fixed;
   z-index: 220;

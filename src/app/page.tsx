@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollReveal } from "@/components/LandingScrollReveal";
+import { LandingScrollVideo } from "@/components/LandingScrollVideo";
 import ScreeniaLogo from "@/components/ScreeniaLogo";
 import { serializeJsonLd } from "@/lib/seo";
 import {
@@ -20,7 +21,6 @@ import {
   planCopy,
   plans,
   publicSiteUrl,
-  workflowImages,
   type LandingAsset,
 } from "./landing-content";
 import {
@@ -34,12 +34,6 @@ import {
 } from "@/lib/landing/example-videos";
 import { isValidEmailAddress } from "@/lib/validation/email";
 import "../styles/landing-redesign.css";
-
-const quickStartSteps = [
-  ["01", "Koppla in enheten", "/landing/quick-start/quick-start-1.png"],
-  ["02", "Anslut till Wi-Fi", "/landing/quick-start/quick-start-2.png"],
-  ["03", "Börja visa innehåll", "/landing/quick-start/quick-start-3.png"],
-] as const;
 
 const businessTypeOptions = [
   "Restaurang eller café",
@@ -85,69 +79,36 @@ function LandingVideoPreviewCard({
   duplicate: boolean;
   onOpen: (example: LandingExampleVideo) => void;
 }) {
-  const [playing, setPlaying] = useState(false);
   const isAccessible = !duplicate;
 
   return (
     <article
-      className={`landing-video-gallery-card landing-video-gallery-card-${orientation}${playing ? " landing-video-gallery-card-playing" : ""}`}
+      className={`landing-video-gallery-card landing-video-gallery-card-${orientation}`}
       role={isAccessible ? "button" : undefined}
       tabIndex={isAccessible ? 0 : -1}
-      aria-label={isAccessible ? `Spela förhandsvisning: ${example.title}` : undefined}
-      onMouseEnter={() => setPlaying(true)}
-      onMouseLeave={() => setPlaying(false)}
-      onFocus={() => isAccessible && setPlaying(true)}
-      onBlur={() => setPlaying(false)}
+      aria-label={isAccessible ? `Visa förhandsvisning: ${example.title}` : undefined}
       onClick={() => {
-        setPlaying(false);
         onOpen(example);
       }}
       onKeyDown={(event) => {
         if (!isAccessible || (event.key !== "Enter" && event.key !== " ")) return;
         event.preventDefault();
-        setPlaying(false);
         onOpen(example);
       }}
     >
       <div className="landing-video-gallery-media">
-        {example.poster_url ? (
-          <Image
-            src={example.poster_url}
-            alt=""
-            fill
-            sizes={orientation === "portrait" ? "210px" : "390px"}
-            unoptimized
-            className="landing-video-gallery-poster"
-          />
-        ) : (
-          <video
-            src={example.video_url}
-            muted
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-            className="landing-video-gallery-poster"
-          />
-        )}
-        {playing && (
-          <video
-            src={example.video_url}
-            aria-label={isAccessible ? example.title : undefined}
-            aria-hidden={duplicate ? "true" : undefined}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="metadata"
-            className="landing-video-gallery-playing-video"
-          />
-        )}
-        <span className="landing-video-gallery-play" aria-hidden="true">
-          <span>▶</span>
-        </span>
-        <span className="landing-video-gallery-live" aria-hidden="true">
-          <i /> Live
-        </span>
+        <video
+          src={example.video_url}
+          poster={example.poster_url || undefined}
+          aria-label={isAccessible ? example.title : undefined}
+          aria-hidden={duplicate ? "true" : undefined}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="landing-video-gallery-video"
+        />
       </div>
     </article>
   );
@@ -632,7 +593,7 @@ export default function Home() {
   };
 
   return (
-    <div className="landing-page">
+    <div className="landing-page home-page">
       <LandingScrollReveal />
       <LandingNav
         currentPath="/"
@@ -711,63 +672,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="landing-quick-start" aria-labelledby="quick-start-title">
-          <div className="landing-quick-start-inner">
-            <div className="landing-quick-start-heading">
-              <p className="landing-section-kicker">Tre enkla steg</p>
-              <h2 id="quick-start-title">Så enkelt kommer du igång</h2>
-              <p>Från inkoppling till färdig skärm – vi hjälper er hela vägen.</p>
-            </div>
-            <div className="landing-quick-start-grid">
-              {quickStartSteps.map(([number, title, image]) => (
-                <article key={number} className="landing-quick-start-step">
-                  <div className="landing-quick-start-image-wrap">
-                    <Image src={image} alt="" fill sizes="(max-width: 760px) 92vw, 30vw" />
-                  </div>
-                  <div className="landing-quick-start-step-copy">
-                    <span>{number}</span>
-                    <h3>{title}</h3>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="workflow" className="landing-section landing-section-surface landing-workflow">
-          <div className="landing-section-panel landing-workflow-panel">
-            <div className="landing-workflow-heading">
-              <p className="landing-section-kicker">Från idé till färdig skärm</p>
-              <h2>{t.workflowTitle}</h2>
-              <p>{t.workflowText}</p>
-            </div>
-            <div className="landing-workflow-grid">
-              {t.steps.map(([number, title, points], index) => (
-                <article key={number} className="landing-workflow-step">
-                  <div className="landing-workflow-image-wrap">
-                    <Image
-                      src={workflowImages[index]}
-                      alt=""
-                      fill
-                      sizes={
-                        index < 3
-                          ? "(max-width: 700px) calc(100vw - 32px), (max-width: 1100px) 44vw, (max-width: 1500px) 31vw, 430px"
-                          : "(max-width: 700px) calc(100vw - 32px), (max-width: 1100px) 44vw, (max-width: 1500px) 46vw, 650px"
-                      }
-                    />
-                  </div>
-                  <div className="landing-workflow-step-copy">
-                    <span>{number}</span>
-                    <h3>{title}</h3>
-                    <p className="landing-workflow-description">
-                      {points.join(" ")}
-                    </p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
+        <LandingScrollVideo videoSrc="/landing/screen-demo.mp4" />
 
         <LandingSection
           id="pricing"
@@ -935,7 +840,7 @@ export default function Home() {
           text={t.galleryText}
         >
           <p className="landing-video-swipe-hint">
-            Svep åt sidan och tryck på en presentation för att spela.
+            Svep åt sidan för att se fler presentationer.
           </p>
           <div className="landing-video-rails">
             <LandingVideoRail
@@ -1164,7 +1069,7 @@ export default function Home() {
           </nav>
         </div>
         <div className="landing-footer-legal">
-          <p>© 2026 Screenia. Screenia drivs som enskild näringsverksamhet i Sverige.</p>
+          <p>© 2026 Screenia.</p>
           <p className="landing-footer-registration">
             <span>Godkänd för F-skatt</span>
             <span>Momsregistrerad</span>
