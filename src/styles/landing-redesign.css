@@ -2964,3 +2964,281 @@
     font-size: 0.61rem;
   }
 }
+
+/* Keep every public surface inside the warm paper, ink, brass and navy palette. */
+.screenia-theme .landing-page main > .landing-faq {
+  background: var(--landing-editorial-paper) !important;
+}
+
+.screenia-theme .landing-page main > .landing-pricing > .landing-section-panel > .landing-section-heading h2,
+.screenia-theme .landing-page main > .landing-pricing > .landing-section-panel > .landing-section-heading > p:not(.landing-section-kicker) {
+  color: var(--landing-editorial-ink);
+  text-shadow: none;
+}
+
+.screenia-theme .landing-page main > .landing-pricing > .landing-section-panel > .landing-section-heading .landing-section-kicker {
+  color: var(--landing-editorial-brass);
+}
+
+/* Extend the same palette through the hero and the demonstration section. */
+.screenia-theme .landing-page .landing-hero-modern {
+  background: var(--landing-editorial-paper);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-grid {
+  border-color: rgba(199, 154, 88, 0.72);
+  background:
+    radial-gradient(circle at 78% 16%, rgba(72, 142, 255, 0.28), transparent 24%),
+    linear-gradient(135deg, #0b192a 0%, #202933 56%, #075abf 145%);
+  box-shadow: 0 30px 90px rgba(17, 24, 32, 0.22), inset 0 0 90px rgba(7, 90, 191, 0.12);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-grid::after {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(199, 154, 88, 0.34), transparent 40%),
+    linear-gradient(160deg, rgba(199, 154, 88, 0.08), rgba(7, 90, 191, 0.7) 46%, #075abf 100%);
+  filter: drop-shadow(0 0 26px rgba(199, 154, 88, 0.22));
+}
+
+.screenia-theme .landing-page .landing-hero-modern-eyebrow,
+.screenia-theme .landing-page .landing-hero-modern h1 i {
+  color: var(--landing-editorial-brass);
+  -webkit-text-fill-color: var(--landing-editorial-brass);
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 i {
+  text-shadow: 0 0 24px rgba(199, 154, 88, 0.38);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary {
+  border-color: var(--reference-yellow);
+  background: var(--reference-yellow);
+  color: #17130e;
+  box-shadow: 0 18px 40px rgba(199, 154, 88, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.32);
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary:hover,
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-primary:focus-visible {
+  border-color: var(--reference-yellow-hover);
+  background: var(--reference-yellow-hover);
+  color: #17130e;
+}
+
+.screenia-theme .landing-page .landing-hero-modern-actions .landing-button-secondary {
+  border-color: var(--landing-editorial-brass);
+}
+
+.screenia-theme .landing-page .landing-screen-demo {
+  background:
+    radial-gradient(circle at 12% 16%, rgba(199, 154, 88, 0.14), transparent 28%),
+    radial-gradient(circle at 88% 84%, rgba(7, 90, 191, 0.24), transparent 24%),
+    linear-gradient(135deg, #0b192a 0%, #202933 56%, #075abf 145%);
+}
+
+.screenia-theme .landing-page .landing-screen-demo-copy .landing-section-kicker,
+.screenia-theme .landing-page .landing-screen-demo-points i {
+  color: var(--landing-editorial-brass);
+}
+
+.screenia-theme .landing-page .landing-screen-demo-media {
+  border-color: rgba(199, 154, 88, 0.42);
+  background: #0b192a;
+  box-shadow: 0 35px 80px rgba(17, 24, 32, 0.28), 0 0 0 8px rgba(199, 154, 88, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+/* Keep the full hero headline above the product, video, and decorative layers. */
+.screenia-theme .landing-page .landing-hero-modern-copy {
+  z-index: 20;
+}
+
+.screenia-theme .landing-page .landing-hero-modern h1 {
+  position: relative;
+  z-index: 30;
+  text-shadow: 0 3px 0 rgba(11, 25, 42, 0.2), 0 16px 36px rgba(0, 0, 0, 0.38);
+}
+
+/* Keep the navigation balanced on wide screens and visible while scrolling. */
+.screenia-theme .landing-page > .landing-nav,
+.screenia-theme .landing-page.home-page > .landing-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: auto;
+  left: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+@media (min-width: 1121px) {
+  .screenia-theme .landing-page > .landing-nav {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: clamp(14px, 2vw, 30px);
+    justify-content: initial;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-brand {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    display: contents;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    justify-content: center;
+    gap: clamp(4px, 0.55vw, 8px);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-header-controls {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    order: initial;
+    margin-left: 0;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-link {
+    padding-inline: clamp(10px, 1vw, 14px);
+  }
+}
+
+html:has(.screenia-theme .landing-page) {
+  scroll-padding-top: 84px;
+}
+
+/* Mobile navigation: keep the warm paper header and give the open menu its
+   own navy/brass surface so every shortcut stays readable and tappable. */
+@media (max-width: 1024px) {
+  .screenia-theme .landing-page > .landing-nav {
+    border-bottom: 1px solid rgba(199, 154, 88, 0.42);
+    background: rgba(244, 241, 234, 0.98);
+    box-shadow: 0 10px 28px rgba(17, 24, 32, 0.12);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-header-controls {
+    gap: 8px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-menu-button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(199, 154, 88, 0.68);
+    border-radius: 12px;
+    background: #0b192a;
+    box-shadow: 0 8px 20px rgba(17, 24, 32, 0.16);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-menu-button span {
+    background: var(--landing-editorial-paper);
+  }
+
+  .screenia-theme .landing-page > .landing-nav:has(.landing-links-open) .landing-menu-button,
+  .screenia-theme .landing-page > .landing-nav .landing-menu-button:hover,
+  .screenia-theme .landing-page > .landing-nav .landing-menu-button:focus-visible {
+    border-color: var(--reference-yellow);
+    background: var(--reference-blue);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart {
+    border-color: rgba(199, 154, 88, 0.68);
+    background: #0b192a;
+    color: var(--landing-editorial-paper);
+    box-shadow: 0 8px 20px rgba(17, 24, 32, 0.16);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-icon {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--reference-yellow);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-count {
+    border: 2px solid var(--landing-editorial-paper);
+    background: var(--reference-yellow);
+    color: #17130e;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    border-color: rgba(199, 154, 88, 0.7);
+    background: linear-gradient(145deg, #0b192a 0%, #12345e 100%);
+    box-shadow: 0 24px 54px rgba(17, 24, 32, 0.32);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link {
+    border: 1px solid rgba(199, 154, 88, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff !important;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:hover,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link:focus-visible,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link[aria-current="page"] {
+    border-color: rgba(199, 154, 88, 0.72);
+    background: var(--reference-blue);
+    color: #ffffff !important;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions .landing-nav-login {
+    border: 1px solid var(--reference-yellow);
+    background: var(--reference-yellow);
+    color: #17130e !important;
+    font-weight: 700;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions .landing-nav-login:hover,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions .landing-nav-login:focus-visible {
+    border-color: var(--reference-yellow-hover);
+    background: var(--reference-yellow-hover);
+    color: #17130e !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    right: 12px;
+    left: 12px;
+    width: auto;
+    padding: 12px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary .landing-nav-link {
+    min-height: 42px;
+    justify-content: flex-start;
+    padding: 0 14px;
+    font-size: 0.88rem;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    border-top: 1px solid rgba(199, 154, 88, 0.32);
+    padding-top: 8px;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions .landing-nav-login {
+    min-height: 44px;
+    font-size: 0.86rem;
+  }
+}
