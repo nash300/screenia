@@ -35,6 +35,31 @@ export function LandingNav({
   const pathname = usePathname();
   const resolvedPath = (pathname || currentPath) as LandingNavProps["currentPath"];
   const isHome = resolvedPath === "/";
+  const renderCartButton = (placement: "mobile" | "desktop") =>
+    typeof cartCount === "number" ? (
+      <button
+        className={`landing-nav-cart landing-nav-cart-${placement}${cartOpen ? " landing-nav-cart-open" : ""}`}
+        type="button"
+        aria-label={
+          cartCount > 0
+            ? `Öppna varukorg, ${cartCount} skärm${cartCount === 1 ? "" : "ar"}`
+            : "Öppna varukorg"
+        }
+        title="Varukorg"
+        aria-expanded={cartOpen}
+        aria-controls="selected-package-summary"
+        onClick={onCartClick}
+      >
+        <span className="landing-nav-cart-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" focusable="false">
+            <path d="M4 5h2l1.3 9.1a2 2 0 0 0 2 1.9h7.8a2 2 0 0 0 1.9-1.5L20.5 8H7.1l-.4-3H4V5Zm4.5 5h9.6l-.9 4H9.1l-.6-4Zm1.3 8.2a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8Zm7 0a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0 2.8Z" />
+          </svg>
+        </span>
+        <span className="landing-nav-cart-count" aria-hidden="true">
+          {cartCount}
+        </span>
+      </button>
+    ) : null;
 
   return (
     <>
@@ -51,7 +76,7 @@ export function LandingNav({
       <div className="landing-header-controls">
         {typeof cartCount === "number" ? (
           <button
-            className={`landing-nav-cart${cartOpen ? " landing-nav-cart-open" : ""}`}
+            className={`landing-nav-cart landing-nav-cart-mobile${cartOpen ? " landing-nav-cart-open" : ""}`}
             type="button"
             aria-label={
               cartCount > 0
@@ -110,6 +135,7 @@ export function LandingNav({
         </div>
 
         <div className="landing-nav-actions">
+          {renderCartButton("desktop")}
           {accountMode ? (
             <button
               className="landing-nav-login"

@@ -2774,7 +2774,7 @@
 }
 
 .landing-page.home-page > .landing-nav {
-  position: absolute;
+  position: sticky;
   top: 0;
   right: 0;
   left: 0;
@@ -2783,6 +2783,72 @@
 
 .landing-page.home-page .landing-screen-demo {
   width: 100%;
+}
+
+/* Keep the header balanced inside the framed home layout. The previous
+   viewport-based padding grew beyond the page frame on wide screens, which
+   pushed the navigation and cart away from the brand. */
+@media (min-width: 1121px) {
+  .screenia-theme .landing-page > .landing-nav {
+    justify-content: space-between;
+    padding-inline: clamp(24px, 4vw, 64px);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-brand {
+    flex: 0 0 auto;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: 0;
+    gap: clamp(18px, 2vw, 32px);
+    justify-content: flex-start;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary {
+    flex: 0 1 auto;
+    justify-content: flex-start;
+    gap: clamp(16px, 2vw, 30px);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    flex: 0 0 auto;
+    margin-left: clamp(16px, 2vw, 30px);
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-header-controls {
+    flex: 0 0 auto;
+    margin-left: 0;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-mobile {
+    display: none;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-desktop {
+    display: inline-flex;
+  }
+}
+
+@media (max-width: 1120px) {
+  .screenia-theme .landing-page > .landing-nav .landing-links {
+    justify-content: initial;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-primary,
+  .screenia-theme .landing-page > .landing-nav .landing-nav-actions {
+    flex: none;
+    margin-left: 0;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-mobile {
+    display: inline-flex;
+  }
+
+  .screenia-theme .landing-page > .landing-nav .landing-nav-cart-desktop {
+    display: none;
+  }
 }
 
 .landing-page.home-page .landing-footer {

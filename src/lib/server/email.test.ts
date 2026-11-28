@@ -7,7 +7,7 @@ afterEach(() => {
 });
 
 describe("renderBrandedEmail", () => {
-  it("uses the permanent Screenia theme in every transactional email", () => {
+  it("renders a plain, readable transactional email", () => {
     const html = renderBrandedEmail({
       eyebrow: "Orderbekräftelse",
       title: "Din skärmlösning är på väg",
@@ -17,24 +17,28 @@ describe("renderBrandedEmail", () => {
     });
 
     expect(html).toContain('lang="sv"');
-    expect(html).toContain("background-color:#1457bd");
-    expect(html).toContain("background:#073984");
-    expect(html).toContain("background:#ffd32a");
-    expect(html).toContain("font-family:Arial, sans-serif");
+    expect(html).toContain("background:#ffffff");
+    expect(html).toContain("font-family:Arial, Helvetica, sans-serif");
     expect(html).toContain("Din skärmlösning är på väg");
     expect(html).toContain("<p>Två enheter</p>");
-    expect(html).not.toContain("Special Elite");
+    expect(html).not.toContain("background-color:#1457bd");
+    expect(html).not.toContain("linear-gradient");
+    expect(html).not.toContain("box-shadow");
+    expect(html).not.toContain("<img");
   });
 
-  it("keeps long titles readable on narrow email clients", () => {
+  it("removes template-specific visual styling while preserving content", () => {
     const html = renderBrandedEmail({
       title: "Ett ovanligt långt meddelande om din prenumeration",
-      children: "<p>Innehåll</p>",
+      children: `<div style="border:1px solid red; background:#f7fbff;"><p style='color:red;'>Innehåll</p><a href="https://screenia.se" style="background:#155ee8;color:#fff;">Öppna länken</a></div>`,
     });
 
-    expect(html).toContain("@media only screen and (max-width: 520px)");
-    expect(html).toContain("overflow-wrap: anywhere !important");
     expect(html).toContain("overflow-wrap:anywhere");
+    expect(html).toContain("Innehåll");
+    expect(html).toContain("Öppna länken");
+    expect(html).not.toContain("style=\"border:1px solid red; background:#f7fbff;\"");
+    expect(html).not.toContain("style='color:red;'");
+    expect(html).not.toContain("style=\"background:#155ee8;color:#fff;\"");
   });
 
   it("uses the case-specific inbound address only when its domain is configured", () => {
