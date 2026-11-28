@@ -2,6 +2,9 @@
   "name": "screenia",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "session:prepare": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/bootstrap-screenia-session.ps1",

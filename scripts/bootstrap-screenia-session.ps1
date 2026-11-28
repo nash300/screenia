@@ -14,6 +14,11 @@ $canonicalRoot = if (Test-Path -LiteralPath $canonicalRootCandidate) {
 
 Set-Location -LiteralPath $repoRoot
 
+$nodeVersion = (& node --version 2>$null).Trim()
+if ($LASTEXITCODE -ne 0 -or $nodeVersion -notmatch '^v24\.') {
+  throw "Screenia requires Node.js 24.x. Current version: '$nodeVersion'. Install or activate the version listed in .nvmrc before starting a session."
+}
+
 function Get-GitValue {
   param([Parameter(Mandatory = $true)][string[]]$Arguments)
 
@@ -58,6 +63,7 @@ Write-Output "Screenia session preparation"
 Write-Output "  checkout: $repoRoot"
 Write-Output "  canonical: $canonicalRoot"
 Write-Output "  target branch: $targetBranch"
+Write-Output "  node: $nodeVersion"
 
 Invoke-Git -Arguments @("fetch", "--prune", "origin")
 
